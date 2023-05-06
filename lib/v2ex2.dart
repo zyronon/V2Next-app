@@ -12,6 +12,12 @@ class _WebViewExample2State extends State<WebViewExample2> {
   late final WebViewController controller;
 
   String html = """
+  \$.noConflict();
+  jQuery(document).ready(function(){
+    jQuery("p").click(function(){
+      jQuert(this).hide()
+    }
+  }
    setTimeout(()=>{
     document.write("123")
   },3000)
