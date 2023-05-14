@@ -1,14 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class WebViewExample2 extends StatefulWidget {
-  const WebViewExample2({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<WebViewExample2> createState() => _WebViewExample2State();
+  State<Home> createState() => _HomeState();
 }
 
-class _WebViewExample2State extends State<WebViewExample2> {
+class _HomeState extends State<Home> {
   late final WebViewController controller;
 
   String html = """
@@ -19,8 +22,13 @@ class _WebViewExample2State extends State<WebViewExample2> {
   
   """;
 
+  int _selectedIndex = 1;
+  double stateHeight = 0;
+
   @override
   void initState() {
+    stateHeight = MediaQueryData.fromWindow(window).padding.top;
+
     super.initState();
 
     // #docregion webview_controller
@@ -56,7 +64,17 @@ class _WebViewExample2State extends State<WebViewExample2> {
   Widget build(BuildContext context) {
     return WillPopScope(
         child: Scaffold(
-          body: WebViewWidget(controller: controller),
+          body: DefaultTextStyle(
+              style: TextStyle(color: Colors.black, fontSize: 14.sp),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                    minWidth: double.infinity, //宽度尽可能大
+                    minHeight: double.infinity),
+                child: Container(
+                  padding: EdgeInsets.only(top: stateHeight),
+                  child: WebViewWidget(controller: controller),
+                ),
+              )),
         ),
         onWillPop: () async {
           print("返回键点击了");
