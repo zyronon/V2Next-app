@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class Home extends StatefulWidget {
@@ -15,10 +18,7 @@ class _HomeState extends State<Home> {
   late final WebViewController controller;
 
   String html = """
-  // \$.noConflict();
-  // jQuery(document).ready(function(){
-  //   jQuery(".topic-link").hide()
-  // })
+ 
   
   """;
 
@@ -41,9 +41,11 @@ class _HomeState extends State<Home> {
             // Update loading bar.
           },
           onPageStarted: (String url) {},
-          onPageFinished: (String url) {
-            print('页面加载完全');
-            controller.runJavaScript(html);
+          onPageFinished: (String url) async {
+            rootBundle.loadString('assets/index.js').then((data) {
+              print('页面加载完全' + data);
+              controller.runJavaScript(data);
+            });
           },
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
@@ -54,7 +56,10 @@ class _HomeState extends State<Home> {
           },
         ),
       )
-      ..loadRequest(Uri.parse('https://v2ex.com'));
+      ..loadRequest(Uri.parse('https://v2ex.com'))
+      ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
+        print(message.message);
+      });
 
     // #enddocregion webview_controller
   }

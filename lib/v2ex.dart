@@ -428,7 +428,7 @@ class SampleMenu extends StatelessWidget {
   }
 
   Future<void> _onLoadFlutterAssetExample() {
-    return webViewController.loadFlutterAsset('assets/www/index.html');
+    return webViewController.loadFlutterAsset('assets/www/index.js.html');
   }
 
   Future<void> _onLoadHtmlStringExample() {
@@ -456,7 +456,7 @@ class SampleMenu extends StatelessWidget {
   static Future<String> _prepareLocalFile() async {
     final String tmpDir = (await getTemporaryDirectory()).path;
     final File indexFile = File(
-        <String>{tmpDir, 'www', 'index.html'}.join(Platform.pathSeparator));
+        <String>{tmpDir, 'www', 'index.js.html'}.join(Platform.pathSeparator));
 
     await indexFile.create(recursive: true);
     await indexFile.writeAsString(kLocalExamplePage);
