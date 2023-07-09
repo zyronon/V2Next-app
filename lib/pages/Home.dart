@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'Page1.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,84 +17,76 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late final WebViewController controller;
 
-  String html = """
- 
-  
-  """;
+  static const List<Widget> _widgetOptions = <Widget>[
+    Page1(),
+    Text("Page2"),
+  ];
 
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   double stateHeight = 0;
 
   @override
   void initState() {
     stateHeight = MediaQueryData.fromWindow(window).padding.top;
-
     super.initState();
-
-    // #docregion webview_controller
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
-          },
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) async {
-            rootBundle.loadString('assets/index.js').then((data) {
-              print('页面加载完全' + data);
-              controller.runJavaScript(data);
-            });
-          },
-          onWebResourceError: (WebResourceError error) {},
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse('https://v2ex.com'))
-      ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
-        print(message.message);
-      });
-
-    // #enddocregion webview_controller
   }
 
-  // #docregion webview_widget
-  @override
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   Widget build(BuildContext context) {
-    return WillPopScope(
-        child: Scaffold(
-          body: DefaultTextStyle(
-              style: TextStyle(color: Colors.black, fontSize: 14.sp),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                    minWidth: double.infinity, //宽度尽可能大
-                    minHeight: double.infinity),
-                child: Container(
-                  padding: EdgeInsets.only(top: stateHeight),
-                  child: WebViewWidget(controller: controller),
-                ),
-              )),
-        ),
-        onWillPop: () async {
-          print("返回键点击了");
-          // Navigator.pop(context);
-          var isFinish = await controller.canGoBack().then((value) {
-            if (value) {
-              controller.goBack();
-            }
-            return !value;
-          });
-          return isFinish;
-          return false;
-        });
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: DefaultTextStyle(
+          style: TextStyle(color: Colors.black, fontSize: 14.sp),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+                minWidth: double.infinity, //宽度尽可能大
+                minHeight: double.infinity),
+            child: Container(
+              padding: EdgeInsets.only(top: stateHeight),
+              decoration: BoxDecoration(
+                color: mainBgColor2,
+              ),
+              child: _widgetOptions.elementAt(_selectedIndex),
+            ),
+          )),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: mainBgColor2,
+        type: BottomNavigationBarType.fixed,
+        // showSelectedLabels: false,
+        // showUnselectedLabels: false,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '首页',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: '海选',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: '聊天',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '消费',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '我的',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Color(mainColor),
+        onTap: _onItemTapped,
+      ),
+    );
   }
-// #enddocregion webview_widget
 }
