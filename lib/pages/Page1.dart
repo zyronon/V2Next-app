@@ -39,7 +39,7 @@ class _Page1State extends State<Page1> {
           onPageStarted: (String url) {},
           onPageFinished: (String url) async {
             rootBundle.loadString('assets/index.js').then((data) {
-              print('页面加载完全' + data);
+              print('页面加载完全');
               controller.runJavaScript(data);
             });
           },
@@ -48,14 +48,25 @@ class _Page1State extends State<Page1> {
             if (request.url.startsWith('https://www.youtube.com/')) {
               return NavigationDecision.prevent;
             }
+            debugPrint('allowing navigation to ${request.url}');
             return NavigationDecision.navigate;
+          },
+          onUrlChange: (UrlChange change) {
+            debugPrint('url change to ${change.url}');
           },
         ),
       )
       ..loadRequest(Uri.parse('https://v2ex.com'))
-      ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
+      ..addJavaScriptChannel('Channel',
+          onMessageReceived: (JavaScriptMessage message) {
         print(message.message);
       });
+  }
+
+  submit() {
+    print("test");
+    controller.loadRequest(Uri.parse('https://v2ex.com'));
+    // Navigator.pushNamed(context, 'Home');
   }
 
   @override
@@ -68,9 +79,13 @@ class _Page1State extends State<Page1> {
                 constraints: const BoxConstraints(
                     minWidth: double.infinity, //宽度尽可能大
                     minHeight: double.infinity),
-                child: Container(
-                  padding: EdgeInsets.only(top: stateHeight),
-                  child: WebViewWidget(controller: controller),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 600,
+                      child: WebViewWidget(controller: controller),
+                    ),
+                  ],
                 ),
               )),
         ),

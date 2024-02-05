@@ -17,7 +17,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   static const List<Widget> _widgetOptions = <Widget>[
     Page1(),
     Text("Page2"),
