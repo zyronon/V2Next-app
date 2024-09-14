@@ -45,6 +45,8 @@ dependencies:
   video_player: ^2.5.2
   permission_handler: ^10.2.0
   expandable_text: ^2.3.0
+  flutter_widget_from_html: ^0.15.2
+
 
 dev_dependencies:
   flutter_test:
