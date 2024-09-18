@@ -8,374 +8,274 @@ Post postFromJson(String str) => Post.fromJson(json.decode(str));
 
 String postToJson(Post data) => json.encode(data.toJson());
 
+// To parse this JSON data, do
+//
+//     final reply = replyFromJson(jsonString);
+
+Reply replyFromJson(String str) => Reply.fromJson(json.decode(str));
+
+String replyToJson(Reply data) => json.encode(data.toJson());
+
+class Reply {
+  int? level;
+  int? thankCount;
+  int? replyCount;
+  bool? isThanked;
+  bool? isOp;
+  bool? isDup;
+  String? id;
+  String? replyContent;
+  String? replyText;
+  String? hideCallUserReplyContent;
+  List<String>? replyUsers;
+  int? replyFloor;
+  String? date;
+  String? username;
+  String? avatar;
+  int? floor;
+  List<Reply>? children;
+  bool? isUse;
+
+  Reply({
+    this.level,
+    this.thankCount,
+    this.replyCount,
+    this.isThanked,
+    this.isOp,
+    this.isDup,
+    this.id,
+    this.replyContent,
+    this.replyText,
+    this.hideCallUserReplyContent,
+    this.replyUsers,
+    this.replyFloor,
+    this.date,
+    this.username,
+    this.avatar,
+    this.floor,
+    this.children,
+    this.isUse,
+  });
+
+  factory Reply.fromJson(Map<String, dynamic> json) => Reply(
+    level: json["level"],
+    thankCount: json["thankCount"],
+    replyCount: json["replyCount"],
+    isThanked: json["isThanked"],
+    isOp: json["isOp"],
+    isDup: json["isDup"],
+    id: json["id"],
+    replyContent: json["reply_content"],
+    replyText: json["reply_text"],
+    hideCallUserReplyContent: json["hideCallUserReplyContent"],
+    replyUsers: json["replyUsers"] == null ? [] : List<String>.from(json["replyUsers"]!.map((x) => x)),
+    replyFloor: json["replyFloor"],
+    date: json["date"],
+    username: json["username"],
+    avatar: json["avatar"],
+    floor: json["floor"],
+    children: json["children"] == null ? [] : List<Reply>.from(json["children"]!.map((x) => Reply.fromJson(x))),
+    isUse: json["isUse"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "level": level,
+    "thankCount": thankCount,
+    "replyCount": replyCount,
+    "isThanked": isThanked,
+    "isOp": isOp,
+    "isDup": isDup,
+    "id": id,
+    "reply_content": replyContent,
+    "reply_text": replyText,
+    "hideCallUserReplyContent": hideCallUserReplyContent,
+    "replyUsers": replyUsers == null ? [] : List<dynamic>.from(replyUsers!.map((x) => x)),
+    "replyFloor": replyFloor,
+    "date": date,
+    "username": username,
+    "avatar": avatar,
+    "floor": floor,
+    "children": children == null ? [] : List<dynamic>.from(children!.map((x) => x.toJson())),
+    "isUse": isUse,
+  };
+}
+
 class Post {
-  List<dynamic> allReplyUsers;
-  String contentRendered;
-  String createDate;
-  String createDateAgo;
-  String lastReplyDate;
-  String lastReplyUsername;
-  String fr;
-  List<dynamic> replyList;
-  List<dynamic> topReplyList;
-  List<NestedReply> nestedReplies;
-  List<dynamic> nestedRedundReplies;
-  String username;
-  String url;
-  String href;
-  Member member;
-  Node node;
-  String headerTemplate;
-  String title;
-  String id;
-  String type;
-  String once;
-  int replyCount;
-  int clickCount;
-  int thankCount;
-  int collectCount;
-  int lastReadFloor;
-  bool isFavorite;
-  bool isIgnore;
-  bool isThanked;
-  bool isReport;
-  bool inList;
+  List<dynamic>? allReplyUsers;
+  String? contentRendered;
+  String? createDate;
+  String? createDateAgo;
+  String? lastReplyDate;
+  String? lastReplyUsername;
+  String? fr;
+  List<Reply>? replyList;
+  List<Reply>? topReplyList;
+  List<Reply>? nestedReplies;
+  List<Reply>? nestedRedundReplies;
+  String? username;
+  String? url;
+  String? href;
+  Member? member;
+  Node? node;
+  String? headerTemplate;
+  String? title;
+  String? id;
+  String? type;
+  String? once;
+  int? replyCount;
+  int? clickCount;
+  int? thankCount;
+  int? collectCount;
+  int? lastReadFloor;
+  bool? isFavorite;
+  bool? isIgnore;
+  bool? isThanked;
+  bool? isReport;
+  bool? inList;
 
   Post({
-    required this.allReplyUsers,
-    required this.contentRendered,
-    required this.createDate,
-    required this.createDateAgo,
-    required this.lastReplyDate,
-    required this.lastReplyUsername,
-    required this.fr,
-    required this.replyList,
-    required this.topReplyList,
-    required this.nestedReplies,
-    required this.nestedRedundReplies,
-    required this.username,
-    required this.url,
-    required this.href,
-    required this.member,
-    required this.node,
-    required this.headerTemplate,
-    required this.title,
-    required this.id,
-    required this.type,
-    required this.once,
-    required this.replyCount,
-    required this.clickCount,
-    required this.thankCount,
-    required this.collectCount,
-    required this.lastReadFloor,
-    required this.isFavorite,
-    required this.isIgnore,
-    required this.isThanked,
-    required this.isReport,
-    required this.inList,
+    this.allReplyUsers,
+    this.contentRendered,
+    this.createDate,
+    this.createDateAgo,
+    this.lastReplyDate,
+    this.lastReplyUsername,
+    this.fr,
+    this.replyList,
+    this.topReplyList,
+    this.nestedReplies,
+    this.nestedRedundReplies,
+    this.username,
+    this.url,
+    this.href,
+    this.member,
+    this.node,
+    this.headerTemplate,
+    this.title,
+    this.id,
+    this.type,
+    this.once,
+    this.replyCount,
+    this.clickCount,
+    this.thankCount,
+    this.collectCount,
+    this.lastReadFloor,
+    this.isFavorite,
+    this.isIgnore,
+    this.isThanked,
+    this.isReport,
+    this.inList,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) => Post(
-    allReplyUsers: List<dynamic>.from(json["allReplyUsers"].map((x) => x)),
-    contentRendered: json["content_rendered"],
-    createDate: json["createDate"],
-    createDateAgo: json["createDateAgo"],
-    lastReplyDate: json["lastReplyDate"],
-    lastReplyUsername: json["lastReplyUsername"],
-    fr: json["fr"],
-    replyList: List<dynamic>.from(json["replyList"].map((x) => x)),
-    topReplyList: List<dynamic>.from(json["topReplyList"].map((x) => x)),
-    nestedReplies: List<NestedReply>.from(json["nestedReplies"].map((x) => NestedReply.fromJson(x))),
-    nestedRedundReplies: List<dynamic>.from(json["nestedRedundReplies"].map((x) => x)),
-    username: json["username"],
-    url: json["url"],
-    href: json["href"],
-    member: Member.fromJson(json["member"]),
-    node: Node.fromJson(json["node"]),
-    headerTemplate: json["headerTemplate"],
-    title: json["title"],
-    id: json["id"],
-    type: json["type"],
-    once: json["once"],
-    replyCount: json["replyCount"],
-    clickCount: json["clickCount"],
-    thankCount: json["thankCount"],
-    collectCount: json["collectCount"],
-    lastReadFloor: json["lastReadFloor"],
-    isFavorite: json["isFavorite"],
-    isIgnore: json["isIgnore"],
-    isThanked: json["isThanked"],
-    isReport: json["isReport"],
-    inList: json["inList"],
-  );
+        allReplyUsers: json["allReplyUsers"] == null ? [] : List<dynamic>.from(json["allReplyUsers"]!.map((x) => x)),
+        contentRendered: json["content_rendered"],
+        createDate: json["createDate"],
+        createDateAgo: json["createDateAgo"],
+        lastReplyDate: json["lastReplyDate"],
+        lastReplyUsername: json["lastReplyUsername"],
+        fr: json["fr"],
+        replyList: json["replyList"] == null ? [] : List<Reply>.from(json["replyList"]!.map((x) => Reply.fromJson(x))),
+        topReplyList: json["topReplyList"] == null ? [] : List<Reply>.from(json["topReplyList"]!.map((x) => Reply.fromJson(x))),
+        nestedReplies: json["nestedReplies"] == null ? [] : List<Reply>.from(json["nestedReplies"]!.map((x) => Reply.fromJson(x))),
+        nestedRedundReplies: json["nestedRedundReplies"] == null ? [] : List<Reply>.from(json["nestedRedundReplies"]!.map((x) => Reply.fromJson(x))),
+        username: json["username"],
+        url: json["url"],
+        href: json["href"],
+        member: json["member"] == null ? null : Member.fromJson(json["member"]),
+        node: json["node"] == null ? null : Node.fromJson(json["node"]),
+        headerTemplate: json["headerTemplate"],
+        title: json["title"],
+        id: json["id"],
+        type: json["type"],
+        once: json["once"],
+        replyCount: json["replyCount"],
+        clickCount: json["clickCount"],
+        thankCount: json["thankCount"],
+        collectCount: json["collectCount"],
+        lastReadFloor: json["lastReadFloor"],
+        isFavorite: json["isFavorite"],
+        isIgnore: json["isIgnore"],
+        isThanked: json["isThanked"],
+        isReport: json["isReport"],
+        inList: json["inList"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "allReplyUsers": List<dynamic>.from(allReplyUsers.map((x) => x)),
-    "content_rendered": contentRendered,
-    "createDate": createDate,
-    "createDateAgo": createDateAgo,
-    "lastReplyDate": lastReplyDate,
-    "lastReplyUsername": lastReplyUsername,
-    "fr": fr,
-    "replyList": List<dynamic>.from(replyList.map((x) => x)),
-    "topReplyList": List<dynamic>.from(topReplyList.map((x) => x)),
-    "nestedReplies": List<dynamic>.from(nestedReplies.map((x) => x.toJson())),
-    "nestedRedundReplies": List<dynamic>.from(nestedRedundReplies.map((x) => x)),
-    "username": username,
-    "url": url,
-    "href": href,
-    "member": member.toJson(),
-    "node": node.toJson(),
-    "headerTemplate": headerTemplate,
-    "title": title,
-    "id": id,
-    "type": type,
-    "once": once,
-    "replyCount": replyCount,
-    "clickCount": clickCount,
-    "thankCount": thankCount,
-    "collectCount": collectCount,
-    "lastReadFloor": lastReadFloor,
-    "isFavorite": isFavorite,
-    "isIgnore": isIgnore,
-    "isThanked": isThanked,
-    "isReport": isReport,
-    "inList": inList,
-  };
+        "allReplyUsers": allReplyUsers == null ? [] : List<dynamic>.from(allReplyUsers!.map((x) => x)),
+        "content_rendered": contentRendered,
+        "createDate": createDate,
+        "createDateAgo": createDateAgo,
+        "lastReplyDate": lastReplyDate,
+        "lastReplyUsername": lastReplyUsername,
+        "fr": fr,
+        "replyList": replyList == null ? [] : List<dynamic>.from(replyList!.map((x) => x.toJson())),
+        "topReplyList": topReplyList == null ? [] : List<dynamic>.from(topReplyList!.map((x) => x.toJson())),
+        "nestedReplies": nestedReplies == null ? [] : List<dynamic>.from(nestedReplies!.map((x) => x.toJson())),
+        "nestedRedundReplies": nestedRedundReplies == null ? [] : List<dynamic>.from(nestedRedundReplies!.map((x) => x.toJson())),
+        "username": username,
+        "url": url,
+        "href": href,
+        "member": member?.toJson(),
+        "node": node?.toJson(),
+        "headerTemplate": headerTemplate,
+        "title": title,
+        "id": id,
+        "type": type,
+        "once": once,
+        "replyCount": replyCount,
+        "clickCount": clickCount,
+        "thankCount": thankCount,
+        "collectCount": collectCount,
+        "lastReadFloor": lastReadFloor,
+        "isFavorite": isFavorite,
+        "isIgnore": isIgnore,
+        "isThanked": isThanked,
+        "isReport": isReport,
+        "inList": inList,
+      };
 }
 
 class Member {
-  String avatar;
-  Username username;
-  String avatarLarge;
+  String? avatar;
+  String? username;
+  String? avatarLarge;
 
   Member({
-    required this.avatar,
-    required this.username,
-    required this.avatarLarge,
+    this.avatar,
+    this.username,
+    this.avatarLarge,
   });
 
   factory Member.fromJson(Map<String, dynamic> json) => Member(
-    avatar: json["avatar"],
-    username: usernameValues.map[json["username"]]!,
-    avatarLarge: json["avatar_large"],
-  );
+        avatar: json["avatar"],
+        username: json["username"],
+        avatarLarge: json["avatar_large"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "avatar": avatar,
-    "username": usernameValues.reverse[username],
-    "avatar_large": avatarLarge,
-  };
-}
-
-enum Username {
-  EARSUM,
-  KILLGFAT,
-  WHAT_THE_BRIDGE_SAY
-}
-
-final usernameValues = EnumValues({
-  "Earsum": Username.EARSUM,
-  "killgfat": Username.KILLGFAT,
-  "WhatTheBridgeSay": Username.WHAT_THE_BRIDGE_SAY
-});
-
-class NestedReply {
-  int level;
-  int thankCount;
-  int replyCount;
-  bool isThanked;
-  bool isOp;
-  bool isDup;
-  String id;
-  String replyContent;
-  String replyText;
-  String hideCallUserReplyContent;
-  List<dynamic> replyUsers;
-  int replyFloor;
-  String date;
-  String username;
-  String avatar;
-  int floor;
-  List<Child> children;
-
-  NestedReply({
-    required this.level,
-    required this.thankCount,
-    required this.replyCount,
-    required this.isThanked,
-    required this.isOp,
-    required this.isDup,
-    required this.id,
-    required this.replyContent,
-    required this.replyText,
-    required this.hideCallUserReplyContent,
-    required this.replyUsers,
-    required this.replyFloor,
-    required this.date,
-    required this.username,
-    required this.avatar,
-    required this.floor,
-    required this.children,
-  });
-
-  factory NestedReply.fromJson(Map<String, dynamic> json) => NestedReply(
-    level: json["level"],
-    thankCount: json["thankCount"],
-    replyCount: json["replyCount"],
-    isThanked: json["isThanked"],
-    isOp: json["isOp"],
-    isDup: json["isDup"],
-    id: json["id"],
-    replyContent: json["reply_content"],
-    replyText: json["reply_text"],
-    hideCallUserReplyContent: json["hideCallUserReplyContent"],
-    replyUsers: List<dynamic>.from(json["replyUsers"].map((x) => x)),
-    replyFloor: json["replyFloor"],
-    date: json["date"],
-    username: json["username"],
-    avatar: json["avatar"],
-    floor: json["floor"],
-    children: List<Child>.from(json["children"].map((x) => Child.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "level": level,
-    "thankCount": thankCount,
-    "replyCount": replyCount,
-    "isThanked": isThanked,
-    "isOp": isOp,
-    "isDup": isDup,
-    "id": id,
-    "reply_content": replyContent,
-    "reply_text": replyText,
-    "hideCallUserReplyContent": hideCallUserReplyContent,
-    "replyUsers": List<dynamic>.from(replyUsers.map((x) => x)),
-    "replyFloor": replyFloor,
-    "date": date,
-    "username": username,
-    "avatar": avatar,
-    "floor": floor,
-    "children": List<dynamic>.from(children.map((x) => x.toJson())),
-  };
-}
-
-class Child {
-  int level;
-  int thankCount;
-  int replyCount;
-  bool isThanked;
-  bool isOp;
-  bool isDup;
-  String id;
-  String replyContent;
-  String replyText;
-  String hideCallUserReplyContent;
-  List<String> replyUsers;
-  int replyFloor;
-  String date;
-  Username username;
-  String avatar;
-  int floor;
-  bool? isWrong;
-  bool isUse;
-  List<Child> children;
-
-  Child({
-    required this.level,
-    required this.thankCount,
-    required this.replyCount,
-    required this.isThanked,
-    required this.isOp,
-    required this.isDup,
-    required this.id,
-    required this.replyContent,
-    required this.replyText,
-    required this.hideCallUserReplyContent,
-    required this.replyUsers,
-    required this.replyFloor,
-    required this.date,
-    required this.username,
-    required this.avatar,
-    required this.floor,
-    this.isWrong,
-    required this.isUse,
-    required this.children,
-  });
-
-  factory Child.fromJson(Map<String, dynamic> json) => Child(
-    level: json["level"],
-    thankCount: json["thankCount"],
-    replyCount: json["replyCount"],
-    isThanked: json["isThanked"],
-    isOp: json["isOp"],
-    isDup: json["isDup"],
-    id: json["id"],
-    replyContent: json["reply_content"],
-    replyText: json["reply_text"],
-    hideCallUserReplyContent: json["hideCallUserReplyContent"],
-    replyUsers: List<String>.from(json["replyUsers"].map((x) => x)),
-    replyFloor: json["replyFloor"],
-    date: json["date"],
-    username: usernameValues.map[json["username"]]!,
-    avatar: json["avatar"],
-    floor: json["floor"],
-    isWrong: json["isWrong"],
-    isUse: json["isUse"],
-    children: List<Child>.from(json["children"].map((x) => Child.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "level": level,
-    "thankCount": thankCount,
-    "replyCount": replyCount,
-    "isThanked": isThanked,
-    "isOp": isOp,
-    "isDup": isDup,
-    "id": id,
-    "reply_content": replyContent,
-    "reply_text": replyText,
-    "hideCallUserReplyContent": hideCallUserReplyContent,
-    "replyUsers": List<dynamic>.from(replyUsers.map((x) => x)),
-    "replyFloor": replyFloor,
-    "date": date,
-    "username": usernameValues.reverse[username],
-    "avatar": avatar,
-    "floor": floor,
-    "isWrong": isWrong,
-    "isUse": isUse,
-    "children": List<dynamic>.from(children.map((x) => x.toJson())),
-  };
+        "avatar": avatar,
+        "username": username,
+        "avatar_large": avatarLarge,
+      };
 }
 
 class Node {
-  String title;
-  String url;
+  String? title;
+  String? url;
 
   Node({
-    required this.title,
-    required this.url,
+    this.title,
+    this.url,
   });
 
   factory Node.fromJson(Map<String, dynamic> json) => Node(
-    title: json["title"],
-    url: json["url"],
-  );
+        title: json["title"],
+        url: json["url"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "title": title,
-    "url": url,
-  };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
+        "title": title,
+        "url": url,
+      };
 }
