@@ -33,9 +33,9 @@ class MyApp extends StatelessWidget {
               ),
             ),
             routes: {
-              'Home': (context) => const Home(),
               '/': (context) => const Home(),
-              'Me': (context) => const Me(),
+              'Home': (context) => const Home(),
+              // 'Me': (context) => const Me(),
             },
           );
         });

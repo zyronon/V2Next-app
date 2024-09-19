@@ -544,6 +544,35 @@
       Channel.postMessage(val);
     }
   }
+  async function bridge_getPost(id) {
+    console.log("getPost", id);
+    sendFlutter({ type: "开始请求" + id });
+    let url = location.origin + "/t/" + id;
+    let apiRes = await window.fetch(url + "?p=1");
+    let htmlText = await apiRes.text();
+    let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
+    let body = $(bodyText[0]);
+    let post = window.clone(window.initPost);
+    post.id = String(id);
+    await window.parse.getPostDetail(post, body, htmlText);
+    sendFlutter({ type: "帖子内容" });
+    sendFlutter({ type: "post", data: post });
+  }
+  window.jsBridge = (type, args) => {
+    switch (type) {
+      case "getPost":
+        bridge_getPost(args);
+        break;
+    }
+  };
+  $(document).on("click", "a", async (e) => {
+    let { href, id, title } = functions.parseA(e.currentTarget);
+    if (id) {
+      e.preventDefault();
+      bridge_getPost(id);
+      return false;
+    }
+  });
   window.initPost = getDefaultPost();
   window.win = function() {
     return window;
@@ -885,7 +914,7 @@
         itemDom.classList.add("post-item");
         let a = item_title.querySelector("a");
         let { href, id, title } = functions.parseA(a);
-        item.id = Number(id);
+        item.id = String(id);
         a.href = item.href = href;
         item.url = location.origin + "/api/topics/show.json?id=" + item.id;
         item.title = title;
@@ -913,7 +942,11 @@
         if (infoEl && infoEl.childNodes) {
           let info = infoEl.childNodes[0];
           if (info) {
-            item.lastReplyDate = info.textContent.substring(0, info.textContent.indexOf("•") - 1).trim();
+            if (info.textContent.indexOf("•") > -1) {
+              item.lastReplyDate = info.textContent.substring(0, info.textContent.indexOf("•") - 1).trim();
+            } else {
+              item.lastReplyDate = info.textContent.trim();
+            }
           }
           let user = infoEl.childNodes[1];
           if (user) {
@@ -953,7 +986,7 @@
         }
         functions.cbChecker({ type: "syncList" });
       };
-      if (window.config.viewType === "card") {
+      if (window.config.viewType === "card" && false) {
         let cacheDataStr = localStorage.getItem("cacheData");
         let cacheData = [];
         if (cacheDataStr) {
@@ -1019,24 +1052,6 @@
       }
     }
   };
-  $(document).on("click", "a", async (e) => {
-    let { href, id, title } = functions.parseA(e.currentTarget);
-    if (id) {
-      e.preventDefault();
-      sendFlutter(id);
-      sendFlutter("开始请求");
-      let url = location.origin + "/t/" + id;
-      let apiRes = await window.fetch(url + "?p=1");
-      let htmlText = await apiRes.text();
-      let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
-      let body = $(bodyText[0]);
-      let post = window.clone(window.initPost);
-      await window.parse.getPostDetail(post, body, htmlText);
-      console.log(post);
-      sendFlutter("帖子内容" + post);
-      return false;
-    }
-  });
   function initStyle() {
     let style2 = `
 
@@ -1207,9 +1222,8 @@
             last[0].classList.add("preview");
           list = box.querySelectorAll(".item");
           window.parse.parsePagePostList(list, box);
-          console.log("1", window.postList);
-//          sendFlutter("发送主页列表");
-          sendFlutter(window.postList);
+          sendFlutter({ type: "发送主页列表" });
+          sendFlutter({ type: "list", data: window.postList });
           break;
         case PageType.Changes:
           box = document.querySelector("#Wrapper .box");
