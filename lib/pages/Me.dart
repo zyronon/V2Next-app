@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:v2ex/bus.dart';
+import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/Post.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -152,7 +153,7 @@ class MeState extends State<Me> {
               children: [
                 Row(
                   children: [
-                    ClipRRect(borderRadius: BorderRadius.circular(5.w), child: Image.network(val?.avatar ?? '', width: 26.w, height: 26.w, fit: BoxFit.cover)),
+                    BaseAvatar(src: val.avatar ?? '', diameter: 26.w, radius: 4.w),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -270,13 +271,23 @@ class MeState extends State<Me> {
               child: Column(
                 children: [
                   Container(
-                    width: double.infinity,
-                    height: 200.w,
-                    child: Text(
-                      'sdsadfffffffffffffff',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
+                      width: double.infinity,
+                      height: 100.w,
+                      color: Colors.grey,
+                      child: Row(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back,
+                                size: 20.sp,
+                                color: Colors.black,
+                              ),
+                              Text('最热')
+                            ],
+                          )
+                        ],
+                      )),
                   Expanded(
                       child: ListView.separated(
                     // shrinkWrap: true,
@@ -293,13 +304,7 @@ class MeState extends State<Me> {
                                   children: [
                                     Row(
                                       children: [
-                                        if (item?.member?.avatarLarge != null) ...[
-                                          ClipRRect(
-                                              borderRadius: BorderRadius.circular(4.w),
-                                              child: Image.network(item!.member!.avatarLarge!, width: 30.w, height: 30.w, fit: BoxFit.cover)),
-                                        ] else ...[
-                                          Container(width: 30.w, height: 30.w)
-                                        ],
+                                        BaseAvatar(src: item?.member?.avatarLarge ?? '', diameter: 30.w, radius: 4.w),
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +421,9 @@ class MeState extends State<Me> {
                               padding: EdgeInsets.all(4.w),
                             ),
                           ),
-                          SizedBox(width: 10.w,),
+                          SizedBox(
+                            width: 10.w,
+                          ),
                           Column(
                             children: [
                               Icon(
