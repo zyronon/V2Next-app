@@ -96,11 +96,11 @@ class _Page1State extends State<Page1> {
 
   getPost(post) {
     // print('object-getpost' + id.toString());
-    // Navigator.pushNamed(context, 'Me', arguments: id);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Me(post: post)),
-    );
+    Navigator.pushNamed(context, 'Me',);
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => Me(post: post)),
+    // );
     // controller.runJavaScript('jsBridge("getPost",' + id.toString() + ')');
   }
 

@@ -10,9 +10,10 @@ import 'package:v2ex/model/Post.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class Me extends StatefulWidget {
-  final Post post;
+  // final Post post;
+  // const Me({super.key, required this.post});
 
-  const Me({super.key, required this.post});
+  const Me({super.key});
 
   @override
   State<Me> createState() => MeState();
@@ -392,20 +393,40 @@ class MeState extends State<Me> {
                   )),
                   Container(
                       width: double.infinity,
-                      height: 100.w,
+                      padding: EdgeInsets.all(10.w),
+                      decoration: BoxDecoration(
+                        border: Border(top: BorderSide(color: Colors.black)),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                              child: TextField(
-                            autofocus: true,
-                            decoration: InputDecoration(labelText: "用户名", hintText: "用户名或邮箱", prefixIcon: Icon(Icons.person)),
-                          )),
-                          Icon(
-                            Icons.more_horiz,
-                            size: 20.sp,
-                            color: Colors.grey,
+                            child: Container(
+                              child: Row(
+                                children: [
+                                  Expanded(child: Text('请尽量让自己的回复能够对别人有帮助')),
+                                  Icon(
+                                    Icons.sentiment_satisfied_alt,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  )
+                                ],
+                              ),
+                              decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(3.r)),
+                              padding: EdgeInsets.all(4.w),
+                            ),
                           ),
+                          SizedBox(width: 10.w,),
+                          Column(
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                size: 20.sp,
+                                color: Colors.grey,
+                              ),
+                              Text(item?.replyCount?.toString() ?? '')
+                            ],
+                          )
                         ],
                       )),
                 ],
