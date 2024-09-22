@@ -38,11 +38,11 @@ class MyApp extends StatelessWidget {
                   systemOverlayStyle: SystemUiOverlayStyle(
                     statusBarColor: Colors.transparent, // 去除状态栏遮罩
                     statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                    systemNavigationBarColor: Color.fromARGB(255, 242, 247, 251), // 底部导航栏颜色
+                    systemNavigationBarColor: Colors.white, // 底部导航栏颜色
                   )
               ),
               colorScheme: const ColorScheme.light(
-                surface: Color.fromARGB(255, 242, 247, 251), // 和底部导航栏保持一致
+                surface: Colors.white, // 和底部导航栏保持一致
                 // surfaceBright: Color(0x00FFFFFF), // 透明背景
                 primary: Color.fromARGB(255, 89, 54, 133),
                 secondary: Color(0xFFE3EDF2),

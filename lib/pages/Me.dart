@@ -101,301 +101,314 @@ class MeState extends State<Me> {
         ));
   }
 
+  Widget modalPostItem(String text, IconData icon) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(100.r)),
+              padding: EdgeInsets.all(12.w),
+              margin: EdgeInsets.only(bottom: 8.w),
+              child: Icon(
+                icon,
+                size: 28.sp,
+                color: Colors.black54,
+              )),
+          Text(text)
+        ],
+      ),
+      width: .25.sw,
+      padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
+    );
+  }
+
   showModal() {
-    showModalBottomSheet<int>(
-      isScrollControlled: false,
+    modalWrap(
+        getHtmlText('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'),
+        Column(
+          children: [
+            modalItem('回复', Icons.chat_bubble_outline),
+            modalItem('感谢', Icons.favorite_border),
+            modalItem('上下文', Icons.content_paste_search),
+            modalItem('复制', Icons.content_copy),
+            modalItem('忽略', Icons.block),
+          ],
+        ));
+  }
+
+  Widget getTextSizeOptionItem(Widget text) {
+    return Expanded(
+        child: Container(
+            height: 40.w,
+            child: Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                text,
+                SizedBox(height: 5.w),
+                Container(
+                  width: 5.w,
+                  height: 5.w,
+                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
+                )
+              ],
+            ))));
+  }
+
+  modalWrap(Widget text, Widget other) {
+    showModalBottomSheet(
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       context: context,
       builder: (BuildContext context) {
-        return IntrinsicHeight(
-            child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            IntrinsicHeight(
-              child: Container(
-                margin: EdgeInsets.only(bottom: 10.w),
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                  margin: EdgeInsets.only(bottom: 10.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                  ),
+                  constraints: BoxConstraints(maxHeight: .5.sh),
+                  padding: EdgeInsets.all(14.w),
+                  width: ScreenUtil().screenWidth * .91,
+                  child: SingleChildScrollView(child: text)),
+              Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                  color: Color(0xfff1f1f1),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.r),
+                    topRight: Radius.circular(10.r),
+                  ),
                 ),
-                padding: EdgeInsets.all(14.w),
-                width: ScreenUtil().screenWidth * .9,
-                child: Text('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10.r),
-                  topRight: Radius.circular(10.r),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40.w,
+                        height: 4.w,
+                        margin: EdgeInsets.only(bottom: 10.w, top: 15.w),
+                        decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
+                      ),
+                    ),
+                    other
+                  ],
                 ),
               ),
-              width: double.infinity,
-              child: Column(
-                children: [
-                  modalItem('回复', Icons.chat_bubble_outline),
-                  modalItem('感谢', Icons.favorite_border),
-                  modalItem('上下文', Icons.content_paste_search),
-                  modalItem('复制', Icons.content_copy),
-                  modalItem('忽略', Icons.block),
-                ],
-              ),
-            ),
-          ],
-        ));
+            ],
+          ),
+        );
       },
     );
   }
 
   showPostModal() {
-    showModalBottomSheet<int>(
-      isScrollControlled: false,
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return IntrinsicHeight(
-            child: Column(
-          mainAxisSize: MainAxisSize.max,
+    modalWrap(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [getPostTitle(), getHtmlText(item?.headerTemplate ?? '')],
+        ),
+        Column(
           children: [
-            IntrinsicHeight(
-              child: Container(
-                margin: EdgeInsets.only(bottom: 10.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                ),
-                padding: EdgeInsets.all(14.w),
-                width: ScreenUtil().screenWidth * .9,
-                child: Text('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10.r),
-                  topRight: Radius.circular(10.r),
-                ),
-              ),
-              width: double.infinity,
-              child: Column(
-                children: [
-                  modalItem('回复', Icons.chat_bubble_outline),
-                  modalItem('感谢', Icons.favorite_border),
-                  modalItem('上下文', Icons.content_paste_search),
-                  modalItem('复制', Icons.content_copy),
-                  modalItem('忽略', Icons.block),
-                  Stack(
-                    children: [
-                      Positioned(
-                          left: .14.sw,
-                          bottom: 10.w,
-                          child: Container(
-                            width: 0.72.sw,
-                            height: 1.w,
-                            color: Colors.black54,
-                          )),
-                      Container(
-                          padding: EdgeInsets.all(8.w),
-                          child: IntrinsicHeight(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Center(
-                                        child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text('小', style: TextStyle(fontSize: 10.sp)),
-                                    SizedBox(height: 5.w),
-                                    Container(
-                                      width: 5.w,
-                                      height: 5.w,
-                                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                                    )
-                                  ],
-                                ))),
-                                Expanded(
-                                    child: Center(
-                                        child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text('标准', style: TextStyle(fontSize: 12.sp)),
-                                    SizedBox(height: 5.w),
-                                    Container(
-                                      width: 5.w,
-                                      height: 5.w,
-                                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                                    )
-                                  ],
-                                ))),
-                                Expanded(
-                                    child: Center(
-                                        child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text('大', style: TextStyle(fontSize: 16.sp)),
-                                    SizedBox(height: 5.w),
-                                    Container(
-                                      width: 5.w,
-                                      height: 5.w,
-                                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                                    )
-                                  ],
-                                ))),
-                                Expanded(
-                                    child: Center(
-                                        child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text('特大', style: TextStyle(fontSize: 18.sp)),
-                                    SizedBox(height: 5.w),
-                                    Container(
-                                      width: 5.w,
-                                      height: 5.w,
-                                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                                    )
-                                  ],
-                                ))),
-                              ],
-                            ),
-                          )),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            Row(children: [
+              modalPostItem('保存', Icons.bookmark_border),
+              modalPostItem('深色模式', Icons.bookmark_border),
+              modalPostItem('报告', Icons.bookmark_border),
+              modalPostItem('忽略', Icons.bookmark_border),
+            ]),
+            Row(children: [
+              modalPostItem('稍后阅读', Icons.bookmark_border),
+              modalPostItem('复制内容', Icons.content_copy),
+              modalPostItem('复制链接', Icons.link),
+              modalPostItem('浏览器打开', Icons.travel_explore),
+            ]),
+            Stack(
+              children: [
+                Positioned(
+                    left: .13.sw,
+                    bottom: 22.w,
+                    child: Container(
+                      width: 0.74.sw,
+                      height: 1.w,
+                      color: Colors.black54,
+                    )),
+                Container(
+                    padding: EdgeInsets.only(bottom: 20.w),
+                    child: Row(
+                      children: [
+                        getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
+                        getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
+                        getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
+                        getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
+                      ],
+                    )),
+                Positioned(
+                    left: .23.sw,
+                    bottom: 16.w,
+                    child: Container(
+                      width: 12.w,
+                      height: 12.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50.r),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.4),
+                              blurRadius: 3.w, //阴影模糊程度
+                              spreadRadius: 3.w //阴影扩散程度
+                              )
+                        ],
+                      ),
+                    )),
+              ],
+            )
           ],
         ));
-      },
-    );
+  }
+
+  showReplyModal() {
+    modalWrap(getHtmlText('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'), getTest());
   }
 
   Widget getItem(Reply val, int index) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(6.w),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(
-              children: [
-                Row(
-                  children: [
-                    BaseAvatar(src: val.avatar ?? '', diameter: 26.w, radius: 4.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            val?.username ?? '',
-                            style: TextStyle(fontSize: 13.sp, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
+    return InkWell(
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(6.w),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              //头像、名字
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      BaseAvatar(src: val.avatar ?? '', diameter: 26.w, radius: 4.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: SelectableText(
+                              val?.username ?? '',
+                              style: TextStyle(fontSize: 13.sp, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: Text(
+                                  (val?.floor ?? '').toString() + '楼',
+                                  style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: Text(
+                                  val?.date ?? '',
+                                  style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      if (val?.thankCount != 0)
+                        InkWell(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                val?.isThanked == true ? Icons.favorite : Icons.favorite_border,
+                                size: 18.sp,
+                                color: Colors.red,
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.only(left: 4.w),
+                                  child: Text(
+                                    val?.thankCount.toString() ?? '',
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(fontSize: 14.sp, color: Colors.red, height: 1.2),
+                                  ))
+                            ],
+                          ),
+                          onTap: () {
+                            thank(index);
+                            print('onTap');
+                            // val.isThanked = true;
+                          },
+                        ),
+                      InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 4.w),
+                          child: Icon(
+                            Icons.more_vert,
+                            size: 22.sp,
+                            color: Colors.grey,
                           ),
                         ),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text(
-                                (val?.floor ?? '').toString() + '楼',
-                                style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text(
-                                val?.date ?? '',
-                                style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ],
+                        onTap: showModal,
+                      )
+                    ],
+                  )
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                verticalDirection: VerticalDirection.down,
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 4.w,
                 ),
-                Row(
-                  children: [
-                    if (val?.thankCount != 0)
-                      GestureDetector(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              val?.isThanked == true ? Icons.favorite : Icons.favorite_border,
-                              size: 18.sp,
-                              color: Colors.red,
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(left: 4.w),
-                                child: Text(
-                                  val?.thankCount.toString() ?? '',
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 14.sp, color: Colors.red, height: 1.2),
-                                ))
-                          ],
-                        ),
-                        onTap: () {
-                          thank(index);
-                          print('onTap');
-                          // val.isThanked = true;
-                        },
-                      ),
-                    GestureDetector(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 4.w),
-                        child: Icon(
-                          Icons.more_vert,
-                          size: 20.sp,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      onTap: showModal,
-                    )
-                  ],
-                )
-              ],
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              verticalDirection: VerticalDirection.down,
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: 4.w,
+                child: HtmlWidget(
+                  val?.hideCallUserReplyContent ?? '',
+                  renderMode: RenderMode.column,
+                  textStyle: TextStyle(fontSize: 14.sp),
+                ),
               ),
-              child: HtmlWidget(
-                val?.hideCallUserReplyContent ?? '',
-                renderMode: RenderMode.column,
-                textStyle: TextStyle(fontSize: 14.sp),
-              ),
-            ),
-          ]),
-        ),
-        if (val?.children?.length != 0)
-          Column(
-            children: [
-              ...val!.children!.map((a) => Padding(
-                    padding: EdgeInsets.only(left: 16.w),
-                    child: getItem(a, 1),
-                  ))
-            ],
+            ]),
           ),
-      ],
+          if (val?.children?.length != 0)
+            Column(
+              children: [
+                ...val!.children!.map((a) => Padding(
+                      padding: EdgeInsets.only(left: 16.w),
+                      child: getItem(a, 1),
+                    ))
+              ],
+            ),
+        ],
+      ),
+      onLongPress: showModal,
+      onTap: () {
+        showReplyModal();
+      },
     );
   }
 
   Widget getIcon(IconData icon) {
     return Icon(
       icon,
-      size: 20.sp,
+      size: 24.sp,
       color: Colors.black54,
     );
   }
 
   Widget clickIcon(IconData icon, onTap) {
-    return GestureDetector(
+    return InkWell(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(10.w, 4.w, 10.w, 4.w),
+        padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
         child: getIcon(icon),
       ),
       onTap: onTap,
@@ -403,12 +416,94 @@ class MeState extends State<Me> {
   }
 
   Widget clickWidget(Widget widget, onTap) {
-    return GestureDetector(
+    return InkWell(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(6.w, 4.w, 6.w, 4.w),
+        padding: EdgeInsets.fromLTRB(5.w, 10.w, 5.w, 10.w),
         child: widget,
       ),
       onTap: onTap,
+    );
+  }
+
+  //标题
+  Widget getPostTitle() {
+    return Padding(
+      padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
+      child: SelectableText(
+        item?.title ?? '',
+        textAlign: TextAlign.left,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+      ),
+    );
+  }
+
+  //内容
+  Widget getHtmlText(String html) {
+    return SelectionArea(
+        child: HtmlWidget(
+      html,
+      renderMode: RenderMode.column,
+      textStyle: TextStyle(fontSize: 14.sp),
+      customStylesBuilder: (element) {
+        if (element.classes.contains('subtle')) {
+          return {
+            'background-color': '#ecfdf5e6',
+            'border-left': '4px solid #a7f3d0',
+            'padding': '5px',
+          };
+        }
+        if (element.classes.contains('fade')) {
+          return {'color': '#6b6b6b'};
+        }
+        return null;
+      },
+    ));
+  }
+
+  getTest() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      child: Column(
+        children: [
+          Container(
+            child: TextField(
+              //多行文本输入框
+              maxLines: 4,
+              autofocus: false,
+              decoration: InputDecoration(
+                hintText: "请尽量让自己的回复能够对别人有帮助",
+                hintStyle: TextStyle(color: Colors.black26),
+                border: InputBorder.none,
+              ),
+            ),
+            padding: EdgeInsets.only(left: 8.w, right: 8.w),
+            decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
+            margin: EdgeInsets.only(bottom: 10.w),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(children: [
+                getIcon(Icons.sentiment_satisfied_alt),
+                SizedBox(width: 10.w),
+                getIcon(Icons.alternate_email),
+                SizedBox(width: 10.w),
+                getIcon(Icons.add_photo_alternate),
+                SizedBox(width: 10.w),
+                getIcon(Icons.format_quote),
+              ]),
+              Container(
+                padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
+                decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
+                child: Text(
+                  '回复',
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 
@@ -422,6 +517,7 @@ class MeState extends State<Me> {
 
     return WillPopScope(
         child: Scaffold(
+          resizeToAvoidBottomInset: true,
           appBar: AppBar(
             elevation: 0,
             toolbarHeight: 0,
@@ -448,15 +544,16 @@ class MeState extends State<Me> {
                                   Navigator.pop(context);
                                 }),
                                 Expanded(
-                                    child: GestureDetector(
+                                    child: InkWell(
                                   child: Text(
-                                    '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
+                                    // '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
+                                    item?.title ?? '',
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
                                     style: TextStyle(fontSize: 16.sp),
                                   ),
                                   onTap: () {
-                                    _scrollController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.ease);
+                                    _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
                                   },
                                 ))
                               ],
@@ -465,6 +562,7 @@ class MeState extends State<Me> {
                           clickIcon(Icons.more_vert, showPostModal)
                         ],
                       )),
+                  getTest(),
                   Expanded(
                       child: ListView.separated(
                     // shrinkWrap: true,
@@ -475,82 +573,78 @@ class MeState extends State<Me> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            //标题和内容
                             Padding(
                                 padding: EdgeInsets.all(8.w),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        BaseAvatar(src: item?.member?.avatarLarge ?? '', diameter: 30.w, radius: 4.w),
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          verticalDirection: VerticalDirection.down,
                                           children: [
-                                            Row(
+                                            BaseAvatar(src: item?.member?.avatarLarge ?? '', diameter: 30.w, radius: 4.w),
+                                            Column(
                                               mainAxisAlignment: MainAxisAlignment.start,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Padding(
-                                                  padding: EdgeInsets.only(left: 10),
-                                                  child: Text(
-                                                    item?.member?.username ?? '',
-                                                    style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
-                                                  ),
+                                                //用户名
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: SelectableText(
+                                                        item?.member?.username ?? '',
+                                                        style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsets.only(left: 10),
-                                                  child: Text(
-                                                    item?.createDateAgo ?? '',
-                                                    style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsets.only(left: 10),
-                                                  child: Text(
-                                                    (item?.clickCount.toString() ?? '') + '次点击',
-                                                    style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                  ),
-                                                ),
+                                                //时间、点击量
+                                                Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: Text(
+                                                        item?.createDateAgo ?? '',
+                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: Text(
+                                                        (item?.clickCount.toString() ?? '') + '次点击',
+                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
                                               ],
                                             )
                                           ],
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black12,
+                                            borderRadius: BorderRadius.circular(3.0), //3像素圆角
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                                            child: Text(
+                                              item?.node?.title ?? '',
+                                              style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                            ),
+                                          ),
                                         )
                                       ],
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      verticalDirection: VerticalDirection.down,
                                     ),
-                                    //标题
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
-                                      child: Text(
-                                        item?.title ?? '',
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
-                                      ),
-                                    ),
-                                    HtmlWidget(
-                                      item?.headerTemplate ?? '',
-                                      renderMode: RenderMode.column,
-                                      textStyle: TextStyle(fontSize: 14.sp),
-                                      customStylesBuilder: (element) {
-                                        if (element.classes.contains('subtle')) {
-                                          return {
-                                            'background-color': '#ecfdf5e6',
-                                            'border-left': '4px solid #a7f3d0',
-                                            'padding': '5px',
-                                          };
-                                        }
-                                        if (element.classes.contains('fade')) {
-                                          return {'color': '#6b6b6b'};
-                                        }
-                                        return null;
-                                      },
-                                    ),
+                                    getPostTitle(),
+                                    getHtmlText(item?.headerTemplate ?? ''),
                                   ],
                                 )),
                             Container(
@@ -618,7 +712,7 @@ class MeState extends State<Me> {
                   )),
                   Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(10.w),
+                      padding: EdgeInsets.fromLTRB(14.w, 4.w, 6.w, 4.w),
                       decoration: BoxDecoration(
                         border: Border(top: BorderSide(color: Colors.black12)),
                       ),
@@ -653,17 +747,17 @@ class MeState extends State<Me> {
                                   )
                                 ],
                               ),
-                              decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(5.r)),
-                              padding: EdgeInsets.all(4.w),
+                              decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
+                              padding: EdgeInsets.all(6.w),
                             ),
                           ),
-                          SizedBox(width: 4.w),
+                          SizedBox(width: 6.w),
                           clickWidget(
                               Row(
                                 children: [
                                   Icon(
-                                    Icons.favorite_border,
-                                    size: 20.sp,
+                                    Icons.chat_bubble_outline,
+                                    size: 24.sp,
                                     color: Colors.grey,
                                   ),
                                   Text(
@@ -678,8 +772,8 @@ class MeState extends State<Me> {
                               Row(
                                 children: [
                                   Icon(
-                                    Icons.chat_bubble_outline,
-                                    size: 20.sp,
+                                    Icons.favorite_border,
+                                    size: 24.sp,
                                     color: Colors.grey,
                                   ),
                                   Text(
@@ -695,7 +789,7 @@ class MeState extends State<Me> {
                                 children: [
                                   Icon(
                                     Icons.star_border,
-                                    size: 20.sp,
+                                    size: 24.sp,
                                     color: Colors.grey,
                                   ),
                                   Text(

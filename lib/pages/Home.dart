@@ -84,15 +84,15 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.business),
-            label: '海选',
+            label: '节点',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: '聊天',
+            icon: Icon(Icons.search),
+            label: '搜索',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '消费',
+            icon: Icon(Icons.notifications),
+            label: '通知',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -100,8 +100,8 @@ class _HomeState extends State<Home> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Color(mainColor),
+        selectedItemColor: Colors.blue[800],
+        unselectedItemColor: mainColor,
         onTap: _onItemTapped,
       ),
     );
