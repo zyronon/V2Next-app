@@ -10,7 +10,7 @@ class BaseAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (src != '') {
+    if (src != '' && false) {
       return ClipRRect(borderRadius: BorderRadius.circular(radius), child: Image.network(src, width: diameter, height: diameter, fit: BoxFit.cover));
     } else {
       return Container(width: diameter, height: diameter);

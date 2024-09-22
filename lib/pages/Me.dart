@@ -22,6 +22,7 @@ class Me extends StatefulWidget {
 
 class MeState extends State<Me> {
   late final WebViewController controller;
+  final ScrollController _scrollController = ScrollController();
 
   double stateHeight = 0;
 
@@ -51,6 +52,13 @@ class MeState extends State<Me> {
     setState(() {
       item = Post.fromJson(te['data']);
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    //销毁监听器
+    _scrollController.dispose();
   }
 
   submit() {
@@ -309,7 +317,7 @@ class MeState extends State<Me> {
                 Row(
                   children: [
                     if (val?.thankCount != 0)
-                      InkWell(
+                      GestureDetector(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -333,7 +341,7 @@ class MeState extends State<Me> {
                           // val.isThanked = true;
                         },
                       ),
-                    InkWell(
+                    GestureDetector(
                       child: Padding(
                         padding: EdgeInsets.only(left: 4.w),
                         child: Icon(
@@ -384,6 +392,26 @@ class MeState extends State<Me> {
     );
   }
 
+  Widget clickIcon(IconData icon, onTap) {
+    return GestureDetector(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(10.w, 4.w, 10.w, 4.w),
+        child: getIcon(icon),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget clickWidget(Widget widget, onTap) {
+    return GestureDetector(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(6.w, 4.w, 6.w, 4.w),
+        child: widget,
+      ),
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var args = ModalRoute.of(context)?.settings.arguments;
@@ -394,40 +422,53 @@ class MeState extends State<Me> {
 
     return WillPopScope(
         child: Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            toolbarHeight: 0,
+            // backgroundColor: bg,
+            // surfaceTintColor: bg,
+          ),
           body: DefaultTextStyle(
               style: TextStyle(color: Colors.black, fontSize: 12.sp),
               child: Column(
                 children: [
                   Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(8.w),
+                      padding: EdgeInsets.only(top: 4.w, bottom: 4.w),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.black12)),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              InkWell(
-                                child: getIcon(Icons.arrow_back),
-                                onTap: (){
+                          Expanded(
+                            child: Row(
+                              children: [
+                                clickIcon(Icons.arrow_back, () {
                                   Navigator.pop(context);
-                                },
-                              ),
-                              SizedBox(width: 4.w),
-                              Text('最热')
-                            ],
+                                }),
+                                Expanded(
+                                    child: GestureDetector(
+                                  child: Text(
+                                    '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(fontSize: 16.sp),
+                                  ),
+                                  onTap: () {
+                                    _scrollController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.ease);
+                                  },
+                                ))
+                              ],
+                            ),
                           ),
-                          Row(
-                            children: [
-                              getIcon(Icons.share),
-                              SizedBox(width: 4.w),
-                              InkWell(child: getIcon(Icons.more_vert), onTap: showPostModal),
-                            ],
-                          )
+                          clickIcon(Icons.more_vert, showPostModal)
                         ],
                       )),
                   Expanded(
                       child: ListView.separated(
                     // shrinkWrap: true,
+                    controller: _scrollController,
                     itemCount: 1 + (item?.nestedReplies?.length ?? 0),
                     itemBuilder: (BuildContext context, int index) {
                       if (index == 0) {
@@ -616,48 +657,58 @@ class MeState extends State<Me> {
                               padding: EdgeInsets.all(4.w),
                             ),
                           ),
-                          SizedBox(width: 14.w),
-                          Column(
-                            children: [
-                              Icon(
-                                Icons.favorite_border,
-                                size: 20.sp,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                item?.replyCount?.toString() ?? '',
-                                style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                              )
-                            ],
-                          ),
-                          SizedBox(width: 12.w),
-                          Column(
-                            children: [
-                              Icon(
-                                Icons.chat_bubble_outline,
-                                size: 20.sp,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                item?.replyCount?.toString() ?? '',
-                                style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                              )
-                            ],
-                          ),
-                          SizedBox(width: 12.w),
-                          Column(
-                            children: [
-                              Icon(
-                                Icons.star_border,
-                                size: 20.sp,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                item?.replyCount?.toString() ?? '',
-                                style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                              )
-                            ],
-                          )
+                          SizedBox(width: 4.w),
+                          clickWidget(
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.favorite_border,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    item?.replyCount?.toString() ?? '',
+                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                  )
+                                ],
+                              ), () {
+                            print('asdf');
+                          }),
+                          clickWidget(
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.chat_bubble_outline,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    item?.replyCount?.toString() ?? '',
+                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                  )
+                                ],
+                              ), () {
+                            print('asdf');
+                          }),
+                          clickWidget(
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star_border,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    item?.replyCount?.toString() ?? '',
+                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                  )
+                                ],
+                              ), () {
+                            print('asdf');
+                          }),
+                          clickIcon(Icons.share, () {
+                            print('asdf');
+                          })
                         ],
                       )),
                 ],

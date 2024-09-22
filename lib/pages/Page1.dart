@@ -106,6 +106,113 @@ class _Page1State extends State<Page1> {
 
   @override
   Widget build(BuildContext context) {
+
+    return ListView.separated(
+      itemCount: list.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              CircleAvatar(
+                maxRadius: 14.w,
+                backgroundImage: NetworkImage(list?[index]?.member?.avatar ?? ''),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  list[index].member?.username ?? '',
+                  style: TextStyle(fontSize: 14.sp, height: 1.2),
+                ),
+              ),
+            ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
+            GestureDetector (
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 10,
+                ),
+                child: Text(
+                  list[index].title ?? '',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ),
+              onTap: () => {getPost(list[index])},
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  Row(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.black12,
+                          borderRadius: BorderRadius.circular(3.0), //3像素圆角
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                          child: Text(
+                            list[index]?.node?.title ?? '',
+                            style: TextStyle(color: Colors.black, fontSize: 10.sp),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10.w),
+                        child: Text(
+                          list[index]?.lastReplyDate ?? '',
+                          style: TextStyle(fontSize: 10.sp, height: 1.2),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10.w),
+                        child: Text(
+                          '最后回复来自',
+                          style: TextStyle(fontSize: 10.sp, height: 1.2),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 2.w),
+                        child: Text(
+                          list[index]?.lastReplyUsername ?? '',
+                          style: TextStyle(fontSize: 12.sp, height: 1.2, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(6.0), //3像素圆角
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                      child: Text(
+                        list[index]?.replyCount?.toString() ?? '',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+            )
+          ]),
+        );
+      },
+      //分割器构造器
+      separatorBuilder: (BuildContext context, int index) {
+        return Container(
+          height: 6,
+          color: Color(0xfff1f1f1),
+        );
+      },
+    );
     return WillPopScope(
         child: Scaffold(
           body: DefaultTextStyle(
@@ -155,7 +262,7 @@ class _Page1State extends State<Page1> {
                                               ),
                                             ),
                                           ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                                          InkWell(
+                                          GestureDetector (
                                             child: Padding(
                                               padding: EdgeInsets.only(
                                                 top: 10,

@@ -38,8 +38,26 @@ class _HomeState extends State<Home> {
   }
 
   Widget build(BuildContext context) {
+    // return Text('data1');
+    var bg = Theme.of(context).colorScheme.surface;
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     elevation: 0,
+    //     toolbarHeight: 0,
+    //     // backgroundColor: bg,
+    //     // surfaceTintColor: bg,
+    //   ),
+    //   backgroundColor: bg,
+    //   body: Text('asdfas123123d'),
+    // );
     return Scaffold(
       resizeToAvoidBottomInset: false,
+        // appBar: AppBar(
+        //   elevation: 0,
+        //   toolbarHeight: 0,
+        //   // backgroundColor: bg,
+        //   // surfaceTintColor: bg,
+        // ),
       body: DefaultTextStyle(
           style: TextStyle(color: Colors.black, fontSize: 14.sp),
           child: ConstrainedBox(
@@ -47,7 +65,7 @@ class _HomeState extends State<Home> {
                 minWidth: double.infinity, //宽度尽可能大
                 minHeight: double.infinity),
             child: Container(
-              padding: EdgeInsets.only(top: stateHeight),
+              // padding: EdgeInsets.only(top: stateHeight),
               decoration: BoxDecoration(
                 color: mainBgColor2,
               ),
