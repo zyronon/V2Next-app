@@ -753,7 +753,7 @@ class MeState extends State<Me> {
                           ),
                           SizedBox(width: 6.w),
                           clickWidget(
-                              Row(
+                              Column(
                                 children: [
                                   Icon(
                                     Icons.chat_bubble_outline,
@@ -769,7 +769,7 @@ class MeState extends State<Me> {
                             print('asdf');
                           }),
                           clickWidget(
-                              Row(
+                              Column(
                                 children: [
                                   Icon(
                                     Icons.favorite_border,
@@ -785,7 +785,7 @@ class MeState extends State<Me> {
                             print('asdf');
                           }),
                           clickWidget(
-                              Row(
+                              Column(
                                 children: [
                                   Icon(
                                     Icons.star_border,
@@ -800,9 +800,22 @@ class MeState extends State<Me> {
                               ), () {
                             print('asdf');
                           }),
-                          clickIcon(Icons.share, () {
+                          clickWidget(
+                              Column(
+                                children: [
+                                  Icon(
+                                    Icons.share,
+                                    size: 24.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    '分享',
+                                    style: TextStyle(fontSize: 8.sp, color: Colors.black54),
+                                  )
+                                ],
+                              ), () {
                             print('asdf');
-                          })
+                          }),
                         ],
                       )),
                 ],

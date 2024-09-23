@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:v2ex/bus.dart';
 import 'package:v2ex/model/Post.dart';
+import 'package:v2ex/model/TabItem.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class Page1 extends StatefulWidget {
@@ -21,21 +22,21 @@ class _Page1State extends State<Page1> {
   List<Post> list = [];
 
   List tabs = ["最热", "最新", '全部', "问与答", "酷工作", "最新"];
-  List tabMap = [
-    {'name': '最热', 'key': 'hot', 'date': '', 'post': []},
-    {'name': '最新', 'key': 'new', 'date': '', 'post': []},
-    {'name': '全部', 'key': 'all', 'date': '', 'post': []},
-    {'name': '技术', 'key': 'tech', 'date': '', 'post': []},
-    {'name': '创意', 'key': 'creative', 'date': '', 'post': []},
-    {'name': '好玩', 'key': 'play', 'date': '', 'post': []},
-    {'name': 'Apple', 'key': 'apple', 'date': '', 'post': []},
-    {'name': '酷工作', 'key': 'jobs', 'date': '', 'post': []},
-    {'name': '交易', 'key': 'deals', 'date': '', 'post': []},
-    {'name': '城市', 'key': 'city', 'date': '', 'post': []},
-    {'name': '问与答', 'key': 'qna', 'date': '', 'post': []},
-    {'name': 'R2', 'key': 'r2', 'date': '', 'post': []},
-    {'name': '节点', 'key': 'nodes', 'date': '', 'post': []},
-    {'name': '关注', 'key': 'members', 'date': '', 'post': []},
+  List<TabItem> tabMap = [
+    new TabItem(name: '最热', key: 'hot', date: '', post: []),
+    new TabItem(name: '最新', key: 'new', date: '', post: []),
+    new TabItem(name: '全部', key: 'all', date: '', post: []),
+    new TabItem(name: '技术', key: 'tech', date: '', post: []),
+    new TabItem(name: '创意', key: 'creative', date: '', post: []),
+    new TabItem(name: '好玩', key: 'play', date: '', post: []),
+    new TabItem(name: 'Apple', key: 'apple', date: '', post: []),
+    new TabItem(name: '酷工作', key: 'jobs', date: '', post: []),
+    new TabItem(name: '交易', key: 'deals', date: '', post: []),
+    new TabItem(name: '城市', key: 'city', date: '', post: []),
+    new TabItem(name: '问与答', key: 'qna', date: '', post: []),
+    new TabItem(name: 'R2', key: 'r2', date: '', post: []),
+    new TabItem(name: '节点', key: 'nodes', date: '', post: []),
+    new TabItem(name: '关注', key: 'members', date: '', post: []),
   ];
 
   @override
@@ -143,12 +144,12 @@ class _Page1State extends State<Page1> {
                     isScrollable: true,
                     // indicatorPadding: EdgeInsets.only(bottom: 2),
                     // indicatorSize: TabBarIndicatorSize.tab,
-                    tabs: tabs
+                    tabs: tabMap
                         .map(
                           (e) => Container(
                               width: .15.sw,
                               child: Tab(
-                                text: e,
+                                text: e.name,
                                 height: 33.w,
                               )),
                         )
@@ -157,11 +158,11 @@ class _Page1State extends State<Page1> {
                 ),
                 Expanded(
                     child: TabBarView(
-                  children: tabs.map((e) {
+                  children: tabMap.map((e) {
                     return Container(
                       alignment: Alignment.center,
                       color: Colors.red,
-                      child: Text(e, textScaleFactor: 5),
+                      child: Text(e.key, textScaleFactor: 5),
                     );
                   }).toList(),
                 ))
