@@ -544,6 +544,15 @@
       Channel.postMessage(val);
     }
   }
+  async function getHtml(url) {
+    url = location.origin + url;
+    let apiRes = await window.fetch(url);
+    let htmlText = await apiRes.text();
+    let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
+    let body = document.createElement("html");
+    body.innerHTML = bodyText[0];
+    return body;
+  }
   async function bridge_getPost(id) {
     console.log("getPost", id);
     sendFlutter({ type: "开始请求" + id });
@@ -558,10 +567,23 @@
     sendFlutter({ type: "帖子内容" });
     sendFlutter({ type: "post", data: post });
   }
-  window.jsBridge = (type, args) => {
+  async function bridge_getNodePostList(node, el) {
+    console.log("bridge_getNodePostList", node);
+    if (!el)
+      el = await getHtml("/?tab=" + node);
+    let box = el.querySelector("#Wrapper .box");
+    let list = box.querySelectorAll(".item");
+    window.parse.parsePagePostList(list, box);
+    sendFlutter({ type: "发送主页列表" });
+    sendFlutter({ type: "list", node, data: window.postList });
+  }
+  window.jsBridge = (type, ...args) => {
     switch (type) {
       case "getPost":
-        bridge_getPost(args);
+        bridge_getPost(...args);
+        break;
+      case "getNodePostList":
+        bridge_getNodePostList(...args);
         break;
     }
   };
@@ -1208,22 +1230,7 @@
           window.parse.parsePagePostList(list, box[1]);
           break;
         case PageType.Home:
-          box = document.querySelector("#Wrapper .box");
-          let headerWrap = $('<div class="cell post-item"></div>');
-          if (window.config.viewType === "card")
-            headerWrap[0].classList.add("preview");
-          $(box).prepend(headerWrap);
-          $(box).children().slice(1, 3).each(function() {
-            headerWrap.append(this);
-          });
-          last = $(box).children().last();
-          last.addClass("cell post-item");
-          if (window.config.viewType === "card")
-            last[0].classList.add("preview");
-          list = box.querySelectorAll(".item");
-          window.parse.parsePagePostList(list, box);
-          sendFlutter({ type: "发送主页列表" });
-          sendFlutter({ type: "list", data: window.postList });
+          bridge_getNodePostList(`hot`, document);
           break;
         case PageType.Changes:
           box = document.querySelector("#Wrapper .box");
