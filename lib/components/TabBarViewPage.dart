@@ -5,19 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:v2ex/bus.dart';
-import 'package:v2ex/components/TabBarViewPage.dart';
 import 'package:v2ex/model/Post.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class Page1 extends StatefulWidget {
-  const Page1({super.key});
+class TabBarViewPage extends StatefulWidget {
+  const TabBarViewPage({super.key});
 
   @override
-  State<Page1> createState() => _Page1State();
+  State<TabBarViewPage> createState() => _TabBarViewPageState();
 }
 
-class _Page1State extends State<Page1> {
+class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
   late final WebViewController controller;
   double stateHeight = 0;
   List<Post> list = [];
@@ -43,6 +42,7 @@ class _Page1State extends State<Page1> {
   @override
   void initState() {
     stateHeight = MediaQueryData.fromWindow(window).padding.top;
+    print('请求数据1');
 
     super.initState();
     // var message ='';
@@ -126,7 +126,8 @@ class _Page1State extends State<Page1> {
     // controller.runJavaScript('jsBridge("getPost",' + id.toString() + ')');
   }
 
-  Widget getList(){
+  @override
+  Widget build(BuildContext context) {
     return ListView.separated(
       itemCount: list.length,
       itemBuilder: (BuildContext context, int index) {
@@ -236,237 +237,5 @@ class _Page1State extends State<Page1> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            toolbarHeight: 0,
-          ),
-          body: Container(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TabBar(
-                        tabAlignment: TabAlignment.start,
-                        isScrollable: true,
-                        // indicatorPadding: EdgeInsets.only(bottom: 2),
-                        // indicatorSize: TabBarIndicatorSize.tab,
-                        tabs: tabMap
-                            .map(
-                              (e) => Container(
-                                  width: .1.sw,
-                                  child: Tab(
-                                    text: e.name,
-                                    height: 33.w,
-                                  )),
-                            )
-                            .toList(),
-                      ),
-                      flex: 7,
-                    ),
-                    Expanded(
-                      child: Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
-                                child: Icon(
-                                  Icons.search,
-                                  size: 22.sp,
-                                )),
-                            Padding(
-                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
-                                child: Icon(
-                                  Icons.mail_outline,
-                                  size: 22.sp,
-                                )),
-                          ],
-                        ),
-                      ),
-                      flex: 3,
-                    )
-                  ],
-                ),
-                Expanded(
-                    child: TabBarView(
-                  children: tabMap.map((e) {
-                    return TabBarViewPage();
-                  }).toList(),
-                ))
-              ],
-            ),
-          )),
-    );
-
-    return WillPopScope(
-        child: Scaffold(
-          body: DefaultTextStyle(
-              style: TextStyle(color: Colors.black, fontSize: 14.sp),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                    minWidth: double.infinity, //宽度尽可能大
-                    minHeight: double.infinity),
-                child: Stack(
-                  children: <Widget>[
-                    // Positioned(
-                    //     top: 0,
-                    //     left: 0,
-                    //     width: MediaQuery.of(context).size.width,
-                    //     height: 600,
-                    //     child: WebViewWidget(controller: controller)),
-                    Positioned(
-                        top: 0,
-                        left: 0,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: Container(
-                          color: Colors.white,
-                          child: Stack(
-                            children: <Widget>[
-                              Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  width: MediaQuery.of(context).size.width,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: ListView.separated(
-                                    itemCount: list.length,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      return Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                          Row(children: [
-                                            CircleAvatar(
-                                              maxRadius: 14.w,
-                                              backgroundImage: NetworkImage(list?[index]?.member?.avatar ?? ''),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(left: 10),
-                                              child: Text(
-                                                list[index].member?.username ?? '',
-                                                style: TextStyle(fontSize: 14.sp, height: 1.2),
-                                              ),
-                                            ),
-                                          ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                                          InkWell(
-                                            child: Padding(
-                                              padding: EdgeInsets.only(
-                                                top: 10,
-                                              ),
-                                              child: Text(
-                                                list[index].title ?? '',
-                                                textAlign: TextAlign.left,
-                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                              ),
-                                            ),
-                                            onTap: () => {getPost(list[index])},
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 10),
-                                            child: Row(
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    DecoratedBox(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.black12,
-                                                        borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                                                      ),
-                                                      child: Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                                        child: Text(
-                                                          list[index]?.node?.title ?? '',
-                                                          style: TextStyle(color: Colors.black, fontSize: 10.sp),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 10.w),
-                                                      child: Text(
-                                                        list[index]?.lastReplyDate ?? '',
-                                                        style: TextStyle(fontSize: 10.sp, height: 1.2),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 10.w),
-                                                      child: Text(
-                                                        '最后回复来自',
-                                                        style: TextStyle(fontSize: 10.sp, height: 1.2),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 2.w),
-                                                      child: Text(
-                                                        list[index]?.lastReplyUsername ?? '',
-                                                        style: TextStyle(fontSize: 12.sp, height: 1.2, fontWeight: FontWeight.bold),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                DecoratedBox(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black12,
-                                                    borderRadius: BorderRadius.circular(6.0), //3像素圆角
-                                                  ),
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                                    child: Text(
-                                                      list[index]?.replyCount?.toString() ?? '',
-                                                      style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize: 10.sp,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            ),
-                                          )
-                                        ]),
-                                      );
-                                    },
-                                    //分割器构造器
-                                    separatorBuilder: (BuildContext context, int index) {
-                                      return Container(
-                                        height: 6,
-                                        color: Color(0xfff1f1f1),
-                                      );
-                                    },
-                                  )),
-                              Positioned(
-                                bottom: 200,
-                                right: 100,
-                                child: ElevatedButton(
-                                  child: Text("刷新"),
-                                  onPressed: () {
-                                    controller.reload();
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ))
-                  ],
-                ),
-              )),
-        ),
-        onWillPop: () async {
-          print("返回键点击了");
-          // Navigator.pop(context);
-          var isFinish = await controller.canGoBack().then((value) {
-            if (value) {
-              controller.goBack();
-            }
-            return !value;
-          });
-          return isFinish;
-          return false;
-        });
-  }
+  bool get wantKeepAlive => true;
 }
