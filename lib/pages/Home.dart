@@ -38,18 +38,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget build(BuildContext context) {
-    // return Text('data1');
-    var bg = Theme.of(context).colorScheme.surface;
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     elevation: 0,
-    //     toolbarHeight: 0,
-    //     // backgroundColor: bg,
-    //     // surfaceTintColor: bg,
-    //   ),
-    //   backgroundColor: bg,
-    //   body: Text('asdfas123123d'),
-    // );
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
         // appBar: AppBar(

@@ -5,8 +5,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/bus.dart';
+import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -23,15 +25,34 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
   late final WebViewController controller;
   double stateHeight = 0;
   List<Post> list = [];
+  final Controller c = Get.find();
 
   List tabs = ["最热", "最新", '全部', "问与答", "酷工作", "最新"];
 
   @override
   void initState() {
+    super.initState();
+    ever(c.loaded, (_) {
+      print('ever:' + widget.node + ':' + c.loaded.value.toString());
+      bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
+    });
     stateHeight = MediaQueryData.fromWindow(window).padding.top;
     print('请求数据' + widget.node);
 
-    super.initState();
+    bus.on("onJsBridge", (args) {
+      print('onJsBridge：${args['type']}：${args?['node'] ?? ''}:${widget.node}');
+      if (args['type'] == 'list' && args['node'] == widget.node) {
+        print(args['data'][0]['title']);
+        setState(() {
+          list = List<Post>.from(args['data']!.map((x) => Post.fromJson(x)));
+        });
+      }
+    });
+
+    if (c.loaded.value) {
+      bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
+    }
+
     // var message ='';
     var message =
         '[{"allReplyUsers":[],"content_rendered":"","createDate":"","createDateAgo":"","lastReplyDate":"36 天前","lastReplyUsername":"Maca","fr":"","replyList":[],"topReplyList":[],"nestedReplies":[],"nestedRedundReplies":[],"username":"","url":"https://www.v2ex.com/api/topics/show.json?id=1061976","href":"https://www.v2ex.com/t/1061976#reply43","member":{"avatar":"https://cdn.v2ex.com/avatar/0d36/88cc/328450_normal.png?m=1705040400","username":"whitecosm0s"},"node":{"title":"分享创造","url":"https://www.v2ex.com/go/create"},"headerTemplate":"","title":"[送兑换码]提醒英雄更新了 1.7 版本, 新增检查清单，持续提醒等功能。这是一个高颜值，设计优雅的\\"提醒事项\\"替代品","id":1061976,"type":"post","once":"","replyCount":43,"clickCount":0,"thankCount":0,"collectCount":0,"lastReadFloor":0,"isFavorite":false,"isIgnore":false,"isThanked":false,"isReport":false,"inList":false}]';
@@ -46,18 +67,12 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
     //   // });
     //   bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
     // });
-    bus.on("loaded", (ars) {
-      bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
-    });
+  }
 
-    bus.on("onJsBridge", (args) {
-      print('onJsBridge' + args['type'] + args['node']);
-      if (args['type'] == 'list' && args['node'] == widget.node) {
-        setState(() {
-          list = List<Post>.from(args['data']!.map((x) => Post.fromJson(x)));
-        });
-      }
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    bus.off('onJsBridge');
   }
 
   submit() {
@@ -140,19 +155,43 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
             return Padding(
               padding: EdgeInsets.all(8),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  CircleAvatar(
-                    maxRadius: 14.w,
-                    backgroundImage: NetworkImage(list?[index]?.member?.avatar ?? ''),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: Text(
-                      list[index].member?.username ?? '',
-                      style: TextStyle(fontSize: 14.sp, height: 1.2),
+                Row(
+                  children: [
+                    Row(children: [
+                      CircleAvatar(
+                        maxRadius: 14.w,
+                        backgroundImage: NetworkImage(list?[index]?.member?.avatar ?? ''),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Text(
+                          list[index].member?.username ?? '',
+                          style: TextStyle(fontSize: 14.sp, height: 1.2),
+                        ),
+                      ),
+                    ]),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(4.r), //3像素圆角
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                        child: Text(
+                          list[index]?.replyCount?.toString() ?? '',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
+                  ],
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  verticalDirection: VerticalDirection.down,
+                ),
                 InkWell(
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -170,64 +209,37 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                   padding: EdgeInsets.only(top: 10),
                   child: Row(
                     children: [
-                      Row(
-                        children: [
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                              child: Text(
-                                list[index]?.node?.title ?? '',
-                                style: TextStyle(color: Colors.black, fontSize: 10.sp),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10.w),
-                            child: Text(
-                              list[index]?.lastReplyDate ?? '',
-                              style: TextStyle(fontSize: 10.sp, height: 1.2),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10.w),
-                            child: Text(
-                              '最后回复来自',
-                              style: TextStyle(fontSize: 10.sp, height: 1.2),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 2.w),
-                            child: Text(
-                              list[index]?.lastReplyUsername ?? '',
-                              style: TextStyle(fontSize: 12.sp, height: 1.2, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
                       DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.black12,
-                          borderRadius: BorderRadius.circular(6.0), //3像素圆角
+                          borderRadius: BorderRadius.circular(3.0), //3像素圆角
                         ),
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
                           child: Text(
-                            list[index]?.replyCount?.toString() ?? '',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            list[index]?.node?.title ?? '',
+                            style: TextStyle(color: Colors.black, fontSize: 10.sp),
                           ),
                         ),
                       ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        list[index]?.lastReplyDate ?? '',
+                        style: TextStyle(fontSize: 10.sp, height: 1.2),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        '最后回复来自',
+                        style: TextStyle(fontSize: 10.sp, height: 1.2),
+                      ),
+                      SizedBox(width: 2.w),
+                      Expanded(
+                          child: Text(
+                            list[index]?.lastReplyUsername ?? '',
+                            style: TextStyle(fontSize: 12.sp, height: 1.2, fontWeight: FontWeight.bold),
+                          )),
                     ],
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
+                  )
                 )
               ]),
             );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:v2ex/pages/Me.dart';
 
 import 'pages/Home.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         designSize: const Size(375, 750),
         minTextAdapt: true,
         builder: (context, child) {
-          return MaterialApp(
+          return GetMaterialApp(
             title: 'Flutter Demo',
             theme: ThemeData(
               useMaterial3: true,

@@ -4,8 +4,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:v2ex/bus.dart';
 import 'package:v2ex/components/TabBarViewPage.dart';
+import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -40,6 +42,7 @@ class _Page1State extends State<Page1> {
   List<Widget> tabs = [];
   List<Widget> pages = [];
   bool loaded = false;
+  final Controller c = Get.put(Controller());
 
   @override
   void initState() {
@@ -49,7 +52,7 @@ class _Page1State extends State<Page1> {
         return Tab(text: e.title);
       }).toList();
       pages = tabMap.map((e) {
-        return TabBarViewPage(node: e.node);
+        return new TabBarViewPage(node: e.node);
       }).toList();
     });
     // return;
@@ -63,10 +66,11 @@ class _Page1State extends State<Page1> {
           },
           onPageStarted: (String url) {},
           onPageFinished: (String url) async {
+            print('页面加载完成');
             rootBundle.loadString('assets/index.js').then((data) {
-              print('页面加载完全');
-              bus.emit("loaded");
               controller.runJavaScript(data);
+              print('js加载完成');
+              c.loaded.value = true;
             });
           },
           onWebResourceError: (WebResourceError error) {},
@@ -85,23 +89,38 @@ class _Page1State extends State<Page1> {
       ..loadRequest(Uri.parse('https://v2ex.com/?tab=hot'))
       ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
         print('v2-channel' + message.message.length.toString());
+        // print(message.message.substring(200, 300));
+        // print(message.message.substring(300, 400));
+        // print(message.message.substring(400, 500));
+        // print(message.message.substring(500, 600));
+        // print(message.message.substring(600, 700));
         var temp = json.decode(message.message);
+        // if (temp['type'] == 'list') {
+        //   print(temp['data'][0]['title']);
+        // }
         bus.emit("onJsBridge", temp);
       });
     bus.on("getPost", (arg) {
-      print('on-getPost' + arg);
+      print('on-getPost：' + arg);
       controller.runJavaScript('jsBridge("getPost",' + arg + ')');
     });
     bus.on("emitJsBridge", (arg) {
-      print('emitJsBridge' + arg['func']);
-      controller.runJavaScript('jsBridge(' + arg['func'] + ', ' + arg['val'] + ')');
-      controller.runJavaScript('window.jsBridge(' + arg['func'] + ', ' + arg['val'] + ')');
+      print('emitJsBridge：' + arg['func'] + ':' + arg['val']);
+      // controller.runJavaScript('window.jsBridge("' + arg['func'] + '", "' + arg['val'] + '")');
+      controller.runJavaScript('window.jsBridge("${arg['func']}","${arg['val']}")');
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    bus.off('getPost');
+    bus.off('emitJsBridge');
   }
 
   submit() {
     print("test");
-    // controller.loadRequest(Uri.parse('https://www.v2ex.com'));
+    controller.loadRequest(Uri.parse('https://www.v2ex.com'));
     // Navigator.pushNamed(context, 'Home');
   }
 
@@ -111,8 +130,9 @@ class _Page1State extends State<Page1> {
       context,
       'Me',
     );
+    ;
     // Navigator.push(
-    //   context,
+    //   contex,,
     //   MaterialPageRoute(builder: (context) => Me(post: post)),
     // );
     // controller.runJavaScript('jsBridge("getPost",' + id.toString() + ')');
@@ -123,6 +143,11 @@ class _Page1State extends State<Page1> {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              submit();
+            },
+            child: Text('刷新')),
         appBar: AppBar(
           elevation: 0,
           toolbarHeight: 0,
