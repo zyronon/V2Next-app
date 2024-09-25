@@ -537,14 +537,6 @@
       loopCheckNoticeInterval: 5
     }
   };
-  function sendFlutter(val) {
-    if (typeof val === "object") {
-      val = JSON.stringify(val);
-    }
-    {
-      Channel.postMessage(val);
-    }
-  }
   async function getHtml(url) {
     url = location.origin + url;
     console.log("js-请求的url" + url);
@@ -557,7 +549,6 @@
   }
   async function bridge_getPost(id) {
     console.log("getPost", id);
-    sendFlutter({ type: "开始请求" + id });
     let url = location.origin + "/t/" + id;
     let apiRes = await window.fetch(url + "?p=1");
     let htmlText = await apiRes.text();
@@ -566,7 +557,6 @@
     let post = getDefaultPost();
     post.id = String(id);
     await window.parse.getPostDetail(post, body, htmlText);
-    sendFlutter({ type: "post", data: post });
     return post;
   }
   async function bridge_getNodePostList(node, el) {
@@ -577,8 +567,8 @@
     let box = el.querySelector("#Wrapper .box");
     let list = box.querySelectorAll(".item");
     window.parse.parsePagePostList(list, box);
-    sendFlutter({ type: "list", node, data: window.postList });
-    return window.postList;
+    console.log("window.postList", window.postList.length);
+    return JSON.stringify(window.postList);
   }
   window.jsBridge = async (type, ...args) => {
     console.log("js-调用jsBridge:", type, ":", ...args);
@@ -1304,3 +1294,20 @@
   init();
 
 })();
+
+function test(){
+  console.log('test111111')
+  return 1
+}
+function testAsync(){
+  console.log('testAsync')
+  return  new Promise(resolve => {
+    setTimeout(()=>{
+      resolve('testAsync-resolve')
+    },1000)
+  })
+}
+async function testAsync2(){
+  let r = await testAsync()
+  return r
+}

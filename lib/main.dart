@@ -1,17 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/pages/Me.dart';
 
 import 'pages/Home.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-  // WidgetsFlutterBinding.ensureInitialized();
-
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
+  }
   runApp(const MyApp());
 }
 
@@ -39,10 +42,10 @@ class MyApp extends StatelessWidget {
               ),
               appBarTheme: const AppBarTheme(
                   systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                systemNavigationBarColor: Colors.white, // 底部导航栏颜色
-              )),
+                    statusBarColor: Colors.transparent, // 去除状态栏遮罩
+                    statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
+                    systemNavigationBarColor: Colors.white, // 底部导航栏颜色
+                  )),
               colorScheme: const ColorScheme.light(
                 surface: Colors.white,
                 // 和底部导航栏保持一致
@@ -61,7 +64,7 @@ class MyApp extends StatelessWidget {
             routes: {
               '/': (context) => const Home(),
               'Home': (context) => const Home(),
-              'Me': (context) => const Me(),
+              // 'Me': (context) => const Me(),
             },
           );
         });

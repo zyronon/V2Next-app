@@ -4,11 +4,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:v2ex/bus.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/Post.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class Me extends StatefulWidget {
   // final Post post;
@@ -21,7 +20,6 @@ class Me extends StatefulWidget {
 }
 
 class MeState extends State<Me> {
-  late final WebViewController controller;
   final ScrollController _scrollController = ScrollController();
 
   double stateHeight = 0;
@@ -63,7 +61,7 @@ class MeState extends State<Me> {
 
   submit() {
     print("test");
-    controller.loadRequest(Uri.parse('https://v2ex.com'));
+    // controller.loadRequest(Uri.parse('https://v2ex.com'));
     // Navigator.pushNamed(context, 'Home');
   }
 
