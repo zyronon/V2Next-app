@@ -10,7 +10,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/bus.dart';
 import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class TabBarViewPage extends StatefulWidget {
   final String node;
@@ -22,7 +21,7 @@ class TabBarViewPage extends StatefulWidget {
 }
 
 class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
-  late final WebViewController controller;
+  // late final WebViewController controller;
   double stateHeight = 0;
   List<Post> list = [];
   final Controller c = Get.find();
@@ -95,8 +94,27 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
   }
 
   Future<void> onRefresh() async {
-    bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
+    // final completer = Completer();
+    // bus.off('onJsBridge');
+    // bus.on("onJsBridge", (args) {
+    //   print('onJsBridge：${args['type']}：${args?['node'] ?? ''}:${widget.node}');
+    //   if (args['type'] == 'list' && args['node'] == widget.node) {
+    //     print('onRefresh');
+    //     print(args['data'][0]['title']);
+    //     setState(() {
+    //       list = List<Post>.from(args['data']!.map((x) => Post.fromJson(x)));
+    //     });
+    //     return completer.complete(true);
+    //   }
+    // });
+    // bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
+    // return completer.future;
+    var res = await c.callJs({'func': 'getNodePostList', 'val': widget.node});
+    print('onRefresh' + res.toString());
+    print('onRefresh' + res.toString());
+    return;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +181,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                         backgroundImage: NetworkImage(list?[index]?.member?.avatar ?? ''),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(left: 10),
+                        padding: EdgeInsets.only(left: 10.w),
                         child: Text(
                           list[index].member?.username ?? '',
                           style: TextStyle(fontSize: 14.sp, height: 1.2),
@@ -176,7 +194,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                         borderRadius: BorderRadius.circular(4.r), //3像素圆角
                       ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                         child: Text(
                           list[index]?.replyCount?.toString() ?? '',
                           style: TextStyle(
@@ -200,47 +218,46 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                     child: Text(
                       list[index].title ?? '',
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
                     ),
                   ),
                   onTap: () => {getPost(list[index])},
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Row(
-                    children: [
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.black12,
-                          borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                          child: Text(
-                            list[index]?.node?.title ?? '',
-                            style: TextStyle(color: Colors.black, fontSize: 10.sp),
+                    padding: EdgeInsets.only(top: 10.w),
+                    child: Row(
+                      children: [
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(3.r),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                            child: Text(
+                              list[index]?.node?.title ?? '',
+                              style: TextStyle(color: Colors.black, fontSize: 10.sp),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        list[index]?.lastReplyDate ?? '',
-                        style: TextStyle(fontSize: 10.sp, height: 1.2),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '最后回复来自',
-                        style: TextStyle(fontSize: 10.sp, height: 1.2),
-                      ),
-                      SizedBox(width: 2.w),
-                      Expanded(
-                          child: Text(
-                            list[index]?.lastReplyUsername ?? '',
-                            style: TextStyle(fontSize: 12.sp, height: 1.2, fontWeight: FontWeight.bold),
-                          )),
-                    ],
-                  )
-                )
+                        SizedBox(width: 8.w),
+                        Text(
+                          list[index]?.lastReplyDate ?? '',
+                          style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '最后回复来自',
+                          style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
+                        ),
+                        SizedBox(width: 2.w),
+                        Expanded(
+                            child: Text(
+                          list[index]?.lastReplyUsername ?? '',
+                          style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.black),
+                        )),
+                      ],
+                    ))
               ]),
             );
           },

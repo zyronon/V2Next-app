@@ -10,6 +10,7 @@ void main() async {
   await ScreenUtil.ensureScreenSize();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+  // WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const MyApp());
 }
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Demo',
             theme: ThemeData(
               useMaterial3: true,
-              primarySwatch: Colors.blue,
+              // 去除TabBar底部线条
+              tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
               pageTransitionsTheme: const PageTransitionsTheme(
                 builders: <TargetPlatform, PageTransitionsBuilder>{
                   TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
@@ -37,20 +39,22 @@ class MyApp extends StatelessWidget {
               ),
               appBarTheme: const AppBarTheme(
                   systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                    statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                    systemNavigationBarColor: Colors.white, // 底部导航栏颜色
-                  )
-              ),
+                statusBarColor: Colors.transparent, // 去除状态栏遮罩
+                statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
+                systemNavigationBarColor: Colors.white, // 底部导航栏颜色
+              )),
               colorScheme: const ColorScheme.light(
-                surface: Colors.white, // 和底部导航栏保持一致
+                surface: Colors.white,
+                // 和底部导航栏保持一致
                 // surfaceBright: Color(0x00FFFFFF), // 透明背景
                 primary: Color.fromARGB(255, 89, 54, 133),
                 secondary: Color(0xFFE3EDF2),
                 tertiary: Colors.black,
                 onSecondary: Colors.black,
-                secondaryContainer: Color(0xFFE3EDF2), // 骨架屏底色
-                onSecondaryContainer: Color.fromARGB(255, 242, 247, 251), // 骨架屏亮色
+                secondaryContainer: Color(0xFFE3EDF2),
+                // 骨架屏底色
+                onSecondaryContainer: Color.fromARGB(255, 242, 247, 251),
+                // 骨架屏亮色
                 inversePrimary: Colors.black54,
               ),
             ),

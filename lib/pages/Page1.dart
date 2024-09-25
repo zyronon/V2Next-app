@@ -1,16 +1,10 @@
-import 'dart:convert';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/bus.dart';
 import 'package:v2ex/components/TabBarViewPage.dart';
 import 'package:v2ex/model/Controller.dart';
-import 'package:v2ex/model/Post.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class Page1 extends StatefulWidget {
   const Page1({super.key});
@@ -20,7 +14,6 @@ class Page1 extends StatefulWidget {
 }
 
 class _Page1State extends State<Page1> {
-  late final WebViewController controller;
 
   List<TabItem> tabMap = [
     new TabItem(title: '最热', node: 'hot', date: '', post: []),
@@ -44,6 +37,15 @@ class _Page1State extends State<Page1> {
   bool loaded = false;
   final Controller c = Get.put(Controller());
 
+  // HeadlessInAppWebView? headlessWebView;
+  // InAppWebViewController? webViewController;
+  // InAppWebViewSettings settings = InAppWebViewSettings(
+  //     // isInspectable: kDebugMode,
+  //     mediaPlaybackRequiresUserGesture: false,
+  //     allowsInlineMediaPlayback: true,
+  //     iframeAllow: "camera; microphone",
+  //     iframeAllowFullscreen: true);
+
   @override
   void initState() {
     super.initState();
@@ -55,60 +57,95 @@ class _Page1State extends State<Page1> {
         return new TabBarViewPage(node: e.node);
       }).toList();
     });
+
+    // headlessWebView = HeadlessInAppWebView(
+    //   initialUrlRequest: URLRequest(url: WebUri("https://v2ex.com/?tab=hot")),
+    //   initialSettings: InAppWebViewSettings(isInspectable: false),
+    //   onWebViewCreated: (controller) {
+    //     const snackBar = SnackBar(
+    //       content: Text('HeadlessInAppWebView created!'),
+    //       duration: Duration(seconds: 1),
+    //     );
+    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   },
+    //   onConsoleMessage: (controller, consoleMessage) {
+    //     final snackBar = SnackBar(
+    //       content: Text('Console Message: ${consoleMessage.message}'),
+    //       duration: const Duration(seconds: 1),
+    //     );
+    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   },
+    //   onLoadStart: (controller, url) async {
+    //     final snackBar = SnackBar(
+    //       content: Text('onLoadStart $url'),
+    //       duration: const Duration(seconds: 1),
+    //     );
+    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   },
+    //   onLoadStop: (controller, url) async {
+    //     final snackBar = SnackBar(
+    //       content: Text('onLoadStop $url'),
+    //       duration: const Duration(seconds: 1),
+    //     );
+    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   },
+    // );
+
     // return;
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
-          },
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) async {
-            print('页面加载完成');
-            rootBundle.loadString('assets/index.js').then((data) {
-              controller.runJavaScript(data);
-              print('js加载完成');
-              c.loaded.value = true;
-            });
-          },
-          onWebResourceError: (WebResourceError error) {},
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              return NavigationDecision.prevent;
-            }
-            debugPrint('allowing navigation to ${request.url}');
-            return NavigationDecision.navigate;
-          },
-          onUrlChange: (UrlChange change) {
-            debugPrint('url change to ${change.url}');
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse('https://v2ex.com/?tab=hot'))
-      ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
-        print('v2-channel' + message.message.length.toString());
-        // print(message.message.substring(200, 300));
-        // print(message.message.substring(300, 400));
-        // print(message.message.substring(400, 500));
-        // print(message.message.substring(500, 600));
-        // print(message.message.substring(600, 700));
-        var temp = json.decode(message.message);
-        // if (temp['type'] == 'list') {
-        //   print(temp['data'][0]['title']);
-        // }
-        bus.emit("onJsBridge", temp);
-      });
-    bus.on("getPost", (arg) {
-      print('on-getPost：' + arg);
-      controller.runJavaScript('jsBridge("getPost",' + arg + ')');
-    });
-    bus.on("emitJsBridge", (arg) {
-      print('emitJsBridge：' + arg['func'] + ':' + arg['val']);
-      // controller.runJavaScript('window.jsBridge("' + arg['func'] + '", "' + arg['val'] + '")');
-      controller.runJavaScript('window.jsBridge("${arg['func']}","${arg['val']}")');
-    });
+    //   c.wc = controller = WebViewController()
+    //     ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    //     ..setBackgroundColor(const Color(0x00000000))
+    //     ..setNavigationDelegate(
+    //       NavigationDelegate(
+    //         onProgress: (int progress) {
+    //           // Update loading bar.
+    //         },
+    //         onPageStarted: (String url) {},
+    //         onPageFinished: (String url) async {
+    //           print('页面加载完成');
+    //           rootBundle.loadString('assets/index.js').then((data) {
+    //             controller.runJavaScript(data);
+    //             print('js加载完成');
+    //             c.loaded.value = true;
+    //           });
+    //         },
+    //         onWebResourceError: (WebResourceError error) {},
+    //         onNavigationRequest: (NavigationRequest request) {
+    //           if (request.url.startsWith('https://www.youtube.com/')) {
+    //             return NavigationDecision.prevent;
+    //           }
+    //           debugPrint('allowing navigation to ${request.url}');
+    //           return NavigationDecision.navigate;
+    //         },
+    //         onUrlChange: (UrlChange change) {
+    //           debugPrint('url change to ${change.url}');
+    //         },
+    //       ),
+    //     )
+    //     ..loadRequest(Uri.parse('https://v2ex.com/?tab=hot'))
+    //     ..addJavaScriptChannel('Channel', onMessageReceived: (JavaScriptMessage message) {
+    //       print('v2-channel' + message.message.length.toString());
+    //       // print(message.message.substring(200, 300));
+    //       // print(message.message.substring(300, 400));
+    //       // print(message.message.substring(400, 500));
+    //       // print(message.message.substring(500, 600));
+    //       // print(message.message.substring(600, 700));
+    //       var temp = json.decode(message.message);
+    //       // if (temp['type'] == 'list') {
+    //       //   print(temp['data'][0]['title']);
+    //       // }
+    //       bus.emit("onJsBridge", temp);
+    //     });
+    //   bus.on("getPost", (arg) {
+    //     print('on-getPost：' + arg);
+    //     controller.runJavaScript('jsBridge("getPost",' + arg + ')');
+    //   });
+    //   bus.on("emitJsBridge", (arg) {
+    //     print('emitJsBridge：' + arg['func'] + ':' + arg['val']);
+    //     // controller.runJavaScript('window.jsBridge("' + arg['func'] + '", "' + arg['val'] + '")');
+    //     controller.runJavaScript('window.jsBridge("${arg['func']}","${arg['val']}")');
+    //   });
+    // }
   }
 
   @override
@@ -116,11 +153,12 @@ class _Page1State extends State<Page1> {
     super.dispose();
     bus.off('getPost');
     bus.off('emitJsBridge');
+    // headlessWebView?.dispose();
   }
 
   submit() {
     print("test");
-    controller.loadRequest(Uri.parse('https://www.v2ex.com'));
+    // controller.loadRequest(Uri.parse('https://www.v2ex.com'));
     // Navigator.pushNamed(context, 'Home');
   }
 
@@ -161,8 +199,8 @@ class _Page1State extends State<Page1> {
                     child: TabBar(
                         tabAlignment: TabAlignment.start,
                         isScrollable: true,
-                        // indicatorPadding: EdgeInsets.only(bottom: 2),
-                        // indicatorSize: TabBarIndicatorSize.tab,
+                        // labelStyle: TextStyle(fontSize: 15.sp),
+                        unselectedLabelStyle: TextStyle(fontSize: 15.sp),
                         tabs: tabs),
                     flex: 7,
                   ),

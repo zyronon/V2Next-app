@@ -77,7 +77,8 @@
       let floorReplyList = [];
       for (let i = 0; i < endList.length; i++) {
         let currentItem = endList[i];
-        if (currentItem.isUse) continue;
+        if (currentItem.isUse)
+          continue;
         if (currentItem.replyFloor === item.floor) {
           if (currentItem.replyUsers.length === 1 && currentItem.replyUsers[0] === item.username) {
             currentItem.isUse = true;
@@ -97,7 +98,8 @@
       let findList = nextMeIndex > -1 ? endList.slice(0, nextMeIndex) : endList;
       for (let i = 0; i < findList.length; i++) {
         let currentItem = findList[i];
-        if (currentItem.isUse) continue;
+        if (currentItem.isUse)
+          continue;
         if (currentItem.replyUsers.length === 1) {
           if (currentItem.replyFloor !== -1) {
             if (((_a = all[currentItem.replyFloor - 1]) == null ? void 0 : _a.username) === currentItem.replyUsers[0]) {
@@ -116,7 +118,8 @@
             }
           }
         } else {
-          if (currentItem.username === item.username) break;
+          if (currentItem.username === item.username)
+            break;
         }
       }
       item.children = item.children.sort((a, b) => a.floor - b.floor);
@@ -132,7 +135,8 @@
     },
     //生成嵌套回复
     createNestedList(allList = [], topReplyList = []) {
-      if (!allList.length) return [];
+      if (!allList.length)
+        return [];
       let list = allList;
       let nestedList = [];
       list.map((item, index) => {
@@ -164,7 +168,8 @@
     },
     //生成嵌套冗余回复
     createNestedRedundantList(allList = [], topReplyList) {
-      if (!allList.length) return [];
+      if (!allList.length)
+        return [];
       let list = allList;
       let nestedList = [];
       list.map((item, index) => {
@@ -211,7 +216,8 @@
     },
     //图片链接转Img标签
     checkPhotoLink2Img(str) {
-      if (!str) return;
+      if (!str)
+        return;
       try {
         let imgWebs = [
           /<a((?!<a).)*href="https?:\/\/((?!<a).)*imgur.com((?!<a).)*>(((?!<a).)*)<\/a>/g,
@@ -331,7 +337,8 @@
           data.pageData.id = r[1];
           if (l.search) {
             let pr = l.href.match(/\?p=([\d]+)/);
-            if (pr) data.pageData.pageNo = Number(pr[1]);
+            if (pr)
+              data.pageData.pageNo = Number(pr[1]);
           }
         }
       }
@@ -556,30 +563,30 @@
     let htmlText = await apiRes.text();
     let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
     let body = $(bodyText[0]);
-    let post = window.clone(window.initPost);
+    let post = getDefaultPost();
     post.id = String(id);
     await window.parse.getPostDetail(post, body, htmlText);
-    sendFlutter({ type: "帖子内容" });
     sendFlutter({ type: "post", data: post });
+    return post;
   }
   async function bridge_getNodePostList(node, el) {
     window.postList = [];
     console.log("js-bridge_getNodePostList", node);
-    if (!el) el = await getHtml("/?tab=" + node);
+    if (!el)
+      el = await getHtml("/?tab=" + node);
     let box = el.querySelector("#Wrapper .box");
     let list = box.querySelectorAll(".item");
     window.parse.parsePagePostList(list, box);
     sendFlutter({ type: "list", node, data: window.postList });
+    return window.postList;
   }
-  window.jsBridge = (type, ...args) => {
+  window.jsBridge = async (type, ...args) => {
     console.log("js-调用jsBridge:", type, ":", ...args);
     switch (type) {
       case "getPost":
-        bridge_getPost(...args);
-        break;
+        return await bridge_getPost(...args);
       case "getNodePostList":
-        bridge_getNodePostList(...args);
-        break;
+        return await bridge_getNodePostList(...args);
     }
   };
   $(document).on("click", "a", async (e) => {
@@ -830,7 +837,8 @@
     parsePageReplies(nodes) {
       let replyList = [];
       nodes.forEach((node, index) => {
-        if (!node.id) return;
+        if (!node.id)
+          return;
         let item = {
           level: 0,
           thankCount: 0,
@@ -881,7 +889,8 @@
     },
     //解析回复内容，解析出@用户，回复楼层。用于后续生成嵌套楼层
     parseReplyContent(str) {
-      if (!str) return;
+      if (!str)
+        return;
       let users = [];
       let getUsername = (userStr) => {
         let endIndex = userStr.indexOf('">');
@@ -924,7 +933,8 @@
       list.forEach((itemDom) => {
         let item = getDefaultPost();
         let item_title = itemDom.querySelector(".item_title");
-        if (!item_title) return;
+        if (!item_title)
+          return;
         itemDom.classList.add("post-item");
         let a = item_title.querySelector("a");
         let { href, id, title } = functions.parseA(a);
@@ -1122,7 +1132,8 @@
           }
         });
         console.warn("[V2EX 增强] 自动签到失败！请关闭其他插件或脚本。如果连续几天都签到失败，请联系作者解决！");
-        if (qiandao) qiandao.textContent = "自动签到失败！请尝试手动签到！";
+        if (qiandao)
+          qiandao.textContent = "自动签到失败！请尝试手动签到！";
       }
     });
   }
@@ -1210,10 +1221,12 @@
           box[1].style["box-shadow"] = "none";
           first = $(box[1]).children().first();
           first.addClass("cell post-item");
-          if (window.config.viewType === "card") first[0].classList.add("preview");
+          if (window.config.viewType === "card")
+            first[0].classList.add("preview");
           last = $(box[1]).children().last();
           last.addClass("cell post-item");
-          if (window.config.viewType === "card") last[0].classList.add("preview");
+          if (window.config.viewType === "card")
+            last[0].classList.add("preview");
           list = box[1].querySelectorAll(".cell");
           box[0].before($section);
           window.parse.parsePagePostList(list, box[1]);
@@ -1227,10 +1240,12 @@
           box.style["box-shadow"] = "none";
           first = $(box).children().first();
           first.addClass("cell post-item");
-          if (window.config.viewType === "card") first[0].classList.add("preview");
+          if (window.config.viewType === "card")
+            first[0].classList.add("preview");
           last = $(box).children().last();
           last.addClass("cell post-item");
-          if (window.config.viewType === "card") last[0].classList.add("preview");
+          if (window.config.viewType === "card")
+            last[0].classList.add("preview");
           list = box.querySelectorAll(".item");
           list[0].before($section);
           window.parse.parsePagePostList(list, box);
