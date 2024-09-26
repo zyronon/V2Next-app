@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Page1 extends StatefulWidget {
@@ -79,6 +80,61 @@ class _Page1State extends State<Page1> {
 
     var result5 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: 'return testAsync()');
     print(result5); // {value: 49, error: null}
+  }
+
+  modalWrap(Widget text, Widget other) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                  margin: EdgeInsets.only(bottom: 10.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                  ),
+                  constraints: BoxConstraints(maxHeight: .5.sh),
+                  padding: EdgeInsets.all(14.w),
+                  width: ScreenUtil().screenWidth * .91,
+                  child: SingleChildScrollView(child: text)),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xfff1f1f1),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.r),
+                    topRight: Radius.circular(10.r),
+                  ),
+                ),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40.w,
+                        height: 4.w,
+                        margin: EdgeInsets.only(bottom: 10.w, top: 15.w),
+                        decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
+                      ),
+                    ),
+                    other
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  showLoginModal(){
+
   }
 
   @override
