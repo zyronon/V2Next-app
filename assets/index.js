@@ -3,19 +3,9 @@
 // @namespace    npm/vite-plugin-monkey
 // @version      0.0.0
 // @author       zyronon
-// @description  楼中楼回复(支持感谢数排序)、自动签到、快捷回复图片和表情、列表预览内容、点击帖子弹框展示详情、对用户打标签、回复上下文、记录上次阅读位置、自定义背景、使用 SOV2EX 搜索、正文超长自动折叠、划词 base64 解码、一键@所有人,@管理员、操作按钮(感谢、收藏、回复、隐藏)异步请求、支持黑暗模式
+// @description  flutter专用js
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=v2ex.com
-// @match        https://v2ex.com/
-// @match        https://v2ex.com/?tab=*
-// @match        https://v2ex.com/t/*
-// @match        https://v2ex.com/recent*
-// @match        https://v2ex.com/go/*
-// @match        https://*.v2ex.com/
-// @match        https://*.v2ex.com/?tab=*
-// @match        https://*.v2ex.com/t/*
-// @match        https://*.v2ex.com/recent*
-// @match        https://*.v2ex.com/go/*
-// @grant        GM_notification
+// @match        https://*.v2ex.com/*
 // @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
 // ==/UserScript==
@@ -422,6 +412,13 @@
         }
       }
       return target;
+    },
+    //生成dom，从html字符串
+    genDomFromHtmlString(htmlText) {
+      let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
+      let body = document.createElement("html");
+      body.innerHTML = bodyText[0];
+      return body;
     }
   };
   const DefaultPost = {
@@ -542,10 +539,7 @@
     console.log("js-请求的url" + url);
     let apiRes = await window.fetch(url);
     let htmlText = await apiRes.text();
-    let bodyText = htmlText.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
-    let body = document.createElement("html");
-    body.innerHTML = bodyText[0];
-    return body;
+    return functions.genDomFromHtmlString(htmlText);
   }
   async function bridge_getPost(id) {
     console.log("getPost", id);
@@ -570,6 +564,46 @@
     console.log("window.postList", window.postList.length);
     return JSON.stringify(window.postList);
   }
+  async function login() {
+    let pwdEl = $('input[type="password"]');
+    let inputs = $('input[type="text"].sl');
+    let acc = $(inputs[0]);
+    let code = $(inputs[1]);
+    let data = new FormData();
+    data.append("next", "/");
+    data.append(acc.attr("name"), acc.val());
+    data.append("once", $('input[name="once"]').val());
+    data.append(pwdEl.attr("name"), pwdEl.val());
+    data.append(code.attr("name"), code.val());
+    let r = await fetch("https://www.v2ex.com/signin", {
+      method: "POST",
+      body: data
+    });
+    console.log("r", r);
+    if (r.redirected)
+      ;
+    if (r.url === location.origin + "/")
+      ;
+    else {
+      let htmlText = await r.text();
+      let dom = functions.genDomFromHtmlString(htmlText);
+      console.log("htmlText", htmlText);
+      console.log("dd", dom);
+      if (r.url.includes("cooldown"))
+        ;
+      if (r.url === location.origin + "/signin") {
+        let messageEl = dom.querySelector(".message");
+        let problemEl = dom.querySelector(".problem");
+        if (messageEl) {
+          console.log(messageEl.textContent);
+        }
+        if (problemEl) {
+          console.log(problemEl.innerHTML);
+        }
+      }
+    }
+  }
+  window.login = login;
   window.jsBridge = async (type, ...args) => {
     console.log("js-调用jsBridge:", type, ":", ...args);
     switch (type) {
@@ -577,6 +611,94 @@
         return await bridge_getPost(...args);
       case "getNodePostList":
         return await bridge_getNodePostList(...args);
+    }
+  };
+  window.jsFunc = {
+    async getLoginPageInfo() {
+      let r = await fetch("https://www.v2ex.com/signin", {
+        headers: {
+          "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"
+        }
+      });
+      let htmlText = await r.text();
+      let dom = $(functions.genDomFromHtmlString(htmlText));
+      if (r.redirected) {
+        let desc = dom.find("#Wrapper .box").html();
+        console.log("cooldown", desc);
+        return { error: true, msg: desc };
+      } else {
+        let pwdEl = dom.find('input[type="password"]');
+        let inputs = dom.find('input[type="text"].sl');
+        let acc = dom.find(inputs[0]);
+        let code = dom.find(inputs[1]);
+        let data = {
+          once: dom.find('input[name="once"]').val(),
+          accKey: acc.attr("name"),
+          pwdKey: pwdEl.attr("name"),
+          codeKey: code.attr("name"),
+          img: "_captcha"
+        };
+        console.log("data", JSON.stringify(data));
+        await fetch("https://www.v2ex.com/_captcha");
+        return { error: false, data };
+      }
+    },
+    async login(form) {
+      console.log("login", form);
+      form.acc = "ttentau1";
+      form.pwd = "o8949488816";
+      form.code = "";
+      let data = new FormData();
+      data.append("next", "/");
+      data.append(form.accKey, form.acc);
+      data.append("once", form.once);
+      data.append(form.pwdKey, form.pwd);
+      data.append(form.codeKey, form.code);
+      let r = await fetch("https://www.v2ex.com/signin", {
+        method: "POST",
+        body: data,
+        headers: {
+          "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"
+        }
+      });
+      console.log("r", r);
+      console.log("r.url", r.url, location.origin, r.redirected);
+      let htmlText = await r.text();
+      let dom = $(functions.genDomFromHtmlString(htmlText));
+      if (r.url === location.origin + "/") {
+        let top2 = dom.find("#menu-body .cell:first .top:first");
+        if (top2.length && ["个人主页", "Profile"].includes(top2.text())) {
+          let username = top2.attr("href").replace("/member/", "");
+          let avatar = dom.find("#menu-entry .avatar").attr("src");
+          console.log("登录成功");
+          return {
+            error: false,
+            data: {
+              username,
+              avatar
+            }
+          };
+        } else {
+          console.log("登录失败");
+          return { error: true };
+        }
+      } else {
+        if (r.url.includes("cooldown")) {
+          let desc = dom.find("#Wrapper .box").text();
+          console.log("cooldown", desc);
+        }
+        if (r.url === location.origin + "/signin") {
+          let messageEl = dom.find(".message");
+          let problemEl = dom.find(".problem");
+          if (messageEl) {
+            console.log("msg", messageEl.text());
+          }
+          if (problemEl) {
+            console.log("problem", problemEl.html());
+          }
+        }
+        return { error: true };
+      }
     }
   };
   $(document).on("click", "a", async (e) => {
@@ -1066,248 +1188,12 @@
       }
     }
   };
-  function initStyle() {
-    let style2 = `
-
-    }
-    `;
-    let addStyle2 = document.createElement("style");
-    addStyle2.rel = "stylesheet";
-    addStyle2.type = "text/css";
-    addStyle2.innerHTML = style2;
-    window.document.head.append(addStyle2);
-  }
-  function qianDao() {
-    let timeNow = (/* @__PURE__ */ new Date()).getUTCFullYear() + "/" + ((/* @__PURE__ */ new Date()).getUTCMonth() + 1) + "/" + (/* @__PURE__ */ new Date()).getUTCDate();
-    if (window.pageType === PageType.Home) {
-      let qiandao = window.query('.box .inner a[href="/mission/daily"]');
-      if (qiandao) {
-        qianDao_(qiandao, timeNow);
-      } else if (window.win().doc.getElementById("gift_v2excellent")) {
-        window.win().doc.getElementById("gift_v2excellent").click();
-        localStorage.setItem("menu_clockInTime", timeNow);
-        console.info("[V2EX - 超级增强] 自动签到完成！");
-      } else {
-        console.info("[V2EX - 超级增强] 自动签到完成！");
-      }
-    } else {
-      let timeOld = localStorage.getItem("menu_clockInTime");
-      if (!timeOld || timeOld != timeNow) {
-        qianDaoStatus_(timeNow);
-      } else {
-        console.info("[V2EX - 超级增强] 自动签到完成！");
-      }
-    }
-  }
-  function qianDao_(qiandao, timeNow) {
-    let url = location.origin + "/mission/daily/redeem?" + RegExp("once\\=(\\d+)").exec(document.querySelector("div#Top .tools, #menu-body").innerHTML)[0];
-    console.log("url", url);
-    $.get(url).then((r) => {
-      let bodyText = r.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
-      let html = $(bodyText[0]);
-      if (html.find("li.fa.fa-ok-sign").length) {
-        html = html.find("#Main").text().match(/已连续登录 (\d+?) 天/)[0];
-        localStorage.setItem("menu_clockInTime", timeNow);
-        console.info("[V2EX - 超级增强] 自动签到完成！");
-        if (qiandao) {
-          qiandao.textContent = `自动签到完成！${html}`;
-          qiandao.href = "javascript:void(0);";
-        }
-      } else {
-        GM_notification({
-          text: "自动签到失败！请关闭其他插件或脚本。\n如果连续几天都签到失败，请联系作者解决！",
-          timeout: 4e3,
-          onclick() {
-            functions.feedback();
-          }
-        });
-        console.warn("[V2EX 增强] 自动签到失败！请关闭其他插件或脚本。如果连续几天都签到失败，请联系作者解决！");
-        if (qiandao)
-          qiandao.textContent = "自动签到失败！请尝试手动签到！";
-      }
-    });
-  }
-  function qianDaoStatus_(timeNow) {
-    $.get(location.origin + "/mission/daily").then((r) => {
-      let bodyText = r.match(/<body[^>]*>([\s\S]+?)<\/body>/g);
-      let html = $(bodyText[0]);
-      if (html.find('input[value^="领取"]').length) {
-        qianDao_(null, timeNow);
-      } else {
-        console.info("[V2EX 增强] 已经签过到了。");
-        localStorage.setItem("menu_clockInTime", timeNow);
-      }
-    });
-  }
-  async function initNoteData() {
-    return;
-  }
-  function initConfig() {
-    return new Promise((resolve) => {
-      let configStr = localStorage.getItem("v2ex-config");
-      if (configStr) {
-        let configObj = JSON.parse(configStr);
-        configObj = configObj[window.user.username ?? "default"];
-        if (configObj) {
-          window.config = Object.assign(window.config, configObj);
-        }
-      }
-      resolve(window.config);
-    });
-  }
-  function addSettingText() {
-    let setting = $(`<a href="/script-setting" class="top">脚本管理</a>`);
-    $("#menu-body .cell:first").append(setting);
-  }
   let $section = document.createElement("section");
   $section.id = "app";
   async function init() {
-    window.addEventListener("error", (e) => {
-      let dom = e.target;
-      let originImgUrl = dom.getAttribute("data-originurl");
-      if (originImgUrl) {
-        let a = document.createElement("a");
-        a.href = originImgUrl;
-        a.setAttribute("notice", "此标签由v2ex超级增强脚本转换图片失败后恢复");
-        a.innerText = originImgUrl;
-        dom.parentNode.replaceChild(a, dom);
-      }
-    }, true);
-    if (window.isNight) {
-      document.documentElement.classList.add("dark");
-    }
-    let { pageData, pageType } = functions.checkPageType();
-    window.pageType = pageType;
-    window.pageData = pageData;
-    addSettingText();
-    functions.initMonkeyMenu();
-    let top2 = $("#menu-body .cell:first .top:first");
-    if (top2.length && ["个人主页", "Profile"].includes(top2.text())) {
-      window.user.username = top2.attr("href").replace("/member/", "");
-      window.user.avatar = $("#menu-entry .avatar").attr("src");
-    }
-    initConfig().then(async (r) => {
-      initStyle();
-      try {
-        if (window.config.autoSignin && window.user.username) {
-          qianDao();
-        }
-      } catch (e) {
-        console.log("签到失败");
-      }
-      if (window.user.username) {
-        initNoteData();
-      }
-      let box;
-      let list;
-      let first;
-      let last;
-      switch (window.pageType) {
-        case PageType.Node:
-          box = document.querySelectorAll("#Wrapper .box");
-          box[1].style.background = "unset";
-          box[1].style.borderBottom = "none";
-          box[1].style["border-radius"] = "0";
-          box[1].style["box-shadow"] = "none";
-          first = $(box[1]).children().first();
-          first.addClass("cell post-item");
-          if (window.config.viewType === "card")
-            first[0].classList.add("preview");
-          last = $(box[1]).children().last();
-          last.addClass("cell post-item");
-          if (window.config.viewType === "card")
-            last[0].classList.add("preview");
-          list = box[1].querySelectorAll(".cell");
-          box[0].before($section);
-          window.parse.parsePagePostList(list, box[1]);
-          break;
-        case PageType.Home:
-          break;
-        case PageType.Changes:
-          box = document.querySelector("#Wrapper .box");
-          box.style.background = "unset";
-          box.style["border-radius"] = "0";
-          box.style["box-shadow"] = "none";
-          first = $(box).children().first();
-          first.addClass("cell post-item");
-          if (window.config.viewType === "card")
-            first[0].classList.add("preview");
-          last = $(box).children().last();
-          last.addClass("cell post-item");
-          if (window.config.viewType === "card")
-            last[0].classList.add("preview");
-          list = box.querySelectorAll(".item");
-          list[0].before($section);
-          window.parse.parsePagePostList(list, box);
-          break;
-        case PageType.Post:
-          box = document.querySelector("#Wrapper .box");
-          box.after($section);
-          let r2 = await functions.checkPostReplies(window.pageData.id, false);
-          if (r2) {
-            window.stopMe = true;
-            functions.cbChecker({ type: "syncData" });
-            functions.cbChecker({ type: "warningNotice", value: "由于回复数量较多，脚本已停止解析楼中楼" });
-            return;
-          }
-          let post = functions.clone(window.initPost);
-          post.id = window.pageData.id;
-          let body = $(document.body);
-          let htmlText = document.documentElement.outerHTML;
-          window.parse.parsePostContent(
-            post,
-            body,
-            htmlText
-          ).then(async (res) => {
-            await functions.cbChecker({ type: "postContent", value: res });
-            await window.parse.parseOp(res);
-          });
-          window.parse.getPostAllReplies(
-            post,
-            body,
-            htmlText,
-            window.pageData.pageNo
-          ).then(async (res1) => {
-            await functions.cbChecker({ type: "postReplies", value: res1 });
-          });
-          break;
-        case PageType.Member:
-          box = document.querySelectorAll("#Wrapper .box");
-          window.targetUserName = box[0].querySelector("h1").textContent;
-          if (window.config.openTag) {
-            box[0].style.borderBottom = "none";
-            box[0].style["border-bottom-left-radius"] = "0";
-            box[0].style["border-bottom-right-radius"] = "0";
-          }
-          list = box[2].querySelectorAll(".cell");
-          box[0].after($section);
-          window.parse.parsePagePostList(list, box[2]);
-          break;
-        default:
-          window.stopMe = true;
-          functions.cbChecker({ type: "syncData" });
-          console.error("未知页面");
-          break;
-      }
-    });
+    console.log("js 加载成功");
+    return;
   }
   init();
 
 })();
-
-function test(){
-  console.log('test111111')
-  return 1
-}
-function testAsync(){
-  console.log('testAsync')
-  return  new Promise(resolve => {
-    setTimeout(()=>{
-      resolve('testAsync-resolve')
-    },1000)
-  })
-}
-async function testAsync2(){
-  let r = await testAsync()
-  return r
-}
