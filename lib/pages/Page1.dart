@@ -20,7 +20,7 @@ class Page1 extends StatefulWidget {
   State<Page1> createState() => _Page1State();
 }
 
-class _Page1State extends State<Page1> {
+class _Page1State extends State<Page1>  with AutomaticKeepAliveClientMixin{
   List<TabItem> tabMap = [
     new TabItem(title: '最热', node: 'hot', date: '', post: []),
     new TabItem(title: '最新', node: 'new', date: '', post: []),
@@ -73,7 +73,7 @@ class _Page1State extends State<Page1> {
         });
       },
     );
-    headlessWebView?.run();
+    // headlessWebView?.run();
   }
 
   @override
@@ -269,10 +269,6 @@ class _Page1State extends State<Page1> {
               submit();
             },
             child: Text('刷新')),
-        appBar: AppBar(
-          elevation: 0,
-          toolbarHeight: 0,
-        ),
         body: Container(
           child: Column(
             children: [
@@ -327,4 +323,7 @@ class _Page1State extends State<Page1> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

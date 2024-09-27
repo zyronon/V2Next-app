@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  scrollview_observer: 1.21.2
   get: ^4.6.6
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -45,8 +46,8 @@ dependencies:
   permission_handler: ^10.2.0
   expandable_text: ^2.3.0
   skeletonizer: ^1.4.2
-#  url_launcher: ^6.3.0
-#  flutter_widget_from_html: ^0.15.2
+  #  url_launcher: ^6.3.0
+  #  flutter_widget_from_html: ^0.15.2
   flutter_widget_from_html_core: ^0.15.2
   fwfh_url_launcher: ^0.9.1
 

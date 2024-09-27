@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:v2ex/pages/post_detail.dart';
 
 import 'pages/Home.dart';
 
@@ -64,7 +65,7 @@ class MyApp extends StatelessWidget {
             routes: {
               '/': (context) => const Home(),
               'Home': (context) => const Home(),
-              // 'Me': (context) => const Me(),
+              'PostDetail': (context) => const PostDetail(),
             },
           );
         });

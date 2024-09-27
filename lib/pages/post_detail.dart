@@ -2,25 +2,36 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:v2ex/bus.dart';
+import 'package:get/get.dart';
+import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/Post.dart';
 
-class Me extends StatefulWidget {
+class PostDetailController extends GetxController {
+  bool isShowFixedTitle = false;
+
+  setTitle(bool val) {
+    this.isShowFixedTitle = val;
+    update();
+  }
+}
+
+class PostDetail extends StatefulWidget {
   // final Post post;
   // const Me({super.key, required this.post});
 
-  const Me({super.key});
+  const PostDetail({super.key});
 
   @override
-  State<Me> createState() => MeState();
+  State<PostDetail> createState() => PostDetailState();
 }
 
-class MeState extends State<Me> {
+class PostDetailState extends State<PostDetail> {
   final ScrollController _scrollController = ScrollController();
+  late ListObserverController observerController;
+  PostDetailController ctrl = Get.put(PostDetailController());
 
   double stateHeight = 0;
 
@@ -30,7 +41,7 @@ class MeState extends State<Me> {
   void initState() {
     stateHeight = MediaQueryData.fromWindow(window).padding.top;
     super.initState();
-
+    observerController = ListObserverController(controller: _scrollController);
     // print(this.widget.post.id);
     // print(this.widget.post.title);
     // setState(() {
@@ -507,42 +518,39 @@ class MeState extends State<Me> {
 
   @override
   Widget build(BuildContext context) {
-    var args = ModalRoute.of(context)?.settings.arguments;
-    if (args != null) {
-      print('me page' + args.toString());
-    }
-    print('build-Me');
-
-    return WillPopScope(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-            elevation: 0,
-            toolbarHeight: 0,
-            // backgroundColor: bg,
-            // surfaceTintColor: bg,
-          ),
-          body: DefaultTextStyle(
-              style: TextStyle(color: Colors.black, fontSize: 12.sp),
-              child: Column(
-                children: [
-                  Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(top: 4.w, bottom: 4.w),
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.black12)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                clickIcon(Icons.arrow_back, () {
-                                  Navigator.pop(context);
-                                }),
-                                Expanded(
-                                    child: InkWell(
+    return GetBuilder<PostDetailController>(builder: (_) {
+      return Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          elevation: 0,
+          toolbarHeight: 0,
+          // backgroundColor: bg,
+          // surfaceTintColor: bg,
+        ),
+        body: DefaultTextStyle(
+            style: TextStyle(color: Colors.black, fontSize: 12.sp),
+            child: Column(
+              children: [
+                Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.only(top: 4.w, bottom: 4.w),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.black12)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              clickIcon(Icons.arrow_back, () {
+                                Navigator.pop(context);
+                              }),
+                              Expanded(
+                                  child: InkWell(
+                                child: AnimatedOpacity(
+                                  opacity: _.isShowFixedTitle ? 1.0 : 0.0,
+                                  duration: const Duration(milliseconds: 300),
                                   child: Text(
                                     // '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
                                     item?.title ?? '',
@@ -550,19 +558,29 @@ class MeState extends State<Me> {
                                     maxLines: 2,
                                     style: TextStyle(fontSize: 16.sp),
                                   ),
-                                  onTap: () {
-                                    _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                                  },
-                                ))
-                              ],
-                            ),
+                                ),
+                                onTap: () {
+                                  _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+                                },
+                              ))
+                            ],
                           ),
-                          clickIcon(Icons.more_vert, showPostModal)
-                        ],
-                      )),
-                  getTest(),
-                  Expanded(
-                      child: ListView.separated(
+                        ),
+                        clickIcon(Icons.more_vert, showPostModal)
+                      ],
+                    )),
+                // getTest(),
+                Expanded(
+                    child: ListViewObserver(
+                  controller: observerController,
+                  onObserve: (resultModel) {
+                    _.setTitle(resultModel.firstChild!.index > 0);
+                    //当前页面首个Item
+                    // print('firstChild.index -- ${resultModel.firstChild?.index}');
+                    // //当前页面显示的所有Item
+                    // print('displaying -- ${resultModel.displayingChildIndexList}');
+                  },
+                  child: ListView.separated(
                     // shrinkWrap: true,
                     controller: _scrollController,
                     itemCount: 1 + (item?.nestedReplies?.length ?? 0),
@@ -707,129 +725,119 @@ class MeState extends State<Me> {
                         color: Color(0xfff1f1f1),
                       );
                     },
-                  )),
-                  Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(14.w, 4.w, 6.w, 4.w),
-                      decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: Colors.black12)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(
-                                    '说点什么...',
-                                    style: TextStyle(color: Colors.black54),
-                                  )),
-                                  Icon(
-                                    Icons.crop_original,
-                                    size: 20.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Icon(
-                                    Icons.alternate_email,
-                                    size: 20.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Icon(
-                                    Icons.sentiment_satisfied_alt,
-                                    size: 20.sp,
-                                    color: Colors.grey,
-                                  )
-                                ],
-                              ),
-                              decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
-                              padding: EdgeInsets.all(6.w),
+                  ),
+                )),
+                Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(14.w, 4.w, 6.w, 4.w),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.black12)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Text(
+                                  '说点什么...',
+                                  style: TextStyle(color: Colors.black54),
+                                )),
+                                Icon(
+                                  Icons.crop_original,
+                                  size: 20.sp,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(width: 4.w),
+                                Icon(
+                                  Icons.alternate_email,
+                                  size: 20.sp,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(width: 4.w),
+                                Icon(
+                                  Icons.sentiment_satisfied_alt,
+                                  size: 20.sp,
+                                  color: Colors.grey,
+                                )
+                              ],
                             ),
+                            decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
+                            padding: EdgeInsets.all(6.w),
                           ),
-                          SizedBox(width: 6.w),
-                          clickWidget(
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.chat_bubble_outline,
-                                    size: 24.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  Text(
-                                    item?.replyCount?.toString() ?? '',
-                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                                  )
-                                ],
-                              ), () {
-                            print('asdf');
-                          }),
-                          clickWidget(
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.favorite_border,
-                                    size: 24.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  Text(
-                                    item?.replyCount?.toString() ?? '',
-                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                                  )
-                                ],
-                              ), () {
-                            print('asdf');
-                          }),
-                          clickWidget(
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star_border,
-                                    size: 24.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  Text(
-                                    item?.replyCount?.toString() ?? '',
-                                    style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                                  )
-                                ],
-                              ), () {
-                            print('asdf');
-                          }),
-                          clickWidget(
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.share,
-                                    size: 24.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  Text(
-                                    '分享',
-                                    style: TextStyle(fontSize: 8.sp, color: Colors.black54),
-                                  )
-                                ],
-                              ), () {
-                            print('asdf');
-                          }),
-                        ],
-                      )),
-                ],
-              )),
-        ),
-        onWillPop: () async {
-          print("返回键点击了");
-          Navigator.pop(context);
-          // var isFinish = await controller.canGoBack().then((value) {
-          //   if (value) {
-          //     controller.goBack();
-          //   }
-          //   return !value;
-          // });
-          // return isFinish;
-          return false;
-        });
+                        ),
+                        SizedBox(width: 6.w),
+                        // clickWidget(
+                        //     Column(
+                        //       children: [
+                        //         Icon(
+                        //           Icons.share,
+                        //           size: 24.sp,
+                        //           color: Colors.grey,
+                        //         ),
+                        //         Text(
+                        //           '分享',
+                        //           style: TextStyle(fontSize: 8.sp, color: Colors.black54),
+                        //         )
+                        //       ],
+                        //     ), () {
+                        //   print('asdf');
+                        // }),
+                        clickWidget(
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.star_border,
+                                  size: 24.sp,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  item?.replyCount?.toString() ?? '',
+                                  style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                )
+                              ],
+                            ), () {
+                          print('asdf');
+                        }),
+                        clickWidget(
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.favorite_border,
+                                  size: 24.sp,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  item?.replyCount?.toString() ?? '',
+                                  style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                )
+                              ],
+                            ), () {
+                          print('asdf');
+                        }),
+                        clickWidget(
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.chat_bubble_outline,
+                                  size: 24.sp,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  item?.replyCount?.toString() ?? '',
+                                  style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                                )
+                              ],
+                            ), () {
+                          observerController.jumpTo(index: 1);
+                        }),
+                      ],
+                    )),
+              ],
+            )),
+      );
+    });
   }
 }

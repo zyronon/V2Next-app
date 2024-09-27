@@ -1,42 +1,40 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:v2ex/bus.dart';
 import 'package:v2ex/components/TabPage/TabPageController.dart';
+import 'package:v2ex/model/Controller.dart';
+import 'package:v2ex/model/Post.dart';
 
-class TabBarViewPage extends StatefulWidget {
+// class TabBarViewPage extends StatefulWidget {
+//   final String node;
+//
+//   const TabBarViewPage({super.key, required this.node});
+//
+//   @override
+//   State<TabBarViewPage> createState() => _TabBarViewPageState();
+// }
+
+class TabBarViewPage extends StatelessWidget {
   final String node;
+  final Controller c = Get.find();
+  final TabPageController tc;
 
-  const TabBarViewPage({super.key, required this.node});
+  TabBarViewPage({super.key, required this.node}) :
+        tc = Get.put(TabPageController());
 
-  @override
-  State<TabBarViewPage> createState() => _TabBarViewPageState();
-}
-
-class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
-
-  getPost(post) {
-    Get.toNamed('PostDetail');
-  }
-
-  Future<void> onRefresh() async {
-    final TabPageController c = Get.find(tag: widget.node);
-    c.getList(widget.node);
-    return;
-  }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return GetBuilder<TabPageController>(
-        init: TabPageController(node: widget.node),
-        tag: widget.node,
-        builder: (_) {
+    return GetBuilder<TabPageController>(builder: (_) {
       if (_.postList.length == 0) {
         return ListView.separated(
-          itemCount: 7,
+          itemCount: 10,
           itemBuilder: (BuildContext context, int index) {
             return Skeletonizer.zone(
               child: Padding(
@@ -114,8 +112,8 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                             _.postList[index]?.replyCount?.toString() ?? '',
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -133,31 +131,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                       child: Text(
                         _.postList[index].title ?? '',
                         textAlign: TextAlign.left,
-                        // style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
-                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
-                      ),
-                    ),
-                    onTap: () => {getPost(_.postList[index])},
-                  ),
-                  InkWell(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 10,
-                      ),
-                      child: Text(
-                        '''手贱升级了小而美，8.0.51 ，安卓
-
-服务号消息全给折叠了
-
-折叠就不要我看的意思对吧，我忍，银行扣款我不看了～～～
-
-但是你这个未读红点提示是什么鬼。“服务号”点进去红点也消不掉，还得再点一层，进入折叠详情才能消掉。。。。
-
-把最恶心的缺点集中一起做成 💩 喂用户吃。。。。。
-
-什么鬼😧😧😧😧😧😧😧😧😧😧😧😧😧''',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14.sp,color: Colors.black87),
+                        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
                       ),
                     ),
                     onTap: () => {getPost(_.postList[index])},
@@ -166,21 +140,6 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                       padding: EdgeInsets.only(top: 10.w),
                       child: Row(
                         children: [
-                          Text(
-                            _.postList[index]?.lastReplyDate ?? '',
-                            style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                          ),
-                          SizedBox(width: 8.w),
-                          // Text(
-                          //   '最后回复来自',
-                          //   style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                          // ),
-                          // SizedBox(width: 2.w),
-                          // Expanded(
-                          //     child: Text(
-                          //   _.postList[index]?.lastReplyUsername ?? '',
-                          //   style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.black),
-                          // )),
                           DecoratedBox(
                             decoration: BoxDecoration(
                               color: Colors.black12,
@@ -194,6 +153,22 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                               ),
                             ),
                           ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            _.postList[index]?.lastReplyDate ?? '',
+                            style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '最后回复来自',
+                            style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
+                          ),
+                          SizedBox(width: 2.w),
+                          Expanded(
+                              child: Text(
+                                _.postList[index]?.lastReplyUsername ?? '',
+                                style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.black),
+                              )),
                         ],
                       ))
                 ]),
@@ -213,4 +188,9 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }
