@@ -7,7 +7,10 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:v2ex/components/TabBarViewPage.dart';
+import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/LoginForm.dart';
+import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/index.dart';
 
 class Page1 extends StatefulWidget {
@@ -18,46 +21,65 @@ class Page1 extends StatefulWidget {
 }
 
 class _Page1State extends State<Page1> {
+  List<TabItem> tabMap = [
+    new TabItem(title: '最热', node: 'hot', date: '', post: []),
+    new TabItem(title: '最新', node: 'new', date: '', post: []),
+    new TabItem(title: '全部', node: 'all', date: '', post: []),
+    new TabItem(title: '技术', node: 'tech', date: '', post: []),
+    new TabItem(title: '创意', node: 'creative', date: '', post: []),
+    new TabItem(title: '好玩', node: 'play', date: '', post: []),
+    new TabItem(title: 'Apple', node: 'apple', date: '', post: []),
+    new TabItem(title: '酷工作', node: 'jobs', date: '', post: []),
+    new TabItem(title: '交易', node: 'deals', date: '', post: []),
+    new TabItem(title: '城市', node: 'city', date: '', post: []),
+    new TabItem(title: '问与答', node: 'qna', date: '', post: []),
+    new TabItem(title: 'R2', node: 'r2', date: '', post: []),
+    new TabItem(title: '节点', node: 'nodes', date: '', post: []),
+    new TabItem(title: '关注', node: 'members', date: '', post: []),
+  ];
+
+  List<Widget> tabs = [];
+  List<Widget> pages = [];
+
+  final Controller c = Get.put(Controller());
+  final String url = "https://v2ex.com/?tab=hot";
+
   HeadlessInAppWebView? headlessWebView;
-  String url = "www.v2ex.com/signin";
+  // String url = "www.v2ex.com/signin";
 
   InAppWebViewController? webViewController;
-  InAppWebViewSettings settings = InAppWebViewSettings(
-      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-      isInspectable: kDebugMode, mediaPlaybackRequiresUserGesture: false, allowsInlineMediaPlayback: true, iframeAllow: "camera; microphone", iframeAllowFullscreen: true);
   final GlobalKey webViewKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      tabs = tabMap.map((e) {
+        return Tab(text: e.title);
+      }).toList();
+      pages = tabMap.map((e) {
+        return new TabBarViewPage(node: e.node);
+      }).toList();
+    });
 
     headlessWebView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(url: WebUri(url)),
-      initialSettings: settings,
+      onWebViewCreated: (_controller){
+        c.wc = webViewController = _controller;
+      },
       onLoadStop: (controller, url) async {
-        controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js");
+        controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js").then((_){
+          c.loaded.value = true;
+        });
       },
     );
+    headlessWebView?.run();
   }
 
   @override
   void dispose() {
     super.dispose();
     headlessWebView?.dispose();
-  }
-
-  test() async {
-    var arg = {'func': 'getNodePostList', 'val': 'hot'};
-    // arg = {'type': 'getNodePostList', 'val': 'hot'};
-    // await headlessWebView?.webViewController?.evaluateJavascript(source: 'window.jsBridge("${arg['func']}","${arg['val']}")');
-    var r = await headlessWebView?.webViewController?.callAsyncJavaScript(
-      functionBody: 'return window.jsBridge("${arg['func']}","${arg['val']}")',
-      arguments: arg,
-    );
-    print(r);
-
-    var result5 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: 'return testAsync()');
-    print(result5); // {value: 49, error: null}
   }
 
   modalWrap(Widget text, Widget other) {
@@ -112,13 +134,31 @@ class _Page1State extends State<Page1> {
   }
 
   TextEditingController _codeController = new TextEditingController();
-  final loginForm = LoginForm(img: '_captcha').obs;
+  final loginForm = LoginForm().obs;
 
   input() {
     return Container(
       padding: EdgeInsets.all(8.w),
       child: Column(
         children: [
+          Row(
+            children: [
+              ElevatedButton(
+                  onPressed: () async {
+                    InAppWebViewController.clearAllCache();
+                    await headlessWebView?.dispose();
+                    await headlessWebView?.run();
+                    // await headlessWebView?.webViewController?.clearCache();
+                    // await headlessWebView?.webViewController?.reload();
+                  },
+                  child: const Text("无头刷新")),
+              ElevatedButton(
+                  onPressed: () {
+                    showLoginModal22();
+                  },
+                  child: const Text('无关登录')),
+            ],
+          ),
           Container(
             child: TextField(
               autofocus: false,
@@ -159,15 +199,20 @@ class _Page1State extends State<Page1> {
             decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
             margin: EdgeInsets.only(bottom: 10.w),
           ),
-          InkWell(
-            child: Obx(() => Image.network('https://www.v2ex.com/${loginForm().img}', height: 50.w, fit: BoxFit.cover)),
-            onTap: () {
-              // loginForm.value.img = '_captcha?now=${new DateTime.now().millisecondsSinceEpoch}';
-              loginForm.update((val) {
-                val?.img = '_captcha?now=${new DateTime.now().millisecondsSinceEpoch}';
-              });
-            },
-          ),
+          Obx(() {
+            if (loginForm().img != null) {
+              return InkWell(
+                // child: Obx(() => Image.network('https://www.v2ex.com/${loginForm().img}', height: 50.w, fit: BoxFit.cover)),
+                child: Obx(() => Image.memory(base64.decode(loginForm().img!), height: 50.w, fit: BoxFit.cover)),
+                onTap: () {
+                  loginForm.update((val) {
+                    val?.img = '_captcha?once=${loginForm().once}&now=${new DateTime.now().millisecondsSinceEpoch}';
+                  });
+                },
+              );
+            }
+            return Text('data');
+          }),
           ElevatedButton(
             child: Text("登录"),
             onPressed: () async {
@@ -182,42 +227,26 @@ class _Page1State extends State<Page1> {
     );
   }
 
-  showLoginModal() async {
-    // await headlessWebView?.dispose();
-    // await headlessWebView?.run();
-    // modalWrap(Text('data'), input());
-    // print(1);
-    // print(loginForm().toString());
-    // print(loginForm.toString());
-    // var result5 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: 'return  window.jsFunc.getLoginPageInfo()');
-    // print(result5);
-    // var res = (result5?.value);
-    // if (!res['error']) {
-    //   loginForm(LoginForm.fromJson(res['data']));
-    //   print(loginForm.value.codeKey);
-    //
-    //   Timer(Duration(seconds: 1), () async {
-    //     var result56 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: "return window.jsFunc.login(JSON.parse('${loginForm().toString()}'))");
-    //     print(result56);
-    //     print("3秒后执行");
-    //   });
-    // }
+  submit() {
+    headlessWebView?.dispose();
+    headlessWebView?.run();
+    print("test");
+    // controller.loadRequest(Uri.parse('https://www.v2ex.com'));
+    // Navigator.pushNamed(context, 'Home');
+  }
 
-    //------------------
-
-    var result5 = await webViewController?.callAsyncJavaScript(functionBody: 'return window.jsFunc.getLoginPageInfo()');
-    print(result5);
-    var res = (result5?.value);
-    if (!res['error']) {
-      loginForm(LoginForm.fromJson(res['data']));
-      print(loginForm.value.codeKey);
-
-      Timer(Duration(seconds: 1), () async {
-        var result56 = await webViewController?.callAsyncJavaScript(functionBody: "return window.jsFunc.login(JSON.parse('${loginForm().toString()}'))");
-        print(result56);
-        print("1秒后执行");
-      });
-    }
+  getPost(post) {
+    // print('object-getpost' + id.toString());
+    Navigator.pushNamed(
+      context,
+      'Me',
+    );
+    ;
+    // Navigator.push(
+    //   contex,,
+    //   MaterialPageRoute(builder: (context) => Me(post: post)),
+    // );
+    // controller.runJavaScript('jsBridge("getPost",' + id.toString() + ')');
   }
 
   showLoginModal22() async {
@@ -227,74 +256,75 @@ class _Page1State extends State<Page1> {
     if (!res['error']) {
       loginForm(LoginForm.fromJson(res['data']));
       print(loginForm.value.codeKey);
-
-      Timer(Duration(seconds: 1), () async {
-        var result56 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: "return window.jsFunc.login(JSON.parse('${loginForm().toString()}'))");
-        print(result56);
-        print("1秒后执行");
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-            child: Column(children: <Widget>[
-      Row(
-        children: [
-          ElevatedButton(
-              onPressed: () async {
-                InAppWebViewController.clearAllCache();
-                await headlessWebView?.dispose();
-                await headlessWebView?.run();
-                // await headlessWebView?.webViewController?.clearCache();
-                // await headlessWebView?.webViewController?.reload();
-              },
-              child: const Text("无头刷新")),
-          ElevatedButton(
-              onPressed: () {
-                showLoginModal22();
-              },
-              child: const Text('无关登录')),
-        ],
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              submit();
+            },
+            child: Text('刷新')),
+        appBar: AppBar(
+          elevation: 0,
+          toolbarHeight: 0,
+        ),
+        body: Container(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TabBar(
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        // labelStyle: TextStyle(fontSize: 15.sp),
+                        unselectedLabelStyle: TextStyle(fontSize: 15.sp),
+                        tabs: tabs),
+                    flex: 7,
+                  ),
+                  Expanded(
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                              child: Icon(
+                                Icons.sort,
+                                size: 22.sp,
+                              )),
+                          Padding(
+                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                              child: Icon(
+                                Icons.search,
+                                size: 22.sp,
+                              )),
+                          Padding(
+                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                              child: Icon(
+                                Icons.mail_outline,
+                                size: 22.sp,
+                              )),
+                        ],
+                      ),
+                    ),
+                    flex: 3,
+                  )
+                ],
+              ),
+              Expanded(
+                  child: TabBarView(
+                    children: pages,
+                  ))
+            ],
+          ),
+        ),
       ),
-      Row(
-        children: [
-          ElevatedButton(
-              onPressed: () async {
-                // await headlessWebView?.dispose();
-                // await headlessWebView?.run();
-                InAppWebViewController.clearAllCache();
-                await webViewController?.clearCache();
-                await webViewController?.reload();
-              },
-              child: const Text("刷新")),
-          ElevatedButton(
-              onPressed: () {
-                showLoginModal();
-              },
-              child: const Text('登录')),
-        ],
-      ),
-      // input()
-      Expanded(
-          child: InAppWebView(
-        key: webViewKey,
-        initialUrlRequest: URLRequest(url: WebUri("https://www.v2ex.com/signin")),
-        initialSettings: settings,
-        onWebViewCreated: (controller) {
-          webViewController = controller;
-        },
-        onLoadStop: (controller, url) async {
-          controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js");
-        },
-        onConsoleMessage: (controller, consoleMessage) {
-          if (kDebugMode) {
-            print(consoleMessage);
-          }
-        },
-      )),
-    ])));
+    );
   }
 }

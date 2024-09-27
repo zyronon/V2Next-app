@@ -616,6 +616,7 @@
   window.jsFunc = {
     async getLoginPageInfo() {
       let r = await fetch("https://www.v2ex.com/signin", {
+        referrer: "https://www.v2ex.com/signin",
         headers: {
           "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"
         }
@@ -636,10 +637,12 @@
           accKey: acc.attr("name"),
           pwdKey: pwdEl.attr("name"),
           codeKey: code.attr("name"),
-          img: "_captcha"
+          img: "_captcha",
+          code: ""
         };
+        let base64 = await this.getImgBase64(data.once);
+        data.img = base64;
         console.log("data", JSON.stringify(data));
-        await fetch("https://www.v2ex.com/_captcha");
         return { error: false, data };
       }
     },
@@ -647,7 +650,6 @@
       console.log("login", form);
       form.acc = "ttentau1";
       form.pwd = "o8949488816";
-      form.code = "";
       let data = new FormData();
       data.append("next", "/");
       data.append(form.accKey, form.acc);
@@ -657,6 +659,7 @@
       let r = await fetch("https://www.v2ex.com/signin", {
         method: "POST",
         body: data,
+        referrer: "https://www.v2ex.com/signin",
         headers: {
           "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"
         }
@@ -699,16 +702,45 @@
         }
         return { error: true };
       }
+    },
+    async getImg(once) {
+      let img = document.createElement("img");
+      img.style = "width:100vw";
+      img.src = "https://www.v2ex.com/_captcha?once=" + once;
+      document.body.append(img);
+      return;
+    },
+    async getImgBase64(once) {
+      return new Promise(async (resolve) => {
+        let r = await fetch("https://www.v2ex.com/_captcha?once=" + once, {
+          referrer: "https://www.v2ex.com/signin"
+        });
+        let blob = await r.blob();
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => {
+          resolve(e.target.result.split(",")[1]);
+        };
+        fileReader.readAsDataURL(blob);
+        fileReader.onerror = () => {
+          reject(new Error("blobToBase64 error"));
+        };
+      });
+    },
+    async getNodePostList(node, el) {
+      window.postList = [];
+      console.log("js-bridge_getNodePostList", node);
+      if (!el)
+        el = await getHtml("/?tab=" + node);
+      let box = el.querySelector("#Wrapper .box");
+      let list = box.querySelectorAll(".item");
+      window.parse.parsePagePostList(list, box);
+      console.log("window.postList", window.postList.length);
+      return {
+        error: false,
+        data: window.postList
+      };
     }
   };
-  $(document).on("click", "a", async (e) => {
-    let { href, id, title } = functions.parseA(e.currentTarget);
-    if (id) {
-      e.preventDefault();
-      bridge_getPost(id);
-      return false;
-    }
-  });
   window.initPost = getDefaultPost();
   window.win = function() {
     return window;
@@ -899,7 +931,7 @@
           return post;
         } else {
           let promiseList = [];
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve, reject2) => {
             repliesMap.push({ i: pageNo, replyList: this.parsePageReplies(cells.slice(2, cells.length - 1)) });
             let pages = cells[1].querySelectorAll("a.page_normal");
             pages = Array.from(pages);
@@ -1194,6 +1226,17 @@
     console.log("js 加载成功");
     return;
   }
-  init();
+  let isMobile = !document.querySelector("#Rightbar");
+  if (isMobile) {
+    $(document).on("click", "a", async (e) => {
+      let { href, id, title } = functions.parseA(e.currentTarget);
+      if (id) {
+        e.preventDefault();
+        bridge_getPost(id);
+        return false;
+      }
+    });
+    init();
+  }
 
 })();

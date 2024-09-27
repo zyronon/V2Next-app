@@ -1,15 +1,22 @@
+import 'dart:async';
+
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
 class Controller extends GetxController {
   var loaded = false.obs;
 
-  // late final WebViewController wc;
+  late final InAppWebViewController wc;
 
   toggle() => loaded.value = !loaded.value;
 
-  callJs(arg) {
-    // final completer = Completer();
-    // return wc.runJavaScriptReturningResult('window.jsBridge("${arg['func']}","${arg['val']}")');
+  Future callJs(arg) async {
+    var res = await wc.callAsyncJavaScript(functionBody: 'return window.jsFunc.${arg['func']}("${arg['val']}")');
+    print(res?.value);
+    if (res?.error == null) {
+      return res?.value;
+    }
+
     // bus.off('onJsBridge');
     // bus.on("onJsBridge", (args) {
     //   print('onJsBridge：${args['type']}：${args?['node'] ?? ''}:${widget.node}');
@@ -23,6 +30,5 @@ class Controller extends GetxController {
     //   }
     // });
     // bus.emit('emitJsBridge', {'func': 'getNodePostList', 'val': widget.node});
-    // return completer.future;
   }
 }
