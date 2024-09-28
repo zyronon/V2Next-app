@@ -8,7 +8,7 @@ import 'package:v2ex/model/Post.dart';
 class TabPageController extends GetxController {
   bool isLoading = true;
   List<Post> postList = [];
-  final Controller home = Get.find();
+  final BaseController home = Get.find();
   String node;
   String test = '';
 

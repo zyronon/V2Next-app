@@ -24,7 +24,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
   double stateHeight = 0;
   List<Post> list = [];
   final list2 = [].obs;
-  final Controller c = Get.find();
+  final BaseController c = Get.find();
 
   List tabs = ["最热", "最新", '全部', "问与答", "酷工作", "最新"];
 

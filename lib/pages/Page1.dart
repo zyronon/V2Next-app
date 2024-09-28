@@ -41,7 +41,7 @@ class _Page1State extends State<Page1>  with AutomaticKeepAliveClientMixin{
   List<Widget> tabs = [];
   List<Widget> pages = [];
 
-  final Controller c = Get.put(Controller());
+  final BaseController c = Get.put(BaseController());
   final String url = "https://v2ex.com/?tab=hot";
 
   HeadlessInAppWebView? headlessWebView;

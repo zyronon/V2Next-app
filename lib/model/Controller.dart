@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
-class Controller extends GetxController {
+class BaseController extends GetxController {
   var loaded = false.obs;
 
   late final InAppWebViewController wc;

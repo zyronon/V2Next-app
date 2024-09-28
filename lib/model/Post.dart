@@ -17,24 +17,24 @@ Reply replyFromJson(String str) => Reply.fromJson(json.decode(str));
 String replyToJson(Reply data) => json.encode(data.toJson());
 
 class Reply {
-  int? level;
-  int? thankCount;
-  int? replyCount;
-  bool? isThanked;
-  bool? isOp;
-  bool? isDup;
-  String? id;
-  String? replyContent;
-  String? replyText;
-  String? hideCallUserReplyContent;
-  List<String>? replyUsers;
-  int? replyFloor;
-  String? date;
-  String? username;
-  String? avatar;
-  int? floor;
-  List<Reply>? children;
-  bool? isUse;
+  int? level = 0;
+  int? thankCount = 0;
+  int? replyCount = 0;
+  bool? isThanked = false;
+  bool? isOp = false;
+  bool? isDup = false;
+  String? id = '';
+  String? replyContent = '';
+  String? replyText = '';
+  String? hideCallUserReplyContent = '';
+  List<String>? replyUsers = [];
+  int? replyFloor = 0;
+  String? date = '';
+  String? username = '';
+  String? avatar = '';
+  int? floor = 0;
+  List<Reply>? children = [];
+  bool? isUse = false;
 
   Reply({
     this.level,
@@ -57,47 +57,88 @@ class Reply {
     this.isUse,
   });
 
+  factory Reply.getNew({
+    int? level = 0,
+    int? thankCount,
+    int? replyCount,
+    bool? isThanked,
+    bool? isOp,
+    bool? isDup,
+    String? id,
+    String? replyContent,
+    String? replyText,
+    String? hideCallUserReplyContent,
+    List<String>? replyUsers,
+    int? replyFloor,
+    String? date,
+    String? username,
+    String? avatar,
+    int? floor,
+    List<Reply>? children,
+    bool? isUse,
+  }) {
+    return Reply(
+        level: 0,
+        thankCount: 0,
+        replyCount: 0,
+        isThanked: false,
+        isOp: false,
+        isDup: false,
+        id: '',
+        replyContent: '',
+        replyText: '',
+        hideCallUserReplyContent: '',
+        replyUsers: [],
+        replyFloor: 0,
+        date: '',
+        username: '',
+        avatar: '',
+        floor: 0,
+        children: [],
+        isUse: false);
+  }
+
   factory Reply.fromJson(Map<String, dynamic> json) => Reply(
-    level: json["level"],
-    thankCount: json["thankCount"],
-    replyCount: json["replyCount"],
-    isThanked: json["isThanked"],
-    isOp: json["isOp"],
-    isDup: json["isDup"],
-    id: json["id"],
-    replyContent: json["reply_content"],
-    replyText: json["reply_text"],
-    hideCallUserReplyContent: json["hideCallUserReplyContent"],
-    replyUsers: json["replyUsers"] == null ? [] : List<String>.from(json["replyUsers"]!.map((x) => x)),
-    replyFloor: json["replyFloor"],
-    date: json["date"],
-    username: json["username"],
-    avatar: json["avatar"],
-    floor: json["floor"],
-    children: json["children"] == null ? [] : List<Reply>.from(json["children"]!.map((x) => Reply.fromJson(x))),
-    isUse: json["isUse"],
-  );
+        level: json["level"],
+        thankCount: json["thankCount"],
+        replyCount: json["replyCount"],
+        isThanked: json["isThanked"],
+        isOp: json["isOp"],
+        isDup: json["isDup"],
+        id: json["id"],
+        replyContent: json["reply_content"],
+        replyText: json["reply_text"],
+        hideCallUserReplyContent: json["hideCallUserReplyContent"],
+        replyUsers: json["replyUsers"] == null ? [] : List<String>.from(json["replyUsers"]!.map((x) => x)),
+        replyFloor: json["replyFloor"],
+        date: json["date"],
+        username: json["username"],
+        avatar: json["avatar"],
+        floor: json["floor"],
+        children: json["children"] == null ? [] : List<Reply>.from(json["children"]!.map((x) => Reply.fromJson(x))),
+        isUse: json["isUse"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "level": level,
-    "thankCount": thankCount,
-    "replyCount": replyCount,
-    "isThanked": isThanked,
-    "isOp": isOp,
-    "isDup": isDup,
-    "id": id,
-    "reply_content": replyContent,
-    "reply_text": replyText,
-    "hideCallUserReplyContent": hideCallUserReplyContent,
-    "replyUsers": replyUsers == null ? [] : List<dynamic>.from(replyUsers!.map((x) => x)),
-    "replyFloor": replyFloor,
-    "date": date,
-    "username": username,
-    "avatar": avatar,
-    "floor": floor,
-    "children": children == null ? [] : List<dynamic>.from(children!.map((x) => x.toJson())),
-    "isUse": isUse,
-  };
+        "level": level,
+        "thankCount": thankCount,
+        "replyCount": replyCount,
+        "isThanked": isThanked,
+        "isOp": isOp,
+        "isDup": isDup,
+        "id": id,
+        "reply_content": replyContent,
+        "reply_text": replyText,
+        "hideCallUserReplyContent": hideCallUserReplyContent,
+        "replyUsers": replyUsers == null ? [] : List<dynamic>.from(replyUsers!.map((x) => x)),
+        "replyFloor": replyFloor,
+        "date": date,
+        "username": username,
+        "avatar": avatar,
+        "floor": floor,
+        "children": children == null ? [] : List<dynamic>.from(children!.map((x) => x.toJson())),
+        "isUse": isUse,
+      };
 }
 
 class Post {

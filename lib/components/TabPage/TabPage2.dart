@@ -22,7 +22,7 @@ import 'package:v2ex/model/Post.dart';
 
 class TabBarViewPage extends StatelessWidget {
   final String node;
-  final Controller c = Get.find();
+  final BaseController c = Get.find();
   final TabPageController tc;
 
   TabBarViewPage({super.key, required this.node}) :

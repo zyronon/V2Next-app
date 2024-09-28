@@ -7,13 +7,22 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post.dart';
 
 class PostDetailController extends GetxController {
   bool isShowFixedTitle = false;
+  late Reply reply;
 
   setTitle(bool val) {
     this.isShowFixedTitle = val;
+    update();
+  }
+
+  static to() => Get.find<PostDetailController>();
+
+  setReply(Reply val) {
+    reply = val;
     update();
   }
 }
@@ -32,14 +41,12 @@ class PostDetailState extends State<PostDetail> {
   final ScrollController _scrollController = ScrollController();
   late ListObserverController observerController;
   PostDetailController ctrl = Get.put(PostDetailController());
-
-  double stateHeight = 0;
+  TextEditingController _replyCtrl = new TextEditingController();
 
   Post? item;
 
   @override
   void initState() {
-    stateHeight = MediaQueryData.fromWindow(window).padding.top;
     super.initState();
     observerController = ListObserverController(controller: _scrollController);
     // print(this.widget.post.id);
@@ -77,15 +84,15 @@ class PostDetailState extends State<PostDetail> {
   }
 
   Reply? getReplyList(index) {
-    return item?.nestedReplies?[index - 1];
+    return item?.replyList?[index - 1];
   }
 
   thank(index) {
     print(index);
-    var s = item?.nestedReplies?[index - 1];
+    var s = item?.replyList?[index - 1];
     if (s != Null) {
       setState(() {
-        item?.nestedReplies?[index - 1].isThanked = true;
+        item?.replyList?[index - 1].isThanked = true;
       });
     }
   }
@@ -134,8 +141,10 @@ class PostDetailState extends State<PostDetail> {
   }
 
   showModal() {
+    PostDetailController c = PostDetailController.to();
+
     modalWrap(
-        getHtmlText('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'),
+        getHtmlText(c.reply.replyContent!),
         Column(
           children: [
             modalItem('回复', Icons.chat_bubble_outline),
@@ -283,7 +292,8 @@ class PostDetailState extends State<PostDetail> {
   }
 
   showReplyModal() {
-    modalWrap(getHtmlText('牛逼，300 多万用户👍👍👍为啥还要打工，我以为只要用户量达到百万就可以财富自由了呢😂😂😂'), getTest());
+    PostDetailController c = PostDetailController.to();
+    modalWrap(getHtmlText(c.reply.replyContent!), getTest());
   }
 
   Widget getItem(Reply val, int index) {
@@ -399,8 +409,14 @@ class PostDetailState extends State<PostDetail> {
             ),
         ],
       ),
-      onLongPress: showModal,
+      onLongPress: () {
+        PostDetailController c = PostDetailController.to();
+        c.setReply(val);
+        showModal();
+      },
       onTap: () {
+        PostDetailController c = PostDetailController.to();
+        c.setReply(val);
         showReplyModal();
       },
     );
@@ -476,7 +492,7 @@ class PostDetailState extends State<PostDetail> {
         children: [
           Container(
             child: TextField(
-              //多行文本输入框
+              controller: _replyCtrl,
               maxLines: 4,
               autofocus: false,
               decoration: InputDecoration(
@@ -501,13 +517,30 @@ class PostDetailState extends State<PostDetail> {
                 SizedBox(width: 10.w),
                 getIcon(Icons.format_quote),
               ]),
-              Container(
-                padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
-                decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
-                child: Text(
-                  '回复',
-                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
+              InkWell(
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
+                  decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
+                  child: Text(
+                    '回复',
+                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                  ),
                 ),
+                onTap: () {
+                  PostDetailController c = PostDetailController.to();
+                  // setState(() {
+                  //   var s = Reply.getNew();
+                  //   s.replyContent = _replyCtrl.text;
+                  //   item?.replyList?.add(s);
+                  // });
+
+                  BaseController bc = Get.find<BaseController>();
+
+
+                  print(_replyCtrl.text);
+                  print(bc);
+                  print(bc.loaded.value);
+                },
               )
             ],
           )
@@ -583,7 +616,7 @@ class PostDetailState extends State<PostDetail> {
                   child: ListView.separated(
                     // shrinkWrap: true,
                     controller: _scrollController,
-                    itemCount: 1 + (item?.nestedReplies?.length ?? 0),
+                    itemCount: 1 + (item?.replyList?.length ?? 0),
                     itemBuilder: (BuildContext context, int index) {
                       if (index == 0) {
                         return Column(

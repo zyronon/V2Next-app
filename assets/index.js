@@ -534,6 +534,169 @@
       loopCheckNoticeInterval: 5
     }
   };
+  const classicsEmoticons = [
+    {
+      name: "[狗头]",
+      low: "https://i.imgur.com/io2SM1h.png",
+      high: "https://i.imgur.com/0icl60r.png"
+    },
+    {
+      name: "[doge]",
+      low: "https://i.imgur.com/duWRpIu.png",
+      high: "https://i.imgur.com/HyphI6d.png"
+    },
+    {
+      name: "[受虐滑稽]",
+      low: "https://i.imgur.com/Iy0taMy.png",
+      high: "https://i.imgur.com/PS1pxd9.png"
+    },
+    {
+      name: "[马]",
+      low: "https://i.imgur.com/8EKZv7I.png",
+      high: "https://i.imgur.com/ANFUX52.png"
+    },
+    {
+      name: "[二哈]",
+      low: "https://i.imgur.com/XKj1Tkx.png",
+      high: "https://i.imgur.com/dOeP4XD.png"
+    },
+    {
+      name: "[舔屏]",
+      low: "https://i.imgur.com/Cvl7dyN.png",
+      high: "https://i.imgur.com/LmETy9N.png"
+    },
+    {
+      name: "[辣眼睛]",
+      low: "https://i.imgur.com/cPNPYD5.png",
+      high: "https://i.imgur.com/3fSUmi8.png"
+    },
+    {
+      name: "[吃瓜]",
+      low: "https://i.imgur.com/ee8Lq7H.png",
+      high: "https://i.imgur.com/0L26og9.png"
+    },
+    {
+      name: "[不高兴]",
+      low: "https://i.imgur.com/huX6coX.png",
+      high: "https://i.imgur.com/N7JEuvc.png"
+    },
+    // {
+    //   name: '[呵呵]',
+    //   low: 'https://i.imgur.com/RvoLAbX.png',
+    //   high: 'https://i.imgur.com/xSzIqrK.png'
+    // },
+    {
+      name: "[真棒]",
+      low: "https://i.imgur.com/xr1UOz1.png",
+      high: "https://i.imgur.com/w8YEw9Q.png"
+    },
+    {
+      name: "[鄙视]",
+      low: "https://i.imgur.com/u6jlqVq.png",
+      high: "https://i.imgur.com/8JFNANq.png"
+    },
+    {
+      name: "[疑问]",
+      low: "https://i.imgur.com/F29pmQ6.png",
+      high: "https://i.imgur.com/EbbTQAR.png"
+    },
+    {
+      name: "[吐舌]",
+      low: "https://i.imgur.com/InmIzl9.png",
+      high: "https://i.imgur.com/Ovj56Cd.png"
+    },
+    // {
+    //   name: '[嘲笑]',
+    //   low: 'https://i.imgur.com/BaWcsMR.png',
+    //   high: 'https://i.imgur.com/0OGfJw4.png'
+    // },
+    // {
+    //   name: '[滑稽]',
+    //   low: 'https://i.imgur.com/lmbN0yI.png',
+    //   high: 'https://i.imgur.com/Pc0wH85.png'
+    // },
+    {
+      name: "[笑眼]",
+      low: "https://i.imgur.com/ZveiiGy.png",
+      high: "https://i.imgur.com/PI1CfEr.png"
+    },
+    // {
+    //   name: '[狂汗]',
+    //   low: 'https://i.imgur.com/veWihk6.png',
+    //   high: 'https://i.imgur.com/3LtHdQv.png'
+    // },
+    {
+      name: "[大哭]",
+      low: "https://i.imgur.com/hu4oR6C.png",
+      high: "https://i.imgur.com/b4X9XLE.png"
+    },
+    {
+      name: "[喷]",
+      low: "https://i.imgur.com/bkw3VRr.png",
+      high: "https://i.imgur.com/wnZL13L.png"
+    },
+    {
+      name: "[苦笑]",
+      low: "https://i.imgur.com/VUWFktU.png",
+      high: "https://i.imgur.com/NAfspZ1.png"
+    },
+    {
+      name: "[喝酒]",
+      low: "https://i.imgur.com/2ZZSapE.png",
+      high: "https://i.imgur.com/rVbSVak.png"
+    },
+    {
+      name: "[捂脸]",
+      low: "https://i.imgur.com/krir4IG.png",
+      high: "https://i.imgur.com/qqBqgVm.png"
+    },
+    // {
+    //   name: '[呕]',
+    //   low: 'https://i.imgur.com/6CUiUxv.png',
+    //   high: 'https://i.imgur.com/kgdxRsG.png'
+    // },
+    {
+      name: "[阴险]",
+      low: "https://i.imgur.com/MA8YqTP.png",
+      high: "https://i.imgur.com/e94jbaT.png"
+    },
+    {
+      name: "[怒]",
+      low: "https://i.imgur.com/n4kWfGB.png",
+      high: "https://i.imgur.com/iMXxNxh.png"
+    }
+    // {
+    //   name: '[衰]',
+    //   low: 'https://i.imgur.com/voHFDyQ.png',
+    //   high: 'https://i.imgur.com/XffE6gu.png'
+    // },
+    // {
+    //   name: '[合十]',
+    //   low: 'https://i.imgur.com/I8x3ang.png',
+    //   high: 'https://i.imgur.com/T4rJVee.png'
+    // },
+    // {
+    //   name: '[赞]',
+    //   low: 'https://i.imgur.com/lG44yUl.png',
+    //   high: 'https://i.imgur.com/AoF5PLp.png'
+    // },
+    // {
+    //   name: '[踩]',
+    //   low: 'https://i.imgur.com/cJp0uKZ.png',
+    //   high: 'https://i.imgur.com/1XYGfXj.png'
+    // },
+    // {
+    //   name: '[爱心]',
+    //   low: 'https://i.imgur.com/sLENaF5.png',
+    //   high: 'https://i.imgur.com/dND56oX.png'
+    // },
+    //
+    // {
+    //   name: '[心碎]',
+    //   low: 'https://i.imgur.com/AZxJzve.png',
+    //   high: 'https://i.imgur.com/RiUsPci.png'
+    // },
+  ];
   async function getHtml(url) {
     url = location.origin + url;
     console.log("js-请求的url" + url);
@@ -739,6 +902,55 @@
         error: false,
         data: window.postList
       };
+    },
+    async reply({ content, post }) {
+      content.replace(/\[((?!\[).)+\]/g, function(match) {
+        let item2 = classicsEmoticons.find((v) => v.name === match);
+        if (item2) {
+          return item2.low + " ";
+        }
+        return match;
+      });
+      let show_content = content.replace(/https?:\/\/(i\.)?imgur\.com\/((?!http).)+\.(gif|png|jpg|jpeg|GIF|PNG|JPG|JPEG)/g, function(match) {
+        return `<img src="${match}" data-originUrl="${match}" data-notice="这个img标签由v2ex-超级增强脚本解析" style="max-width: 100%">`;
+      });
+      show_content = show_content.replace(/\[((?!\[).)+\]/g, function(match) {
+        let item2 = classicsEmoticons.find((v) => v.name === match);
+        if (item2) {
+          return `<a target="_blank" href="${item2.low}" rel="nofollow noopener"><img src="${item2.low}" class="embedded_image" rel="noreferrer"></a> `;
+        }
+        return match;
+      });
+      let matchUsers = show_content.match(/@([\w]+?[\s])/g);
+      if (matchUsers) {
+        matchUsers.map((i) => {
+          let username = i.replace("@", "").replace(" ", "");
+          show_content = show_content.replace(username, `<a href="/member/${username}">${username}</a>`);
+        });
+      }
+      show_content = show_content.replaceAll("\n", "<br/>");
+      let item = {
+        thankCount: 0,
+        isThanked: false,
+        isOp: post.username === window.user.username,
+        isDup: false,
+        id: Date.now(),
+        username: window.user.username,
+        avatar: window.user.avatar,
+        date: "几秒前",
+        floor: post.replyCount + 1,
+        reply_content: show_content ?? "",
+        children: [],
+        replyUsers: replyUser ? [replyUser] : [],
+        replyFloor: replyFloor || -1,
+        level: useType === "reply-comment" ? 1 : 0
+      };
+      item.hideCallUserReplyContent = item.reply_content;
+      if (item.replyUsers.length === 1) {
+        item.hideCallUserReplyContent = item.reply_content.replace(/@<a href="\/member\/[\s\S]+?<\/a>(\s#[\d]+)?\s(<br>)?/, () => "");
+      }
+      post.replyList.push(item);
+      return post;
     }
   };
   window.initPost = getDefaultPost();
