@@ -4,7 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
 class BaseController extends GetxController {
-  var loaded = false.obs;
+  var loaded = true.obs;
 
   late final InAppWebViewController wc;
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/pages/post_detail.dart';
 
@@ -62,6 +63,8 @@ class MyApp extends StatelessWidget {
                 inversePrimary: Colors.black54,
               ),
             ),
+            navigatorObservers: [FlutterSmartDialog.observer],
+            builder: FlutterSmartDialog.init(),
             routes: {
               '/': (context) => const Home(),
               'Home': (context) => const Home(),

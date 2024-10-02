@@ -11,6 +11,7 @@ import 'package:v2ex/components/TabBarViewPage.dart';
 import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/LoginForm.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/index.dart';
 
 class Page1 extends StatefulWidget {
@@ -228,8 +229,8 @@ class _Page1State extends State<Page1>  with AutomaticKeepAliveClientMixin{
   }
 
   submit() {
-    headlessWebView?.dispose();
-    headlessWebView?.run();
+    // headlessWebView?.dispose();
+    // headlessWebView?.run();
     print("test");
     // controller.loadRequest(Uri.parse('https://www.v2ex.com'));
     // Navigator.pushNamed(context, 'Home');
@@ -264,11 +265,6 @@ class _Page1State extends State<Page1>  with AutomaticKeepAliveClientMixin{
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              submit();
-            },
-            child: Text('刷新')),
         body: Container(
           child: Column(
             children: [
