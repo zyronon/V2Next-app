@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/TabPage/TabPageController.dart';
 import 'package:v2ex/model/Post2.dart';
 
@@ -18,7 +19,7 @@ class TabBarViewPage extends StatefulWidget {
 
 class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
   getPost(Post2 post) {
-    Get.toNamed('PostDetail', arguments: post);
+    Get.toNamed('/PostDetail', arguments: post);
   }
 
   Future<void> onRefresh() async {
@@ -91,23 +92,52 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                 child: ListView.separated(
                   itemCount: _.postList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Padding(
+                    return InkWell(child: Padding(
                       padding: EdgeInsets.all(8),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(
                           children: [
                             Row(children: [
-                              CircleAvatar(
-                                maxRadius: 14.w,
-                                backgroundImage: NetworkImage(_.postList?[index]?.member?.avatar ?? ''),
-                              ),
                               Padding(
-                                padding: EdgeInsets.only(left: 10.w),
-                                child: Text(
-                                  _.postList[index].member?.username ?? '',
-                                  style: TextStyle(fontSize: 14.sp, height: 1.2),
+                                padding: EdgeInsets.only(right: 10.w),
+                                child: BaseAvatar(
+                                  src: _.postList?[index]?.member?.avatar ?? '',
+                                  diameter: 34.w,
+                                  radius: 4.w,
                                 ),
                               ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _.postList[index].member?.username ?? '',
+                                    style: TextStyle(fontSize: 14.sp, height: 1.2),
+                                  ),
+                                  SizedBox(height: 4.w),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        _.postList[index]?.lastReplyDate ?? '',
+                                        style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          color: Color(0xffe4e4e4),
+                                          borderRadius: BorderRadius.circular(3.r),
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                                          child: Text(
+                                            _.postList[index]?.node?.title ?? '',
+                                            style: TextStyle(color: Colors.black54, fontSize: 10.sp),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              )
                             ]),
                             DecoratedBox(
                               decoration: BoxDecoration(
@@ -168,41 +198,9 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
 //                     ),
 //                     onTap: () => {getPost(_.postList[index])},
 //                   ),
-                        Padding(
-                            padding: EdgeInsets.only(top: 10.w),
-                            child: Row(
-                              children: [
-                                Text(
-                                  _.postList[index]?.lastReplyDate ?? '',
-                                  style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                                ),
-                                SizedBox(width: 8.w),
-                                // Text(
-                                //   '最后回复来自',
-                                //   style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                                // ),
-                                // SizedBox(width: 2.w),
-                                // Expanded(
-                                //     child: Text(
-                                //   _.postList[index]?.lastReplyUsername ?? '',
-                                //   style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.black),
-                                // )),
-                                DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    borderRadius: BorderRadius.circular(3.r),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                                    child: Text(
-                                      _.postList[index]?.node?.title ?? '',
-                                      style: TextStyle(color: Colors.black, fontSize: 10.sp),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ))
                       ]),
+                    ),
+                      onTap: () => {getPost(_.postList[index])},
                     );
                   },
                   //分割器构造器

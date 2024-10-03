@@ -51,18 +51,22 @@ dependencies:
   fwfh_url_launcher: ^0.9.1
 
     # 网络请求
-  dio: ^5.3.3
-  cookie_jar: ^3.0.1
+  dio: ^5.7.0
+  cookie_jar: ^4.0.8
   #    dio_http_cache: ^0.3.0
   dio_http2_adapter: ^2.0.0
   # dio_http_cache:
   #     git:
   #         url: https://github.com/guozhigq/dio-http-cache.git
-  dio_cookie_manager: ^2.0.0
+  dio_cookie_manager: ^3.1.1
   # toast提示
   flutter_smart_dialog: ^4.8.1
   # dom解析渲染
   html: ^0.15.4
+
+  # 数据缓存
+  get_storage: ^2.0.3
+
 
 dev_dependencies:
   flutter_test:

@@ -5,13 +5,18 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:v2ex/pages/page_login.dart';
 import 'package:v2ex/pages/post_detail.dart';
+import 'package:v2ex/utils/init.dart';
 
 import 'pages/Home.dart';
 
 void main() async {
+  await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
-  await ScreenUtil.ensureScreenSize();
+  await ScreenUtil.ensureScreenSize();    // Dio 初始化
+  await Request().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
@@ -67,8 +72,9 @@ class MyApp extends StatelessWidget {
             builder: FlutterSmartDialog.init(),
             routes: {
               '/': (context) => const Home(),
-              'Home': (context) => const Home(),
-              'PostDetail': (context) => const PostDetail(),
+              '/Home': (context) => const Home(),
+              '/PostDetail': (context) => const PostDetail(),
+              '/Login': (context) => const LoginPage(),
             },
           );
         });

@@ -6,6 +6,7 @@ import 'package:html/dom.dart' as dom;
 import 'package:flutter/material.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/init.dart';
+import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:v2ex/utils/string.dart'; // 常量
 // import 'package:v2ex/utils/storage.dart'; // 本地存储
@@ -29,6 +30,8 @@ class TopicWebApi {
       //     buildCacheOptions(const Duration(days: 4), forceRefresh: true),
       extra: {'ua': 'mob'},
     );
+    var s = DateTime.now();
+    print('请求结束$s');
     // Use html parser and query selector
     var document = parse(response.data);
     detailModel.id = topicId;
@@ -60,7 +63,10 @@ class TopicWebApi {
     var userCellWrap = rootDom.querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
     var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
     int once = int.parse(onceHref!.split('once=')[1]);
-    // GStorage().setOnce(once);
+    print('once');
+    print(once.toString());
+    // detailModel.once = once.toString();
+    GStorage().setOnce(once);
 
     /// 头部内容
     /// 查询头部内容公共头
@@ -315,4 +321,61 @@ class TopicWebApi {
     detailModel.replyList = replies;
     return detailModel;
   }
+
+  // 感谢主题
+  static Future thankTopic(String topicId) async {
+    int once = GStorage().getOnce();
+    SmartDialog.showLoading(msg: '表示感谢ing');
+    try {
+      var response = await Request().post("/thank/topic/$topicId?once=$once");
+      // ua mob
+      var data = jsonDecode(response.toString());
+      SmartDialog.dismiss();
+      bool responseStatus = data['success'];
+      if (responseStatus) {
+        SmartDialog.showToast('操作成功');
+      } else {
+        SmartDialog.showToast(data['message']);
+      }
+      if (data['once'] != null) {
+        int onceR = data['once'];
+        GStorage().setOnce(onceR);
+      }
+      // 操作成功
+      return responseStatus;
+    } on DioError catch (e) {
+      SmartDialog.dismiss();
+      SmartDialog.showToast(e.message!);
+    }
+  }
+
+  // 收藏主题
+  static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
+    int once = GStorage().getOnce();
+    SmartDialog.showLoading(msg: isCollect ? '取消中...' : '收藏中...');
+    String url = isCollect
+        ? ("/unfavorite/topic/$topicId?once=$once")
+        : ("/favorite/topic/$topicId?once=$once");
+    var response = await Request().get(url, extra: {'ua': 'mob'});
+    SmartDialog.dismiss();
+    // 返回的pc端ua
+    if (response.statusCode == 200 || response.statusCode == 302) {
+      if (response.statusCode == 200) {
+        var document = parse(response.data);
+        var menuBodyNode = document
+            .querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+        var loginOutHref = loginOutNode.attributes['onclick']!;
+        RegExp regExp = RegExp(r'\d{3,}');
+        Iterable<Match> matches = regExp.allMatches(loginOutHref);
+        for (Match m in matches) {
+          GStorage().setOnce(int.parse(m.group(0)!));
+        }
+      }
+      // 操作成功
+      return true;
+    }
+    return false;
+  }
+
 }

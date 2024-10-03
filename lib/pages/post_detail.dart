@@ -3,12 +3,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/http.dart';
+import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/topic.dart';
 
 class PostDetailController extends GetxController {
@@ -44,7 +47,7 @@ class PostDetailState extends State<PostDetail> {
   PostDetailController ctrl = Get.put(PostDetailController());
   TextEditingController _replyCtrl = new TextEditingController();
 
-  Post2? item;
+  Post2 item = new Post2();
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
   bool reverseSort = false; // 倒序
@@ -56,7 +59,7 @@ class PostDetailState extends State<PostDetail> {
     getData();
   }
 
-  getData() async{
+  getData() async {
     observerController = ListObserverController(controller: _scrollController);
 
     var message =
@@ -67,7 +70,14 @@ class PostDetailState extends State<PostDetail> {
       item = Get.arguments;
     });
 
+    var t = DateTime.now();
+    print('请求开始$t');
     Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
+    var s = DateTime.now();
+    print('处理结束$s');
+    var hours = t.difference(s);
+    print('花费时间$hours');
+
     setState(() {
       item = topicDetailModel;
     });
@@ -86,18 +96,8 @@ class PostDetailState extends State<PostDetail> {
     // Navigator.pushNamed(context, 'Home');
   }
 
-  Reply? getReplyList(index) {
-    return item?.replyList?[index - 1];
-  }
-
-  thank(index) {
-    print(index);
-    var s = item?.replyList?[index - 1];
-    if (s != Null) {
-      setState(() {
-        item?.replyList?[index - 1].isThanked = true;
-      });
-    }
+  Reply getReplyList(index) {
+    return item.replyList[index - 1];
   }
 
   var options = ['1', '2', '3'];
@@ -327,14 +327,14 @@ class PostDetailState extends State<PostDetail> {
                               Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: Text(
-                                  (val?.floor ?? '').toString() + '楼',
+                                  (val.floor ?? '').toString() + '楼',
                                   style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: Text(
-                                  val?.date ?? '',
+                                  val.date ?? '',
                                   style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
                                 ),
                               ),
@@ -346,7 +346,7 @@ class PostDetailState extends State<PostDetail> {
                   ),
                   Row(
                     children: [
-                      if (val?.thankCount != 0)
+                      if (val.thankCount != 0)
                         InkWell(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -366,9 +366,7 @@ class PostDetailState extends State<PostDetail> {
                             ],
                           ),
                           onTap: () {
-                            thank(index);
-                            print('onTap');
-                            // val.isThanked = true;
+                            thankReply(index);
                           },
                         ),
                       InkWell(
@@ -446,7 +444,7 @@ class PostDetailState extends State<PostDetail> {
   Widget clickWidget(Widget widget, onTap) {
     return InkWell(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(5.w, 10.w, 5.w, 10.w),
+        padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
         child: widget,
       ),
       onTap: onTap,
@@ -551,6 +549,119 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
+  //收藏帖子
+  onCollect() async {
+    bool needLogin = !(GStorage().getLoginStatus());
+    if (needLogin) {
+      return Get.toNamed('/Login');
+    }
+    var res = await TopicWebApi.favoriteTopic(item.isFavorite, item.id);
+    if (res) {
+      setState(() {
+        item.isFavorite = !item.isFavorite;
+        item.collectCount = item.isFavorite ? item.collectCount + 1 : item.collectCount - 1;
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(item.isFavorite ? '已收藏' : '已取消收藏'),
+          showCloseIcon: true,
+        ),
+      );
+    }
+  }
+
+  //感谢帖子
+  thankPost() async {
+    bool needLogin = !(GStorage().getLoginStatus());
+    if (needLogin) {
+      return Get.toNamed('/Login');
+    }
+    if (item.isThanked) {
+      SmartDialog.showToast('这个主题已经被感谢过了');
+    } else {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('提示'),
+          content: const Text('确认向本主题创建者表示感谢吗？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('手误了'),
+            ),
+            TextButton(
+              onPressed: (() async {
+                Navigator.pop(context, 'OK');
+                var res = await TopicWebApi.thankTopic(item.id);
+                print('54: $res');
+                if (res) {
+                  setState(() {
+                    item.isThanked = true;
+                  });
+                  SmartDialog.showToast('感谢成功');
+                }
+              }),
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  thank(index) {
+    print(index);
+    var s = item?.replyList?[index - 1];
+    if (s != Null) {
+      setState(() {
+        item?.replyList?[index - 1].isThanked = true;
+      });
+    }
+  }
+
+  // 感谢回复 request
+  void onThankReply(int index) async {
+    var s = item.replyList[index - 1];
+
+    var res = await DioRequestWeb.thankReply(s.id, item.id);
+    if (res) {
+      setState(() {
+        item.replyList[index - 1].isThanked = true;
+        item.replyList[index - 1].thankCount += 1;
+      });
+    }
+  }
+
+  //感谢回复
+  void thankReply(int index) {
+    var s = item.replyList[index - 1];
+    if (s.isThanked) {
+      SmartDialog.showToast('这个回复已经被感谢过了');
+      return;
+    }
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('提示'),
+        content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('手滑了'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, 'Ok');
+              onThankReply(index);
+            },
+            child: const Text('确认'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<PostDetailController>(builder: (_) {
@@ -559,8 +670,6 @@ class PostDetailState extends State<PostDetail> {
         appBar: AppBar(
           elevation: 0,
           toolbarHeight: 0,
-          // backgroundColor: bg,
-          // surfaceTintColor: bg,
         ),
         body: DefaultTextStyle(
             style: TextStyle(color: Colors.black, fontSize: 12.sp),
@@ -610,15 +719,11 @@ class PostDetailState extends State<PostDetail> {
                   controller: observerController,
                   onObserve: (resultModel) {
                     _.setTitle(resultModel.firstChild!.index > 0);
-                    //当前页面首个Item
-                    // print('firstChild.index -- ${resultModel.firstChild?.index}');
-                    // //当前页面显示的所有Item
-                    // print('displaying -- ${resultModel.displayingChildIndexList}');
                   },
                   child: ListView.separated(
                     // shrinkWrap: true,
                     controller: _scrollController,
-                    itemCount: 1 + (item?.replyList?.length ?? 0),
+                    itemCount: 1 + (item.replyList.length ?? 0),
                     itemBuilder: (BuildContext context, int index) {
                       if (index == 0) {
                         return Column(
@@ -706,31 +811,14 @@ class PostDetailState extends State<PostDetail> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('2023-02-02 12:12:00'),
-                                  Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          getIcon(Icons.star_border),
-                                          Text(
-                                            '4',
-                                            style: TextStyle(color: Colors.black54),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(width: 4.w),
-                                      // Row(
-                                      //   children: [getIcon(Icons.ice_skating), Text('4')],
-                                      // )
-                                    ],
-                                  )
+                                  Text(item.createDateAgo),
                                 ],
                               ),
                             ),
                             Container(
                               width: 100.sw,
                               height: 4.w,
-                              color: Colors.black12,
+                              color: Colors.grey[100],
                             ),
                             Padding(
                               padding: EdgeInsets.all(8.w),
@@ -738,7 +826,7 @@ class PostDetailState extends State<PostDetail> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    (item?.replyCount ?? '').toString() + '条回复',
+                                    item.replyCount.toString() + '条回复',
                                     style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
                                   ),
                                   Text(
@@ -751,7 +839,10 @@ class PostDetailState extends State<PostDetail> {
                           ],
                         );
                       }
-                      return getItem(getReplyList(index)!, index);
+                      if (index == item.replyList.length) {
+                        return Padding(padding: EdgeInsets.only(bottom: 120.w), child: getItem(getReplyList(index), index));
+                      }
+                      return getItem(getReplyList(index), index);
                     },
                     //分割器构造器
                     separatorBuilder: (BuildContext context, int index) {
@@ -824,33 +915,33 @@ class PostDetailState extends State<PostDetail> {
                             Column(
                               children: [
                                 Icon(
-                                  Icons.star_border,
+                                  item.isFavorite ? Icons.grade : Icons.star_border,
                                   size: 24.sp,
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  item?.replyCount?.toString() ?? '',
+                                  item.replyCount.toString() ?? '',
                                   style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                                 )
                               ],
                             ), () {
-                          print('asdf');
+                          onCollect();
                         }),
                         clickWidget(
                             Column(
                               children: [
                                 Icon(
-                                  Icons.favorite_border,
+                                  item.isThanked ? Icons.favorite : Icons.favorite_border,
                                   size: 24.sp,
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  item?.replyCount?.toString() ?? '',
+                                  item.replyCount.toString() ?? '',
                                   style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                                 )
                               ],
                             ), () {
-                          print('asdf');
+                          thankPost();
                         }),
                         clickWidget(
                             Column(
