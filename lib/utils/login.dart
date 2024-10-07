@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:v2ex/utils/init.dart';
-import 'package:v2ex/pages/page_login.dart';
+import 'package:v2ex/pages/login.dart';
 
 import 'event_bus.dart';
 import 'package:get/get.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:v2ex/utils/global.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/pages/page_login.dart';
+import 'package:v2ex/pages/login.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class Login {

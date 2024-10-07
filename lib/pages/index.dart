@@ -1,30 +1,26 @@
-import 'dart:io';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:v2ex/utils/ConstVal.dart';
-import 'Page1.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+import 'home.dart';
+
+class Index extends StatefulWidget {
+  const Index({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Index> createState() => _IndexState();
 }
 
-class _HomeState extends State<Home> {
+class _IndexState extends State<Index> {
   static const List<Widget> _widgetOptions = <Widget>[
-    Page1(),
+    Home(),
     Text("Page2"),
   ];
 
   int _selectedIndex = 0;
   PageController _controller = PageController();
   final List<Widget> _Pages = [
-    Page1(),
+    Home(),
     Text("Page2"),
     Text("Page3"),
     Text("Page4"),

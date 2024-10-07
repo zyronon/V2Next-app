@@ -14,14 +14,14 @@ import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/index.dart';
 
-class Page1 extends StatefulWidget {
-  const Page1({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<Page1> createState() => _Page1State();
+  State<Home> createState() => _HomeState();
 }
 
-class _Page1State extends State<Page1>  with AutomaticKeepAliveClientMixin{
+class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
   List<TabItem> tabMap = [
     new TabItem(title: '最热', node: 'hot', date: '', post: []),
     new TabItem(title: '最新', node: 'new', date: '', post: []),

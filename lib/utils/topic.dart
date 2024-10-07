@@ -353,17 +353,14 @@ class TopicWebApi {
   static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
     int once = GStorage().getOnce();
     SmartDialog.showLoading(msg: isCollect ? '取消中...' : '收藏中...');
-    String url = isCollect
-        ? ("/unfavorite/topic/$topicId?once=$once")
-        : ("/favorite/topic/$topicId?once=$once");
+    String url = isCollect ? ("/unfavorite/topic/$topicId?once=$once") : ("/favorite/topic/$topicId?once=$once");
     var response = await Request().get(url, extra: {'ua': 'mob'});
     SmartDialog.dismiss();
     // 返回的pc端ua
     if (response.statusCode == 200 || response.statusCode == 302) {
       if (response.statusCode == 200) {
         var document = parse(response.data);
-        var menuBodyNode = document
-            .querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        var menuBodyNode = document.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
         var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
         var loginOutHref = loginOutNode.attributes['onclick']!;
         RegExp regExp = RegExp(r'\d{3,}');
@@ -378,4 +375,40 @@ class TopicWebApi {
     return false;
   }
 
+  // 回复主题
+  static Future<String> onSubmitReplyTopic(String id, String replyContent, int totalPage) async {
+    SmartDialog.showLoading(msg: '回复中...');
+    int once = GStorage().getOnce();
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      'refer': '${Strings.v2exHost}/t/$id',
+      'origin': Strings.v2exHost
+    };
+    FormData formData = FormData.fromMap({'once': once, 'content': replyContent});
+    Response response = await Request().post('/t/$id', data: formData, extra: {'ua': 'mob'}, options: options);
+    SmartDialog.dismiss();
+    var bodyDom = parse(response.data).body;
+    if (response.statusCode == 302) {
+      SmartDialog.showToast('回复成功');
+      // 获取最后一页最近一条
+      SmartDialog.showLoading(msg: '获取最新回复');
+      var replyDetail = await getTopicDetail(id, totalPage + 1);
+      var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.username == GStorage().getUserInfo()['userName']);
+      SmartDialog.dismiss();
+      GStorage().setReplyItem(lastReply);
+      return 'true';
+    } else if (response.statusCode == 200) {
+      String responseText = '回复失败了';
+      var contentDom = bodyDom!.querySelector('#Wrapper');
+      if (contentDom!.querySelector('div.problem') != null) {
+        responseText = contentDom.querySelector('div.problem')!.text;
+      }
+      return responseText;
+    } else {
+      SmartDialog.dismiss();
+      return 'false';
+    }
+  }
 }

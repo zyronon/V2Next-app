@@ -6,11 +6,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:v2ex/pages/page_login.dart';
+import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/init.dart';
 
-import 'pages/Home.dart';
+import 'pages/index.dart';
 
 void main() async {
   await GetStorage.init();
@@ -71,8 +71,8 @@ class MyApp extends StatelessWidget {
             navigatorObservers: [FlutterSmartDialog.observer],
             builder: FlutterSmartDialog.init(),
             routes: {
-              '/': (context) => const Home(),
-              '/Home': (context) => const Home(),
+              '/': (context) => const Index(),
+              '/Home': (context) => const Index(),
               '/PostDetail': (context) => const PostDetail(),
               '/Login': (context) => const LoginPage(),
             },

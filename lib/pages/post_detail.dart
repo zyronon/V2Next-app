@@ -17,6 +17,7 @@ import 'package:v2ex/utils/topic.dart';
 class PostDetailController extends GetxController {
   bool isShowFixedTitle = false;
   late Reply reply;
+  int scrollIndex = 0;
 
   setTitle(bool val) {
     this.isShowFixedTitle = val;
@@ -47,7 +48,7 @@ class PostDetailState extends State<PostDetail> {
   PostDetailController ctrl = Get.put(PostDetailController());
   TextEditingController _replyCtrl = new TextEditingController();
 
-  Post2 item = new Post2();
+  Post2 post = new Post2();
   int _totalPage = 1; // 总页数
   int _currentPage = 0; // 当前页数
   bool reverseSort = false; // 倒序
@@ -67,20 +68,33 @@ class PostDetailState extends State<PostDetail> {
     var te = json.decode(message);
     setState(() {
       // item = Post.fromJson(te['data']);
-      item = Get.arguments;
+      post = Get.arguments;
     });
 
     var t = DateTime.now();
     print('请求开始$t');
     Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
+    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1078049', _currentPage + 1);
     var s = DateTime.now();
     print('处理结束$s');
     var hours = t.difference(s);
     print('花费时间$hours');
 
     setState(() {
-      item = topicDetailModel;
+      post = topicDetailModel;
+      rebuildList();
     });
+  }
+
+  rebuildList() {
+    post.replyCount = post.replyList.length;
+    post.topReplyList = List.of(post.replyList).where((v) {
+      return v.thankCount >= 3;
+    }).toList();
+    post.topReplyList.sort((a, b) => b.thankCount.compareTo(a.thankCount));
+    post.topReplyList = post.topReplyList.sublist(0,5);
+
+
   }
 
   @override
@@ -97,7 +111,7 @@ class PostDetailState extends State<PostDetail> {
   }
 
   Reply getReplyList(index) {
-    return item.replyList[index - 1];
+    return post.replyList[index - 1];
   }
 
   var options = ['1', '2', '3'];
@@ -145,9 +159,8 @@ class PostDetailState extends State<PostDetail> {
 
   showModal() {
     PostDetailController c = PostDetailController.to();
-
     modalWrap(
-        getHtmlText(c.reply.replyContent!),
+        getHtmlText(c.reply.replyContent),
         Column(
           children: [
             modalItem('回复', Icons.chat_bubble_outline),
@@ -165,21 +178,21 @@ class PostDetailState extends State<PostDetail> {
             height: 40.w,
             child: Center(
                 child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                text,
-                SizedBox(height: 5.w),
-                Container(
-                  width: 5.w,
-                  height: 5.w,
-                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                )
-              ],
-            ))));
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    text,
+                    SizedBox(height: 5.w),
+                    Container(
+                      width: 5.w,
+                      height: 5.w,
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
+                    )
+                  ],
+                ))));
   }
 
-  modalWrap(Widget text, Widget other) {
-    showModalBottomSheet(
+  modalWrap(Widget text, Widget other) async {
+    await showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       context: context,
@@ -206,7 +219,10 @@ class PostDetailState extends State<PostDetail> {
                     topRight: Radius.circular(10.r),
                   ),
                 ),
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+                padding: EdgeInsets.only(bottom: MediaQuery
+                    .of(context)
+                    .viewInsets
+                    .bottom + 0.w),
                 width: double.infinity,
                 child: Column(
                   children: [
@@ -227,6 +243,20 @@ class PostDetailState extends State<PostDetail> {
         );
       },
     );
+    _replyCtrl.text = '';
+  }
+
+  replyPostItem(Reply val) {
+    PostDetailController c = PostDetailController.to();
+    c.setReply(val);
+    _replyCtrl.text = '#${val.username} #${val.floor} ';
+    modalWrap(getHtmlText(c.reply.replyContent), getTest());
+  }
+
+  replyPost() {
+    PostDetailController pdc = PostDetailController.to();
+    pdc.setReply(new Reply());
+    modalWrap(getHtmlText(post.headerTemplate), getTest());
   }
 
   showPostModal() {
@@ -234,7 +264,7 @@ class PostDetailState extends State<PostDetail> {
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [getPostTitle(), getHtmlText(item?.headerTemplate ?? '')],
+          children: [getPostTitle(), getHtmlText(post?.headerTemplate ?? '')],
         ),
         Column(
           children: [
@@ -284,7 +314,7 @@ class PostDetailState extends State<PostDetail> {
                               color: Colors.black.withOpacity(0.4),
                               blurRadius: 3.w, //阴影模糊程度
                               spreadRadius: 3.w //阴影扩散程度
-                              )
+                          )
                         ],
                       ),
                     )),
@@ -292,11 +322,6 @@ class PostDetailState extends State<PostDetail> {
             )
           ],
         ));
-  }
-
-  showReplyModal() {
-    PostDetailController c = PostDetailController.to();
-    modalWrap(getHtmlText(c.reply.replyContent!), getTest());
   }
 
   Widget getItem(Reply val, int index) {
@@ -378,7 +403,9 @@ class PostDetailState extends State<PostDetail> {
                             color: Colors.grey,
                           ),
                         ),
-                        onTap: showModal,
+                        onTap: () {
+                          replyPostItem(val);
+                        },
                       )
                     ],
                   )
@@ -392,17 +419,18 @@ class PostDetailState extends State<PostDetail> {
                   top: 4.w,
                 ),
                 child: HtmlWidget(
-                  val?.replyContent ?? '',
+                  val.replyContent,
                   renderMode: RenderMode.column,
-                  textStyle: TextStyle(fontSize: 14.sp),
+                  textStyle: TextStyle(fontSize: 14.sp, height: 1.4),
                 ),
               ),
             ]),
           ),
-          if (val?.children?.length != 0)
+          if (val.children.length != 0)
             Column(
               children: [
-                ...val!.children!.map((a) => Padding(
+                ...val.children.map((a) =>
+                    Padding(
                       padding: EdgeInsets.only(left: 16.w),
                       child: getItem(a, 1),
                     ))
@@ -416,9 +444,7 @@ class PostDetailState extends State<PostDetail> {
         showModal();
       },
       onTap: () {
-        PostDetailController c = PostDetailController.to();
-        c.setReply(val);
-        showReplyModal();
+        replyPostItem(val);
       },
     );
   }
@@ -456,7 +482,7 @@ class PostDetailState extends State<PostDetail> {
     return Padding(
       padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
       child: SelectableText(
-        item?.title ?? '',
+        post?.title ?? '',
         textAlign: TextAlign.left,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
       ),
@@ -467,23 +493,71 @@ class PostDetailState extends State<PostDetail> {
   Widget getHtmlText(String html) {
     return SelectionArea(
         child: HtmlWidget(
-      html,
-      renderMode: RenderMode.column,
-      textStyle: TextStyle(fontSize: 14.sp),
-      customStylesBuilder: (element) {
-        if (element.classes.contains('subtle')) {
-          return {
-            'background-color': '#ecfdf5e6',
-            'border-left': '4px solid #a7f3d0',
-            'padding': '5px',
-          };
-        }
-        if (element.classes.contains('fade')) {
-          return {'color': '#6b6b6b'};
-        }
-        return null;
-      },
-    ));
+          html,
+          renderMode: RenderMode.column,
+          textStyle: TextStyle(fontSize: 14.sp),
+          customStylesBuilder: (element) {
+            if (element.classes.contains('subtle')) {
+              return {
+                'background-color': '#ecfdf5e6',
+                'border-left': '4px solid #a7f3d0',
+                'padding': '5px',
+              };
+            }
+            if (element.classes.contains('fade')) {
+              return {'color': '#6b6b6b'};
+            }
+            return null;
+          },
+        ));
+  }
+
+  onReply() async {
+    PostDetailController pdc = PostDetailController.to();
+    var res = await TopicWebApi.onSubmitReplyTopic(post.id, _replyCtrl.text, 0);
+    if (res == 'true') {
+      if (context.mounted) {
+        setState(() {
+          var s = new Reply();
+          s.replyContent = _replyCtrl.text;
+          s.username = GStorage().getUserInfo()['userName'];
+          s.avatar = GStorage().getUserInfo()['avatar'];
+          s.date = '刚刚';
+          s.floor = post.replyCount + 1;
+          post.replyList.add(s);
+          rebuildList();
+        });
+        _replyCtrl.text = '';
+        Get.back();
+      }
+    } else if (res == 'success') {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('回复失败'),
+            showCloseIcon: true,
+          ),
+        );
+      }
+    } else {
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('系统提示'),
+            content: Text(res),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('确定'))
+            ],
+          );
+        },
+      );
+    }
   }
 
   getTest() {
@@ -494,7 +568,7 @@ class PostDetailState extends State<PostDetail> {
           Container(
             child: TextField(
               controller: _replyCtrl,
-              maxLines: 4,
+              maxLines: 10,
               autofocus: false,
               decoration: InputDecoration(
                 hintText: "请尽量让自己的回复能够对别人有帮助",
@@ -528,18 +602,7 @@ class PostDetailState extends State<PostDetail> {
                   ),
                 ),
                 onTap: () {
-                  PostDetailController c = PostDetailController.to();
-                  // setState(() {
-                  //   var s = Reply.getNew();
-                  //   s.replyContent = _replyCtrl.text;
-                  //   item?.replyList?.add(s);
-                  // });
-
-                  BaseController bc = Get.find<BaseController>();
-
-                  print(_replyCtrl.text);
-                  print(bc);
-                  print(bc.loaded.value);
+                  onReply();
                 },
               )
             ],
@@ -555,16 +618,16 @@ class PostDetailState extends State<PostDetail> {
     if (needLogin) {
       return Get.toNamed('/Login');
     }
-    var res = await TopicWebApi.favoriteTopic(item.isFavorite, item.id);
+    var res = await TopicWebApi.favoriteTopic(post.isFavorite, post.id);
     if (res) {
       setState(() {
-        item.isFavorite = !item.isFavorite;
-        item.collectCount = item.isFavorite ? item.collectCount + 1 : item.collectCount - 1;
+        post.isFavorite = !post.isFavorite;
+        post.collectCount = post.isFavorite ? post.collectCount + 1 : post.collectCount - 1;
       });
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(item.isFavorite ? '已收藏' : '已取消收藏'),
+          content: Text(post.isFavorite ? '已收藏' : '已取消收藏'),
           showCloseIcon: true,
         ),
       );
@@ -577,88 +640,96 @@ class PostDetailState extends State<PostDetail> {
     if (needLogin) {
       return Get.toNamed('/Login');
     }
-    if (item.isThanked) {
+    if (post.isThanked) {
       SmartDialog.showToast('这个主题已经被感谢过了');
     } else {
       showDialog<String>(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('提示'),
-          content: const Text('确认向本主题创建者表示感谢吗？'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('手误了'),
+        builder: (BuildContext context) =>
+            AlertDialog(
+              title: const Text('提示'),
+              content: const Text('确认向本主题创建者表示感谢吗？'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  child: const Text('手误了'),
+                ),
+                TextButton(
+                  onPressed: (() async {
+                    Navigator.pop(context, 'OK');
+                    var res = await TopicWebApi.thankTopic(post.id);
+                    print('54: $res');
+                    if (res) {
+                      setState(() {
+                        post.isThanked = true;
+                        post.thankCount += 1;
+                      });
+                      SmartDialog.showToast('感谢成功');
+                    }
+                  }),
+                  child: const Text('确定'),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: (() async {
-                Navigator.pop(context, 'OK');
-                var res = await TopicWebApi.thankTopic(item.id);
-                print('54: $res');
-                if (res) {
-                  setState(() {
-                    item.isThanked = true;
-                  });
-                  SmartDialog.showToast('感谢成功');
-                }
-              }),
-              child: const Text('确定'),
-            ),
-          ],
-        ),
       );
     }
   }
 
   thank(index) {
     print(index);
-    var s = item?.replyList?[index - 1];
+    var s = post?.replyList?[index - 1];
     if (s != Null) {
       setState(() {
-        item?.replyList?[index - 1].isThanked = true;
+        post?.replyList?[index - 1].isThanked = true;
       });
     }
   }
 
   // 感谢回复 request
   void onThankReply(int index) async {
-    var s = item.replyList[index - 1];
+    var s = post.replyList[index - 1];
 
-    var res = await DioRequestWeb.thankReply(s.id, item.id);
+    var res = await DioRequestWeb.thankReply(s.id, post.id);
     if (res) {
       setState(() {
-        item.replyList[index - 1].isThanked = true;
-        item.replyList[index - 1].thankCount += 1;
+        post.replyList[index - 1].isThanked = true;
+        post.replyList[index - 1].thankCount += 1;
       });
     }
   }
 
   //感谢回复
-  void thankReply(int index) {
-    var s = item.replyList[index - 1];
+  thankReply(int index) {
+    bool needLogin = !(GStorage().getLoginStatus());
+    if (needLogin) {
+      return Get.toNamed('/Login');
+    }
+
+    var s = post.replyList[index - 1];
     if (s.isThanked) {
       SmartDialog.showToast('这个回复已经被感谢过了');
       return;
     }
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('提示'),
-        content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('手滑了'),
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: const Text('提示'),
+            content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('手滑了'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Ok');
+                  onThankReply(index);
+                },
+                child: const Text('确认'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, 'Ok');
-              onThankReply(index);
-            },
-            child: const Text('确认'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -692,21 +763,21 @@ class PostDetailState extends State<PostDetail> {
                               }),
                               Expanded(
                                   child: InkWell(
-                                child: AnimatedOpacity(
-                                  opacity: _.isShowFixedTitle ? 1.0 : 0.0,
-                                  duration: const Duration(milliseconds: 300),
-                                  child: Text(
-                                    // '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
-                                    item?.title ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(fontSize: 16.sp),
-                                  ),
-                                ),
-                                onTap: () {
-                                  _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                                },
-                              ))
+                                    child: AnimatedOpacity(
+                                      opacity: _.isShowFixedTitle ? 1.0 : 0.0,
+                                      duration: const Duration(milliseconds: 300),
+                                      child: Text(
+                                        // '把控制面板的全部设置项移进电脑设置里面这么难吗？为什么 Windows 8 到现在 13 年了， Windows 还是有两个设置',
+                                        post?.title ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: TextStyle(fontSize: 16.sp),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+                                    },
+                                  ))
                             ],
                           ),
                         ),
@@ -716,143 +787,145 @@ class PostDetailState extends State<PostDetail> {
                 // getTest(),
                 Expanded(
                     child: ListViewObserver(
-                  controller: observerController,
-                  onObserve: (resultModel) {
-                    _.setTitle(resultModel.firstChild!.index > 0);
-                  },
-                  child: ListView.separated(
-                    // shrinkWrap: true,
-                    controller: _scrollController,
-                    itemCount: 1 + (item.replyList.length ?? 0),
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            //标题和内容
-                            Padding(
-                                padding: EdgeInsets.all(8.w),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      controller: observerController,
+                      onObserve: (res) {
+                        PostDetailController pdc = PostDetailController.to();
+                        pdc.scrollIndex = res.firstChild!.index;
+                        _.setTitle(res.firstChild!.index > 0);
+                      },
+                      child: ListView.separated(
+                        // shrinkWrap: true,
+                        controller: _scrollController,
+                        itemCount: 1 + (post.replyList.length ?? 0),
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //标题和内容
+                                Padding(
+                                    padding: EdgeInsets.all(8.w),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          verticalDirection: VerticalDirection.down,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            BaseAvatar(src: item?.member?.avatarLarge ?? '', diameter: 30.w, radius: 4.w),
-                                            Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                            Row(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              verticalDirection: VerticalDirection.down,
                                               children: [
-                                                //用户名
-                                                Row(
+                                                BaseAvatar(src: post?.member?.avatarLarge ?? '', diameter: 30.w, radius: 4.w),
+                                                Column(
                                                   mainAxisAlignment: MainAxisAlignment.start,
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 10.w),
-                                                      child: SelectableText(
-                                                        item?.member?.username ?? '',
-                                                        style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
-                                                      ),
+                                                    //用户名
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.only(left: 10.w),
+                                                          child: SelectableText(
+                                                            post?.member?.username ?? '',
+                                                            style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                                //时间、点击量
-                                                Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 10.w),
-                                                      child: Text(
-                                                        item?.createDateAgo ?? '',
-                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: 10.w),
-                                                      child: Text(
-                                                        (item?.clickCount.toString() ?? '') + '次点击',
-                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                      ),
-                                                    ),
+                                                    //时间、点击量
+                                                    Row(
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.only(left: 10.w),
+                                                          child: Text(
+                                                            post?.createDateAgo ?? '',
+                                                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding: EdgeInsets.only(left: 10.w),
+                                                          child: Text(
+                                                            (post?.clickCount.toString() ?? '') + '次点击',
+                                                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
                                                   ],
                                                 )
                                               ],
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black12,
+                                                borderRadius: BorderRadius.circular(3.0), //3像素圆角
+                                              ),
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                                                child: Text(
+                                                  post?.node?.title ?? '',
+                                                  style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                                ),
+                                              ),
                                             )
                                           ],
                                         ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.black12,
-                                            borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                            child: Text(
-                                              item?.node?.title ?? '',
-                                              style: TextStyle(color: Colors.black, fontSize: 12.sp),
-                                            ),
-                                          ),
-                                        )
+                                        getPostTitle(),
+                                        getHtmlText(post?.headerTemplate ?? ''),
                                       ],
-                                    ),
-                                    getPostTitle(),
-                                    getHtmlText(item?.headerTemplate ?? ''),
-                                  ],
-                                )),
-                            Container(
-                              padding: EdgeInsets.all(6.w),
-                              decoration: BoxDecoration(
-                                border: Border(top: BorderSide(color: Colors.black12)),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(item.createDateAgo),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 100.sw,
-                              height: 4.w,
-                              color: Colors.grey[100],
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.w),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    item.replyCount.toString() + '条回复',
-                                    style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                    )),
+                                Container(
+                                  padding: EdgeInsets.all(6.w),
+                                  decoration: BoxDecoration(
+                                    border: Border(top: BorderSide(color: Colors.black12)),
                                   ),
-                                  Text(
-                                    '楼中楼',
-                                    style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(post.createDateAgo),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            )
-                          ],
-                        );
-                      }
-                      if (index == item.replyList.length) {
-                        return Padding(padding: EdgeInsets.only(bottom: 120.w), child: getItem(getReplyList(index), index));
-                      }
-                      return getItem(getReplyList(index), index);
-                    },
-                    //分割器构造器
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Container(
-                        height: 1,
-                        color: Color(0xfff1f1f1),
-                      );
-                    },
-                  ),
-                )),
+                                ),
+                                Container(
+                                  width: 100.sw,
+                                  height: 4.w,
+                                  color: Colors.grey[100],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.w),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        post.replyCount.toString() + '条回复',
+                                        style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                      ),
+                                      Text(
+                                        '楼中楼',
+                                        style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            );
+                          }
+                          if (index == post.replyList.length) {
+                            return Padding(padding: EdgeInsets.only(bottom: 120.w), child: getItem(getReplyList(index), index));
+                          }
+                          return getItem(getReplyList(index), index);
+                        },
+                        //分割器构造器
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Container(
+                            height: 1,
+                            color: Color(0xfff1f1f1),
+                          );
+                        },
+                      ),
+                    )),
                 Container(
                     width: double.infinity,
                     padding: EdgeInsets.fromLTRB(14.w, 4.w, 6.w, 4.w),
@@ -863,35 +936,40 @@ class PostDetailState extends State<PostDetail> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: Container(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Text(
-                                  '说点什么...',
-                                  style: TextStyle(color: Colors.black54),
-                                )),
-                                Icon(
-                                  Icons.crop_original,
-                                  size: 20.sp,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Icons.alternate_email,
-                                  size: 20.sp,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Icons.sentiment_satisfied_alt,
-                                  size: 20.sp,
-                                  color: Colors.grey,
-                                )
-                              ],
+                          child: InkWell(
+                            child: Container(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(
+                                        '说点什么...',
+                                        style: TextStyle(color: Colors.black54),
+                                      )),
+                                  Icon(
+                                    Icons.crop_original,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Icon(
+                                    Icons.alternate_email,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Icon(
+                                    Icons.sentiment_satisfied_alt,
+                                    size: 20.sp,
+                                    color: Colors.grey,
+                                  )
+                                ],
+                              ),
+                              decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
+                              padding: EdgeInsets.all(6.w),
                             ),
-                            decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
-                            padding: EdgeInsets.all(6.w),
+                            onTap: () {
+                              replyPost();
+                            },
                           ),
                         ),
                         SizedBox(width: 6.w),
@@ -915,12 +993,12 @@ class PostDetailState extends State<PostDetail> {
                             Column(
                               children: [
                                 Icon(
-                                  item.isFavorite ? Icons.grade : Icons.star_border,
+                                  post.isFavorite ? Icons.grade : Icons.star_border,
                                   size: 24.sp,
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  item.replyCount.toString() ?? '',
+                                  post.collectCount.toString(),
                                   style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                                 )
                               ],
@@ -931,12 +1009,12 @@ class PostDetailState extends State<PostDetail> {
                             Column(
                               children: [
                                 Icon(
-                                  item.isThanked ? Icons.favorite : Icons.favorite_border,
+                                  post.isThanked ? Icons.favorite : Icons.favorite_border,
                                   size: 24.sp,
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  item.replyCount.toString() ?? '',
+                                  post.thankCount.toString(),
                                   style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                                 )
                               ],
@@ -952,12 +1030,13 @@ class PostDetailState extends State<PostDetail> {
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  item?.replyCount?.toString() ?? '',
+                                  post.replyCount.toString(),
                                   style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                                 )
                               ],
                             ), () {
-                          observerController.jumpTo(index: 1);
+                          PostDetailController pdc = PostDetailController.to();
+                          observerController.jumpTo(index: pdc.scrollIndex != 0 ? 0 : 1);
                         }),
                       ],
                     )),

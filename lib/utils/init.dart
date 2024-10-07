@@ -157,10 +157,10 @@ class Request {
         options: options,
         cancelToken: cancelToken,
       );
-      print('post success---------${response.data}');
+      debugPrint('post success---------${response.data}');
       return response;
     } on DioException catch (e) {
-      print('post error---------$e');
+      debugPrint('post error---------$e');
       return Future.error(ApiInterceptor.dioError(e));
     }
   }
