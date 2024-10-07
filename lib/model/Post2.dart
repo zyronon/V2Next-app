@@ -6,6 +6,8 @@ class Reply {
   bool isOp = false;
   bool isDup = false;
   bool isMod = false;
+  bool isUse = false;
+  bool isWrong = false;
   String id = '';
   String replyContent = '';
   String replyText = '';
@@ -18,7 +20,6 @@ class Reply {
   String avatar = '';
   int floor = 0;
   List<Reply> children = [];
-  bool isUse = false;
 
   Map<String, dynamic> toJson() => {
         "level": level,

@@ -58,4 +58,45 @@ class Utils {
       }
     }
   }
+
+  static Map<String, dynamic> parseReplyContent(String str) {
+    if (str.isEmpty) return {};
+
+    List<String> users = [];
+    void getUsername(String userStr) {
+      int endIndex = userStr.indexOf('">');
+      if (endIndex > -1) {
+        String user = userStr.substring(0, endIndex);
+        if (!users.contains(user)) {
+          users.add(user);
+        }
+      }
+    }
+
+    RegExp userReg = RegExp(r'@<a href="\/member\/([\s\S]+?)<\/a>');
+    Iterable<RegExpMatch> has = userReg.allMatches(str);
+    List<RegExpMatch> res2 = has.toList();
+
+    if (res2.length > 1) {
+      for (var item in res2) {
+        getUsername(item.group(1)!);
+      }
+    }
+    if (res2.length == 1) {
+      getUsername(res2[0].group(1)!);
+    }
+
+    int floor = -1;
+
+    if (users.length == 1) {
+      RegExp floorReg = RegExp(r'@<a href="\/member\/[\s\S]+?<\/a>[\s]+#([\d]+)');
+      Iterable<RegExpMatch> hasFloor = floorReg.allMatches(str);
+      List<RegExpMatch> res = hasFloor.toList();
+      if (res.isNotEmpty) {
+        floor = int.parse(res[0].group(1)!);
+      }
+    }
+
+    return {'users': users, 'floor': floor};
+  }
 }
