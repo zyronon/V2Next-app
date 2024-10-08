@@ -266,6 +266,8 @@ class TopicWebApi {
           }
         }
         reply.date = aNode.querySelector('$replyTrQuery > td:nth-child(5) > span')!.text.replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
+        reply.date = reply.date.replaceAll(' PM', '');
+        reply.date = reply.date.replaceAll(' AM', '');
         if (reply.date.contains('via')) {
           var platform = reply.date.split('via')[1].replaceAll(RegExp(r"\s+"), "");
           reply.date = reply.date.split('via')[0].replaceAll("/t/", "");

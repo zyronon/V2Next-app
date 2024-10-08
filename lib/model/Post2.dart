@@ -4,8 +4,8 @@ class Reply {
   int replyCount = 0;
   bool isThanked = false;
   bool isOp = false;
-  bool isDup = false;
   bool isMod = false;
+  bool isDup = false;
   bool isUse = false;
   bool isWrong = false;
   String id = '';

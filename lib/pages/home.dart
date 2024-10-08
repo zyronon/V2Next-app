@@ -68,11 +68,11 @@ class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
       onWebViewCreated: (_controller){
         c.wc = webViewController = _controller;
       },
-      onLoadStop: (controller, url) async {
-        controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js").then((_){
-          c.loaded.value = true;
-        });
-      },
+      // onLoadStop: (controller, url) async {
+      //   controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js").then((_){
+      //     c.loaded.value = true;
+      //   });
+      // },
     );
     // headlessWebView?.run();
   }

@@ -92,89 +92,90 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                 child: ListView.separated(
                   itemCount: _.postList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return InkWell(child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(
-                          children: [
-                            Row(children: [
-                              Padding(
-                                padding: EdgeInsets.only(right: 10.w),
-                                child: BaseAvatar(
-                                  src: _.postList?[index]?.member?.avatar ?? '',
-                                  diameter: 34.w,
-                                  radius: 4.w,
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _.postList[index].member?.username ?? '',
-                                    style: TextStyle(fontSize: 14.sp, height: 1.2),
+                    return InkWell(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Row(
+                            children: [
+                              Row(children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 10.w),
+                                  child: BaseAvatar(
+                                    src: _.postList[index].member.avatar,
+                                    diameter: 34.w,
+                                    radius: 4.w,
                                   ),
-                                  SizedBox(height: 4.w),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        _.postList[index]?.lastReplyDate ?? '',
-                                        style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                                      ),
-                                      SizedBox(width: 10.w),
-                                      DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          color: Color(0xffe4e4e4),
-                                          borderRadius: BorderRadius.circular(3.r),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _.postList[index].member.username,
+                                      style: TextStyle(fontSize: 14.sp, height: 1.2),
+                                    ),
+                                    SizedBox(height: 4.w),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          _.postList[index].lastReplyDate,
+                                          style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
                                         ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                                          child: Text(
-                                            _.postList[index]?.node?.title ?? '',
-                                            style: TextStyle(color: Colors.black54, fontSize: 10.sp),
+                                        SizedBox(width: 10.w),
+                                        DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: Color(0xffe4e4e4),
+                                            borderRadius: BorderRadius.circular(3.r),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                                            child: Text(
+                                              _.postList[index].node.title,
+                                              style: TextStyle(color: Colors.black54, fontSize: 10.sp),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              )
-                            ]),
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.circular(4.r), //3像素圆角
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                                child: Text(
-                                  _.postList[index]?.replyCount?.toString() ?? '',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w500,
+                                      ],
+                                    )
+                                  ],
+                                )
+                              ]),
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(4.r), //3像素圆角
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                                  child: Text(
+                                    _.postList[index].replyCount.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          verticalDirection: VerticalDirection.down,
-                        ),
-                        InkWell(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: 10,
-                            ),
-                            child: Text(
-                              _.postList[index].title ?? '',
-                              textAlign: TextAlign.left,
-                              // style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
-                            ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            verticalDirection: VerticalDirection.down,
                           ),
-                          onTap: () => {getPost(_.postList[index])},
-                        ),
+                          InkWell(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: 10,
+                              ),
+                              child: Text(
+                                _.postList[index].title,
+                                textAlign: TextAlign.left,
+                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
+                                // style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
+                              ),
+                            ),
+                            onTap: () => {getPost(_.postList[index])},
+                          ),
 //                   InkWell(
 //                     child: Padding(
 //                       padding: EdgeInsets.only(
@@ -198,8 +199,8 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
 //                     ),
 //                     onTap: () => {getPost(_.postList[index])},
 //                   ),
-                      ]),
-                    ),
+                        ]),
+                      ),
                       onTap: () => {getPost(_.postList[index])},
                     );
                   },

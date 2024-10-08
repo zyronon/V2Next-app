@@ -8,6 +8,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/model/Controller.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/http.dart';
@@ -186,8 +187,9 @@ class PostDetailController extends GetxController {
 
     var t = DateTime.now();
     print('请求开始$t');
-    Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
+    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1078049', _currentPage + 1);
+    Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072', _currentPage + 1);
     var s = DateTime.now();
     print('处理结束$s');
     var hours = t.difference(s);
@@ -211,7 +213,7 @@ class PostDetail extends StatefulWidget {
 
 class PostDetailState extends State<PostDetail> {
   final ScrollController _scrollController = ScrollController();
-  late ListObserverController observerController;
+  late ListObserverController observerController = ListObserverController(controller: _scrollController);
   PostDetailController ctrl = Get.put(PostDetailController());
   TextEditingController _replyCtrl = new TextEditingController();
 
@@ -221,7 +223,6 @@ class PostDetailState extends State<PostDetail> {
   @override
   void initState() {
     super.initState();
-    observerController = ListObserverController(controller: _scrollController);
     ctrl.getData();
   }
 
@@ -258,7 +259,7 @@ class PostDetailState extends State<PostDetail> {
         ));
   }
 
-  Widget modalPostItem(String text, IconData icon) {
+  Widget optionItem(String text, IconData icon) {
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -281,8 +282,10 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  showModal() {
+  //显示回复菜单弹窗
+  showItemMenuModal(Reply val) {
     PostDetailController c = PostDetailController.to();
+    c.setReply(val);
     modalWrap(
         getHtmlText(c.reply.replyContent),
         Column(
@@ -292,6 +295,72 @@ class PostDetailState extends State<PostDetail> {
             modalItem('上下文', Icons.content_paste_search),
             modalItem('复制', Icons.content_copy),
             modalItem('忽略', Icons.block),
+          ],
+        ));
+  }
+
+  //显示帖子菜单弹窗
+  showPostMenuModal() {
+    modalWrap(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [getPostTitle(), getHtmlText(ctrl.post?.headerTemplate ?? '')],
+        ),
+        Column(
+          children: [
+            Row(children: [
+              optionItem('保存', Icons.bookmark_border),
+              optionItem('深色模式', Icons.bookmark_border),
+              optionItem('报告', Icons.bookmark_border),
+              optionItem('忽略', Icons.bookmark_border),
+            ]),
+            Row(children: [
+              optionItem('稍后阅读', Icons.bookmark_border),
+              optionItem('复制内容', Icons.content_copy),
+              optionItem('复制链接', Icons.link),
+              optionItem('浏览器打开', Icons.travel_explore),
+            ]),
+            Stack(
+              children: [
+                Positioned(
+                    left: .13.sw,
+                    bottom: 22.w,
+                    child: Container(
+                      width: 0.74.sw,
+                      height: 1.w,
+                      color: Colors.black54,
+                    )),
+                Container(
+                    padding: EdgeInsets.only(bottom: 20.w),
+                    child: Row(
+                      children: [
+                        getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
+                        getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
+                        getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
+                        getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
+                      ],
+                    )),
+                Positioned(
+                    left: .23.sw,
+                    bottom: 16.w,
+                    child: Container(
+                      width: 12.w,
+                      height: 12.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50.r),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.4),
+                              blurRadius: 3.w, //阴影模糊程度
+                              spreadRadius: 3.w //阴影扩散程度
+                              )
+                        ],
+                      ),
+                    )),
+              ],
+            )
           ],
         ));
   }
@@ -380,192 +449,14 @@ class PostDetailState extends State<PostDetail> {
     modalWrap(getHtmlText(ctrl.post.headerTemplate), getTest());
   }
 
-  showPostModal() {
-    modalWrap(
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [getPostTitle(), getHtmlText(ctrl.post?.headerTemplate ?? '')],
-        ),
-        Column(
-          children: [
-            Row(children: [
-              modalPostItem('保存', Icons.bookmark_border),
-              modalPostItem('深色模式', Icons.bookmark_border),
-              modalPostItem('报告', Icons.bookmark_border),
-              modalPostItem('忽略', Icons.bookmark_border),
-            ]),
-            Row(children: [
-              modalPostItem('稍后阅读', Icons.bookmark_border),
-              modalPostItem('复制内容', Icons.content_copy),
-              modalPostItem('复制链接', Icons.link),
-              modalPostItem('浏览器打开', Icons.travel_explore),
-            ]),
-            Stack(
-              children: [
-                Positioned(
-                    left: .13.sw,
-                    bottom: 22.w,
-                    child: Container(
-                      width: 0.74.sw,
-                      height: 1.w,
-                      color: Colors.black54,
-                    )),
-                Container(
-                    padding: EdgeInsets.only(bottom: 20.w),
-                    child: Row(
-                      children: [
-                        getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
-                        getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
-                        getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
-                        getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
-                      ],
-                    )),
-                Positioned(
-                    left: .23.sw,
-                    bottom: 16.w,
-                    child: Container(
-                      width: 12.w,
-                      height: 12.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(50.r),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 3.w, //阴影模糊程度
-                              spreadRadius: 3.w //阴影扩散程度
-                              )
-                        ],
-                      ),
-                    )),
-              ],
-            )
-          ],
-        ));
-  }
-
-  Widget getItem(Reply val, int index) {
-    return InkWell(
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(6.w),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              //头像、名字
-              Row(
-                children: [
-                  Row(
-                    children: [
-                      BaseAvatar(src: val.avatar, diameter: 26.w, radius: 4.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: SelectableText(
-                              val.username,
-                              style: TextStyle(fontSize: 13.sp, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Text(
-                                  val.floor.toString() + '楼',
-                                  style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Text(
-                                  val.date,
-                                  style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      if (val.thankCount != 0)
-                        InkWell(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                val.isThanked ? Icons.favorite : Icons.favorite_border,
-                                size: 18.sp,
-                                color: Colors.red,
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.only(left: 4.w),
-                                  child: Text(
-                                    val.thankCount.toString(),
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(fontSize: 14.sp, color: Colors.red, height: 1.2),
-                                  ))
-                            ],
-                          ),
-                          onTap: () {
-                            thankReply(index);
-                          },
-                        ),
-                      InkWell(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 4.w),
-                          child: Icon(
-                            Icons.more_vert,
-                            size: 22.sp,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        onTap: () {
-                          replyPostItem(val);
-                        },
-                      )
-                    ],
-                  )
-                ],
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                verticalDirection: VerticalDirection.down,
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: 4.w,
-                ),
-                child: HtmlWidget(
-                  val.hideCallUserReplyContent,
-                  renderMode: RenderMode.column,
-                  textStyle: TextStyle(fontSize: 14.sp, height: 1.4),
-                ),
-              ),
-            ]),
-          ),
-          if (val.children.length != 0)
-            Column(
-              children: [
-                ...val.children.map((a) => Padding(
-                      padding: EdgeInsets.only(left: 16.w),
-                      child: getItem(a, 1),
-                    ))
-              ],
-            ),
-        ],
-      ),
-      onLongPress: () {
-        PostDetailController c = PostDetailController.to();
-        c.setReply(val);
-        showModal();
-      },
-      onTap: () {
-        replyPostItem(val);
-      },
+  Widget getReplyItem(Reply item, int index, int type) {
+    return ReplyItem(
+      index: index,
+      type: type,
+      item: item,
+      onThank: (e) => thankReply(e),
+      onMenu: (e) => showItemMenuModal(e),
+      onTap: (e) => replyPostItem(e),
     );
   }
 
@@ -916,7 +807,7 @@ class PostDetailState extends State<PostDetail> {
                             ],
                           ),
                         ),
-                        clickIcon(Icons.more_vert, showPostModal)
+                        clickIcon(Icons.more_vert, showPostMenuModal)
                       ],
                     )),
                 // getTest(),
@@ -1033,15 +924,15 @@ class PostDetailState extends State<PostDetail> {
                                               ),
                                             ],
                                           )),
-                                      getItem(ctrl.post.topReplyList[0], index)
+                                      getReplyItem(ctrl.post.topReplyList[0], index, 0)
                                     ],
                                   );
                                 }
-                                return getItem(ctrl.post.topReplyList[index - 1], index);
-                              } else if (index == ctrl.getListLength()-1) {
+                                return getReplyItem(ctrl.post.topReplyList[index - 1], index, 0);
+                              } else if (index == ctrl.getListLength() - 1) {
                                 return Padding(
                                   padding: EdgeInsets.only(bottom: 120.w),
-                                  child: getItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index),
+                                  child: getReplyItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index, 1),
                                 );
                               } else if (index == ctrl.post.topReplyList.length + 1) {
                                 return Column(
@@ -1063,15 +954,16 @@ class PostDetailState extends State<PostDetail> {
                                         ],
                                       ),
                                     ),
-                                    getItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index)
+                                    getReplyItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index, 1)
                                   ],
                                 );
                               }
-                              return getItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index);
+                              return getReplyItem(ctrl.getReplyList()[index - ctrl.post.topReplyList.length - 1], index, 1);
                             },
                             separatorBuilder: (BuildContext context, int index) {
+                              // return Divider(color: Color(0xfff1f1f1));
                               return Container(
-                                height: 1,
+                                height: 1.w,
                                 color: Color(0xfff1f1f1),
                               );
                             },
