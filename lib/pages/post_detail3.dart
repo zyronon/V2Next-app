@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -17,10 +16,6 @@ import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/topic.dart';
 
-class UserConfig {
-  bool showTopReply = false;
-}
-
 class PostDetailController extends GetxController {
   bool isShowFixedTitle = false;
   Post2 post = new Post2();
@@ -28,9 +23,6 @@ class PostDetailController extends GetxController {
   int scrollIndex = 0;
   int _currentPage = 0; // 当前页数
   var loading = false.obs;
-  var config = UserConfig().obs;
-  bool showTopReply = false;
-
 
   setTitle(bool val) {
     this.isShowFixedTitle = val;
@@ -226,13 +218,10 @@ class PostDetail extends StatefulWidget {
 }
 
 class PostDetailState extends State<PostDetail> {
-  ScrollController _scrollController = ScrollController();
-  late SliverObserverController observerController = SliverObserverController(controller: _scrollController);
+  final ScrollController _scrollController = ScrollController();
+  late ListObserverController observerController = ListObserverController(controller: _scrollController);
   PostDetailController ctrl = Get.put(PostDetailController());
   TextEditingController _replyCtrl = new TextEditingController();
-  var headerCtx;
-  var listCtx;
-  var firstChildCtx;
 
   bool reverseSort = false; // 倒序
   bool isLoading = false; // 请求状态 正序/倒序
@@ -276,36 +265,27 @@ class PostDetailState extends State<PostDetail> {
         ));
   }
 
-  Widget optionItem(String text, IconData icon, ) {
-    return InkWell(
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(100.r)),
-                  padding: EdgeInsets.all(12.w),
-                  margin: EdgeInsets.only(bottom: 8.w),
-                  child: Icon(
-                    icon,
-                    size: 28.sp,
-                    color: Colors.black54,
-                  )),
-              Text(text)
-            ],
-          ),
-          width: .25.sw,
-          padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
-        ),
-        onTap: () {
-          debugPrint('1');
-          ctrl.config.update((val){
-            val?.showTopReply = !val!.showTopReply;
-          });
-          // ctrl.showTopReply = !ctrl.showTopReply;
-          // ctrl.update();
-        });
+  Widget optionItem(String text, IconData icon) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(100.r)),
+              padding: EdgeInsets.all(12.w),
+              margin: EdgeInsets.only(bottom: 8.w),
+              child: Icon(
+                icon,
+                size: 28.sp,
+                color: Colors.black54,
+              )),
+          Text(text)
+        ],
+      ),
+      width: .25.sw,
+      padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
+    );
   }
 
   //显示回复菜单弹窗
@@ -768,12 +748,10 @@ class PostDetailState extends State<PostDetail> {
   }
 
   Widget space() {
-    return SliverToBoxAdapter(
-      child: Container(
-        width: 100.sw,
-        height: 8.w,
-        color: Colors.grey[100],
-      ),
+    return Container(
+      width: 100.sw,
+      height: 8.w,
+      color: Colors.grey[100],
     );
   }
 
@@ -838,130 +816,108 @@ class PostDetailState extends State<PostDetail> {
                     ],
                   )),
               // getTest(),
-              Text(_.config().showTopReply.toString()),
-              Text(_.showTopReply.toString()),
               Expanded(
-                  child: SliverViewObserver(
+                  child: ListViewObserver(
                 controller: observerController,
-                onObserveViewport: (res) {
-                  firstChildCtx = res.firstChild.sliverContext;
-                  if (firstChildCtx == headerCtx) {
-                    debugPrint('onObserveViewport - headerCtx');
-                  } else {
-                    debugPrint('onObserveViewport - listCtx');
-                  }
+                onObserve: (res) {
+                  // 打印当前正在显示的第一个子部件
+                  print('firstChild.index -- ${res.firstChild!.index}');
+                  PostDetailController pdc = PostDetailController.to();
+                  pdc.scrollIndex = res.firstChild!.index;
+                  ctrl.setTitle(res.firstChild!.index > 0);
                 },
-                // sliverContexts: () {
-                //   return [
-                //     if (headerCtx != null) headerCtx,
-                //     if (listCtx != null) listCtx,
-                //   ];
-                // },
                 child: RefreshIndicator(
                   child: CustomScrollView(
                     controller: _scrollController,
                     slivers: [
-                      SliverLayoutBuilder(
-                        builder: (context, _) {
-                          if (headerCtx != context) headerCtx = context;
-                          return SliverToBoxAdapter(
-                            child: //标题和内容
-                                Padding(
-                              padding: EdgeInsets.all(8.w),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        verticalDirection: VerticalDirection.down,
-                                        children: [
-                                          BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: 30.w, radius: 4.w),
-                                          Column(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              //用户名
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 10.w),
-                                                    child: SelectableText(
-                                                      ctrl.post.member.username,
-                                                      style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //标题和内容
+                            Padding(
+                                padding: EdgeInsets.all(8.w),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          verticalDirection: VerticalDirection.down,
+                                          children: [
+                                            BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: 30.w, radius: 4.w),
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                //用户名
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: SelectableText(
+                                                        ctrl.post.member.username,
+                                                        style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              //时间、点击量
-                                              Row(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 10.w),
-                                                    child: Text(
-                                                      ctrl.post.createDateAgo,
-                                                      style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                  ],
+                                                ),
+                                                //时间、点击量
+                                                Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: Text(
+                                                        ctrl.post.createDateAgo,
+                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(left: 10.w),
-                                                    child: Text(
-                                                      ctrl.post.clickCount.toString() + '次点击',
-                                                      style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(left: 10.w),
+                                                      child: Text(
+                                                        ctrl.post.clickCount.toString() + '次点击',
+                                                        style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black12,
-                                          borderRadius: BorderRadius.circular(3.0), //3像素圆角
+                                                  ],
+                                                )
+                                              ],
+                                            )
+                                          ],
                                         ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                          child: Text(
-                                            ctrl.post.node.title,
-                                            style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black12,
+                                            borderRadius: BorderRadius.circular(3.0), //3像素圆角
                                           ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  getPostTitle(),
-                                  Skeletonizer.zone(
-                                    child: Padding(padding: EdgeInsets.only(top: 10), child: Bone.multiText(lines: 7)),
-                                  ),
-                                  getHtmlText(ctrl.post.headerTemplate),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                                            child: Text(
+                                              ctrl.post.node.title,
+                                              style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    getPostTitle(),
+                                    Skeletonizer.zone(
+                                      child: Padding(padding: EdgeInsets.only(top: 10), child: Bone.multiText(lines: 7)),
+                                    ),
+                                    getHtmlText(ctrl.post.headerTemplate),
+                                  ],
+                                )),
+                            space(),
+                          ],
+                        ),
                       ),
-                      if (ctrl.config.value.showTopReply) ...[
-                        space(),
-                        SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            if (listCtx != context) listCtx = context;
-                            return ListTile(title: Text('1111$index'));
-                          },
-                          childCount: ctrl.post.topReplyList.length,
-                        ))
-                      ],
-                      space(),
                       SliverList(
                           delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          if (listCtx != context) listCtx = context;
                           return ListTile(title: Text('$index'));
                         },
                         childCount: ctrl.getListLength(),
@@ -1080,15 +1036,9 @@ class PostDetailState extends State<PostDetail> {
                               )
                             ],
                           ), () {
-                        if (firstChildCtx == null || firstChildCtx == headerCtx) {
-                          debugPrint('当前是 - headerCtx');
-                          firstChildCtx = listCtx;
-                          observerController.jumpTo(sliverContext: listCtx, index: 0);
-                        } else {
-                          debugPrint('当前是 - listCtx');
-                          _scrollController.jumpTo(0);
-                          firstChildCtx = headerCtx;
-                        }
+                        PostDetailController pdc = PostDetailController.to();
+                        _scrollController.jumpTo(12);
+                        // observerController.jumpTo(index: pdc.scrollIndex != 0 ? 0 : 1);
                       }),
                     ],
                   )),
