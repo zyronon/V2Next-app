@@ -15,3 +15,12 @@ TextStyle descStyle = TextStyle(fontSize: 12.sp, color: Colors.grey);
 TextStyle timeStyle = TextStyle(fontSize: 10.sp, color: Colors.grey);
 
 EdgeInsets pagePadding = EdgeInsets.only(left: 8.w, right: 8.w, bottom: 8.w);
+
+class Agent {
+  String pc = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
+  String mobile = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
+}
+
+class Const {
+  static Agent agent = new Agent();
+}

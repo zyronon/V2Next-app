@@ -1,14 +1,17 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart' hide FormData, Response;
 import 'package:html/parser.dart';
-import 'package:v2ex/model/Post.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/package/xpath/src/xpath_base.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
@@ -205,12 +208,8 @@ class DioRequestWeb {
     var tableDom = document.querySelector('table');
     if (document.body!.querySelector('div.dock_area') != null) {
       // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
-      String tipsContent = document.body!
-          .querySelector('#Main > div.box > div.cell > div > p')!
-          .innerHtml;
-      String tipsIp = document.body!
-          .querySelector('#Main > div.box > div.dock_area > div.cell')!
-          .text;
+      String tipsContent = document.body!.querySelector('#Main > div.box > div.cell > div > p')!.innerHtml;
+      String tipsIp = document.body!.querySelector('#Main > div.box > div.dock_area > div.cell')!.text;
       SmartDialog.dismiss();
       SmartDialog.show(
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -223,19 +222,14 @@ class DioRequestWeb {
               children: [
                 Text(
                   tipsIp,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .copyWith(color: Theme.of(context).colorScheme.error),
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.error),
                 ),
                 const SizedBox(height: 4),
                 Text(tipsContent),
               ],
             ),
             actions: [
-              TextButton(
-                  onPressed: (() => {SmartDialog.dismiss()}),
-                  child: const Text('知道了'))
+              TextButton(onPressed: (() => {SmartDialog.dismiss()}), child: const Text('知道了'))
             ],
           );
         },
@@ -248,22 +242,18 @@ class DioRequestWeb {
       String keyName = aNode.querySelector('td')!.text;
       if (keyName.isNotEmpty) {
         if (keyName == '用户名') {
-          loginKeyMap.userNameHash =
-          aNode.querySelector('input')!.attributes['name']!;
+          loginKeyMap.userNameHash = aNode.querySelector('input')!.attributes['name']!;
         }
         if (keyName == '密码') {
           loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
-          loginKeyMap.passwordHash =
-          aNode.querySelector('input.sl')!.attributes['name']!;
+          loginKeyMap.passwordHash = aNode.querySelector('input.sl')!.attributes['name']!;
         }
         if (keyName.contains('机器')) {
-          loginKeyMap.codeHash =
-          aNode.querySelector('input')!.attributes['name']!;
+          loginKeyMap.codeHash = aNode.querySelector('input')!.attributes['name']!;
         }
       }
       if (aNode.querySelector('img') != null) {
-        loginKeyMap.captchaImg =
-        '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
+        loginKeyMap.captchaImg = '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
       }
     }
 
@@ -299,8 +289,7 @@ class DioRequestWeb {
       // 必须字段
       'Referer': '${Strings.v2exHost}/signin',
       'Origin': Strings.v2exHost,
-      'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'user-agent': Const.agent.mobile
     };
 
     FormData formData = FormData.fromMap({
@@ -308,31 +297,27 @@ class DioRequestWeb {
       args.passwordHash: args.passwordValue,
       args.codeHash: args.codeValue,
       'once': args.once,
-      'next': args.next
+      'next': args.next,
     });
 
-    response =
-    await Request().post('/signin', data: formData, options: options);
+    response = await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
+    print('status${response.statusCode}');
     if (response.statusCode == 302) {
       // 登录成功，重定向
       // SmartDialog.dismiss();
       return await getUserInfo();
+      return 'true';
     } else {
       // 登录失败，去获取错误提示信息
       var tree = ETree.fromString(response.data);
       // //*[@id="Wrapper"]/div/div[1]/div[3]/ul/li "输入的验证码不正确"
       // //*[@id="Wrapper"]/div/div[1]/div[2]/ul/li "用户名和密码无法匹配" 等
       String? errorInfo;
-      if (tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()') !=
-          null) {
-        errorInfo = tree
-            .xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()')![0]
-            .name;
+      if (tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()') != null) {
+        errorInfo = tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[3]/ul/li/text()')![0].name;
       } else {
-        errorInfo = tree
-            .xpath('//*[@id="Wrapper"]/div/div[1]/div[2]/ul/li/text()')![0]
-            .name;
+        errorInfo = tree.xpath('//*[@id="Wrapper"]/div/div[1]/div[2]/ul/li/text()')![0].name;
       }
       SmartDialog.showToast(errorInfo!);
       return 'false';
@@ -351,14 +336,14 @@ class DioRequestWeb {
         response = await Request().get('/2fa');
       }
     }
-    var tree = ETree.fromString(response.data);
-    var elementOfAvatarImg = tree.xpath("//*[@id='menu-entry']/img")?.first;
-    if (elementOfAvatarImg != null &&
-        elementOfAvatarImg.attributes['class'].contains('avatar')) {
-      // 获取用户头像
-      String avatar = elementOfAvatarImg.attributes["src"];
-      String userName = elementOfAvatarImg.attributes["alt"];
-      GStorage().setUserInfo({'avatar': avatar, 'userName': userName});
+    var document = parse(response.data);
+    var imgEl = document.querySelector('#menu-entry .avatar');
+    if (imgEl != null) {
+      BaseController bc = Get.find<BaseController>();
+      Member member = new Member();
+      member.avatar = imgEl.attributes["src"]!;
+      member.username = imgEl.attributes["alt"]!;
+      bc.setMember(member);
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
       print('两步验证判断');
@@ -366,11 +351,7 @@ class DioRequestWeb {
         print('需要两步验证');
         var tree = ETree.fromString(response.data);
         // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
-        String once = tree
-            .xpath(
-            "//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!
-            .first
-            .attributes["value"];
+        String once = tree.xpath("//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!.first.attributes["value"];
         GStorage().setOnce(int.parse(once));
         SmartDialog.dismiss();
         return "2fa";
@@ -384,13 +365,9 @@ class DioRequestWeb {
     return "false";
   }
 
-  static twoFALOgin(var s) async{
+  static twoFALOgin(var s) async {}
 
-  }
-
-  static loginOut() async{
-
-  }
+  static loginOut() async {}
 
   // 感谢回复
   static Future thankReply(String replyId, String topicId) async {
@@ -418,5 +395,4 @@ class DioRequestWeb {
       SmartDialog.showToast(e.message!);
     }
   }
-
 }

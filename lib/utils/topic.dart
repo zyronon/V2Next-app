@@ -49,6 +49,76 @@ class TopicWebApi {
 
     var wrapper = document.querySelector('#Main');
 
+    // 如果没有正文（点的本站的a标签），才会解析正文
+    if (post.title == '' || post.contentRendered == 'null') {
+      var h1 = wrapper!.querySelector('h1');
+      if (h1 != null) {
+        post.title = h1.text;
+      }
+    }
+
+    var as = wrapper!.querySelectorAll('.header > a');
+    if (as.isNotEmpty) {
+      post.node.title = as[1].text;
+      post.node.url = as[1].attributes['href']!;
+    }
+
+    var avatarEl = wrapper.querySelector('.header .avatar');
+    if (avatarEl != null) {
+      post.member.avatarLarge = avatarEl.attributes['src']!;
+    }
+
+    var aName = wrapper.querySelector('.header small a');
+    if (aName != null) {
+      post.member.username = aName.text;
+      print(aName.text);
+    }
+
+    var spanEl = wrapper.querySelectorAll('.header small.gray span');
+    if (spanEl.isNotEmpty) {
+      post.createDateAgo = spanEl[0].text;
+      post.createDate = spanEl[0].attributes['title']!;
+    }
+
+    var topicButtons = document.querySelectorAll('.topic_buttons');
+    if (topicButtons.isNotEmpty) {
+      var favoriteNode = topicButtons.first.querySelector('.tb:first-child');
+      if (favoriteNode != null) {
+        post.isFavorite = favoriteNode.text == '取消收藏';
+      }
+      var ignoreNode = topicButtons.first.querySelector('.tb:nth-child(3)');
+      if (ignoreNode != null) {
+        post.isIgnore = ignoreNode.text == '取消忽略';
+      }
+
+      var thankNode = topicButtons.first.querySelector('#topic_thank .tb');
+      if (thankNode == null) {
+        post.isThanked = true;
+      }
+
+      var topicStats = topicButtons.first.querySelector('.topic_stats');
+      if (topicStats != null) {
+        var text = topicStats.text;
+        var collectCountReg = RegExp(r'(\d+)\s*人收藏').allMatches(text);
+        if (collectCountReg.isNotEmpty) {
+          post.collectCount = int.parse(collectCountReg.first.group(1)!);
+        }
+
+        var thankCountReg = RegExp(r'(\d+)\s*人感谢').allMatches(text);
+        if (thankCountReg.isNotEmpty) {
+          post.thankCount = int.parse(thankCountReg.first.group(1)!);
+        }
+
+        var clickCountReg = RegExp(r'(\d+)\s*次点击').allMatches(text);
+        if (clickCountReg.isNotEmpty) {
+          post.clickCount = int.parse(clickCountReg.first.group(1)!);
+        }
+      }
+    }
+
+
+
+
     if (response.redirects.isNotEmpty || document.querySelector('#Main > div.box > div.message') != null) {
       SmartDialog.show(
         useSystem: true,
@@ -78,15 +148,7 @@ class TopicWebApi {
     const String innerQuery = '$mainBoxQuery > div.inner';
 
 
-    post.title = wrapper!.querySelector('h1')!.text;
-
-
-    let as: any = wrapper.find('.header > a')
-    if (as.length) {
-      // console.log('as[1].innerText', as[1])
-      post.node.title = as[1].innerText
-      post.node.url = as[1].href
-    }
+    print(post.toString());
 
     return post;
 

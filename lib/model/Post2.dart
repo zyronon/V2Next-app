@@ -82,7 +82,7 @@ class Post2 {
 
 class Member {
   String avatar = '';
-  String username = '';
+  String username = 'default';
   String avatarLarge = '';
 
   Map<String, dynamic> toJson() => {
@@ -90,6 +90,11 @@ class Member {
         "username": username,
         "avatar_large": avatarLarge,
       };
+
+  // factory Member.fromJson(Map<String, dynamic> json) {
+  //   // var s = this;
+  //   // return s;
+  // }
 }
 
 class Node {
@@ -99,5 +104,13 @@ class Node {
   Map<String, dynamic> toJson() => {
         "title": title,
         "url": url,
+      };
+}
+
+class UserConfig {
+  bool showTopReply = true;
+
+  Map<String, dynamic> toJson() => {
+        "showTopReply": showTopReply,
       };
 }

@@ -10,7 +10,7 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/reply_item.dart';
-import 'package:v2ex/model/Controller.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';

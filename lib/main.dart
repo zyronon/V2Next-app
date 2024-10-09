@@ -73,10 +73,9 @@ class MyApp extends StatelessWidget {
             builder: FlutterSmartDialog.init(),
             routes: {
               '/': (context) => const Index(),
-              '/Home': (context) => const Index(),
-              '/PostDetail': (context) => const PostDetail(),
+              '/post-detail': (context) => const PostDetail(),
               // '/test': (context) => const PostTest(),
-              '/Login': (context) => const LoginPage(),
+              '/login': (context) => const LoginPage(),
             },
           );
         });

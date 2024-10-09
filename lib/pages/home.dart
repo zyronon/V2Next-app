@@ -1,18 +1,12 @@
-import 'dart:async';
-import 'dart:convert';
+import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:v2ex/components/TabBarViewPage.dart';
-import 'package:v2ex/model/Controller.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/LoginForm.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/http.dart';
-import 'package:v2ex/utils/index.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,7 +15,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
     new TabItem(title: '最热', node: 'hot', date: '', post: []),
     new TabItem(title: '最新', node: 'new', date: '', post: []),
@@ -45,12 +39,6 @@ class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
   final BaseController c = Get.put(BaseController());
   final String url = "https://v2ex.com/?tab=hot";
 
-  HeadlessInAppWebView? headlessWebView;
-  // String url = "www.v2ex.com/signin";
-
-  InAppWebViewController? webViewController;
-  final GlobalKey webViewKey = GlobalKey();
-
   @override
   void initState() {
     super.initState();
@@ -62,25 +50,11 @@ class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
         return new TabBarViewPage(node: e.node);
       }).toList();
     });
-
-    headlessWebView = HeadlessInAppWebView(
-      initialUrlRequest: URLRequest(url: WebUri(url)),
-      onWebViewCreated: (_controller){
-        c.wc = webViewController = _controller;
-      },
-      // onLoadStop: (controller, url) async {
-      //   controller.injectJavascriptFileFromAsset(assetFilePath: "assets/index.js").then((_){
-      //     c.loaded.value = true;
-      //   });
-      // },
-    );
-    // headlessWebView?.run();
   }
 
   @override
   void dispose() {
     super.dispose();
-    headlessWebView?.dispose();
   }
 
   modalWrap(Widget text, Widget other) {
@@ -134,134 +108,14 @@ class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
     );
   }
 
-  TextEditingController _codeController = new TextEditingController();
-  final loginForm = LoginForm().obs;
-
-  input() {
-    return Container(
-      padding: EdgeInsets.all(8.w),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              ElevatedButton(
-                  onPressed: () async {
-                    InAppWebViewController.clearAllCache();
-                    await headlessWebView?.dispose();
-                    await headlessWebView?.run();
-                    // await headlessWebView?.webViewController?.clearCache();
-                    // await headlessWebView?.webViewController?.reload();
-                  },
-                  child: const Text("无头刷新")),
-              ElevatedButton(
-                  onPressed: () {
-                    showLoginModal22();
-                  },
-                  child: const Text('无关登录')),
-            ],
-          ),
-          Container(
-            child: TextField(
-              autofocus: false,
-              decoration: InputDecoration(
-                hintText: "账号",
-                hintStyle: TextStyle(color: Colors.black26),
-                border: InputBorder.none,
-              ),
-            ),
-            padding: EdgeInsets.only(left: 8.w, right: 8.w),
-            decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
-            margin: EdgeInsets.only(bottom: 10.w),
-          ),
-          Container(
-            child: TextField(
-              autofocus: false,
-              decoration: InputDecoration(
-                hintText: "账号",
-                hintStyle: TextStyle(color: Colors.black26),
-                border: InputBorder.none,
-              ),
-            ),
-            padding: EdgeInsets.only(left: 8.w, right: 8.w),
-            decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
-            margin: EdgeInsets.only(bottom: 10.w),
-          ),
-          Container(
-            child: TextField(
-              controller: _codeController,
-              autofocus: false,
-              decoration: InputDecoration(
-                hintText: "验证码",
-                hintStyle: TextStyle(color: Colors.black26),
-                border: InputBorder.none,
-              ),
-            ),
-            padding: EdgeInsets.only(left: 8.w, right: 8.w),
-            decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
-            margin: EdgeInsets.only(bottom: 10.w),
-          ),
-          Obx(() {
-            if (loginForm().img != null) {
-              return InkWell(
-                // child: Obx(() => Image.network('https://www.v2ex.com/${loginForm().img}', height: 50.w, fit: BoxFit.cover)),
-                child: Obx(() => Image.memory(base64.decode(loginForm().img!), height: 50.w, fit: BoxFit.cover)),
-                onTap: () {
-                  loginForm.update((val) {
-                    val?.img = '_captcha?once=${loginForm().once}&now=${new DateTime.now().millisecondsSinceEpoch}';
-                  });
-                },
-              );
-            }
-            return Text('data');
-          }),
-          ElevatedButton(
-            child: Text("登录"),
-            onPressed: () async {
-              print(_codeController.text);
-              loginForm.update((val) => val?.code = _codeController.text);
-              var result5 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: "return window.jsFunc.login(JSON.parse('${loginForm().toString()}'))");
-              print(result5);
-            },
-          )
-        ],
-      ),
-    );
-  }
-
   submit() {
-    // headlessWebView?.dispose();
-    // headlessWebView?.run();
     print("test");
-    // controller.loadRequest(Uri.parse('https://www.v2ex.com'));
-    // Navigator.pushNamed(context, 'Home');
   }
 
-  getPost(post) {
-    // print('object-getpost' + id.toString());
-    Navigator.pushNamed(
-      context,
-      'Me',
-    );
-    ;
-    // Navigator.push(
-    //   contex,,
-    //   MaterialPageRoute(builder: (context) => Me(post: post)),
-    // );
-    // controller.runJavaScript('jsBridge("getPost",' + id.toString() + ')');
-  }
-
-  showLoginModal22() async {
-    var result5 = await headlessWebView?.webViewController?.callAsyncJavaScript(functionBody: 'return window.jsFunc.getLoginPageInfo()');
-    print(result5);
-    var res = (result5?.value);
-    if (!res['error']) {
-      loginForm(LoginForm.fromJson(res['data']));
-      print(loginForm.value.codeKey);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    // super.build(context);
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
@@ -309,13 +163,15 @@ class _HomeState extends State<Home>  with AutomaticKeepAliveClientMixin{
                   )
                 ],
               ),
-              Expanded(
-                  child: TabBarView(
-                    children: pages,
-                  ))
+              Expanded(child: TabBarView(children: pages))
             ],
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              submit();
+            },
+            child: Text('刷新')),
       ),
     );
   }

@@ -208,6 +208,12 @@ class _LoginPageState extends State<LoginPage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     onPressed: () async {
+                      (_formKey.currentState as FormState).save();
+                      loginKey.userNameValue = 'shzbkzo';
+                      loginKey.passwordValue = 'o894948816O!';
+                      loginKey.codeValue = _code!;
+                      var result = await DioRequestWeb.onLogin(loginKey);
+                      return;
                       if ((_formKey.currentState as FormState).validate()) {
                         //验证通过提交数据
                         (_formKey.currentState as FormState).save();

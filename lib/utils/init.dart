@@ -14,6 +14,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 // import 'package:flutter_v2ex/http/interceptor.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/interceptor.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -202,11 +203,11 @@ class Request {
     String headerUa = '';
     if (ua == 'mob') {
       headerUa = Platform.isIOS
-          ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+          ? Const.agent.mobile
           : 'Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36';
     } else {
       // headerUa = 'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
-      headerUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
+      headerUa = Const.agent.pc;
     }
     return headerUa;
   }
