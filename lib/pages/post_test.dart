@@ -28,12 +28,12 @@ class PostDetailController extends GetxController {
   Reply reply = new Reply();
   int scrollIndex = 0;
   int _currentPage = 0; // 当前页数
-  bool loading = false;
-  UserConfig config = UserConfig();
+  var loading = false.obs;
+  var config = UserConfig().obs;
   ScrollController _scrollController = ScrollController();
   late SliverObserverController observerController = SliverObserverController(controller: _scrollController);
 
-  setShowFixedTitle(bool val) {
+  setTitle(bool val) {
     this.isShowFixedTitle = val;
     update();
   }
@@ -199,14 +199,12 @@ class PostDetailController extends GetxController {
     update();
 
     var t = DateTime.now();
-    loading = true;
-    update();
+    loading.value = true;
     print('请求开始$t');
-    Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
+    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id, _currentPage + 1);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1078049', _currentPage + 1);
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072', _currentPage + 1);
-    loading = false;
-    update();
+    Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072', _currentPage + 1);
+    loading.value = false;
     var s = DateTime.now();
     print('处理结束$s');
     var hours = t.difference(s);
@@ -217,26 +215,19 @@ class PostDetailController extends GetxController {
     update();
     observerController.reattach();
   }
-
-  @override
-  void onClose() {
-    print('onClose');
-    super.onClose();
-    _scrollController.dispose();
-  }
 }
 
-class PostDetail extends StatefulWidget {
+class PostTest extends StatefulWidget {
   // final Post post;
   // const Me({super.key, required this.post});
 
-  const PostDetail({super.key});
+  const PostTest({super.key});
 
   @override
-  State<PostDetail> createState() => PostDetailState();
+  State<PostTest> createState() => PostTestState();
 }
 
-class PostDetailState extends State<PostDetail> {
+class PostTestState extends State<PostTest> {
   PostDetailController ctrl = Get.put(PostDetailController());
   TextEditingController _replyCtrl = new TextEditingController();
   BuildContext? headerCtx;
@@ -255,6 +246,7 @@ class PostDetailState extends State<PostDetail> {
   @override
   void dispose() {
     super.dispose();
+    ctrl._scrollController.dispose();
   }
 
   submit() {
@@ -262,6 +254,8 @@ class PostDetailState extends State<PostDetail> {
     // controller.loadRequest(Uri.parse('https://v2ex.com'));
     // Navigator.pushNamed(context, 'Home');
   }
+
+  var options = ['1', '2', '3'];
 
   Widget modalItem(String text, IconData icon) {
     return Padding(
@@ -308,7 +302,7 @@ class PostDetailState extends State<PostDetail> {
         ),
         onTap: () {
           debugPrint('1');
-          ctrl.config.showTopReply = !ctrl.config.showTopReply;
+          ctrl.config.value.showTopReply = !ctrl.config.value.showTopReply;
           ctrl.update();
           Get.back();
         });
@@ -777,19 +771,18 @@ class PostDetailState extends State<PostDetail> {
     return SliverToBoxAdapter(
       child: Container(
         width: 100.sw,
-        height: 14.w,
+        height: 24.w,
         color: Colors.grey[100],
       ),
     );
   }
 
   Future<void> onRefresh() async {
-    // print(ctrl.post.replyList[2].replyFloor.toString());
-    // print(ctrl.post.replyList[2].replyContent.toString());
-    // print(ctrl.post.replyList[2].hideCallUserReplyContent.toString());
-    // print(ctrl.post.replyList[2].replyUsers.toString());
-    // ctrl.rebuildList();
-    ctrl.getData();
+    print(ctrl.post.replyList[2].replyFloor.toString());
+    print(ctrl.post.replyList[2].replyContent.toString());
+    print(ctrl.post.replyList[2].hideCallUserReplyContent.toString());
+    print(ctrl.post.replyList[2].replyUsers.toString());
+    ctrl.rebuildList();
     return;
   }
 
@@ -945,7 +938,6 @@ class PostDetailState extends State<PostDetail> {
                 ), () {
               if (firstChildCtx == null || firstChildCtx == headerCtx) {
                 debugPrint('当前是 - headerCtx');
-                ctrl.setShowFixedTitle(true);
                 firstChildCtx = normalListCtx;
                 // _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
                 ctrl.observerController.animateTo(
@@ -957,39 +949,12 @@ class PostDetailState extends State<PostDetail> {
                 );
               } else {
                 debugPrint('当前是 - listCtx');
-                ctrl.setShowFixedTitle(false);
                 ctrl._scrollController.jumpTo(0);
                 firstChildCtx = headerCtx;
               }
             }),
           ],
         ));
-  }
-
-  Widget _buildDivider() {
-    return Divider(color: Color(0xfff1f1f1), height: 1.w);
-  }
-
-  Widget _buildListHeader(String left, [bool right = true]) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.all(8.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              ctrl.post.replyCount.toString() + '条回复',
-              style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-            ),
-            if (right)
-              Text(
-                '楼中楼',
-                style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -1014,13 +979,10 @@ class PostDetailState extends State<PostDetail> {
                         onObserveViewport: (res) {
                           firstChildCtx = res.firstChild.sliverContext;
                           if (firstChildCtx == headerCtx) {
-                            ctrl.setShowFixedTitle(false);
                             debugPrint('onObserveViewport - headerCtx');
                           } else if (firstChildCtx == topListCtx) {
-                            ctrl.setShowFixedTitle(true);
                             debugPrint('onObserveViewport - topListCtx');
                           } else {
-                            ctrl.setShowFixedTitle(true);
                             debugPrint('onObserveViewport - listCtx');
                           }
                         },
@@ -1032,7 +994,6 @@ class PostDetailState extends State<PostDetail> {
                           ];
                         },
                         child: CustomScrollView(
-                          physics: new AlwaysScrollableScrollPhysics(),
                           controller: ctrl._scrollController,
                           slivers: [
                             //标题和内容
@@ -1110,11 +1071,10 @@ class PostDetailState extends State<PostDetail> {
                                           ],
                                         ),
                                         getPostTitle(),
-                                        ctrl.loading
-                                            ? Skeletonizer.zone(
-                                                child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7,style: TextStyle(height: 1.6))),
-                                              )
-                                            : getHtmlText(ctrl.post.headerTemplate),
+                                        Skeletonizer.zone(
+                                          child: Padding(padding: EdgeInsets.only(top: 10), child: Bone.multiText(lines: 7)),
+                                        ),
+                                        getHtmlText(ctrl.post.headerTemplate),
                                       ],
                                     ),
                                   ),
@@ -1123,72 +1083,74 @@ class PostDetailState extends State<PostDetail> {
                             ),
                             space(),
 
-                            if (ctrl.loading) ...[
-                              //普通回复
+                            //高赞回复
+                            if (ctrl.config.value.showTopReply) ...[
                               //header
-                              _buildListHeader(ctrl.post.replyCount.toString() + '条回复'),
-                              SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  return Column(
-                                    children: [
-                                      Skeletonizer.zone(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8),
-                                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                            Row(children: [
-                                              Bone.circle(size: 28),
-                                              SizedBox(width: 10.w),
-                                              Bone.text(width: 80.w),
-                                            ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                                            Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(style: TextStyle(height: 1.6))),
-                                          ]),
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                    padding: EdgeInsets.all(8.w),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          ctrl.post.topReplyList.length.toString() + '条高赞回复',
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            height: 1.2,
+                                            color: Colors.grey,
+                                          ),
                                         ),
-                                      ),
-                                      _buildDivider()
-                                    ],
-                                  );
-                                },
-                                childCount: 7,
-                              )),
-                            ] else ...[
-                              //高赞回复
-                              if (ctrl.config.showTopReply) ...[
-                                //header
-                                _buildListHeader(ctrl.post.topReplyList.length.toString() + '条高赞回复',false),
-                                //list
-                                SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    if (topListCtx != context) topListCtx = context;
-                                    return Column(children: [getReplyItem(ctrl.post.topReplyList[index], index, 0), _buildDivider()]);
-                                  },
-                                  childCount: ctrl.post.topReplyList.length,
-                                )),
-                                space(),
-                              ],
-
-                              //普通回复
-                              //header
-                              _buildListHeader(ctrl.post.replyCount.toString() + '条回复'),
+                                      ],
+                                    )),
+                              ),
                               //list
                               SliverList(
                                   delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  if (normalListCtx != context) normalListCtx = context;
-                                  // return ListTile(title: Text('1111$index'));
-                                  return Column(children: [getReplyItem(ctrl.getReplyList()[index], index, 0), _buildDivider()]);
+                                  if (topListCtx != context) topListCtx = context;
+                                  return getReplyItem(ctrl.post.topReplyList[index], index, 0);
                                 },
-                                childCount: ctrl.getReplyList().length,
+                                childCount: ctrl.post.topReplyList.length,
                               )),
-                              SliverToBoxAdapter(
-                                  child: Container(
-                                height: 100.w,
-                                child: Center(
-                                  child: Text('没有更多了'),
+                              space(),
+                            ],
+
+                            //普通回复
+                            //header
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.all(8.w),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      ctrl.post.replyCount.toString() + '条回复',
+                                      style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                    ),
+                                    Text(
+                                      '楼中楼',
+                                      style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+                                    ),
+                                  ],
                                 ),
-                              )),
-                            ]
+                              ),
+                            ),
+                            //list
+                            SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                if (normalListCtx != context) normalListCtx = context;
+                                // return ListTile(title: Text('1111$index'));
+                                return getReplyItem(ctrl.getReplyList()[index], index, 0);
+                              },
+                              childCount: ctrl.getReplyList().length,
+                            )),
+                            SliverToBoxAdapter(
+                                child: Container(
+                              height: 100.w,
+                              child: Center(
+                                child: Text('没有更多了'),
+                              ),
+                            )),
                           ],
                         ),
                       ),

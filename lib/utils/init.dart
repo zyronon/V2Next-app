@@ -4,9 +4,11 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
+
 // import 'package:dio/adapter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+
 // import 'package:flutter_v2ex/utils/utils.dart';
 // import 'package:flutter_v2ex/utils/string.dart';
 // import 'package:flutter_v2ex/http/interceptor.dart';
@@ -20,6 +22,7 @@ class Request {
   static final Request _instance = Request._internal();
   static late CookieManager cookieManager;
   static late final Dio dio;
+
   factory Request() => _instance;
 
   // ..httpClientAdapter = Http2Adapter(
@@ -201,12 +204,9 @@ class Request {
       headerUa = Platform.isIOS
           ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
           : 'Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36';
-    } else if (ua == 'mobMoto') {
-      headerUa =
-          "User-Agent: MOT-V9mm/00.62 UP.Browser/6.2.3.4.c.1.123 (GUI) MMP/2.0";
     } else {
-      headerUa =
-          'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
+      // headerUa = 'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
+      headerUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
     }
     return headerUa;
   }

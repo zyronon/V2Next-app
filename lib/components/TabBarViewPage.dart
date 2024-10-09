@@ -20,6 +20,7 @@ class TabBarViewPage extends StatefulWidget {
 class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
   getPost(Post2 post) {
     Get.toNamed('/PostDetail', arguments: post);
+    // Get.toNamed('/test', arguments: post);
   }
 
   Future<void> onRefresh() async {

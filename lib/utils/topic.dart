@@ -29,13 +29,25 @@ class TopicWebApi {
       data: {'p': p},
       // cacheOptions:
       //     buildCacheOptions(const Duration(days: 4), forceRefresh: true),
-      extra: {'ua': 'mob'},
+      extra: {'ua': 'pc'},
     );
     var s = DateTime.now();
     print('请求结束$s');
     // Use html parser and query selector
-    var document = parse(response.data);
+    String htmlText = response.data;
+
     post.id = topicId;
+
+    RegExp regExp = RegExp(r'var once = "([\d]+)";');
+    Match? once = regExp.firstMatch(htmlText);
+    if (once != null && once.group(1) != null) {
+      post.once = once.group(1)!;
+      GStorage().setOnce(int.parse(post.once));
+    }
+    post.isReport = htmlText.contains('你已对本主题进行了报告');
+    var document = parse(response.data);
+
+    var wrapper = document.querySelector('#Main');
 
     if (response.redirects.isNotEmpty || document.querySelector('#Main > div.box > div.message') != null) {
       SmartDialog.show(
@@ -55,22 +67,8 @@ class TopicWebApi {
           );
         },
       );
-      post.replyList = replies;
-      // post.isAuth = true;
       return post;
     }
-
-    var rootDom = parse(response.data);
-    var userCellWrap = rootDom.querySelectorAll('div#site-header-menu > div#menu-body > div.cell');
-    var onceHref = userCellWrap.last.querySelector('a')!.attributes['href'];
-    int once = int.parse(onceHref!.split('once=')[1]);
-    print('once');
-    print(once.toString());
-    // post.once = once.toString();
-    GStorage().setOnce(once);
-
-    /// 头部内容
-    /// 查询头部内容公共头
 
     const String wrapperQuery = '#Wrapper';
 
@@ -79,13 +77,25 @@ class TopicWebApi {
     const String headerQuery = '$mainBoxQuery > div.header';
     const String innerQuery = '$mainBoxQuery > div.inner';
 
-    post.member.avatarLarge = document.querySelector('$headerQuery > div.fr > a > img')!.attributes["src"]!;
 
-    post.member.username = document.querySelector('$headerQuery > small > a')!.text;
+    post.title = wrapper!.querySelector('h1')!.text;
+
+
+    let as: any = wrapper.find('.header > a')
+    if (as.length) {
+      // console.log('as[1].innerText', as[1])
+      post.node.title = as[1].innerText
+      post.node.url = as[1].href
+    }
+
+    return post;
 
     post.node.url = document.querySelector('$headerQuery > a:nth-child(6)')!.attributes["href"]!.replaceAll('/go/', '');
-
     post.node.title = document.querySelector('$headerQuery > a:nth-child(6)')!.text;
+
+    post.member.avatarLarge = document.querySelector('$headerQuery > div.fr > a > img')!.attributes["src"]!;
+    post.member.username = document.querySelector('$headerQuery > small > a')!.text;
+
     //  at 9 小时 26 分钟前，1608 次点击
     var pureStr = document.querySelector('$headerQuery > small')!.text.split('at ')[1];
     List pureStrList = pureStr.split('·');
@@ -108,7 +118,6 @@ class TopicWebApi {
         }
       }
     }
-    post.title = document.querySelector('$headerQuery > h1')!.text;
 
     // [email_protected] 转码回到正确的邮件字符串
     List<dom.Element> aRootNode = document.querySelectorAll("a[class='__cf_email__']");
@@ -198,18 +207,11 @@ class TopicWebApi {
     // post.subtleList = subtleList;
 
     // 收藏、感谢、屏蔽区域 未登录为null
+
     if (document.querySelector("$innerQuery > div > a[class='op']") != null) {
       // 收藏状态  isFavorite:true 已收藏
       String collect = document.querySelector("$innerQuery > div > a[class='op']")!.attributes["href"]!;
       post.isFavorite = collect.startsWith('/unfavorite');
-
-      // once
-
-      var menuBodyNode = document.querySelector("div[id='menu-body']");
-      var loginOutNode = menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
-      var loginOutHref = loginOutNode!.attributes['href'];
-      int once = int.parse(loginOutHref!.split('once=')[1]);
-      // GStorage().setOnce(once);
 
       // 收藏人数
       if (document.querySelector("$innerQuery > div > span") != null) {
@@ -219,9 +221,7 @@ class TopicWebApi {
         }
       }
 
-      // 是否感谢 isThank: true已感谢
       post.isThanked = document.querySelector("$innerQuery > div > div[id='topic_thank'] > span") != null;
-      print('585 - thank: ${post.isThanked}');
     }
 
     // 判断是否有评论
