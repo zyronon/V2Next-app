@@ -1,15 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
+
 import 'package:dio/dio.dart';
-import 'package:html/parser.dart';
-import 'package:html/dom.dart' as dom;
 import 'package:flutter/material.dart';
-import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/init.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/utils.dart';
-import 'package:v2ex/utils/string.dart'; // 常量
+
 // import 'package:v2ex/utils/storage.dart'; // 本地存储
 // import 'package:dio_http_cache/dio_http_cache.dart'; // dio缓存
 // import 'package:v2ex/models/web/item_tab_topic.dart';
@@ -17,107 +11,25 @@ import 'package:v2ex/utils/string.dart'; // 常量
 // import 'package:v2ex/models/web/item_topic_reply.dart'; // 主题回复
 // import 'package:v2ex/models/web/item_topic_subtle.dart'; // 主题附言
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart'; // 弹窗
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart';
+import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/init.dart';
+import 'package:v2ex/utils/storage.dart';
+import 'package:v2ex/utils/string.dart'; // 常量
+import 'package:v2ex/utils/utils.dart';
 
 class TopicWebApi {
   // 获取帖子详情及下面的评论信息
-  static Future<Post2> getTopicDetail(String topicId, int p) async {
+  static Future<Post2> getTopicDetail(String id) async {
     Post2 post = Post2();
-    // List<TopicSubtleItem> subtleList = []; // 附言
-    List<Reply> replies = [];
-    var response = await Request().get(
-      "/t/$topicId",
-      data: {'p': p},
-      // cacheOptions:
-      //     buildCacheOptions(const Duration(days: 4), forceRefresh: true),
-      extra: {'ua': 'pc'},
-    );
+    var response = await Request().get("/t/$id?p=1", extra: {'ua': 'pc'});
     var s = DateTime.now();
     print('请求结束$s');
-    // Use html parser and query selector
+
     String htmlText = response.data;
-
-    post.id = topicId;
-
-    RegExp regExp = RegExp(r'var once = "([\d]+)";');
-    Match? once = regExp.firstMatch(htmlText);
-    if (once != null && once.group(1) != null) {
-      post.once = once.group(1)!;
-      GStorage().setOnce(int.parse(post.once));
-    }
-    post.isReport = htmlText.contains('你已对本主题进行了报告');
     var document = parse(response.data);
-
     var wrapper = document.querySelector('#Main');
-
-    // 如果没有正文（点的本站的a标签），才会解析正文
-    if (post.title == '' || post.contentRendered == 'null') {
-      var h1 = wrapper!.querySelector('h1');
-      if (h1 != null) {
-        post.title = h1.text;
-      }
-    }
-
-    var as = wrapper!.querySelectorAll('.header > a');
-    if (as.isNotEmpty) {
-      post.node.title = as[1].text;
-      post.node.url = as[1].attributes['href']!;
-    }
-
-    var avatarEl = wrapper.querySelector('.header .avatar');
-    if (avatarEl != null) {
-      post.member.avatarLarge = avatarEl.attributes['src']!;
-    }
-
-    var aName = wrapper.querySelector('.header small a');
-    if (aName != null) {
-      post.member.username = aName.text;
-      print(aName.text);
-    }
-
-    var spanEl = wrapper.querySelectorAll('.header small.gray span');
-    if (spanEl.isNotEmpty) {
-      post.createDateAgo = spanEl[0].text;
-      post.createDate = spanEl[0].attributes['title']!;
-    }
-
-    var topicButtons = document.querySelectorAll('.topic_buttons');
-    if (topicButtons.isNotEmpty) {
-      var favoriteNode = topicButtons.first.querySelector('.tb:first-child');
-      if (favoriteNode != null) {
-        post.isFavorite = favoriteNode.text == '取消收藏';
-      }
-      var ignoreNode = topicButtons.first.querySelector('.tb:nth-child(3)');
-      if (ignoreNode != null) {
-        post.isIgnore = ignoreNode.text == '取消忽略';
-      }
-
-      var thankNode = topicButtons.first.querySelector('#topic_thank .tb');
-      if (thankNode == null) {
-        post.isThanked = true;
-      }
-
-      var topicStats = topicButtons.first.querySelector('.topic_stats');
-      if (topicStats != null) {
-        var text = topicStats.text;
-        var collectCountReg = RegExp(r'(\d+)\s*人收藏').allMatches(text);
-        if (collectCountReg.isNotEmpty) {
-          post.collectCount = int.parse(collectCountReg.first.group(1)!);
-        }
-
-        var thankCountReg = RegExp(r'(\d+)\s*人感谢').allMatches(text);
-        if (thankCountReg.isNotEmpty) {
-          post.thankCount = int.parse(thankCountReg.first.group(1)!);
-        }
-
-        var clickCountReg = RegExp(r'(\d+)\s*次点击').allMatches(text);
-        if (clickCountReg.isNotEmpty) {
-          post.clickCount = int.parse(clickCountReg.first.group(1)!);
-        }
-      }
-    }
-
-
-
 
     if (response.redirects.isNotEmpty || document.querySelector('#Main > div.box > div.message') != null) {
       SmartDialog.show(
@@ -137,259 +49,242 @@ class TopicWebApi {
           );
         },
       );
+      // post.isAuth = true;
       return post;
     }
 
-    const String wrapperQuery = '#Wrapper';
-
-    /// main box 正文
-    const String mainBoxQuery = '$wrapperQuery > div > div:nth-child(1)';
-    const String headerQuery = '$mainBoxQuery > div.header';
-    const String innerQuery = '$mainBoxQuery > div.inner';
-
-
-    print(post.toString());
-
-    return post;
-
-    post.node.url = document.querySelector('$headerQuery > a:nth-child(6)')!.attributes["href"]!.replaceAll('/go/', '');
-    post.node.title = document.querySelector('$headerQuery > a:nth-child(6)')!.text;
-
-    post.member.avatarLarge = document.querySelector('$headerQuery > div.fr > a > img')!.attributes["src"]!;
-    post.member.username = document.querySelector('$headerQuery > small > a')!.text;
-
-    //  at 9 小时 26 分钟前，1608 次点击
-    var pureStr = document.querySelector('$headerQuery > small')!.text.split('at ')[1];
-    List pureStrList = pureStr.split('·');
-    post.createDateAgo = pureStrList[0].replaceFirst(' +08:00', '');
-    post.clickCount = pureStrList.length >= 2 ? int.parse(pureStrList[1].replaceAll(RegExp(r'\D'), '')) : 0;
-    // APPEND EIDT MOVE
-    var opActionNode = document.querySelector('$headerQuery > small');
-    if (opActionNode!.querySelector('a.op') != null) {
-      var opNodes = opActionNode.querySelectorAll('a.op');
-      for (var i in opNodes) {
-        print(i.text);
-        if (i.text.contains('APPEND')) {
-          post.isAppend = true;
-        }
-        if (i.text.contains('EDIT')) {
-          post.isEdit = true;
-        }
-        if (i.text.contains('MOVE')) {
-          post.isMove = true;
-        }
-      }
-    }
-
     // [email_protected] 转码回到正确的邮件字符串
-    List<dom.Element> aRootNode = document.querySelectorAll("a[class='__cf_email__']");
-    List<dom.Element> bRootNode = document.querySelectorAll("span[class='__cf_email__']");
-    var emailNode = aRootNode.isNotEmpty
-        ? aRootNode
-        : bRootNode.isNotEmpty
-            ? bRootNode
-            : [];
+    List<dom.Element> emailNode = document.querySelectorAll(".__cf_email__");
     if (emailNode.isNotEmpty) {
       for (var aNode in emailNode) {
         String encodedCf = aNode.attributes["data-cfemail"].toString();
         var newEl = document.createElement('a');
         newEl.innerHtml = Utils.cfDecodeEmail(encodedCf);
-        newEl.attributes['href'] = 'mailto:${Utils.cfDecodeEmail(encodedCf)}';
+        newEl.attributes['href'] = 'mailto:${newEl.innerHtml}';
         aNode.replaceWith(newEl);
       }
     }
 
-    // 判断是否有正文
-    if (document.querySelector('$mainBoxQuery > div.cell > div') != null) {
-      var contentDom = document.querySelector('$mainBoxQuery > div.cell > div')!;
-      post.headerTemplate = contentDom.innerHtml;
-      // List decodeRes = Utils.base64Decode(contentDom);
-      // if (decodeRes.isNotEmpty) {
-      //   var decodeDom = '';
-      //   for (var i = 0; i < decodeRes.length; i++) {
-      //     decodeDom +=
-      //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-      //     if (i != decodeRes.length - 1) {
-      //       decodeDom += '<span>、</span>';
-      //     }
-      //   }
-      //   contentDom.nodes.insert(contentDom.nodes.length,
-      //       parseFragment('<p>base64解码：$decodeDom</p>'));
-      // }
-      // post.contentRendered = Utils.linkMatch(contentDom);
-      if (contentDom.querySelector('img') != null) {
-        var imgNodes = contentDom.querySelectorAll('img');
-        var imgLength = imgNodes.length;
-        // post.imgCount += imgLength;
-        // post.imgList = [];
-        // for (var imgNode in imgNodes) {
-        //   post.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
-        // }
+    post.id = id;
+
+    RegExp regExp = RegExp(r'var once = "([\d]+)";');
+    Match? once = regExp.firstMatch(htmlText);
+    if (once != null && once.group(1) != null) {
+      post.once = once.group(1)!;
+      GStorage().setOnce(int.parse(post.once));
+    }
+    post.isReport = htmlText.contains('你已对本主题进行了报告');
+
+    // 如果没有正文（点的本站的a标签），才会解析正文
+    if (post.title == '' || post.contentRendered == 'null') {
+      var h1 = wrapper!.querySelector('h1');
+      if (h1 != null) {
+        post.title = h1.text;
       }
     }
 
-    // // 附言
-    // List<dom.Element> appendNodes =
-    //     document.querySelectorAll("$mainBoxQuery > div[class='subtle']");
-    // if (appendNodes.isNotEmpty) {
-    //   for (var node in appendNodes) {
-    //     TopicSubtleItem subtleItem = TopicSubtleItem();
-    //     subtleItem.fade = node
-    //         .querySelector('span.fade')!
-    //         .text
-    //         .replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）;
-    //     var contentDom = node.querySelector('div.topic_content')!;
-    //     // List decodeRes = Utils.base64Decode(contentDom);
-    //     // if (decodeRes.isNotEmpty) {
-    //     //   var decodeDom = '';
-    //     //   for (var i = 0; i < decodeRes.length; i++) {
-    //     //     decodeDom +=
-    //     //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-    //     //     if (i != decodeRes.length - 1) {
-    //     //       decodeDom += '<span>、</span>';
-    //     //     }
-    //     //   }
-    //     //   contentDom.nodes.insert(contentDom.nodes.length,
-    //     //       parseFragment('<p>base64解码：$decodeDom</p>'));
-    //     // }
-    //     subtleItem.content = Utils.linkMatch(contentDom);
-    //     if (node.querySelector('div.topic_content')!.querySelector('img') !=
-    //         null) {
-    //       var subImgNodes =
-    //           node.querySelector('div.topic_content')!.querySelectorAll('img');
-    //       post.imgCount += subImgNodes.length;
-    //       for (var subImgNode in subImgNodes) {
-    //         post.imgList
-    //             .add(Utils().imageUrl(subImgNode.attributes['src']!));
-    //       }
-    //     }
-    //     subtleList.add(subtleItem);
-    //   }
-    // }
-    // post.subtleList = subtleList;
+    var as = wrapper!.querySelectorAll('.header > a');
+    if (as.isNotEmpty) {
+      post.node.title = as[1].text;
+      post.node.url = as[1].attributes['href']!;
+    }
 
-    // 收藏、感谢、屏蔽区域 未登录为null
+    var header = wrapper.querySelector('.header');
+    if (header != null) {
+      var avatarEl = header.querySelector('.avatar');
+      if (avatarEl != null) {
+        post.member.avatarLarge = avatarEl.attributes['src']!;
+      }
 
-    if (document.querySelector("$innerQuery > div > a[class='op']") != null) {
-      // 收藏状态  isFavorite:true 已收藏
-      String collect = document.querySelector("$innerQuery > div > a[class='op']")!.attributes["href"]!;
-      post.isFavorite = collect.startsWith('/unfavorite');
+      var smallEl = header.querySelector('small');
+      if (smallEl != null) {
+        var aName = smallEl.querySelector('a');
+        if (aName != null) {
+          post.member.username = aName.text;
+        }
 
-      // 收藏人数
-      if (document.querySelector("$innerQuery > div > span") != null) {
-        String count = document.querySelector("$innerQuery > div > span")!.text;
-        if (count.contains('人收藏')) {
-          post.collectCount = int.parse(count.trim().split('人收藏')[0]);
+        var spanEl = smallEl.querySelector('span');
+        if (spanEl != null) {
+          post.createDateAgo = spanEl.text.replaceFirst(' +08:00', '');
+          post.createDate = spanEl.attributes['title']!.replaceFirst(' +08:00', '');
+        }
+
+        var clickCountReg = RegExp(r'(\d+)\s*次点击').allMatches(smallEl.innerHtml);
+        if (clickCountReg.isNotEmpty) {
+          post.clickCount = int.parse(clickCountReg.first.group(1)!);
+        }
+
+        var opNodes = smallEl.querySelectorAll('a.op');
+        if (opNodes.isNotEmpty) {
+          for (var i in opNodes) {
+            if (i.text.contains('APPEND')) {
+              post.isAppend = true;
+            }
+            if (i.text.contains('EDIT')) {
+              post.isEdit = true;
+            }
+            if (i.text.contains('MOVE')) {
+              post.isMove = true;
+            }
+          }
         }
       }
-
-      post.isThanked = document.querySelector("$innerQuery > div > div[id='topic_thank'] > span") != null;
     }
 
-    // 判断是否有评论
+    var boxListEl = wrapper.querySelectorAll('#Main .box');
+
+    //获取正文加附言
+    var temp = boxListEl[0].clone(true);
+    var t = temp.querySelector('.topic_buttons');
+    if (t != null) t.remove();
+    t = temp.querySelector('.inner');
+    if (t != null) t.remove();
+    t = temp.querySelector('.header');
+    if (t != null) t.remove();
+    post.headerTemplate = temp.innerHtml.replaceAll(' +08:00', '');
+
+    var topicButtons = document.querySelector('.topic_buttons');
+    if (topicButtons != null) {
+      var favoriteNode = topicButtons.querySelector('.tb:first-child');
+      if (favoriteNode != null) {
+        post.isFavorite = favoriteNode.text == '取消收藏';
+      }
+      var ignoreNode = topicButtons.querySelector('.tb:nth-child(3)');
+      if (ignoreNode != null) {
+        post.isIgnore = ignoreNode.text == '取消忽略';
+      }
+
+      var thankNode = topicButtons.querySelector('#topic_thank .tb');
+      if (thankNode == null) {
+        post.isThanked = true;
+      }
+
+      var topicStats = topicButtons.querySelector('.topic_stats');
+      if (topicStats != null) {
+        var text = topicStats.text;
+        var collectCountReg = RegExp(r'(\d+)\s*人收藏').allMatches(text);
+        if (collectCountReg.isNotEmpty) {
+          post.collectCount = int.parse(collectCountReg.first.group(1)!);
+        }
+
+        var thankCountReg = RegExp(r'(\d+)\s*人感谢').allMatches(text);
+        if (thankCountReg.isNotEmpty) {
+          post.thankCount = int.parse(thankCountReg.first.group(1)!);
+        }
+      }
+    }
+
     if (document.querySelector('#no-comments-yet') == null) {
-      // 表示有评论
-      // tag 标签
-      // var tagBoxDom =
-      //     document.querySelector('$wrapperQuery > div')!.children[2];
+      List<dom.Element> cells = boxListEl[1].querySelectorAll('.cell');
+      if (cells.isNotEmpty) {
+        post.fr = cells[0].querySelector('.cell .fr')!.innerHtml;
+        //获取最后一次回复时间
+        var snow = cells[0].querySelector('.snow');
+        if (snow != null) {
+          var nodes = snow.parent!.nodes;
+          post.lastReplyDate = nodes[nodes.length - 1].text!.replaceAll(' +08:00', '');
+        }
 
-      // 回复数 发布时间 评论
-      dom.Element replyBoxDom;
-      dom.Element? totalPageDom;
+        List<Map> repliesMap = [];
+        if (cells[1].id.isNotEmpty) {
+          repliesMap.add({'i': 1, 'replyList': parsePageReplies(cells.sublist(1))});
+        } else {
+          List<Future> promiseList = [];
+          repliesMap.add({'i': 1, 'replyList': parsePageReplies(cells.sublist(2))});
 
-      // tag标签判断
-      var isHasTag = document.querySelector('$wrapperQuery > div')!.children[2].querySelector('a.tag') != null;
-      if (isHasTag) {
-        replyBoxDom = document.querySelector('$wrapperQuery > div')!.children[4];
-      } else {
-        replyBoxDom = document.querySelector('$wrapperQuery > div')!.children[2];
-      }
-      if (replyBoxDom.querySelectorAll('div.cell > div.fr.fade').isNotEmpty) {
-        totalPageDom = replyBoxDom.querySelectorAll('div.cell > div.fr.fade').last;
-      }
-      post.totalPage = totalPageDom != null ? int.parse(totalPageDom.text.replaceAll(RegExp(r'\D'), '')) : 1;
-      post.replyCount = int.parse(replyBoxDom.querySelector('div.cell span')!.text.replaceAll(RegExp(r"\s+"), "").split('条回复')[0]);
+          var pages = cells[1].querySelectorAll('a.page_normal');
+          var url = '/t/' + post.id;
 
-      /// 回复楼层
-      /// first td user avatar
-      /// third td main content
-      List<dom.Element> rootNode = document.querySelectorAll("#Wrapper > div > div[class='box'] > div[id]");
-      var replyTrQuery = 'table > tbody > tr';
-      for (var aNode in rootNode) {
-        Reply reply = new Reply();
-        reply.avatar = Uri.encodeFull(aNode.querySelector('$replyTrQuery > td:nth-child(1) > img')!.attributes["src"]!);
-        reply.username = aNode.querySelector('$replyTrQuery > td:nth-child(5) > strong > a')!.text;
-        if (aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.badges > div.badge') != null) {
-          String status = aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.badges > div.badge')!.text;
-          if (status == 'MOD') {
-            reply.isMod = true;
-          } else if (status == 'OP') {
-            reply.isOp = true;
+          for (var i in pages) {
+            promiseList.add(fetchPostOtherPageReplies(url + '?p=' + i.text, int.parse(i.text)));
           }
+          var results = await Utils.allSettled(promiseList);
+          results.where((result) => result['status'] == "fulfilled").forEach((v) => repliesMap.add(v['value']));
         }
-        reply.date = aNode.querySelector('$replyTrQuery > td:nth-child(5) > span')!.text.replaceFirst(' +08:00', ''); // 时间（去除+ 08:00）和平台（Android/iPhone）
-        reply.date = reply.date.replaceAll(' PM', '');
-        reply.date = reply.date.replaceAll(' AM', '');
-        if (reply.date.contains('via')) {
-          var platform = reply.date.split('via')[1].replaceAll(RegExp(r"\s+"), "");
-          reply.date = reply.date.split('via')[0].replaceAll("/t/", "");
-          reply.platform = platform;
-        }
-
-        /// @user
-        if (aNode.querySelector("$replyTrQuery > td:nth-child(5) > span[class='small fade']") != null) {
-          reply.thankCount = int.parse(aNode.querySelector("$replyTrQuery > td:nth-child(5) > span[class='small fade']")!.text.split(" ")[1]);
-          // 感谢状态
-          if (aNode.querySelector("$replyTrQuery > td:nth-child(5) > div.fr > div.thanked") != null) {
-            reply.isThanked = true;
-          }
-        }
-
-        reply.floor = int.parse(aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.fr > span')!.text);
-        var contentDom = aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.reply_content')!;
-        // List decodeRes = Utils.base64Decode(contentDom);
-        // if (decodeRes.isNotEmpty) {
-        //   var decodeDom = '';
-        //   for (var i = 0; i < decodeRes.length; i++) {
-        //     decodeDom +=
-        //         '<a href="base64Wechat: ${decodeRes[i]}">${decodeRes[i]}</a>';
-        //     if (i != decodeRes.length - 1) {
-        //       decodeDom += '<span>、</span>';
-        //     }
-        //   }
-        //   contentDom.nodes.insert(contentDom.nodes.length,
-        //       parseFragment('<p>base64解码：$decodeDom</p>'));
-        // }
-        // reply.contentRendered = Utils.linkMatch(contentDom);
-        var reply_content = aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.reply_content');
-
-        reply.replyContent = reply_content!.innerHtml;
-        reply.replyText = reply_content!.text;
-        // if (aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.reply_content')!.querySelector('img') != null) {
-        //   var imgNodes = aNode.querySelector('$replyTrQuery > td:nth-child(5) > div.reply_content')!.querySelectorAll('img');
-        //   for (var imgNode in imgNodes) {
-        //     reply.imgList.add(Utils().imageUrl(imgNode.attributes['src']!));
-        //   }
-        // }
-
-        var parsedContent = Utils.parseReplyContent(reply.replyContent);
-        var users = parsedContent['users'];
-        var floor = parsedContent['floor'];
-        reply.hideCallUserReplyContent = reply.replyContent;
-
-        if (users.length == 1) {
-          reply.hideCallUserReplyContent = reply.replyContent.replaceAll(RegExp(r'@<a href="\/member\/[\s\S]+?<\/a>(\s#[\d]+)?\s(<br>)?'), '');
-        }
-
-        reply.replyUsers = users;
-        reply.replyFloor = floor;
-
-        reply.id = aNode.attributes["id"]!.substring(2);
-        replies.add(reply);
+        List<Reply> replyList = Utils.getAllReply(repliesMap);
+        post = Utils.buildList(post, replyList);
       }
     }
-    post.replyList = replies;
     return post;
+  }
+
+  static Future<Map> fetchPostOtherPageReplies(String href, int pageNo) async {
+    return Future(() async {
+      try {
+        var response = await Request().get(href, extra: {'ua': 'pc'});
+        var document = parse(response.data);
+        var boxListEl = document.querySelectorAll('#Main .box');
+        List<dom.Element> cells = boxListEl[1].querySelectorAll('.cell');
+        return {'i': pageNo, 'replyList': parsePageReplies(cells.sublist(2))};
+      } catch (e) {
+        throw Exception("bad code! -> ${e.toString()}");
+      }
+    });
+  }
+
+  static List<Reply> parsePageReplies(List<dom.Element> nodes) {
+    List<Reply> replyList = [];
+    for (var node in nodes) {
+      if (node.attributes['id'] == null) continue;
+      Reply item = Reply();
+      item.id = node.attributes['id']!.replaceAll('r_', '');
+      var replyContentElement = node.querySelector('.reply_content');
+      item.replyContent = Utils.checkPhotoLink2Img(replyContentElement!.innerHtml);
+      item.replyText = replyContentElement.text;
+
+      var parsedContent = Utils.parseReplyContent(item.replyContent);
+      item.hideCallUserReplyContent = item.replyContent;
+
+      if (parsedContent['users'].length == 1) {
+        item.hideCallUserReplyContent = item.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
+      }
+      item.replyUsers = parsedContent['users'];
+      item.replyFloor = parsedContent['floor'];
+
+      var agoElement = node.querySelector('.ago');
+      item.date = agoElement!.text;
+      // 时间（去除+ 08:00）和平台（Android/iPhone）;
+      item.date = item.date.replaceFirst(' +08:00', '');
+      item.date = item.date.replaceAll(' PM', '');
+      item.date = item.date.replaceAll(' AM', '');
+      // if (item.date.contains('via')) {
+      //   var platform = item.date.split('via')[1].replaceAll(RegExp(r"\s+"), "");
+      //   item.date = item.date.split('via')[0].replaceAll("/t/", "");
+      //   item.platform = platform;
+      // }
+
+      var userNode = node.querySelector('strong a');
+      item.username = userNode!.text;
+
+      var avatarElement = node.querySelector('td img');
+      item.avatar = avatarElement!.attributes['src']!;
+
+      var noElement = node.querySelector('.no');
+      item.floor = int.parse(noElement!.text);
+
+      var thankAreaElement = node.querySelector('.thank_area');
+      if (thankAreaElement != null) {
+        item.isThanked = thankAreaElement.classes.contains('thanked');
+      }
+
+      var smallElement = node.querySelector('.small');
+      if (smallElement != null) {
+        item.thankCount = int.parse(smallElement.text);
+      }
+
+      var opElement = node.querySelector('.op');
+      if (opElement != null) {
+        item.isOp = true;
+      }
+
+      var modElement = node.querySelector('.mod');
+      if (modElement != null) {
+        item.isMod = true;
+      }
+
+      replyList.add(item);
+    }
+    return replyList;
   }
 
   // 感谢主题
@@ -462,12 +357,7 @@ class TopicWebApi {
     var bodyDom = parse(response.data).body;
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
-      // 获取最后一页最近一条
-      SmartDialog.showLoading(msg: '获取最新回复');
-      var replyDetail = await getTopicDetail(id, totalPage + 1);
-      var lastReply = replyDetail.replyList.reversed.firstWhere((item) => item.username == GStorage().getUserInfo()['userName']);
-      SmartDialog.dismiss();
-      GStorage().setReplyItem(lastReply);
+      //TODO  获取最后一页最近一条
       return 'true';
     } else if (response.statusCode == 200) {
       String responseText = '回复失败了';

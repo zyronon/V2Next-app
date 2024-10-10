@@ -27,20 +27,49 @@ class Reply {
         "replyCount": replyCount,
         "isThanked": isThanked,
         "isOp": isOp,
+        "isMod": isMod,
         "isDup": isDup,
+        "isUse": isUse,
+        "isWrong": isWrong,
         "id": id,
         "reply_content": replyContent,
         "reply_text": replyText,
         "hideCallUserReplyContent": hideCallUserReplyContent,
-        "replyUsers": replyUsers == null ? [] : List<dynamic>.from(replyUsers!.map((x) => x)),
+        "replyUsers": replyUsers.isEmpty ? [] : List<String>.from(replyUsers.map((x) => x)),
         "replyFloor": replyFloor,
         "date": date,
+        "platform": platform,
         "username": username,
         "avatar": avatar,
         "floor": floor,
-        "children": children == null ? [] : List<dynamic>.from(children!.map((x) => x.toJson())),
-        "isUse": isUse,
+        "children": children.isEmpty ? [] : List.from(children.map((x) => x.toJson())),
       };
+
+  static Reply fromJson(Map<String, dynamic> json) {
+    Reply s = Reply();
+    s.level = json["level"];
+    s.thankCount = json["thankCount"];
+    s.replyCount = json["replyCount"];
+    s.isThanked = json["isThanked"];
+    s.isOp = json["isOp"];
+    s.isMod = json["isMod"];
+    s.isDup = json["isDup"];
+    s.isUse = json["isUse"];
+    s.isWrong = json["isWrong"];
+    s.id = json["id"];
+    s.replyContent = json["reply_content"];
+    s.replyText = json["reply_text"];
+    s.hideCallUserReplyContent = json["hideCallUserReplyContent"];
+    s.replyUsers = json["replyUsers"] == null ? [] : List<String>.from(json["replyUsers"]!.map((x) => x));
+    s.replyFloor = json["replyFloor"];
+    s.date = json["date"];
+    s.platform = json["platform"];
+    s.username = json["username"];
+    s.avatar = json["avatar"];
+    s.floor = json["floor"];
+    s.children = json["children"] == null ? [] : List.from(json["children"]!.map((x) => Reply.fromJson(x)));
+    return s;
+  }
 }
 
 class Post2 {
@@ -91,10 +120,13 @@ class Member {
         "avatar_large": avatarLarge,
       };
 
-  // factory Member.fromJson(Map<String, dynamic> json) {
-  //   // var s = this;
-  //   // return s;
-  // }
+  static fromJson(Map<String, dynamic> json) {
+    Member s = Member();
+    s.avatar = json['avatar'];
+    s.username = json['username'];
+    s.avatarLarge = json['avatarLarge'];
+    return s;
+  }
 }
 
 class Node {
@@ -113,4 +145,17 @@ class UserConfig {
   Map<String, dynamic> toJson() => {
         "showTopReply": showTopReply,
       };
+}
+
+class NodeListModel {
+  String nodeId = ''; // 节点id
+  String nodeName = ''; // 节点名称
+  String nodeIntro = ''; // 节点描述
+  String topicCount = ''; // 主题数量
+  bool isFavorite = false; // 是否收藏节点
+  int favoriteCount = 0; // 收藏人数
+  int totalPage = 1; // 总页数
+  String nodeCover = ''; // 封面
+
+  late List<Post2> topicList;
 }

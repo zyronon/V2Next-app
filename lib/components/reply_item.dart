@@ -114,50 +114,54 @@ class ReplyItem extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(top: 6.w, bottom: item.children.length == 0 ? 0.w : 6.w),
-            child: HtmlWidget(
-              type == 0 ? item.replyContent : item.hideCallUserReplyContent,
-              renderMode: RenderMode.column,
-              textStyle: TextStyle(fontSize: 14.sp, height: 1.4),
-            ),
+            child: SelectionArea(
+                child: InkWell(
+              child: Container(
+                width: double.infinity,
+                child: HtmlWidget(
+                  type == 0 ? item.replyContent : item.hideCallUserReplyContent,
+                  renderMode: RenderMode.column,
+                  textStyle: TextStyle(fontSize: 14.sp, height: 1.4),
+                ),
+              ),
+              onTap: () => onTap(item),
+            )),
           ),
           if (item.children.length != 0)
-            IntrinsicHeight(
-              child: Row(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(right: 10.w),
-                    color: Colors.grey[200],
-                    width: 1.w,
-                    height: double.infinity,
-                    // height: 100.w,
+            Row(
+              children: [
+                // Container(
+                //   margin: EdgeInsets.only(right: 0.w),
+                //   color: Colors.grey[200],
+                //   width: 1.w,
+                //   height: double.infinity,
+                //   // height: 100.w,
+                // ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      ...item.children.asMap().entries.map((entry) {
+                        int idx = entry.key;
+                        Reply val = entry.value;
+                        return Padding(
+                          padding: EdgeInsets.only(left: 10.w),
+                          child: ReplyItem(
+                            index: idx,
+                            type: 1,
+                            item: val,
+                            onThank: (e) => onThank(e),
+                            onMenu: (e) => onMenu(e),
+                            onTap: (e) => onTap(e),
+                          ),
+                        );
+                      })
+                    ],
                   ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        ...item.children.asMap().entries.map((entry) {
-                          int idx = entry.key;
-                          Reply val = entry.value;
-                          return Padding(
-                            padding: EdgeInsets.only(left: 2.w),
-                            child: ReplyItem(
-                              index: idx,
-                              type: 1,
-                              item: val,
-                              onThank: (e) => onThank(e),
-                              onMenu: (e) => onMenu(e),
-                              onTap: (e) => onTap(e),
-                            ),
-                          );
-                        })
-                      ],
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             )
         ]),
       ),
-      onLongPress: () => onMenu(item),
       onTap: () => onTap(item),
     );
   }

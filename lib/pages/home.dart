@@ -17,20 +17,21 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
-    new TabItem(title: '最热', node: 'hot', date: '', post: []),
-    new TabItem(title: '最新', node: 'new', date: '', post: []),
-    new TabItem(title: '全部', node: 'all', date: '', post: []),
-    new TabItem(title: '技术', node: 'tech', date: '', post: []),
-    new TabItem(title: '创意', node: 'creative', date: '', post: []),
-    new TabItem(title: '好玩', node: 'play', date: '', post: []),
-    new TabItem(title: 'Apple', node: 'apple', date: '', post: []),
-    new TabItem(title: '酷工作', node: 'jobs', date: '', post: []),
-    new TabItem(title: '交易', node: 'deals', date: '', post: []),
-    new TabItem(title: '城市', node: 'city', date: '', post: []),
-    new TabItem(title: '问与答', node: 'qna', date: '', post: []),
-    new TabItem(title: 'R2', node: 'r2', date: '', post: []),
-    new TabItem(title: '节点', node: 'nodes', date: '', post: []),
-    new TabItem(title: '关注', node: 'members', date: '', post: []),
+    new TabItem(title: '最热', id: 'hot', type: 'tab', date: '', post: []),
+    new TabItem(title: '沙盒', id: 'sandbox', type: 'go', date: '', post: []),
+    new TabItem(title: '最新', id: 'new', type: 'tab', date: '', post: []),
+    new TabItem(title: '全部', id: 'all', type: 'tab', date: '', post: []),
+    new TabItem(title: '技术', id: 'tech', type: 'tab', date: '', post: []),
+    new TabItem(title: '创意', id: 'creative', type: 'tab', date: '', post: []),
+    new TabItem(title: '好玩', id: 'play', type: 'tab', date: '', post: []),
+    new TabItem(title: 'Apple', id: 'apple', type: 'tab', date: '', post: []),
+    new TabItem(title: '酷工作', id: 'jobs', type: 'tab', date: '', post: []),
+    new TabItem(title: '交易', id: 'deals', type: 'tab', date: '', post: []),
+    new TabItem(title: '城市', id: 'city', type: 'tab', date: '', post: []),
+    new TabItem(title: '问与答', id: 'qna', type: 'tab', date: '', post: []),
+    new TabItem(title: 'R2', id: 'r2', type: 'tab', date: '', post: []),
+    new TabItem(title: '节点', id: 'nodes', type: 'tab', date: '', post: []),
+    new TabItem(title: '关注', id: 'members', type: 'tab', date: '', post: []),
   ];
 
   List<Widget> tabs = [];
@@ -47,7 +48,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
         return Tab(text: e.title);
       }).toList();
       pages = tabMap.map((e) {
-        return new TabBarViewPage(node: e.node);
+        return new TabBarViewPage(tab: e);
       }).toList();
     });
   }
@@ -112,10 +113,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     print("test");
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // super.build(context);
+    super.build(context);
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
@@ -167,11 +167,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              submit();
-            },
-            child: Text('刷新')),
+        // floatingActionButton: FloatingActionButton(
+        //     onPressed: () {
+        //       submit();
+        //     },
+        //     child: Text('test')),
       ),
     );
   }

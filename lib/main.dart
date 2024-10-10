@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/post_detail.dart';
-import 'package:v2ex/pages/post_test.dart';
 import 'package:v2ex/utils/init.dart';
 
 import 'pages/index.dart';
