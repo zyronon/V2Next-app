@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/TabPage/TabPageController.dart';
@@ -173,8 +174,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                               child: Text(
                                 _.postList[index].title,
                                 textAlign: TextAlign.left,
-                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15.sp),
-                                // style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
+                                style: TextStyle(fontWeight: FontWeight.w100, fontSize: 15.sp),
                               ),
                             ),
                             onTap: () => {getPost(_.postList[index])},

@@ -45,7 +45,6 @@ class Request {
   /// 设置cookie
   setCookie() async {
     var cookiePath = await Utils.getCookiePath();
-    print('cookiePath$cookiePath');
     var cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
@@ -162,6 +161,27 @@ class Request {
         cancelToken: cancelToken,
       );
       debugPrint('post success---------${response.data}');
+      return response;
+    } on DioException catch (e) {
+      debugPrint('post error---------$e');
+      return Future.error(ApiInterceptor.dioError(e));
+    }
+  }
+
+  /*
+   * post请求
+   */
+  request(url, {data, options, cancelToken, extra}) async {
+    // print('post-data: $data');
+    Response response;
+    try {
+      response = await dio.request(
+        url,
+        data: data,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      // debugPrint('post success---------${response.data}');
       return response;
     } on DioException catch (e) {
       debugPrint('post error---------$e');

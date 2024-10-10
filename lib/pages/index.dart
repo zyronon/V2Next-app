@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 
@@ -13,6 +15,7 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
+  BaseController c = Get.put(BaseController());
   int _selectedIndex = 0;
   PageController _controller = PageController();
   final List<Widget> _Pages = [

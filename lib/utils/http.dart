@@ -54,7 +54,7 @@ class DioRequestWeb {
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
       case 'go':
-        var r =  await getTopicsByNodeId(id, p);
+        var r = await getTopicsByNodeId(id, p);
         res['topicList'] = r.topicList;
         return res;
         break;
@@ -474,7 +474,8 @@ class DioRequestWeb {
         }
 
         if (aNode.querySelector('tr > td:nth-child(5)') != null) {
-          item.title = aNode.querySelector('td:nth-child(5) > span.item_title')!.text.replaceAll('&quot;', '"').replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+          item.title =
+              aNode.querySelector('td:nth-child(5) > span.item_title')!.text.replaceAll('&quot;', '"').replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>');
           // var topicSub = aNode
           //     .querySelector('td:nth-child(5) > span.small')!
           //     .text
@@ -513,5 +514,37 @@ class DioRequestWeb {
     }
 
     return detailModel;
+  }
+
+  static Future createNoteItem(String itemName) async {
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      // 必须字段
+      // 'Referer': '${Strings.v2exHost}/note',
+      'Origin': Strings.v2exHost,
+      'user-agent': Const.agent.mobile
+    };
+
+    FormData formData = FormData.fromMap({
+      'content': itemName,
+      'parent_id': 0,
+      'syntax': 0,
+    });
+
+    Response res = await Request().request('/notes/new', data: formData, options: options);
+    print(res.redirects.length);
+    print(res.isRedirect.toString());
+    print(res.statusCode.toString());
+    print(res.realUri.toString());
+    debugPrint(res.data);
+
+    if (res.isRedirect && res.statusCode == 200) {
+      print(res.redirects.toString());
+      return '';
+      // resolve(res.url.substr(-5))
+      // return
+    }
   }
 }

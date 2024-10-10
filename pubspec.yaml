@@ -67,6 +67,9 @@ dependencies:
   # 数据缓存
   get_storage: ^2.0.3
 
+  google_fonts: ^6.2.1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

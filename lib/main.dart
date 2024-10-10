@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,16 +8,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/init.dart';
 
 import 'pages/index.dart';
 
+class IndexController extends GetxController {
+  double textScaleFactor = 1;
+}
+
 void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
-  await ScreenUtil.ensureScreenSize();    // Dio 初始化
+  await ScreenUtil.ensureScreenSize(); // Dio 初始化
   await Request().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
@@ -30,7 +37,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     return ScreenUtilInit(
         designSize: const Size(375, 750),
         minTextAdapt: true,
@@ -39,6 +46,8 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Demo',
             theme: ThemeData(
               useMaterial3: true,
+              //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
+              textTheme: GoogleFonts.notoSansScTextTheme(),
               // 去除TabBar底部线条
               tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
               pageTransitionsTheme: const PageTransitionsTheme(
@@ -49,10 +58,10 @@ class MyApp extends StatelessWidget {
               ),
               appBarTheme: const AppBarTheme(
                   systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                    statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                    systemNavigationBarColor: Colors.white, // 底部导航栏颜色
-                  )),
+                statusBarColor: Colors.transparent, // 去除状态栏遮罩
+                statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
+                systemNavigationBarColor: Colors.white, // 底部导航栏颜色
+              )),
               colorScheme: const ColorScheme.light(
                 surface: Colors.white,
                 // 和底部导航栏保持一致
@@ -69,7 +78,19 @@ class MyApp extends StatelessWidget {
               ),
             ),
             navigatorObservers: [FlutterSmartDialog.observer],
-            builder: FlutterSmartDialog.init(),
+            // builder: FlutterSmartDialog.init(),
+            builder: (BuildContext context, Widget? child) {
+              return GetBuilder(
+                  init: IndexController(),
+                  builder: (_){
+                return FlutterSmartDialog(
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
+                    child: child!,
+                  ),
+                );
+              });
+            },
             routes: {
               '/': (context) => const Index(),
               '/post-detail': (context) => const PostDetail(),

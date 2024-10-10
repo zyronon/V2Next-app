@@ -122,9 +122,9 @@ class Member {
 
   static fromJson(Map<String, dynamic> json) {
     Member s = Member();
-    s.avatar = json['avatar'];
-    s.username = json['username'];
-    s.avatarLarge = json['avatarLarge'];
+    s.avatar = json['avatar'] ?? s.avatar;
+    s.username = json['username'] ?? s.username;
+    s.avatarLarge = json['avatarLarge'] ?? s.avatarLarge;
     return s;
   }
 }
@@ -142,9 +142,19 @@ class Node {
 class UserConfig {
   bool showTopReply = true;
 
+  // String tagPrefix = '--mob-tag--';
+  String configPrefix = '--mob-config--';
+
   Map<String, dynamic> toJson() => {
         "showTopReply": showTopReply,
       };
+
+  static fromJson(Map<String, dynamic> json) {
+    UserConfig s = UserConfig();
+    s.showTopReply = json['showTopReply'] ?? false;
+    s.configPrefix = json['configPrefix'] ?? s.configPrefix;
+    return s;
+  }
 }
 
 class NodeListModel {

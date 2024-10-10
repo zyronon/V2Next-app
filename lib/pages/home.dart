@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/TabBarViewPage.dart';
+import 'package:v2ex/main.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/LoginForm.dart';
+import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 
 class Home extends StatefulWidget {
@@ -37,7 +39,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<Widget> tabs = [];
   List<Widget> pages = [];
 
-  final BaseController c = Get.put(BaseController());
   final String url = "https://v2ex.com/?tab=hot";
 
   @override
@@ -110,6 +111,14 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   }
 
   submit() {
+    BaseController c = Get.find();
+    // IndexController c = Get.find();
+    // c.textScaleFactor+=0.1;
+    // c.update();
+    // var s = UserConfig();
+    // s.showTopReply = false;
+    // c.setConfig(s);
+    c.initData();
     print("test");
   }
 
@@ -167,11 +176,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             ],
           ),
         ),
-        // floatingActionButton: FloatingActionButton(
-        //     onPressed: () {
-        //       submit();
-        //     },
-        //     child: Text('test')),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              submit();
+            },
+            child: Text('test')),
       ),
     );
   }
