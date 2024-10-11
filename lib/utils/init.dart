@@ -62,9 +62,12 @@ class Request {
       //请求基地址,可以包含子路径
       baseUrl: Strings.v2exHost,
       //连接服务器超时时间，单位是毫秒.
-      connectTimeout: const Duration(milliseconds: 12000),
+      connectTimeout: const Duration(seconds: 12),
       //响应流上前后两次接受到数据的间隔，单位为毫秒。
-      receiveTimeout: const Duration(milliseconds: 12000),
+      receiveTimeout: const Duration(seconds: 12),
+      headers: {
+
+      }
       //Http请求头.
       // headers: {
       //   'cookie': '',
@@ -171,15 +174,24 @@ class Request {
   /*
    * post请求
    */
-  request(url, {data, options, cancelToken, extra}) async {
+  post2(url, {data}) async {
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      // 必须字段
+      // 'Referer': '${Strings.v2exHost}/note',
+      'Origin': Strings.v2exHost,
+      'user-agent': Const.agent.ios
+    };
+
     // print('post-data: $data');
     Response response;
     try {
-      response = await dio.request(
+      response = await dio.post(
         url,
         data: data,
         options: options,
-        cancelToken: cancelToken,
       );
       // debugPrint('post success---------${response.data}');
       return response;
@@ -222,9 +234,7 @@ class Request {
   String headerUa(ua) {
     String headerUa = '';
     if (ua == 'mob') {
-      headerUa = Platform.isIOS
-          ? Const.agent.mobile
-          : 'Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36';
+      headerUa = Platform.isIOS ? Const.agent.ios : 'Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36';
     } else {
       // headerUa = 'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
       headerUa = Const.agent.pc;

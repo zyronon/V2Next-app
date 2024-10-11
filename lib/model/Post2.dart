@@ -141,18 +141,25 @@ class Node {
 
 class UserConfig {
   bool showTopReply = true;
+  double version = 0.1;
 
   // String tagPrefix = '--mob-tag--';
   String configPrefix = '--mob-config--';
+  String configNoteId = '';
 
   Map<String, dynamic> toJson() => {
         "showTopReply": showTopReply,
+        "configPrefix": configPrefix,
+        "configNoteId": configNoteId,
+        "version": version,
       };
 
   static fromJson(Map<String, dynamic> json) {
     UserConfig s = UserConfig();
     s.showTopReply = json['showTopReply'] ?? false;
     s.configPrefix = json['configPrefix'] ?? s.configPrefix;
+    s.configNoteId = json['configNoteId'] ?? '';
+    s.version = json['version'] ?? s.version;
     return s;
   }
 }
@@ -168,4 +175,12 @@ class NodeListModel {
   String nodeCover = ''; // 封面
 
   late List<Post2> topicList;
+}
+
+class Result {
+  bool success;
+  var data;
+  String? msg;
+
+  Result({required this.success, this.data, this.msg});
 }

@@ -60,5 +60,6 @@ class ApiInterceptor extends Interceptor {
   // 登录验证
   loginAuth(reqPath, method, {redirtct}) {
     bool needLogin = false;
+
   }
 }

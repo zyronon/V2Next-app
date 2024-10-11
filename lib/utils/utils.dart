@@ -9,6 +9,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/storage.dart';
 
 class Utils {
@@ -272,5 +273,16 @@ class Utils {
   static Future<List<Map<String, dynamic>>> allSettled(List<Future> futures) async {
     // 对每个 Future 都调用 wrapper 函数
     return Future.wait(futures.map((f) => allSettledWrapper(f)));
+  }
+
+  String headerUa(ua) {
+    String headerUa = '';
+    if (ua == 'mob') {
+      headerUa = Platform.isIOS ? Const.agent.ios : Const.agent.android;
+    } else {
+      // headerUa = 'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
+      headerUa = Const.agent.pc;
+    }
+    return headerUa;
   }
 }

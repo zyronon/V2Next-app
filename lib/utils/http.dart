@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide FormData, Response;
 import 'package:html/parser.dart';
+import 'package:v2ex/main.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/package/xpath/src/xpath_base.dart';
 import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/global.dart';
 import 'package:v2ex/utils/init.dart';
+import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
 
@@ -43,11 +46,7 @@ class DioRequestWeb {
     // go 子节点 翻页 /go/xxx
     switch (type) {
       case 'tab':
-        response = await Request().get(
-          '/',
-          data: {'tab': id},
-          extra: {'ua': 'pc'},
-        );
+        response = await Http().get('/', data: {'tab': id},isMobile: false);
         break;
       // case 'recent':
       //   return await getTopicsRecent('recent', p).then((value) => value);
@@ -67,7 +66,7 @@ class DioRequestWeb {
         break;
     }
 
-    DioRequestWeb().resolveNode(response, 'pc');
+    // DioRequestWeb().resolveNode(response, 'pc');
     // 用户信息解析 mob
     var rootDom = parse(response.data);
 
@@ -121,7 +120,6 @@ class DioRequestWeb {
       var childNodeEls = childNode.querySelectorAll('a').where((el) => el.attributes['href']!.startsWith('/go'));
       if (childNodeEls.isNotEmpty) {
         for (var i in childNodeEls) {
-          print(i);
           var nodeItem = {};
           nodeItem['nodeId'] = i.attributes['href']!.split('/go/')[1];
           nodeItem['nodeName'] = i.text;
@@ -291,7 +289,7 @@ class DioRequestWeb {
       // 必须字段
       'Referer': '${Strings.v2exHost}/signin',
       'Origin': Strings.v2exHost,
-      'user-agent': Const.agent.mobile
+      'user-agent': Const.agent.ios
     };
 
     FormData formData = FormData.fromMap({
@@ -406,10 +404,10 @@ class DioRequestWeb {
     Response response;
     // 请求PC端页面 lastReplyTime totalPage
     // Request().dio.options.headers = {};
-    response = await Request().get(
+    response = await Http().get(
       '/go/$nodeId',
       data: {'p': p},
-      extra: {'ua': 'pc'},
+      isMobile: false
     );
     var document = parse(response.data);
     if (response.realUri.toString() == '/') {
@@ -516,35 +514,46 @@ class DioRequestWeb {
     return detailModel;
   }
 
-  static Future createNoteItem(String itemName) async {
-    Options options = Options();
-    options.contentType = Headers.formUrlEncodedContentType;
-    options.headers = {
-      // 'content-type': 'application/x-www-form-urlencoded',
-      // 必须字段
-      // 'Referer': '${Strings.v2exHost}/note',
-      'Origin': Strings.v2exHost,
-      'user-agent': Const.agent.mobile
-    };
+  static Future<Result> createNoteItem(String itemName) async {
+    FormData formData = FormData.fromMap({'content': itemName, 'parent_id': 0, 'syntax': 0});
+    Response res = await Http().post('/notes/new', data: formData);
 
-    FormData formData = FormData.fromMap({
-      'content': itemName,
-      'parent_id': 0,
-      'syntax': 0,
-    });
-
-    Response res = await Request().request('/notes/new', data: formData, options: options);
-    print(res.redirects.length);
-    print(res.isRedirect.toString());
-    print(res.statusCode.toString());
-    print(res.realUri.toString());
-    debugPrint(res.data);
-
-    if (res.isRedirect && res.statusCode == 200) {
-      print(res.redirects.toString());
-      return '';
-      // resolve(res.url.substr(-5))
-      // return
+    if (res.statusCode == 302) {
+      String? url = res.headers.value('location');
+      if (url != null && url.contains('/notes/')) {
+        url = url.replaceAll('/notes/', '');
+        return Result(success: true, data: url);
+      }
     }
+    return Result(success: false);
+  }
+
+  static Future<Result> editNoteItem(String val, String id) async {
+    FormData formData = FormData.fromMap({'content': val, 'syntax': 0});
+    Response res = await Http().post('/notes/edit/$id', data: formData);
+    return Result(success: res.statusCode == 302);
+  }
+
+  //获取记事本条目内容
+  static Future<Result> getNoteItemContent(String id, String prefix) async {
+    Response res = await Http().get('/notes/edit/${id}');
+    if (res.statusCode == 200) {
+      var document = parse(res.data);
+      var editorEl = document.querySelector('.note_editor');
+      if (editorEl != null) {
+        String text = editorEl.innerHtml;
+        if (text == prefix) {
+          return Result(success: false);
+        } else {
+          String json = text.substring(prefix.length);
+          try {
+            return Result(success: true, data: jsonDecode(json));
+          } catch (e) {
+            return Result(success: false);
+          }
+        }
+      }
+    }
+    return Result(success: false);
   }
 }

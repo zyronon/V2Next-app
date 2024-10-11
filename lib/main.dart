@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/init.dart';
+import 'package:v2ex/utils/request.dart';
 
 import 'pages/index.dart';
 
@@ -24,6 +25,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize(); // Dio 初始化
   await Request().setCookie();
+  await Http().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {

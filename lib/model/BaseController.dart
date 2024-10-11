@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
-import 'package:get/get.dart';
+import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:get_storage/get_storage.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/init.dart';
+import 'package:v2ex/utils/request.dart';
 
 enum StoreKeys {
   token,
@@ -55,25 +59,40 @@ class BaseController extends GetxController {
   }
 
   initData() async {
-    var res = await Request().get('/notes', extra: {'ua': 'mob'});
-    print('initData${res.statusCode};${res.isRedirect}');
+    Response res = await Http().get('/notes');
+    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode}');
     if (!res.isRedirect) {
       Document document = parse(res.data);
       Element? avatarEl = document.querySelector('#menu-entry .avatar');
       if (avatarEl != null) {
         member.username = avatarEl.attributes['alt']!;
         member.avatar = avatarEl.attributes['src']!;
+        print('当前用户${member.username}');
         setMember(member);
       }
-      var nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
+      List<Element> nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
       if (nodeListEl.isNotEmpty) {
-        var tagItems = nodeListEl.where((v) => v.text.contains(currentConfig.configPrefix));
+        List<Element> tagItems = nodeListEl.where((v) => v.text.contains(currentConfig.configPrefix)).toList();
         if (tagItems.isNotEmpty) {
-
+          currentConfig.configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
+          Result res = await DioRequestWeb.getNoteItemContent(currentConfig.configNoteId, currentConfig.configPrefix);
+          if (res.success) {
+            print('获取配置${res.data.toString()}');
+            config[member.username] = UserConfig.fromJson(res.data);
+            _box.write(StoreKeys.config.toString(), config);
+            update();
+          } else {}
         } else {
+          print('初始化配置');
+          Result r = await DioRequestWeb.createNoteItem(currentConfig.configPrefix);
+          if (r.success) {
+            currentConfig.configNoteId = r.data;
+            await DioRequestWeb.editNoteItem(
+              currentConfig.configPrefix + jsonEncode(currentConfig.toJson()),
+              currentConfig.configNoteId,
+            );
+          }
         }
-        var r = await DioRequestWeb.createNoteItem(currentConfig.configPrefix);
-
       }
     }
   }
@@ -93,12 +112,6 @@ class BaseController extends GetxController {
         }
       });
     }
-    update();
-  }
-
-  setConfig(UserConfig us) {
-    config[member.username] = us;
-    _box.write(StoreKeys.config.toString(), config);
     update();
   }
 

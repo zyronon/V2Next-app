@@ -97,7 +97,7 @@ class ReplyItem extends StatelessWidget {
                         onTap: () => onThank(item)),
                   InkWell(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 4.w),
+                        padding: EdgeInsets.only(left: 4.w,top: 6.w,bottom: 6.w),
                         child: Icon(
                           Icons.more_vert,
                           size: 22.sp,

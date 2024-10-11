@@ -139,22 +139,26 @@ class PostDetailState extends State<PostDetail> {
     // Navigator.pushNamed(context, 'Home');
   }
 
-  Widget modalItem(String text, IconData icon) {
-    return Padding(
-        padding: EdgeInsets.only(left: 12.w, top: 16.w, bottom: 16.w),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 20.sp,
-              color: Colors.grey,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 12.w),
-              child: Text(text),
-            )
-          ],
-        ));
+  //回复菜单操作项
+  Widget _buildReplyMenuOption(String text, IconData icon, GestureTapCallback onTap) {
+    return InkWell(
+      child: Padding(
+          padding: EdgeInsets.only(left: 12.w, top: 16.w, bottom: 16.w),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20.sp,
+                color: Colors.grey,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 12.w),
+                child: Text(text),
+              )
+            ],
+          )),
+      onTap: onTap,
+    );
   }
 
   Widget optionItem(
@@ -198,11 +202,16 @@ class PostDetailState extends State<PostDetail> {
         getHtmlText(c.reply.replyContent),
         Column(
           children: [
-            modalItem('回复', Icons.chat_bubble_outline),
-            modalItem('感谢', Icons.favorite_border),
-            modalItem('上下文', Icons.content_paste_search),
-            modalItem('复制', Icons.content_copy),
-            modalItem('忽略', Icons.block),
+            _buildReplyMenuOption('回复', Icons.chat_bubble_outline, () {
+              Get.back();
+              showReplyModal(val);
+            }),
+            _buildReplyMenuOption('感谢', Icons.favorite_border, () {
+              thankReply(val);
+            }),
+            _buildReplyMenuOption('上下文', Icons.content_paste_search, () {}),
+            _buildReplyMenuOption('复制', Icons.content_copy, () {}),
+            _buildReplyMenuOption('忽略', Icons.block, () {}),
           ],
         ));
   }
@@ -344,31 +353,30 @@ class PostDetailState extends State<PostDetail> {
     _replyCtrl.text = '';
   }
 
-  replyPostItem(Reply val) {
-    PostDetailController c = PostDetailController.to();
-    c.setReply(val);
-    _replyCtrl.text = '#${val.username} #${val.floor} ';
-    modalWrap(getHtmlText(c.reply.replyContent), getTest());
-  }
-
-  replyPost() {
+  showReplyModal([Reply? val]) {
     PostDetailController pdc = PostDetailController.to();
-    pdc.setReply(new Reply());
-    modalWrap(getHtmlText(ctrl.post.headerTemplate), getTest());
+    if (val != null) {
+      pdc.setReply(val);
+      _replyCtrl.text = '#${val.username} #${val.floor} ';
+      modalWrap(getHtmlText(pdc.reply.replyContent), getTest());
+    } else {
+      pdc.setReply(new Reply());
+      modalWrap(getHtmlText(ctrl.post.headerTemplate), getTest());
+    }
   }
 
-  Widget getReplyItem(Reply item, int index, int type) {
+  Widget _buildReplyItem(Reply item, int index, int type) {
     return ReplyItem(
       index: index,
       type: type,
       item: item,
       onThank: (e) => thankReply(e),
       onMenu: (e) => showItemMenuModal(e),
-      onTap: (e) => replyPostItem(e),
+      onTap: (e) => showReplyModal(e),
     );
   }
 
-  Widget getIcon(IconData icon) {
+  Widget _buildIcon(IconData icon) {
     return Icon(
       icon,
       size: 24.sp,
@@ -380,7 +388,7 @@ class PostDetailState extends State<PostDetail> {
     return InkWell(
       child: Padding(
         padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
-        child: getIcon(icon),
+        child: _buildIcon(icon),
       ),
       onTap: onTap,
     );
@@ -442,8 +450,6 @@ class PostDetailState extends State<PostDetail> {
 
   onReply() async {
     BaseController bc = Get.find();
-    
-    return print('bc:${bc.member.username}');
     var res = await TopicWebApi.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text, 0);
     if (res == 'true') {
       if (context.mounted) {
@@ -514,13 +520,13 @@ class PostDetailState extends State<PostDetail> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(children: [
-                getIcon(Icons.sentiment_satisfied_alt),
+                _buildIcon(Icons.sentiment_satisfied_alt),
                 SizedBox(width: 10.w),
-                getIcon(Icons.alternate_email),
+                _buildIcon(Icons.alternate_email),
                 SizedBox(width: 10.w),
-                getIcon(Icons.add_photo_alternate),
+                _buildIcon(Icons.add_photo_alternate),
                 SizedBox(width: 10.w),
-                getIcon(Icons.format_quote),
+                _buildIcon(Icons.format_quote),
               ]),
               InkWell(
                 child: Container(
@@ -615,30 +621,32 @@ class PostDetailState extends State<PostDetail> {
   }
 
   // 感谢回复 request
-  void onThankReply(int index) async {
-    var s = ctrl.post.replyList[index - 1];
-
-    var res = await DioRequestWeb.thankReply(s.id, ctrl.post.id);
+  void onThankReply(Reply val) async {
+    var res = await DioRequestWeb.thankReply(val.id, ctrl.post.id);
     if (res) {
-      setState(() {
-        ctrl.post.replyList[index - 1].isThanked = true;
-        ctrl.post.replyList[index - 1].thankCount += 1;
-      });
+      var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
+      ctrl.post.replyList[index].isThanked = true;
+      ctrl.post.replyList[index].thankCount += 1;
+      ctrl.rebuildList();
     }
   }
 
   //感谢回复
-  thankReply(int index) {
-    bool needLogin = !(GStorage().getLoginStatus());
-    if (needLogin) {
+  thankReply(Reply val) {
+    BaseController bc = Get.find();
+    if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
 
-    var s = ctrl.post.replyList[index - 1];
-    if (s.isThanked) {
+    if (val.isThanked) {
       SmartDialog.showToast('这个回复已经被感谢过了');
       return;
     }
+    if (val.username == bc.member.username) {
+      SmartDialog.showToast('不能感谢自己');
+      return;
+    }
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -652,7 +660,7 @@ class PostDetailState extends State<PostDetail> {
           TextButton(
             onPressed: () {
               Navigator.pop(context, 'Ok');
-              onThankReply(index);
+              onThankReply(val);
             },
             child: const Text('确认'),
           ),
@@ -764,7 +772,7 @@ class PostDetailState extends State<PostDetail> {
                   padding: EdgeInsets.all(6.w),
                 ),
                 onTap: () {
-                  replyPost();
+                  showReplyModal();
                 },
               ),
             ),
@@ -789,13 +797,13 @@ class PostDetailState extends State<PostDetail> {
                 Column(
                   children: [
                     Icon(
-                      ctrl.post.isFavorite ? Icons.grade : Icons.star_border,
+                      ctrl.post.isFavorite ? Icons.star : Icons.star_border,
                       size: 24.sp,
-                      color: Colors.grey,
+                      color: ctrl.post.isFavorite ? Colors.red : Colors.grey,
                     ),
                     Text(
                       ctrl.post.collectCount.toString(),
-                      style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                      style: TextStyle(fontSize: 10.sp, color: ctrl.post.isFavorite ? Colors.red : Colors.grey),
                     )
                   ],
                 ), () {
@@ -807,11 +815,11 @@ class PostDetailState extends State<PostDetail> {
                     Icon(
                       ctrl.post.isThanked ? Icons.favorite : Icons.favorite_border,
                       size: 24.sp,
-                      color: Colors.grey,
+                      color: ctrl.post.isThanked ? Colors.red : Colors.grey,
                     ),
                     Text(
                       ctrl.post.thankCount.toString(),
-                      style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+                      style: TextStyle(fontSize: 10.sp, color: ctrl.post.isThanked ? Colors.red : Colors.grey),
                     )
                   ],
                 ), () {
@@ -846,7 +854,7 @@ class PostDetailState extends State<PostDetail> {
               } else {
                 debugPrint('当前是 - listCtx');
                 ctrl.setShowFixedTitle(false);
-                ctrl._scrollController.jumpTo(0);
+                ctrl._scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.ease);
                 firstChildCtx = headerCtx;
               }
             }),
@@ -997,8 +1005,8 @@ class PostDetailState extends State<PostDetail> {
                                       getPostTitle(),
                                       ctrl.loading
                                           ? Skeletonizer.zone(
-                                        child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
-                                      )
+                                              child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
+                                            )
                                           : getHtmlText(ctrl.post.headerTemplate),
                                     ],
                                   ),
@@ -1014,28 +1022,28 @@ class PostDetailState extends State<PostDetail> {
                             _buildListHeader(ctrl.post.replyCount.toString() + '条回复'),
                             SliverList(
                                 delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                    return Column(
-                                      children: [
-                                        Skeletonizer.zone(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(8),
-                                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                              Row(children: [
-                                                Bone.circle(size: 28),
-                                                SizedBox(width: 10.w),
-                                                Bone.text(width: 80.w),
-                                              ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                                              Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(style: TextStyle(height: 1.6))),
-                                            ]),
-                                          ),
-                                        ),
-                                        _buildDivider()
-                                      ],
-                                    );
-                                  },
-                                  childCount: 7,
-                                )),
+                              (context, index) {
+                                return Column(
+                                  children: [
+                                    Skeletonizer.zone(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                          Row(children: [
+                                            Bone.circle(size: 28),
+                                            SizedBox(width: 10.w),
+                                            Bone.text(width: 80.w),
+                                          ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
+                                          Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(style: TextStyle(height: 1.6))),
+                                        ]),
+                                      ),
+                                    ),
+                                    _buildDivider()
+                                  ],
+                                );
+                              },
+                              childCount: 7,
+                            )),
                           ] else ...[
                             //高赞回复
                             if (ctrl.config.showTopReply && ctrl.post.topReplyList.length != 0) ...[
@@ -1044,12 +1052,12 @@ class PostDetailState extends State<PostDetail> {
                               //list
                               SliverList(
                                   delegate: SliverChildBuilderDelegate(
-                                        (context, index) {
-                                      if (topListCtx != context) topListCtx = context;
-                                      return Column(children: [getReplyItem(ctrl.post.topReplyList[index], index, 0), _buildDivider()]);
-                                    },
-                                    childCount: ctrl.post.topReplyList.length,
-                                  )),
+                                (context, index) {
+                                  if (topListCtx != context) topListCtx = context;
+                                  return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, 0), _buildDivider()]);
+                                },
+                                childCount: ctrl.post.topReplyList.length,
+                              )),
                               space(),
                             ],
 
@@ -1059,20 +1067,20 @@ class PostDetailState extends State<PostDetail> {
                             //list
                             SliverList(
                                 delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                    if (normalListCtx != context) normalListCtx = context;
-                                    // return ListTile(title: Text('1111$index'));
-                                    return Column(children: [getReplyItem(ctrl.getReplyList()[index], index, 0), _buildDivider()]);
-                                  },
-                                  childCount: ctrl.getReplyList().length,
-                                )),
+                              (context, index) {
+                                if (normalListCtx != context) normalListCtx = context;
+                                // return ListTile(title: Text('1111$index'));
+                                return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 0), _buildDivider()]);
+                              },
+                              childCount: ctrl.getReplyList().length,
+                            )),
                             SliverToBoxAdapter(
                                 child: Container(
-                                  height: 100.w,
-                                  child: Center(
-                                    child: Text('没有更多了'),
-                                  ),
-                                )),
+                              height: 100.w,
+                              child: Center(
+                                child: Text('没有更多了'),
+                              ),
+                            )),
                           ]
                         ],
                       ),
