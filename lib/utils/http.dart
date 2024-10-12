@@ -198,7 +198,6 @@ class DioRequestWeb {
   static Future<LoginDetailModel> getLoginKey() async {
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
-    SmartDialog.showLoading(msg: '获取验证码...');
     response = await Request().get(
       '/signin',
       extra: {'ua': 'mob'},
@@ -210,7 +209,6 @@ class DioRequestWeb {
       // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
       String tipsContent = document.body!.querySelector('#Main > div.box > div.cell > div > p')!.innerHtml;
       String tipsIp = document.body!.querySelector('#Main > div.box > div.dock_area > div.cell')!.text;
-      SmartDialog.dismiss();
       SmartDialog.show(
         animationType: SmartAnimationType.centerFade_otherSlide,
         builder: (BuildContext context) {
@@ -273,14 +271,11 @@ class DioRequestWeb {
       }
       loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
     }
-    SmartDialog.dismiss();
     return loginKeyMap;
   }
 
   // 登录
   static Future<String> onLogin(LoginDetailModel args) async {
-    SmartDialog.showLoading(msg: '登录中...');
-    Response response;
     Options options = Options();
 
     options.contentType = Headers.formUrlEncodedContentType;
@@ -300,7 +295,7 @@ class DioRequestWeb {
       'next': args.next,
     });
 
-    response = await Request().post('/signin', data: formData, options: options);
+    Response response = await Request().post('/signin', data: formData, options: options);
     options.contentType = Headers.jsonContentType; // 还原
     print('status${response.statusCode}');
     if (response.statusCode == 302) {

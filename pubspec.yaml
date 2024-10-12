@@ -68,6 +68,8 @@ dependencies:
   get_storage: ^2.0.3
 
   google_fonts: ^6.2.1
+  # 加载动画
+  flutter_spinkit: ^5.2.1
 
 
 dev_dependencies:

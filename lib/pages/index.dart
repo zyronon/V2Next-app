@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/ConstVal.dart';
@@ -47,23 +48,21 @@ class _IndexState extends State<Index> {
         // backgroundColor: bg,
         // surfaceTintColor: bg,
       ),
-      body: DefaultTextStyle(
-          style: TextStyle(color: Colors.black, fontSize: 14.sp),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-                minWidth: double.infinity, //宽度尽可能大
-                minHeight: double.infinity),
-            child: Container(
-              decoration: BoxDecoration(
-                color: mainBgColor2,
-              ),
-              child: PageView(
-                  controller: _controller,
-                  //不设置默认可以左右活动，如果不想左右滑动如下设置，可以根据ios或者android来设置
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _Pages),
-            ),
-          )),
+      body: ConstrainedBox(
+        constraints: const BoxConstraints(
+            minWidth: double.infinity, //宽度尽可能大
+            minHeight: double.infinity),
+        child: Container(
+          decoration: BoxDecoration(
+            color: mainBgColor2,
+          ),
+          child: PageView(
+              controller: _controller,
+              //不设置默认可以左右活动，如果不想左右滑动如下设置，可以根据ios或者android来设置
+              physics: const NeverScrollableScrollPhysics(),
+              children: _Pages),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: mainBgColor2,
         type: BottomNavigationBarType.fixed,

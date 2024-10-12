@@ -88,7 +88,10 @@ class MyApp extends StatelessWidget {
                 return FlutterSmartDialog(
                   child: MediaQuery(
                     data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
-                    child: child!,
+                    child: DefaultTextStyle(
+                      style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 14.sp)),
+                      child: child!,
+                    ),
                   ),
                 );
               });

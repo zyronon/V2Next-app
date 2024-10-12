@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,6 +5,35 @@ import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 class Me extends StatelessWidget {
+  Widget _buildNumItem(String name, int num, [GestureTapCallback? onTap]) {
+    return InkWell(
+        child: Column(children: [
+          Text(num.toString(), style: TextStyle(fontSize: 18.sp)),
+          Text(name, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
+        ]),
+        onTap: onTap);
+  }
+
+  Widget _buildMenuItem(String name, IconData icon, [GestureTapCallback? onTap]) {
+    return InkWell(
+      child: Container(
+          height: 60.w,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(children: [
+                Icon(icon),
+                SizedBox(width: 10.w),
+                Text(name,style: TextStyle(fontSize: 15.sp)),
+              ]),
+              Icon(Icons.keyboard_arrow_right),
+            ],
+          )),
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BaseController>(builder: (_) {
@@ -20,9 +48,12 @@ class Me extends StatelessWidget {
                 SizedBox(width: 10.w),
                 Column(
                   children: [
-                    Text(
-                      _.member.username,
-                      style: TextStyle(fontSize: 20.sp),
+                    InkWell(
+                      child: Text(
+                        _.isLogin ? _.member.username : '登录',
+                        style: TextStyle(fontSize: 20.sp),
+                      ),
+                      onTap: () => Get.toNamed('/login'),
                     ),
                   ],
                 )
@@ -30,7 +61,7 @@ class Me extends StatelessWidget {
             ),
             SizedBox(height: 20.w),
             Container(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.fromLTRB(12.w, 30.w, 12.w, 30.w),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.r),
@@ -38,30 +69,40 @@ class Me extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(children: [
-                    Text('3'),
-                    Text('节点收藏'),
-                  ]),
-                  Column(children: [
-                    Text('3'),
-                    Text('节点收藏'),
-                  ]),
-                  Column(children: [
-                    Text('3'),
-                    Text('节点收藏'),
-                  ]),
-                  Column(children: [
-                    Text('3'),
-                    Text('历史浏览'),
-                  ]),
+                  _buildNumItem('节点收藏', 3),
+                  Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                  _buildNumItem('主题收藏', 3),
+                  Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                  _buildNumItem('特别关注', 3),
+                  Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                  _buildNumItem('历史浏览', 3),
                 ],
               ),
             ),
-            CupertinoButton(
-                child: Text('登录1'),
-                onPressed: () {
-                  Get.toNamed('/login');
-                })
+            SizedBox(height: 20.w),
+            Container(
+                padding: EdgeInsets.fromLTRB(12.w, 0.w, 12.w, 0.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Column(children: [
+                  _buildMenuItem('余额', Icons.currency_bitcoin, () {
+                    Get.toNamed('/balance');
+                  }),
+                  Divider(height: 1.w, color: Colors.grey[200]),
+                  _buildMenuItem('记事本', Icons.format_list_bulleted, () {
+                    Get.toNamed('/notes');
+                  }),
+                  Divider(height: 1.w, color: Colors.grey[200]),
+                  _buildMenuItem('反馈', Icons.bug_report, () {
+                    Get.toNamed('/feedback');
+                  }),
+                  Divider(height: 1.w, color: Colors.grey[200]),
+                  _buildMenuItem('设置', Icons.settings, () {
+                    Get.toNamed('/setting');
+                  }),
+                ]))
           ],
         ),
       );

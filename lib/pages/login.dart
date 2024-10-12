@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:v2ex/model/model_login_detail.dart';
@@ -33,6 +35,8 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode passwordTextFieldNode = FocusNode();
   final FocusNode captchaTextFieldNode = FocusNode();
   bool passwordVisible = true; // 默认隐藏密码
+  bool loadingCodeImg = true;
+  bool loadingLogin = false;
 
   @override
   void initState() {
@@ -41,7 +45,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<LoginDetailModel> getSignKey() async {
+    setState(() {
+      loadingCodeImg = true;
+    });
     var res = await DioRequestWeb.getLoginKey();
+    setState(() {
+      loadingCodeImg = false;
+    });
     if (res.twoFa) {
       Login.twoFADialog();
     } else {
@@ -57,20 +67,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Get.back(result: {'loginStatus': 'cancel'}),
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Utils.openURL('https://www.v2ex.com/signup'),
-              child: const Text('注册账号')),
-          const SizedBox(width: 12)
-        ],
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios), onPressed: () => Get.back(result: {'loginStatus': 'cancel'})),
+        actions: [TextButton(onPressed: () => Utils.openURL('https://www.v2ex.com/signup'), child: const Text('注册账号')), const SizedBox(width: 12)],
       ),
       body: Stack(
         alignment: AlignmentDirectional.bottomCenter,
@@ -83,13 +81,15 @@ class _LoginPageState extends State<LoginPage> {
               // mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const SizedBox(height: 20),
-                Text(
-                  '登录',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
+                Text('登录', style: Theme
+                    .of(context)
+                    .textTheme
+                    .headlineLarge),
                 const SizedBox(height: 10),
-                Text('使用您的v2ex账号',
-                    style: Theme.of(context).textTheme.titleMedium),
+                Text('使用您的v2ex账号', style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleMedium),
                 const SizedBox(height: 50),
                 Container(
                   // height: 70,
@@ -125,10 +125,11 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: '密码',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: Theme.of(context).colorScheme.primary,
+                          passwordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: Theme
+                              .of(context)
+                              .colorScheme
+                              .primary,
                         ),
                         onPressed: () {
                           setState(() {
@@ -167,33 +168,33 @@ class _LoginPageState extends State<LoginPage> {
                           _code = val;
                         },
                       ),
-                      if (loginKey.captchaImg != '') ...[
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          height: 52,
-                          child: Container(
-                            clipBehavior: Clip.hardEdge,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(6),
-                              ),
+                      Positioned(
+                        right: 5.w,
+                        top: 5.w,
+                        height: 46.w,
+                        child: Container(
+                          clipBehavior: Clip.hardEdge,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(6),
                             ),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  getSignKey();
-                                });
-                              },
-                              child: Image.memory(
-                                loginKey.captchaImgBytes!,
-                                height: 52.0,
-                                fit: BoxFit.fitHeight,
-                              ),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                getSignKey();
+                              });
+                            },
+                            child: loadingCodeImg
+                                ? Container(child: SpinKitWave(color: Colors.grey[300], size: 24.w), margin: EdgeInsets.only(right: 60.w))
+                                : Image.memory(
+                              loginKey.captchaImgBytes!,
+                              height: 52.w,
+                              fit: BoxFit.fitHeight,
                             ),
                           ),
                         ),
-                      ]
+                      ),
                     ],
                   ),
                 ),
@@ -201,18 +202,53 @@ class _LoginPageState extends State<LoginPage> {
                   height: 94,
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50)),
-                    child: Text(
-                      '登录',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (loadingLogin) ...[
+                          SpinKitFadingCircle(color: Colors.grey[400], size: 24.w),
+                          SizedBox(width: 10.w),
+                        ],
+                        Text(
+                          '登录',
+                          style: TextStyle(fontSize: 18.sp),
+                        )
+                      ],
                     ),
                     onPressed: () async {
+                      if (loadingCodeImg) {
+                        Get.snackbar('提示', '请输入正确的验证码');
+                        return;
+                      }
                       (_formKey.currentState as FormState).save();
                       loginKey.userNameValue = 'shzbkzo';
                       loginKey.passwordValue = 'o894948816O!';
                       loginKey.codeValue = _code!;
+                      setState(() {
+                        loadingLogin = true;
+                      });
                       var result = await DioRequestWeb.onLogin(loginKey);
+                      setState(() {
+                        loadingLogin = false;
+                      });
+                      if (result == 'true') {
+                        // 登录成功
+                        GStorage().setLoginStatus(true);
+                        Get.back(result: {'loginStatus': 'success'});
+                      } else if (result == 'false') {
+                        // 登录失败
+                        setState(() {
+                          // _passwordController.value =
+                          //     const TextEditingValue(text: '');
+                          _codeController.value = const TextEditingValue(text: '');
+                        });
+                        Timer(const Duration(milliseconds: 500), () {
+                          getSignKey();
+                        });
+                      } else if (result == '2fa') {
+                        Login.twoFADialog();
+                      }
                       return;
                       if ((_formKey.currentState as FormState).validate()) {
                         //验证通过提交数据
@@ -232,8 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() {
                             // _passwordController.value =
                             //     const TextEditingValue(text: '');
-                            _codeController.value =
-                                const TextEditingValue(text: '');
+                            _codeController.value = const TextEditingValue(text: '');
                           });
                           Timer(const Duration(milliseconds: 500), () {
                             getSignKey();
@@ -254,8 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                     // ),),
                     // const SizedBox(width: 10),
                     TextButton(
-                      onPressed: () =>
-                          Utils.openURL('https://www.v2ex.com/forgot'),
+                      onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
                       child: Text(
                         '忘记密码？',
                         style: TextStyle(color: Colors.grey[600]),
@@ -267,14 +301,15 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Positioned(
-            bottom: MediaQuery.of(context).padding.bottom + 30,
+            bottom: MediaQuery
+                .of(context)
+                .padding
+                .bottom + 30,
             child: TextButton(
               onPressed: () async {
                 int once = GStorage().getOnce();
                 // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
-                var result = await Get.toNamed('/webView', parameters: {
-                  'aUrl': '${Strings.v2exHost}/auth/google?once=$once'
-                });
+                var result = await Get.toNamed('/webView', parameters: {'aUrl': '${Strings.v2exHost}/auth/google?once=$once'});
                 if (result != null && result['signInGoogle'] == 'success') {
                   SmartDialog.showLoading(msg: '获取信息...');
                   // 登录成功 获取用户信息 / 2FA
@@ -297,8 +332,10 @@ class _LoginPageState extends State<LoginPage> {
               child: Row(children: [
                 Image.asset('assets/google.png', width: 25, height: 25),
                 const SizedBox(width: 10),
-                Text('Sign in with Google',
-                    style: Theme.of(context).textTheme.bodyMedium)
+                Text('Sign in with Google', style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyMedium)
               ]),
             ),
           ),
