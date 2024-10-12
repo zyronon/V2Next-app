@@ -92,7 +92,8 @@ class Post2 {
   String id = '';
   String type = '';
   String once = '';
-  String headerTemplate = '';
+  String contentHtml = '';
+  String contentText = '';
   int replyCount = 0;
   int clickCount = 0;
   int thankCount = 0;

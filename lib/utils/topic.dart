@@ -141,21 +141,22 @@ class TopicWebApi {
     if (t != null) t.remove();
     t = temp.querySelector('.header');
     if (t != null) t.remove();
-    post.headerTemplate = temp.innerHtml.replaceAll(' +08:00', '');
+    post.contentHtml = temp.innerHtml.replaceAll(' +08:00', '');
+    var contentEl = temp.querySelector('.topic_content');
+    if (contentEl != null) {
+      post.contentText = contentEl.text.trim();
+    }
 
     var topicButtons = document.querySelector('.topic_buttons');
     if (topicButtons != null) {
-      var favoriteNode = topicButtons.querySelector('.tb:first-child');
-      if (favoriteNode != null) {
-        post.isFavorite = favoriteNode.text == '取消收藏';
-      }
-      var ignoreNode = topicButtons.querySelector('.tb:nth-child(3)');
-      if (ignoreNode != null) {
-        post.isIgnore = ignoreNode.text == '取消忽略';
-      }
+      var tbs = topicButtons.querySelectorAll('.tb');
+      var favoriteNode = tbs[0];
+      post.isFavorite = favoriteNode.text == '取消收藏';
+      var ignoreNode = tbs[2];
+      post.isIgnore = ignoreNode.text == '取消忽略';
 
-      var thankNode = topicButtons.querySelector('#topic_thank .tb');
-      if (thankNode == null) {
+      var thankNode = topicButtons.querySelector('#topic_thank .topic_thanked');
+      if (thankNode != null) {
         post.isThanked = true;
       }
 

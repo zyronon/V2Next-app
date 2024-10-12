@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math';
 import 'dart:ui';
 
@@ -199,7 +200,7 @@ class PostDetailState extends State<PostDetail> {
     PostDetailController c = PostDetailController.to();
     c.setReply(val);
     modalWrap(
-        getHtmlText(c.reply.replyContent),
+        _buildHtmlText(c.reply.replyContent),
         Column(
           children: [
             _buildReplyMenuOption('回复', Icons.chat_bubble_outline, () {
@@ -207,7 +208,7 @@ class PostDetailState extends State<PostDetail> {
               showReplyModal(val);
             }),
             _buildReplyMenuOption('感谢', Icons.favorite_border, () {
-              thankReply(val);
+              onThankReplyClick(val);
             }),
             _buildReplyMenuOption('上下文', Icons.content_paste_search, () {}),
             _buildReplyMenuOption('复制', Icons.content_copy, () {}),
@@ -222,7 +223,7 @@ class PostDetailState extends State<PostDetail> {
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [getPostTitle(), getHtmlText(ctrl.post?.headerTemplate ?? '')],
+          children: [_buildPostTitle(), _buildHtmlText(ctrl.post?.contentHtml ?? '')],
         ),
         Column(
           children: [
@@ -302,7 +303,7 @@ class PostDetailState extends State<PostDetail> {
   }
 
   modalWrap(Widget text, Widget other) async {
-    await showModalBottomSheet(
+    return showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       context: context,
@@ -350,19 +351,19 @@ class PostDetailState extends State<PostDetail> {
         );
       },
     );
-    _replyCtrl.text = '';
   }
 
-  showReplyModal([Reply? val]) {
+  showReplyModal([Reply? val]) async {
     PostDetailController pdc = PostDetailController.to();
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
-      modalWrap(getHtmlText(pdc.reply.replyContent), getTest());
+      await modalWrap(_buildHtmlText(pdc.reply.replyContent), _buildEditor());
     } else {
       pdc.setReply(new Reply());
-      modalWrap(getHtmlText(ctrl.post.headerTemplate), getTest());
+      await modalWrap(_buildHtmlText(ctrl.post.contentHtml), _buildEditor());
     }
+    _replyCtrl.text = '';
   }
 
   Widget _buildReplyItem(Reply item, int index, int type) {
@@ -370,13 +371,15 @@ class PostDetailState extends State<PostDetail> {
       index: index,
       type: type,
       item: item,
-      onThank: (e) => thankReply(e),
+      onThank: (e) => onThankReplyClick(e),
       onMenu: (e) => showItemMenuModal(e),
       onTap: (e) => showReplyModal(e),
     );
   }
 
-  Widget _buildIcon(IconData icon) {
+  Widget _buildIcon(
+    IconData icon,
+  ) {
     return Icon(
       icon,
       size: 24.sp,
@@ -384,7 +387,7 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  Widget clickIcon(IconData icon, onTap) {
+  Widget _buildClickIcon(IconData icon, [GestureTapCallback? onTap]) {
     return InkWell(
       child: Padding(
         padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
@@ -405,7 +408,7 @@ class PostDetailState extends State<PostDetail> {
   }
 
   //标题
-  Widget getPostTitle() {
+  Widget _buildPostTitle() {
     return Padding(
       padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
       child: SelectableText(
@@ -417,7 +420,7 @@ class PostDetailState extends State<PostDetail> {
   }
 
   //内容
-  Widget getHtmlText(String html) {
+  Widget _buildHtmlText(String html) {
     return SelectionArea(
         child: HtmlWidget(
       html,
@@ -496,7 +499,7 @@ class PostDetailState extends State<PostDetail> {
     }
   }
 
-  getTest() {
+  Widget _buildEditor() {
     return Container(
       padding: EdgeInsets.all(8.w),
       child: Column(
@@ -516,32 +519,34 @@ class PostDetailState extends State<PostDetail> {
             decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
             margin: EdgeInsets.only(bottom: 10.w),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(children: [
-                _buildIcon(Icons.sentiment_satisfied_alt),
-                SizedBox(width: 10.w),
-                _buildIcon(Icons.alternate_email),
-                SizedBox(width: 10.w),
-                _buildIcon(Icons.add_photo_alternate),
-                SizedBox(width: 10.w),
-                _buildIcon(Icons.format_quote),
-              ]),
-              InkWell(
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
-                  decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
-                  child: Text(
-                    '回复',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
+          Padding(
+            padding: EdgeInsets.only(left: 6.w, right: 10.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(children: [
+                  _buildClickIcon(Icons.sentiment_satisfied_alt, () {}),
+                  _buildClickIcon(Icons.alternate_email),
+                  _buildClickIcon(Icons.add_photo_alternate),
+                  _buildClickIcon(Icons.format_quote, () {
+                    _replyCtrl.text = _replyCtrl.text + '\n---\n${ctrl.reply.id.isEmpty ? ctrl.post.contentText : ctrl.reply.replyText}\n---';
+                  }),
+                ]),
+                InkWell(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
+                    decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
+                    child: Text(
+                      '回复',
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
                   ),
-                ),
-                onTap: () {
-                  onReply();
-                },
-              )
-            ],
+                  onTap: () {
+                    onReply();
+                  },
+                )
+              ],
+            ),
           )
         ],
       ),
@@ -571,68 +576,54 @@ class PostDetailState extends State<PostDetail> {
   }
 
   //感谢帖子
-  thankPost() async {
-    bool needLogin = !(GStorage().getLoginStatus());
-    if (needLogin) {
+  onThankPostClick() async {
+    BaseController bc = Get.find();
+    if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
+    // if (ctrl.post.member.username == bc.member.username) {
+    //   SmartDialog.showToast('不能感谢自己');
+    //   return;
+    // }
+
     if (ctrl.post.isThanked) {
       SmartDialog.showToast('这个主题已经被感谢过了');
-    } else {
-      showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('提示'),
-          content: const Text('确认向本主题创建者表示感谢吗？'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('手误了'),
-            ),
-            TextButton(
-              onPressed: (() async {
-                Navigator.pop(context, 'OK');
-                var res = await TopicWebApi.thankTopic(ctrl.post.id);
-                print('54: $res');
-                if (res) {
-                  setState(() {
-                    ctrl.post.isThanked = true;
-                    ctrl.post.thankCount += 1;
-                  });
-                  SmartDialog.showToast('感谢成功');
-                }
-              }),
-              child: const Text('确定'),
-            ),
-          ],
-        ),
-      );
+      return;
     }
-  }
 
-  thank(index) {
-    print(index);
-    var s = ctrl.post?.replyList?[index - 1];
-    if (s != Null) {
-      setState(() {
-        ctrl.post?.replyList?[index - 1].isThanked = true;
-      });
-    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('提示'),
+        content: const Text('确认向本主题创建者表示感谢吗？'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: (() async {
+              var res = await TopicWebApi.thankTopic(ctrl.post.id);
+              if (res) {
+                ctrl.post.isThanked = true;
+                ctrl.post.thankCount += 1;
+                ctrl.update();
+                SmartDialog.showToast('感谢成功');
+                Get.back();
+              }
+            }),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
   }
 
   // 感谢回复 request
-  void onThankReply(Reply val) async {
-    var res = await DioRequestWeb.thankReply(val.id, ctrl.post.id);
-    if (res) {
-      var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
-      ctrl.post.replyList[index].isThanked = true;
-      ctrl.post.replyList[index].thankCount += 1;
-      ctrl.rebuildList();
-    }
-  }
+  void thankReply(Reply val) async {}
 
   //感谢回复
-  thankReply(Reply val) {
+  onThankReplyClick(Reply val) {
     BaseController bc = Get.find();
     if (!bc.isLogin) {
       return Get.toNamed('/login');
@@ -654,13 +645,19 @@ class PostDetailState extends State<PostDetail> {
         content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('手滑了'),
+            onPressed: Get.back,
+            child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context, 'Ok');
-              onThankReply(val);
+            onPressed: () async {
+              var res = await DioRequestWeb.thankReply(val.id, ctrl.post.id);
+              if (res) {
+                var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
+                ctrl.post.replyList[index].isThanked = true;
+                ctrl.post.replyList[index].thankCount += 1;
+                ctrl.rebuildList();
+                Get.back();
+              }
             },
             child: const Text('确认'),
           ),
@@ -702,7 +699,7 @@ class PostDetailState extends State<PostDetail> {
             Expanded(
               child: Row(
                 children: [
-                  clickIcon(Icons.arrow_back, () {
+                  _buildClickIcon(Icons.arrow_back, () {
                     Navigator.pop(context);
                   }),
                   Expanded(
@@ -724,7 +721,7 @@ class PostDetailState extends State<PostDetail> {
                 ],
               ),
             ),
-            clickIcon(Icons.more_vert, showPostMenuModal)
+            _buildClickIcon(Icons.more_vert, showPostMenuModal)
           ],
         ));
   }
@@ -823,7 +820,7 @@ class PostDetailState extends State<PostDetail> {
                     )
                   ],
                 ), () {
-              thankPost();
+              onThankPostClick();
             }),
             clickWidget(
                 Column(
@@ -900,6 +897,7 @@ class PostDetailState extends State<PostDetail> {
         return Column(
           children: [
             _buildNavbar(),
+            _buildEditor(),
             Expanded(
                 child: RefreshIndicator(
                     child: SliverViewObserver(
@@ -1002,12 +1000,12 @@ class PostDetailState extends State<PostDetail> {
                                           )
                                         ],
                                       ),
-                                      getPostTitle(),
+                                      _buildPostTitle(),
                                       ctrl.loading
                                           ? Skeletonizer.zone(
                                               child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
                                             )
-                                          : getHtmlText(ctrl.post.headerTemplate),
+                                          : _buildHtmlText(ctrl.post.contentHtml),
                                     ],
                                   ),
                                 ),
