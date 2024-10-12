@@ -66,7 +66,7 @@ class DioRequestWeb {
         break;
     }
 
-    // DioRequestWeb().resolveNode(response, 'pc');
+    DioRequestWeb().resolveNode(response, 'pc');
     // 用户信息解析 mob
     var rootDom = parse(response.data);
 

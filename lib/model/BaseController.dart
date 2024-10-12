@@ -60,7 +60,7 @@ class BaseController extends GetxController {
 
   initData() async {
     Response res = await Http().get('/notes');
-    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode}');
+    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},realUri:${res.realUri}');
     if (!res.isRedirect) {
       Document document = parse(res.data);
       Element? avatarEl = document.querySelector('#menu-entry .avatar');
@@ -69,6 +69,30 @@ class BaseController extends GetxController {
         member.avatar = avatarEl.attributes['src']!;
         print('当前用户${member.username}');
         setMember(member);
+
+        Http().get('/?tab=all', isMobile: false).then((res2) {
+          Document document2 = parse(res2.data);
+          var rightBarNode = document2.querySelector('#Rightbar > div.box');
+          List tableList = rightBarNode!.querySelectorAll('table');
+          if (tableList.isNotEmpty) {
+            var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
+            for (var i in actionNodes) {
+              member.actionCounts.add(int.parse(i.text ?? 0));
+              print('actionCounts:${i.text}');
+            }
+            if (rightBarNode.querySelector('#money') != null) {
+              member.balance = rightBarNode.querySelector('#money >a')!.innerHtml;
+              print('$member.balance${member.balance}');
+            }
+            var noticeEl = rightBarNode.querySelectorAll('a.fade');
+            if (noticeEl.isNotEmpty) {
+              var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+              print('$unRead条未读消息');
+              member.actionCounts.add(int.parse(unRead));
+            }
+            setMember(member);
+          }
+        });
       }
       List<Element> nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
       if (nodeListEl.isNotEmpty) {

@@ -140,17 +140,29 @@ class PostDetailState extends State<PostDetail> {
     // Navigator.pushNamed(context, 'Home');
   }
 
+  Widget _buildReplyMenuOptionWrapper({required Widget child}) {
+    return Container(
+      margin: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: child,
+    );
+  }
+
   //回复菜单操作项
   Widget _buildReplyMenuOption(String text, IconData icon, GestureTapCallback onTap) {
     return InkWell(
       child: Padding(
-          padding: EdgeInsets.only(left: 12.w, top: 16.w, bottom: 16.w),
+          padding: EdgeInsets.all(14.w),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(
                 icon,
                 size: 20.sp,
-                color: Colors.grey,
+                color: Colors.black,
               ),
               Padding(
                 padding: EdgeInsets.only(left: 12.w),
@@ -162,10 +174,7 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  Widget optionItem(
-    String text,
-    IconData icon,
-  ) {
+  Widget optionItem(String text, IconData icon) {
     return InkWell(
         child: Container(
           child: Column(
@@ -196,36 +205,43 @@ class PostDetailState extends State<PostDetail> {
   }
 
   //显示回复菜单弹窗
-  showItemMenuModal(Reply val) {
+  onShowItemMenuModalClick(Reply val) {
     PostDetailController c = PostDetailController.to();
     c.setReply(val);
     modalWrap(
-        _buildHtmlText(c.reply.replyContent),
-        Column(
-          children: [
-            _buildReplyMenuOption('回复', Icons.chat_bubble_outline, () {
-              Get.back();
-              showReplyModal(val);
-            }),
-            _buildReplyMenuOption('感谢', Icons.favorite_border, () {
-              onThankReplyClick(val);
-            }),
-            _buildReplyMenuOption('上下文', Icons.content_paste_search, () {}),
-            _buildReplyMenuOption('复制', Icons.content_copy, () {}),
-            _buildReplyMenuOption('忽略', Icons.block, () {}),
-          ],
-        ));
+        content: Column(children: [
+      _buildReplyMenuOptionWrapper(
+          child: Column(children: [
+        _buildReplyMenuOption('回复', Icons.chat_bubble_outline, () {
+          Get.back();
+          onShowReplyModalClick(val);
+        }),
+        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
+        _buildReplyMenuOption('感谢', Icons.favorite_border, () {}),
+      ])),
+      _buildReplyMenuOptionWrapper(
+          child: Column(children: [
+        _buildReplyMenuOption('上下文', Icons.content_paste_search, () {}),
+      ])),
+      _buildReplyMenuOptionWrapper(
+          child: Column(children: [
+        _buildReplyMenuOption('复制', Icons.content_copy, () {}),
+        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
+        _buildReplyMenuOption('忽略', Icons.block, () {}),
+      ])),
+      SizedBox(height: 20.w)
+    ]));
   }
 
   //显示帖子菜单弹窗
   showPostMenuModal() {
     modalWrap(
-        Column(
+        text: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildPostTitle(), _buildHtmlText(ctrl.post?.contentHtml ?? '')],
+          children: [_buildPostTitle(), _buildHtmlText(ctrl.post.contentHtml)],
         ),
-        Column(
+        content: Column(
           children: [
             Row(children: [
               optionItem('保存', Icons.bookmark_border),
@@ -302,7 +318,7 @@ class PostDetailState extends State<PostDetail> {
             ))));
   }
 
-  modalWrap(Widget text, Widget other) async {
+  modalWrap({required Widget content, Widget? text, Color? color = const Color(0xfff1f1f1)}) async {
     return showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -312,19 +328,20 @@ class PostDetailState extends State<PostDetail> {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container(
-                  margin: EdgeInsets.only(bottom: 10.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                  ),
-                  constraints: BoxConstraints(maxHeight: .5.sh),
-                  padding: EdgeInsets.all(14.w),
-                  width: ScreenUtil().screenWidth * .91,
-                  child: SingleChildScrollView(child: text)),
+              if (text != null)
+                Container(
+                    margin: EdgeInsets.only(bottom: 10.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                    ),
+                    constraints: BoxConstraints(maxHeight: .5.sh),
+                    padding: EdgeInsets.all(14.w),
+                    width: ScreenUtil().screenWidth * .91,
+                    child: SingleChildScrollView(child: text)),
               Container(
                 decoration: BoxDecoration(
-                  color: Color(0xfff1f1f1),
+                  color: color,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10.r),
                     topRight: Radius.circular(10.r),
@@ -338,11 +355,11 @@ class PostDetailState extends State<PostDetail> {
                       child: Container(
                         width: 40.w,
                         height: 4.w,
-                        margin: EdgeInsets.only(bottom: 10.w, top: 15.w),
+                        margin: EdgeInsets.only(bottom: 20.w, top: 20.w),
                         decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
                       ),
                     ),
-                    other
+                    content
                   ],
                 ),
               ),
@@ -353,15 +370,15 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  showReplyModal([Reply? val]) async {
+  onShowReplyModalClick([Reply? val]) async {
     PostDetailController pdc = PostDetailController.to();
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
-      await modalWrap(_buildHtmlText(pdc.reply.replyContent), _buildEditor());
+      await modalWrap(text: _buildHtmlText(pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      await modalWrap(_buildHtmlText(ctrl.post.contentHtml), _buildEditor());
+      await modalWrap(text: _buildHtmlText(ctrl.post.contentHtml), content: _buildEditor());
     }
     _replyCtrl.text = '';
   }
@@ -372,8 +389,8 @@ class PostDetailState extends State<PostDetail> {
       type: type,
       item: item,
       onThank: (e) => onThankReplyClick(e),
-      onMenu: (e) => showItemMenuModal(e),
-      onTap: (e) => showReplyModal(e),
+      onMenu: (e) => onShowItemMenuModalClick(e),
+      onTap: (e) => onShowReplyModalClick(e),
     );
   }
 
@@ -501,13 +518,13 @@ class PostDetailState extends State<PostDetail> {
 
   Widget _buildEditor() {
     return Container(
-      padding: EdgeInsets.all(8.w),
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.w),
       child: Column(
         children: [
           Container(
             child: TextField(
               controller: _replyCtrl,
-              maxLines: 10,
+              maxLines: 6,
               autofocus: false,
               decoration: InputDecoration(
                 hintText: "请尽量让自己的回复能够对别人有帮助",
@@ -520,7 +537,7 @@ class PostDetailState extends State<PostDetail> {
             margin: EdgeInsets.only(bottom: 10.w),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 6.w, right: 10.w),
+            padding: EdgeInsets.only(left: 0.w, right: 10.w),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -534,7 +551,7 @@ class PostDetailState extends State<PostDetail> {
                 ]),
                 InkWell(
                   child: Container(
-                    padding: EdgeInsets.fromLTRB(12.w, 4.w, 12.w, 4.w),
+                    padding: EdgeInsets.fromLTRB(14.w, 6.w, 14.w, 6.w),
                     decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
                     child: Text(
                       '回复',
@@ -739,57 +756,19 @@ class PostDetailState extends State<PostDetail> {
             Expanded(
               child: InkWell(
                 child: Container(
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: Text(
-                        '说点什么...',
-                        style: TextStyle(color: Colors.black54),
-                      )),
-                      Icon(
-                        Icons.crop_original,
-                        size: 20.sp,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(width: 4.w),
-                      Icon(
-                        Icons.alternate_email,
-                        size: 20.sp,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(width: 4.w),
-                      Icon(
-                        Icons.sentiment_satisfied_alt,
-                        size: 20.sp,
-                        color: Colors.grey,
-                      )
-                    ],
+                  child: Text(
+                    '说点什么...',
+                    style: TextStyle(color: Colors.black54),
                   ),
                   decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
                   padding: EdgeInsets.all(6.w),
                 ),
                 onTap: () {
-                  showReplyModal();
+                  onShowReplyModalClick();
                 },
               ),
             ),
             SizedBox(width: 6.w),
-            // clickWidget(
-            //     Column(
-            //       children: [
-            //         Icon(
-            //           Icons.share,
-            //           size: 24.sp,
-            //           color: Colors.grey,
-            //         ),
-            //         Text(
-            //           '分享',
-            //           style: TextStyle(fontSize: 8.sp, color: Colors.black54),
-            //         )
-            //       ],
-            //     ), () {
-            //   print('asdf');
-            // }),
             clickWidget(
                 Column(
                   children: [
@@ -897,7 +876,7 @@ class PostDetailState extends State<PostDetail> {
         return Column(
           children: [
             _buildNavbar(),
-            _buildEditor(),
+            // _buildEditor(),
             Expanded(
                 child: RefreshIndicator(
                     child: SliverViewObserver(

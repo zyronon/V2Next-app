@@ -4,10 +4,14 @@ import 'dart:convert' show utf8, base64;
 import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
+import 'package:html/dom.dart' hide Text;
 import 'package:path_provider/path_provider.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -284,5 +288,101 @@ class Utils {
       headerUa = Const.agent.pc;
     }
     return headerUa;
+  }
+
+  parsePagePostList(List<Element> list) {
+    List<Post2> topicList = [];
+    if (list.isNotEmpty) {
+      for (Element aNode in list) {
+        Post2 item = Post2();
+        Element? titleInfo = aNode.querySelector(".topic-link");
+        if (titleInfo != null) {
+          item.title = titleInfo.text;
+          String? href = titleInfo.attributes['href'];
+          var match = RegExp(r'(\d+)').allMatches(href!);
+          var result = match.map((m) => m.group(0)).toList();
+          item.id = result[0]!;
+        }
+        Element? countEl = aNode.querySelector('.count_livid');
+        if (countEl != null) {
+          item.replyCount = int.parse(countEl.text);
+        }
+
+        var avatarEl = aNode.querySelector('.avatar');
+        if (avatarEl != null) {
+          item.member.avatar = avatarEl.attributes['src']!;
+        }
+
+        List<Element> spanList = aNode.querySelectorAll('span[class="small fade"]');
+        print('spanList${spanList.length}',);
+        if (spanList.isNotEmpty) {
+          Element topInfo = spanList[0];
+          Element? username = topInfo.querySelector('strong a');
+          if (username != null) {
+            item.member.username = username.text;
+          }
+          Element? nodeEl = topInfo.querySelector('.node');
+          if (nodeEl != null) {
+            item.node.title = nodeEl.text;
+            item.node.url = nodeEl.attributes['href']!.replaceFirst('/go/', '');
+          }
+
+          if (spanList.length > 1) {
+            Element bottomInfo = spanList[1];
+            Element? username = bottomInfo.querySelector('a');
+            if (username != null) {
+              item.lastReplyUsername = username.text;
+              //移除了好取parent的text;
+              username.remove();
+            }
+            String s = bottomInfo.text.replaceAll('•  最后回复来自', '').trim();
+            item.lastReplyDate = s.replaceFirst(' +08:00', '');;
+          }
+        } else {
+          Element? topicInfoEl = aNode.querySelector('.topic_info');
+          if (topicInfoEl != null) {
+            List<Element> strongList = topicInfoEl.querySelectorAll('strong');
+            if (strongList.isNotEmpty) {
+              item.member.username = strongList[0].text;
+
+              if (strongList.length > 1) {
+                item.lastReplyUsername = strongList[1].text;
+              }
+            }
+
+            Element? date = topicInfoEl.querySelector('span');
+            if(date !=null){
+              item.lastReplyDate = date.text.replaceFirst(' +08:00', '');;
+            }
+          }
+        }
+        topicList.add(item);
+      }
+    }
+    return topicList;
+  }
+
+  showNotAllowDialog() {
+    BaseController bc = Get.find();
+    SmartDialog.show(
+      useSystem: true,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('权限不足'),
+          content: Text(bc.isLogin ? '' : '登录后查看节点内容'),
+          actions: [
+            TextButton(
+              onPressed: (() => {SmartDialog.dismiss(), Get.back()}),
+              child: const Text('返回上一页'),
+            ),
+            TextButton(
+                // TODO
+                onPressed: (() => {Navigator.of(context).pushNamed('/login')}),
+                child: const Text('去登录'))
+          ],
+        );
+      },
+    );
   }
 }

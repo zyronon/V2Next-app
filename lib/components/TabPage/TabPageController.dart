@@ -6,6 +6,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/http.dart';
 
 class TabPageController extends GetxController {
@@ -25,8 +26,7 @@ class TabPageController extends GetxController {
 
   getList(TabItem tab) async {
     print('getList:type:${tab.type},id:${tab.id}');
-    var res = await DioRequestWeb.getTopicsByTabKey(tab.type, tab.id, 0);
-    postList = res['topicList'];
+    postList = await Api.getPostListByTab(type: tab.type, id: tab.id);
     update();
   }
 }

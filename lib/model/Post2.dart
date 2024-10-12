@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class Reply {
   int level = 0;
   int thankCount = 0;
@@ -114,11 +116,15 @@ class Member {
   String avatar = '';
   String username = 'default';
   String avatarLarge = '';
+  String balance = '';
+  List<int> actionCounts = [];
 
   Map<String, dynamic> toJson() => {
         "avatar": avatar,
         "username": username,
         "avatar_large": avatarLarge,
+        "actionCounts": actionCounts,
+        "balance": balance,
       };
 
   static fromJson(Map<String, dynamic> json) {
@@ -126,6 +132,8 @@ class Member {
     s.avatar = json['avatar'] ?? s.avatar;
     s.username = json['username'] ?? s.username;
     s.avatarLarge = json['avatarLarge'] ?? s.avatarLarge;
+    s.actionCounts = json['actionCounts']!=null ? List<int>.from(json["actionCounts"]!.map((x) => x)) : [];
+    s.balance = json['balance'] ?? s.balance;
     return s;
   }
 }
