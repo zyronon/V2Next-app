@@ -21,7 +21,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
     new TabItem(title: '最热', id: 'hot', type: TabType.tab, date: '', post: []),
     new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node, date: '', post: []),
-    new TabItem(title: '最新', id: 'new', type: TabType.tab, date: '', post: []),
+    new TabItem(title: '最新', id: 'new', type: TabType.latest, date: '', post: []),
     new TabItem(title: '全部', id: 'all', type: TabType.tab, date: '', post: []),
     new TabItem(title: '技术', id: 'tech', type: TabType.tab, date: '', post: []),
     new TabItem(title: '创意', id: 'creative', type: TabType.tab, date: '', post: []),

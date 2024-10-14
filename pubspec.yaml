@@ -66,6 +66,7 @@ dependencies:
 
   # dom解析渲染
   html: ^0.15.4
+  xml2json: ^6.2.5
 
   # 数据缓存
   get_storage: ^2.0.3

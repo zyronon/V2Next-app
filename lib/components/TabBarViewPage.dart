@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/TabPage/TabPageController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -45,7 +46,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
               init: TabPageController(tab: widget.tab),
               tag: widget.tab.id,
               builder: (_) {
-                if (_.postList.length == 0) {
+                if (_.loading) {
                   return ListView.separated(
                     itemCount: 7,
                     itemBuilder: (BuildContext context, int index) {
@@ -92,6 +93,22 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                     },
                   );
                 }
+                if (_.postList.length == 0)
+                  return Container(
+                    height: 0.8.sh,
+                    color: Colors.green,
+                    child: Center(
+                        child: Container(child: Column(
+                          children: [
+                            Text('没有数据'),
+                            ElevatedButton(
+                                onPressed: () {
+                                  Get.toNamed('/login');
+                                },
+                                child: Text('登录'))
+                          ],
+                        ),)),
+                  );
                 return ListView.separated(
                   itemCount: _.postList.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -102,14 +119,15 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                           Row(
                             children: [
                               Row(children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10.w),
-                                  child: BaseAvatar(
-                                    src: _.postList[index].member.avatar,
-                                    diameter: 34.w,
-                                    radius: 4.w,
+                                if (widget.tab.type != TabType.latest)
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 10.w),
+                                    child: BaseAvatar(
+                                      src: _.postList[index].member.avatar,
+                                      diameter: 34.w,
+                                      radius: 4.w,
+                                    ),
                                   ),
-                                ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -120,12 +138,19 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                     SizedBox(height: 4.w),
                                     Row(
                                       children: [
-                                        Text(
-                                          _.postList[index].lastReplyDate,
-                                          style: TextStyle(fontSize: 10.sp, height: 1.2, color: Colors.grey),
-                                        ),
+                                        if (_.postList[index].lastReplyDate.isNotEmpty)
+                                          Text(
+                                            _.postList[index].lastReplyDate,
+                                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                          ),
+                                        if (_.postList[index].createDateAgo.isNotEmpty)
+                                          Text(
+                                            _.postList[index].createDateAgo + '发布',
+                                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                          ),
                                         SizedBox(width: 10.w),
                                         if (_.postList[index].node.title.isNotEmpty)
+                                          // 这里的点击事件，最新index.xml获取到的数据没有url
                                           DecoratedBox(
                                             decoration: BoxDecoration(
                                               color: Color(0xffe4e4e4),
@@ -144,23 +169,24 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                   ],
                                 )
                               ]),
-                              DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: Colors.black12,
-                                  borderRadius: BorderRadius.circular(4.r), //3像素圆角
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                                  child: Text(
-                                    _.postList[index].replyCount.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 10.sp,
-                                      fontWeight: FontWeight.w500,
+                              if (_.postList[index].replyCount != 0)
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black12,
+                                    borderRadius: BorderRadius.circular(4.r), //3像素圆角
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                                    child: Text(
+                                      _.postList[index].replyCount.toString(),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -179,29 +205,15 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                             ),
                             onTap: () => {getPost(_.postList[index])},
                           ),
-//                   InkWell(
-//                     child: Padding(
-//                       padding: EdgeInsets.only(
-//                         top: 10,
-//                       ),
-//                       child: Text(
-//                         '''手贱升级了小而美，8.0.51 ，安卓
-//
-// 服务号消息全给折叠了
-//
-// 折叠就不要我看的意思对吧，我忍，银行扣款我不看了～～～
-//
-// 但是你这个未读红点提示是什么鬼。“服务号”点进去红点也消不掉，还得再点一层，进入折叠详情才能消掉。。。。
-//
-// 把最恶心的缺点集中一起做成 💩 喂用户吃。。。。。
-//
-// 什么鬼😧😧😧😧😧😧😧😧😧😧😧😧😧''',
-//                         textAlign: TextAlign.left,
-//                         style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14.sp,color: Colors.black87),
-//                       ),
-//                     ),
-//                     onTap: () => {getPost(_.postList[index])},
-//                   ),
+                          // InkWell(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(
+                          //       top: 10,
+                          //     ),
+                          //     child: BaseHtmlWidget(html: _.postList[index].contentHtml),
+                          //   ),
+                          //   onTap: () => {getPost(_.postList[index])},
+                          // ),
                         ]),
                       ),
                       onTap: () => {getPost(_.postList[index])},

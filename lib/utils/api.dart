@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -8,6 +11,7 @@ import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
+import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取
@@ -20,6 +24,8 @@ class Api {
       case TabType.node:
         NodeListModel s = await getNodePageInfo(nodeId: id, pageNo: pageNo);
         return s.topicList;
+      case TabType.latest:
+        return await getLatestPostList(nodeId: id, pageNo: pageNo);
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
       // case TabType.node:
@@ -45,15 +51,16 @@ class Api {
 
   static getNodePageInfo({required String nodeId, int pageNo = 0}) async {
     NodeListModel detailModel = NodeListModel();
-    Response response;
 
     //手机端 收藏人数获取不到
-    response = await Http().get('/go/$nodeId', data: {'p': pageNo}, isMobile: false);
-    var document = parse(response.data);
-    if (response.realUri.toString() == '/') {
+    Response response = await Http().get('/go/$nodeId', data: {'p': pageNo}, isMobile: false);
+    if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
+      print('无权限');
       //TODO 无权限
       return detailModel;
     }
+
+    var document = parse(response.data);
     var mainBox = document.body!.children[1].querySelector('#Main');
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover = mainHeader!.querySelector('img')!.attributes['src']!;
@@ -92,6 +99,41 @@ class Api {
     return detailModel;
   }
 
+  //获取最新帖子(特殊处理)
+  static Future<List<Post2>> getLatestPostList({required String nodeId, int pageNo = 0}) async {
+    List<Post2> list = [];
+    Response response = await Http().get('/index.xml');
+    final myTransformer = Xml2Json();
+    myTransformer.parse(response.data);
+    var json = myTransformer.toOpenRally();
+    // var json = myTransformer.toBadgerfish();
+
+    List xmlList = jsonDecode(json)['feed']['entry'];
+
+    xmlList.forEach((item) {
+      Post2 p = new Post2();
+      print(item);
+      p.title = item['title'].replaceAll(RegExp(r'^\[.*?\]'), '');
+      p.title = p.title.trim();
+      RegExp regExp = RegExp(r'^\[.*?\]');
+      Match? match = regExp.firstMatch(item['title']);
+      if (match != null) {
+        String nodeText = match.group(0)!;
+        p.node.title = nodeText.replaceAll('[', '').replaceAll(']', '');
+      }
+      String? href = item['link']['href'];
+      var match1 = RegExp(r'(\d+)').allMatches(href!);
+      var result = match1.map((m) => m.group(0)).toList();
+      p.id = result[1]!;
+      p.createDateAgo = Utils().timeAgo(item['published']);
+      // p.contentHtml = item['content'];
+      // print(item['content']);
+      p.member.username = item['author']['name'];
+      list.add(p);
+    });
+    return list;
+  }
+
   static Future<Post2> getPostDetail(String id) async {
     Post2 post = Post2();
     var tt = DateTime.now();
@@ -101,7 +143,6 @@ class Api {
     print('请求结束$ss');
     var hours = tt.difference(ss);
     print('请求花费时间$hours');
- 
 
     String htmlText = response.data;
     var document = parse(response.data);

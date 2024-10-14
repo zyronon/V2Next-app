@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
@@ -69,14 +70,8 @@ class PostDetailController extends GetxController {
   }
 
   getData() async {
-    var message =
-        '{\"type\":\"post\",\"data\":{\"allReplyUsers\":[\"liansishen\",\"SleepyRaven\",\"fengci\",\"gimp\",\"qingxiangcool\",\"jiurenmeng\",\"zsl199512101234\",\"cbythe434\",\"steve009\",\"PoorBe\"],\"content_rendered\":\"\",\"createDate\":\"\",\"createDateAgo\":\"14 小时 47 分钟前\",\"lastReplyDate\":\"\",\"lastReplyUsername\":\"\",\"fr\":\"\",\"replyList\":[{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283327\",\"reply_content\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"reply_text\":\"不会主动来找你聊天的话十有八九没戏的早点脱身挺好\",\"hideCallUserReplyContent\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"liansishen\",\"avatar\":\"https://cdn.v2ex.com/gravatar/0d45b7a7ca9de80b6e33af28ffd98ec6?s=24&d=retro\",\"floor\":1},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283328\",\"reply_content\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"reply_text\":\"“一次对方加班，一次是赶上中秋回家”我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"hideCallUserReplyContent\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"SleepyRaven\",\"avatar\":\"https://cdn.v2ex.com/avatar/b952/aae5/551488_normal.png?m=1723688056\",\"floor\":2},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283337\",\"reply_content\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"reply_text\":\"下一个更好。\",\"hideCallUserReplyContent\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"fengci\",\"avatar\":\"https://cdn.v2ex.com/avatar/92ce/e689/279994_normal.png?m=1699355384\",\"floor\":3},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283343\",\"reply_content\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"reply_text\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"hideCallUserReplyContent\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 42 分钟前\",\"username\":\"gimp\",\"avatar\":\"https://cdn.v2ex.com/avatar/d03f/fbc5/136804_normal.png?m=1444699066\",\"floor\":4},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283370\",\"reply_content\":\"强扭的瓜不甜。\",\"reply_text\":\"强扭的瓜不甜。\",\"hideCallUserReplyContent\":\"强扭的瓜不甜。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"qingxiangcool\",\"avatar\":\"https://cdn.v2ex.com/gravatar/4a796b20c7433e0ac60fd8f348f7a19d?s=24&d=retro\",\"floor\":5},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283375\",\"reply_content\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"reply_text\":\"大家其实都知道，其实忙也没那么忙。尽快抽身，多做尝试吧（多约几个妹子）\",\"hideCallUserReplyContent\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"jiurenmeng\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f9cf2410a9b8aeaf34a00f3d48353461?s=24&d=retro\",\"floor\":6},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283376\",\"reply_content\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"reply_text\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"hideCallUserReplyContent\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"zsl199512101234\",\"avatar\":\"https://cdn.v2ex.com/avatar/546f/ab9f/366461_normal.png?m=1629461617\",\"floor\":7},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283388\",\"reply_content\":\"给对方？？\",\"reply_text\":\"给对方？？\",\"hideCallUserReplyContent\":\"给对方？？\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 38 分钟前\",\"username\":\"cbythe434\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f32828fb7612c9460773fc36e6ab79f6?s=24&d=retro\",\"floor\":8},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283441\",\"reply_content\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"reply_text\":\"我还是给对方发了好人卡+祝福语-----如果一直内耗很难受的话，这样是对的。如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。当然, 从来不会主动找你聊天的，那是得 PASS\",\"hideCallUserReplyContent\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 34 分钟前\",\"username\":\"steve009\",\"avatar\":\"https://cdn.v2ex.com/avatar/ba03/2b0f/647267_normal.png?m=1709169951\",\"floor\":9},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283465\",\"reply_content\":\"沉默不理你就换啊，多相几次你就坦然了\",\"reply_text\":\"沉默不理你就换啊，多相几次你就坦然了\",\"hideCallUserReplyContent\":\"沉默不理你就换啊，多相几次你就坦然了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 32 分钟前\",\"username\":\"PoorBe\",\"avatar\":\"https://cdn.v2ex.com/avatar/a78c/2231/516237_normal.png?m=1713942445\",\"floor\":10}],\"topReplyList\":[],\"nestedReplies\":[{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283327\",\"reply_content\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"reply_text\":\"不会主动来找你聊天的话十有八九没戏的早点脱身挺好\",\"hideCallUserReplyContent\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"liansishen\",\"avatar\":\"https://cdn.v2ex.com/gravatar/0d45b7a7ca9de80b6e33af28ffd98ec6?s=24&d=retro\",\"floor\":1,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283328\",\"reply_content\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"reply_text\":\"“一次对方加班，一次是赶上中秋回家”我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"hideCallUserReplyContent\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"SleepyRaven\",\"avatar\":\"https://cdn.v2ex.com/avatar/b952/aae5/551488_normal.png?m=1723688056\",\"floor\":2,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283337\",\"reply_content\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"reply_text\":\"下一个更好。\",\"hideCallUserReplyContent\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"fengci\",\"avatar\":\"https://cdn.v2ex.com/avatar/92ce/e689/279994_normal.png?m=1699355384\",\"floor\":3,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283343\",\"reply_content\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"reply_text\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"hideCallUserReplyContent\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 42 分钟前\",\"username\":\"gimp\",\"avatar\":\"https://cdn.v2ex.com/avatar/d03f/fbc5/136804_normal.png?m=1444699066\",\"floor\":4,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283370\",\"reply_content\":\"强扭的瓜不甜。\",\"reply_text\":\"强扭的瓜不甜。\",\"hideCallUserReplyContent\":\"强扭的瓜不甜。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"qingxiangcool\",\"avatar\":\"https://cdn.v2ex.com/gravatar/4a796b20c7433e0ac60fd8f348f7a19d?s=24&d=retro\",\"floor\":5,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283375\",\"reply_content\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"reply_text\":\"大家其实都知道，其实忙也没那么忙。尽快抽身，多做尝试吧（多约几个妹子）\",\"hideCallUserReplyContent\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"jiurenmeng\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f9cf2410a9b8aeaf34a00f3d48353461?s=24&d=retro\",\"floor\":6,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283376\",\"reply_content\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"reply_text\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"hideCallUserReplyContent\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"zsl199512101234\",\"avatar\":\"https://cdn.v2ex.com/avatar/546f/ab9f/366461_normal.png?m=1629461617\",\"floor\":7,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283388\",\"reply_content\":\"给对方？？\",\"reply_text\":\"给对方？？\",\"hideCallUserReplyContent\":\"给对方？？\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 38 分钟前\",\"username\":\"cbythe434\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f32828fb7612c9460773fc36e6ab79f6?s=24&d=retro\",\"floor\":8,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283441\",\"reply_content\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"reply_text\":\"我还是给对方发了好人卡+祝福语-----如果一直内耗很难受的话，这样是对的。如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。当然, 从来不会主动找你聊天的，那是得 PASS\",\"hideCallUserReplyContent\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 34 分钟前\",\"username\":\"steve009\",\"avatar\":\"https://cdn.v2ex.com/avatar/ba03/2b0f/647267_normal.png?m=1709169951\",\"floor\":9,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283465\",\"reply_content\":\"沉默不理你就换啊，多相几次你就坦然了\",\"reply_text\":\"沉默不理你就换啊，多相几次你就坦然了\",\"hideCallUserReplyContent\":\"沉默不理你就换啊，多相几次你就坦然了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 32 分钟前\",\"username\":\"PoorBe\",\"avatar\":\"https://cdn.v2ex.com/avatar/a78c/2231/516237_normal.png?m=1713942445\",\"floor\":10,\"children\":[]}],\"nestedRedundReplies\":[{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283327\",\"reply_content\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"reply_text\":\"不会主动来找你聊天的话十有八九没戏的早点脱身挺好\",\"hideCallUserReplyContent\":\"不会主动来找你聊天的话十有八九没戏的<br>早点脱身挺好\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"liansishen\",\"avatar\":\"https://cdn.v2ex.com/gravatar/0d45b7a7ca9de80b6e33af28ffd98ec6?s=24&d=retro\",\"floor\":1,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283328\",\"reply_content\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"reply_text\":\"“一次对方加班，一次是赶上中秋回家”我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"hideCallUserReplyContent\":\"“一次对方加班，一次是赶上中秋回家”<br>我个人觉得这两次拒绝的理由如果属实的话，还算合理...\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"SleepyRaven\",\"avatar\":\"https://cdn.v2ex.com/avatar/b952/aae5/551488_normal.png?m=1723688056\",\"floor\":2,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283337\",\"reply_content\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"reply_text\":\"下一个更好。\",\"hideCallUserReplyContent\":\"<a target=\\"_blank\\" href=\\"https://i.imgur.com/L62ZP7V.png\\" rel=\\"nofollow noopener\\"><img src=\\"https://i.imgur.com/L62ZP7V.png\\" class=\\"embedded_image\\" rel=\\"noreferrer\\"></a>下一个更好。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 43 分钟前\",\"username\":\"fengci\",\"avatar\":\"https://cdn.v2ex.com/avatar/92ce/e689/279994_normal.png?m=1699355384\",\"floor\":3,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283343\",\"reply_content\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"reply_text\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"hideCallUserReplyContent\":\"这种就是对你没感觉，直接放弃就好，不用有心里负担。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 42 分钟前\",\"username\":\"gimp\",\"avatar\":\"https://cdn.v2ex.com/avatar/d03f/fbc5/136804_normal.png?m=1444699066\",\"floor\":4,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283370\",\"reply_content\":\"强扭的瓜不甜。\",\"reply_text\":\"强扭的瓜不甜。\",\"hideCallUserReplyContent\":\"强扭的瓜不甜。\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"qingxiangcool\",\"avatar\":\"https://cdn.v2ex.com/gravatar/4a796b20c7433e0ac60fd8f348f7a19d?s=24&d=retro\",\"floor\":5,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283375\",\"reply_content\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"reply_text\":\"大家其实都知道，其实忙也没那么忙。尽快抽身，多做尝试吧（多约几个妹子）\",\"hideCallUserReplyContent\":\"大家其实都知道，其实忙也没那么忙。<br>尽快抽身，多做尝试吧（多约几个妹子）\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"jiurenmeng\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f9cf2410a9b8aeaf34a00f3d48353461?s=24&d=retro\",\"floor\":6,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283376\",\"reply_content\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"reply_text\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"hideCallUserReplyContent\":\"放弃吧，几次恋爱基本第一次见面，晚上散步的时候就上手了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 40 分钟前\",\"username\":\"zsl199512101234\",\"avatar\":\"https://cdn.v2ex.com/avatar/546f/ab9f/366461_normal.png?m=1629461617\",\"floor\":7,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283388\",\"reply_content\":\"给对方？？\",\"reply_text\":\"给对方？？\",\"hideCallUserReplyContent\":\"给对方？？\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 38 分钟前\",\"username\":\"cbythe434\",\"avatar\":\"https://cdn.v2ex.com/gravatar/f32828fb7612c9460773fc36e6ab79f6?s=24&d=retro\",\"floor\":8,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283441\",\"reply_content\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"reply_text\":\"我还是给对方发了好人卡+祝福语-----如果一直内耗很难受的话，这样是对的。如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。当然, 从来不会主动找你聊天的，那是得 PASS\",\"hideCallUserReplyContent\":\"我还是给对方发了好人卡+祝福语<br>-----<br>如果一直内耗很难受的话，这样是对的。<br>如果之后你看开一些，再遇到合适的 可以适当观察几个月看看，不用急着下结论，相亲是 概率+长期的过程。<br><br>当然, 从来不会主动找你聊天的，那是得 PASS\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 34 分钟前\",\"username\":\"steve009\",\"avatar\":\"https://cdn.v2ex.com/avatar/ba03/2b0f/647267_normal.png?m=1709169951\",\"floor\":9,\"children\":[]},{\"level\":0,\"thankCount\":0,\"replyCount\":0,\"isThanked\":false,\"isOp\":false,\"isDup\":false,\"id\":\"15283465\",\"reply_content\":\"沉默不理你就换啊，多相几次你就坦然了\",\"reply_text\":\"沉默不理你就换啊，多相几次你就坦然了\",\"hideCallUserReplyContent\":\"沉默不理你就换啊，多相几次你就坦然了\",\"replyUsers\":[],\"replyFloor\":-1,\"date\":\"14 小时 32 分钟前\",\"username\":\"PoorBe\",\"avatar\":\"https://cdn.v2ex.com/avatar/a78c/2231/516237_normal.png?m=1713942445\",\"floor\":10,\"children\":[]}],\"username\":\"\",\"url\":\"\",\"href\":\"\",\"member\":{\"avatar\":\"\",\"username\":\"yunshangzhou\",\"avatar_large\":\"https://cdn.v2ex.com/avatar/205f/180e/600305_large.png?m=1726042527\"},\"node\":{\"title\":\"生活\",\"url\":\"https://www.v2ex.com/go/life\"},\"headerTemplate\":\"<div class=\\"cell\\"><div class=\\"topic_content\\"><div class=\\"markdown_body\\"><p>天时弄人，约了 2 次饭，被拒了 2 次，一次对方加班，一次是赶上中秋回家。当然之前提到场地费的事，节前送了盒美心月饼表示了一下。随后又是好几天以沉默报以沉默。</p><p>期间我看了些对罗翔、毛不易、李雪琴等节目里对爱情的观念。有好几句话是戳中我的:</p><ul><li>如果你今天给了人不切实际的希望，也相当于给了人绝望</li><li>两人没有共同爱好，那是为什么在一起？</li><li>我希望有一段好的关系，能让我有一次学习爱与被爱的能力</li><li>我相信爱情，但不相信爱情能降临在我身上。</li></ul><p>我感觉大家都是尝试过迁就对方的，回想到第一次线下聊天互相卡壳，为了缓解尴尬而想话题聊天，可能真的不合适。而且经过 2 次拒绝，没有信心再约第三次了，经历了一段时间的思想内斗，我还是给对方发了好人卡+祝福语。抱歉让各位期待后续的瓜友失望了。</p></div></div></div><div class=\\"subtle\\"><span class=\\"fade\\">第 1 条附言 &nbsp;·&nbsp; 13 小时 52 分钟前</span><div class=\\"sep\\"></div><div class=\\"topic_content\\">这个女生算是亲戚(副校长)介绍来的，所以人品毋庸置疑，大家不要再恶意揣测了。<br><br>关于 200 多的月饼，我觉得大方是最容易的事情，如果把关注点放在钱上，做人是做不开的。<br><br>至于话说死，不合适也不要谈后续死灰复燃的，没多少人真的会吃回头草。<br><br>相处过程中对方挺友好的，就这样。</div></div>\",\"title\":\"26 岁母胎 solo 的第一次相亲 (后续)\",\"id\":\"1074269\",\"type\":\"post\",\"once\":\"59126\",\"replyCount\":10,\"clickCount\":10119,\"thankCount\":0,\"collectCount\":37,\"lastReadFloor\":0,\"isFavorite\":false,\"isIgnore\":false,\"isThanked\":false,\"isReport\":false,\"inList\":false}}';
-    var te = json.decode(message);
     post = Get.arguments;
     isShowFixedTitle = false;
-    update();
-
-
     loading = true;
     update();
     Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
@@ -84,9 +79,6 @@ class PostDetailController extends GetxController {
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072');
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
     loading = false;
-    update();
-
-
     post = topicDetailModel;
     update();
     observerController.reattach();
@@ -236,7 +228,7 @@ class PostDetailState extends State<PostDetail> {
         text: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildPostTitle(), _buildHtmlText(ctrl.post.contentHtml)],
+          children: [_buildPostTitle(), BaseHtmlWidget(html: ctrl.post.contentHtml)],
         ),
         content: Column(
           children: [
@@ -372,10 +364,10 @@ class PostDetailState extends State<PostDetail> {
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
-      await modalWrap(text: _buildHtmlText(pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
+      await modalWrap(text: BaseHtmlWidget(html:pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      await modalWrap(text: _buildHtmlText(ctrl.post.contentHtml), content: _buildEditor());
+      await modalWrap(text: BaseHtmlWidget(html:ctrl.post.contentHtml), content: _buildEditor());
     }
     _replyCtrl.text = '';
   }
@@ -431,38 +423,6 @@ class PostDetailState extends State<PostDetail> {
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
       ),
     );
-  }
-
-  //内容
-  Widget _buildHtmlText(String html) {
-    return SelectionArea(
-        child: HtmlWidget(
-      html,
-      renderMode: RenderMode.column,
-      textStyle: TextStyle(fontSize: 14.sp),
-      customStylesBuilder: (element) {
-        if (element.classes.contains('subtle')) {
-          return {
-            'background-color': '#ecfdf5e6',
-            'border-left': '4px solid #a7f3d0',
-            'padding': '5px',
-          };
-        }
-        if (element.classes.contains('fade')) {
-          return {'color': '#6b6b6b'};
-        }
-        if (element.classes.contains('outdated')) {
-          return {
-            'color': 'gray',
-            'font-size': '14px',
-            'background-color': '#f9f9f9',
-            'border-left': '5px solid #f0f0f0',
-            'padding': '10px',
-          };
-        }
-        return null;
-      },
-    ));
   }
 
   onReply() async {
@@ -961,19 +921,20 @@ class PostDetailState extends State<PostDetail> {
                                               )
                                             ],
                                           ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.black12,
-                                              borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                                            ),
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                              child: Text(
-                                                ctrl.post.node.title,
-                                                style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                          if (ctrl.post.node.title.isNotEmpty)
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black12,
+                                                borderRadius: BorderRadius.circular(3.0), //3像素圆角
                                               ),
-                                            ),
-                                          )
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                                                child: Text(
+                                                  ctrl.post.node.title,
+                                                  style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                                ),
+                                              ),
+                                            )
                                         ],
                                       ),
                                       _buildPostTitle(),
@@ -981,7 +942,7 @@ class PostDetailState extends State<PostDetail> {
                                           ? Skeletonizer.zone(
                                               child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
                                             )
-                                          : _buildHtmlText(ctrl.post.contentHtml),
+                                          : BaseHtmlWidget(html:ctrl.post.contentHtml),
                                     ],
                                   ),
                                 ),

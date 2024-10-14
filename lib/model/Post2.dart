@@ -132,7 +132,7 @@ class Member {
     s.avatar = json['avatar'] ?? s.avatar;
     s.username = json['username'] ?? s.username;
     s.avatarLarge = json['avatarLarge'] ?? s.avatarLarge;
-    s.actionCounts = json['actionCounts']!=null ? List<int>.from(json["actionCounts"]!.map((x) => x)) : [];
+    s.actionCounts = json['actionCounts'] != null ? List<int>.from(json["actionCounts"]!.map((x) => x)) : [];
     s.balance = json['balance'] ?? s.balance;
     return s;
   }
@@ -182,8 +182,7 @@ class NodeListModel {
   int favoriteCount = 0; // 收藏人数
   int totalPage = 1; // 总页数
   String nodeCover = ''; // 封面
-
-  late List<Post2> topicList;
+  List<Post2> topicList = [];
 }
 
 class Result {

@@ -385,4 +385,29 @@ class Utils {
       },
     );
   }
+
+  String _twoDigits(int n) {
+    return n >= 10 ? "$n" : "0$n";
+  }
+
+  String timeAgo(String dateTime) {
+    final d = DateTime.parse(dateTime);
+    final now = DateTime.now();
+    final difference = now.difference(d);
+
+    if (difference.inSeconds < 60) {
+      return "${difference.inSeconds}秒前";
+    } else if (difference.inMinutes < 60) {
+      return "${difference.inMinutes}分钟前";
+    } else if (difference.inHours < 24) {
+      return "${difference.inHours}小时前";
+    } else if (difference.inDays < 3) {
+      return "${difference.inDays}天前";
+    } else {
+      // 超过3天，显示具体日期
+      // 超过3天，显示具体日期，手动格式化日期
+      return "${d.year}-${_twoDigits(d.month)}-${_twoDigits(d.day)} "
+          "${_twoDigits(d.hour)}:${_twoDigits(d.minute)}";
+    }
+  }
 }
