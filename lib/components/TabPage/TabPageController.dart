@@ -11,6 +11,7 @@ import 'package:v2ex/utils/http.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;
+  bool needAuth = true;
   List<Post2> postList = [];
   final BaseController home = Get.find();
   TabItem tab;
@@ -28,7 +29,12 @@ class TabPageController extends GetxController {
     print('getList:type:${tab.type},id:${tab.id}');
     loading = true;
     update();
-    postList = await Api.getPostListByTab(type: tab.type, id: tab.id);
+    Result<List> res = await Api.getPostListByTab<List>(tab: tab);
+    if (res.success) {
+      postList = postList.addAll(res.data!);
+    } else {
+      needAuth = res.data == Auth.notAllow;
+    }
     loading = false;
     update();
   }

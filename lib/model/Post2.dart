@@ -185,10 +185,12 @@ class NodeListModel {
   List<Post2> topicList = [];
 }
 
-class Result {
+class Result<T> {
   bool success;
-  var data;
-  String? msg;
+  T data;
+  String msg;
 
-  Result({required this.success, this.data, this.msg});
+  Result({this.success = true, required this.data, this.msg = ''});
 }
+
+enum Auth { normal, notAllow }

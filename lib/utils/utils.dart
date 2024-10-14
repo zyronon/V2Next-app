@@ -290,7 +290,7 @@ class Utils {
     return headerUa;
   }
 
-  parsePagePostList(List<Element> list) {
+  List<Post2> parsePagePostList(List<Element> list) {
     List<Post2> topicList = [];
     if (list.isNotEmpty) {
       for (Element aNode in list) {

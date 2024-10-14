@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
@@ -15,17 +14,30 @@ import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取
-  static getPostListByTab({required TabType type, required String id, int pageNo = 0}) async {
+  static Future<Result<T>> getPostListByTab<T>({required TabItem tab, int pageNo = 0}) async {
+    // Result res = new Result<T>();
     Response response;
-    switch (type) {
+    switch (tab.type) {
       case TabType.tab:
-        response = await Http().get('/', data: {'tab': id});
+        response = await Http().get('/', data: {'tab': tab.id});
+        Document document = parse(response.data);
+        List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
+        // res.success = true;
+        // res.data = Utils().parsePagePostList(aRootNode);
+        return Result<T>(data: Utils().parsePagePostList(aRootNode));
         break;
       case TabType.node:
-        NodeListModel s = await getNodePageInfo(nodeId: id, pageNo: pageNo);
-        return s.topicList;
+        NodeListModel? s = await getNodePageInfo(nodeId: tab.id, pageNo: pageNo);
+        if (s != null) {
+          res.success = true;
+          res.data = s.topicList;
+        } else {
+          res.success = false;
+          // res.data = Auth.notAllow;
+        }
+        break;
       case TabType.latest:
-        return await getLatestPostList(nodeId: id, pageNo: pageNo);
+      // return await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
       // case TabType.node:
@@ -38,18 +50,10 @@ class Api {
         break;
     }
 
-    Document document = parse(response.data);
-    List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
-
-    try {
-      // Read().mark(topicList);
-    } catch (err) {
-      print(err);
-    }
-    return Utils().parsePagePostList(aRootNode);
+    // return res;
   }
 
-  static getNodePageInfo({required String nodeId, int pageNo = 0}) async {
+  static Future<NodeListModel?> getNodePageInfo({required String nodeId, int pageNo = 0}) async {
     NodeListModel detailModel = NodeListModel();
 
     //手机端 收藏人数获取不到
@@ -57,7 +61,7 @@ class Api {
     if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
       print('无权限');
       //TODO 无权限
-      return detailModel;
+      return null;
     }
 
     var document = parse(response.data);

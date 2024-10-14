@@ -1,4 +1,4 @@
-import 'package:v2ex/model/Post.dart';
+import 'package:v2ex/model/Post2.dart';
 
 enum TabType { tab, node, recent, latest }
 
@@ -7,7 +7,8 @@ class TabItem {
   String id = '';
   TabType type = TabType.tab;
   String date = '';
-  List<Post> post = [];
+  List<Post2> postList = [];
+  bool needAuth = false;
 
-  TabItem({required this.title, required this.id, required this.type, required this.date, required this.post});
+  TabItem({this.title = '', this.id = '', this.type = TabType.tab});
 }

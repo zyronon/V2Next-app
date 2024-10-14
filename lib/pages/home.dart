@@ -19,21 +19,25 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
-    new TabItem(title: '最热', id: 'hot', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node, date: '', post: []),
-    new TabItem(title: '最新', id: 'new', type: TabType.latest, date: '', post: []),
-    new TabItem(title: '全部', id: 'all', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '技术', id: 'tech', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '创意', id: 'creative', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '好玩', id: 'play', type: TabType.tab, date: '', post: []),
-    new TabItem(title: 'Apple', id: 'apple', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '酷工作', id: 'jobs', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '交易', id: 'deals', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '城市', id: 'city', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '问与答', id: 'qna', type: TabType.tab, date: '', post: []),
-    new TabItem(title: 'R2', id: 'r2', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '节点', id: 'nodes', type: TabType.tab, date: '', post: []),
-    new TabItem(title: '关注', id: 'members', type: TabType.tab, date: '', post: []),
+    new TabItem(
+      title: '最热',
+      id: 'hot',
+      type: TabType.tab,
+    ),
+    new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node),
+    new TabItem(title: '最新', id: 'new', type: TabType.latest),
+    new TabItem(title: '全部', id: 'all', type: TabType.tab),
+    new TabItem(title: '技术', id: 'tech', type: TabType.tab),
+    new TabItem(title: '创意', id: 'creative', type: TabType.tab),
+    new TabItem(title: '好玩', id: 'play', type: TabType.tab),
+    new TabItem(title: 'Apple', id: 'apple', type: TabType.tab),
+    new TabItem(title: '酷工作', id: 'jobs', type: TabType.tab),
+    new TabItem(title: '交易', id: 'deals', type: TabType.tab),
+    new TabItem(title: '城市', id: 'city', type: TabType.tab),
+    new TabItem(title: '问与答', id: 'qna', type: TabType.tab),
+    new TabItem(title: 'R2', id: 'r2', type: TabType.tab),
+    new TabItem(title: '节点', id: 'nodes', type: TabType.tab),
+    new TabItem(title: '关注', id: 'members', type: TabType.tab),
   ];
 
   List<Widget> tabs = [];

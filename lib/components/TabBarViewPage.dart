@@ -96,18 +96,22 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                 if (_.postList.length == 0)
                   return Container(
                     height: 0.8.sh,
-                    color: Colors.green,
                     child: Center(
-                        child: Container(child: Column(
-                          children: [
-                            Text('没有数据'),
-                            ElevatedButton(
-                                onPressed: () {
-                                  Get.toNamed('/login');
-                                },
-                                child: Text('登录'))
-                          ],
-                        ),)),
+                        child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/images/nodata.png', width: 125, height: 125),
+                          Text('没有数据', style: TextStyle(fontSize: 24.sp)),
+                          ElevatedButton(
+                              onPressed: () {
+                                Get.toNamed('/login');
+                              },
+                              child: Text('登录'))
+                        ],
+                      ),
+                    )),
                   );
                 return ListView.separated(
                   itemCount: _.postList.length,

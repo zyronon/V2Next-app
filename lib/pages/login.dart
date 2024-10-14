@@ -330,7 +330,7 @@ class _LoginPageState extends State<LoginPage> {
                 }
               },
               child: Row(children: [
-                Image.asset('assets/google.png', width: 25, height: 25),
+                Image.asset('assets/images/google.png', width: 25, height: 25),
                 const SizedBox(width: 10),
                 Text('Sign in with Google', style: Theme
                     .of(context)

@@ -75,6 +75,8 @@ dependencies:
   # 加载动画
   flutter_spinkit: ^5.2.1
 
+  bruno: ^3.4.3
+
 
 dev_dependencies:
   flutter_test:
@@ -125,4 +127,6 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
-    - assets/
+    - assets/sound/
+    - assets/images/
+    - assets/images/social/
