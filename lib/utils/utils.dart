@@ -314,7 +314,7 @@ class Utils {
         }
 
         List<Element> spanList = aNode.querySelectorAll('span[class="small fade"]');
-        print('spanList${spanList.length}',);
+        // print('spanList${spanList.length}',);
         if (spanList.isNotEmpty) {
           Element topInfo = spanList[0];
           Element? username = topInfo.querySelector('strong a');

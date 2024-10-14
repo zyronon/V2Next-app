@@ -16,6 +16,7 @@ import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/topic.dart';
@@ -75,20 +76,16 @@ class PostDetailController extends GetxController {
     isShowFixedTitle = false;
     update();
 
-    var t = DateTime.now();
+
     loading = true;
     update();
-    print('请求开始$t');
-    Post2 topicDetailModel = await TopicWebApi.getTopicDetail(Get.arguments.id);
+    Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072');
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
     loading = false;
     update();
-    var s = DateTime.now();
-    print('处理结束$s');
-    var hours = t.difference(s);
-    print('花费时间$hours');
+
 
     post = topicDetailModel;
     update();

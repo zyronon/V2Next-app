@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/interceptor.dart';
 import 'package:v2ex/utils/string.dart';
@@ -29,6 +30,8 @@ class Http {
         });
 
     dio = Dio(options);
+    //使用原生平台的http。不然太慢了
+    dio.httpClientAdapter = NativeAdapter();
 
     setCookie();
     //添加拦截器
