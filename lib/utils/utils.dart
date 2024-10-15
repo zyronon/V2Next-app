@@ -336,14 +336,11 @@ class Utils {
               username.remove();
             }
             String s = bottomInfo.text.replaceAll('•  最后回复来自', '').trim();
-            item.lastReplyDate = s.replaceFirst(' +08:00', '').trim();
-            print('item.lastReplyDate${item.lastReplyDate}');
-            if(item.lastReplyDate == '置顶'){
+            item.lastReplyDateAgo = s.replaceFirst(' +08:00', '').trim();
+            if(item.lastReplyDateAgo == '置顶'){
               item.isTop = true;
-              item.lastReplyDate = '';
+              item.lastReplyDateAgo = '';
             }
-            print('item.lastReplyDate222222222${item.lastReplyDate}');
-
           }
         } else {
           Element? topicInfoEl = aNode.querySelector('.topic_info');
@@ -359,7 +356,7 @@ class Utils {
 
             Element? date = topicInfoEl.querySelector('span');
             if(date !=null){
-              item.lastReplyDate = date.text.replaceFirst(' +08:00', '');;
+              item.lastReplyDateAgo = date.text.replaceFirst(' +08:00', '');;
             }
           }
         }

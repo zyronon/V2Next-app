@@ -6,20 +6,54 @@ import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/TabPage/TabPageController.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/api.dart';
 
-class TabBarViewPage extends StatefulWidget {
-  final TabItem tab;
+class TabPageController extends GetxController {
+  bool loading = true;
+  bool needAuth = false;
+  List<Post2> postList = [];
+  final BaseController home = Get.find();
+  TabItem tab;
+  int pageNo = 1;
 
-  const TabBarViewPage({super.key, required this.tab});
+  TabPageController({required this.tab});
 
   @override
-  State<TabBarViewPage> createState() => _TabBarViewPageState();
+  void onInit() async {
+    super.onInit();
+    getList(tab);
+  }
+
+  getList(TabItem tab) async {
+    print('getList:type:${tab.type},id:${tab.id}');
+    postList = [];
+    loading = true;
+    update();
+    Result res = await Api.getPostListByTab(tab: tab, pageNo: pageNo);
+    if (res.success) {
+      needAuth = false;
+      postList.addAll(res.data.cast<Post2>());
+    } else {
+      needAuth = res.data == Auth.notAllow;
+    }
+    loading = false;
+    update();
+  }
 }
 
-class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAliveClientMixin {
+class TabPage extends StatefulWidget {
+  final TabItem tab;
+
+  const TabPage({super.key, required this.tab});
+
+  @override
+  State<TabPage> createState() => _TabPageState();
+}
+
+class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   getPost(Post2 post) {
     Get.toNamed('/post-detail', arguments: post);
     // Get.toNamed('/test', arguments: post);
@@ -163,9 +197,9 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                           ),
                                           SizedBox(width: 10.w),
                                         ],
-                                        if (_.postList[index].lastReplyDate.isNotEmpty) ...[
+                                        if (_.postList[index].lastReplyDateAgo.isNotEmpty) ...[
                                           Text(
-                                            _.postList[index].lastReplyDate,
+                                            _.postList[index].lastReplyDateAgo,
                                             style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
                                           ),
                                           SizedBox(width: 10.w),

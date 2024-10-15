@@ -7,6 +7,7 @@ import 'package:html/dom.dart' hide Text;
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -14,7 +15,7 @@ import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取
-  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 0}) async {
+  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 0, String? date}) async {
     Result res = new Result();
     Response response;
     switch (tab.type) {
@@ -24,6 +25,29 @@ class Api {
         List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
         res.success = true;
         res.data = Utils().parsePagePostList(aRootNode);
+        break;
+      case TabType.hot:
+        if (pageNo == 0) {
+          response = await Http().get('/?tab=hot');
+          Document document = parse(response.data);
+          List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
+          res.success = true;
+          res.data = Utils().parsePagePostList(aRootNode);
+        } else {
+          response = await Http().get(Const.v2Hot + '/hot/${date}.json');
+          List<Post2> topicList = [];
+          (response.data as List).forEach((v) {
+            print(v);
+            Post2 item = Post2.fromJson(v);
+            item.member.username = v['username'];
+            item.member.avatar = v['avatar'];
+            item.node.title = v['nodeTitle'];
+            item.node.url = v['nodeUrl'];
+            topicList.add(item);
+          });
+          res.success = true;
+          res.data = topicList;
+        }
         break;
       case TabType.node:
         NodeListModel? s = await getNodePageInfo(nodeId: tab.id, pageNo: pageNo);
@@ -52,6 +76,41 @@ class Api {
         break;
     }
     return res;
+  }
+
+  static Future<Result> getHotPostList({String? date}) async {
+    Result res = new Result();
+    Response response;
+    if (date == null) {
+      response = await Http().get('/?tab=hot');
+      Document document = parse(response.data);
+      List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
+      res.success = true;
+      res.data = Utils().parsePagePostList(aRootNode);
+    } else {
+      response = await Http().get(Const.v2Hot + '/hot/${date}.json');
+      List<Post2> list = [];
+      (response.data as List).forEach((v) {
+        Post2 item = Post2.fromJson(v);
+        item.member.username = v['username'];
+        item.member.avatar = v['avatar'];
+        item.node.title = v['nodeTitle'];
+        item.node.url = v['nodeUrl'];
+        list.add(item);
+      });
+      res.success = true;
+      res.data = list;
+    }
+    return res;
+  }
+
+  static Future<List<String>> getV2HotDateMap() async {
+    List<String> list = [];
+    Response response = await Http().get(Const.v2Hot + '/hot/map.json');
+    if (response.data != null) {
+      list = response.data.cast<String>();
+    }
+    return list;
   }
 
   static Future<NodeListModel?> getNodePageInfo({required String nodeId, int pageNo = 0}) async {

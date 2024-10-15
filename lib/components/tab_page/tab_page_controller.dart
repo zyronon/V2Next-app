@@ -17,6 +17,8 @@ class TabPageController extends GetxController {
   final BaseController home = Get.find();
   TabItem tab;
   String test = '';
+  int pageNo = 1;
+  List<String> dateList = [];
 
   TabPageController({required this.tab});
 
@@ -24,16 +26,20 @@ class TabPageController extends GetxController {
   void onInit() async {
     super.onInit();
     getList(tab);
+    if (tab.type == TabType.hot) {
+      dateList = await Api.getV2HotDateMap();
+    }
   }
 
   getList(TabItem tab) async {
     print('getList:type:${tab.type},id:${tab.id}');
+    postList = [];
     loading = true;
     update();
-    Result res = await Api.getPostListByTab(tab: tab);
+    Result res = await Api.getPostListByTab(tab: tab, pageNo: pageNo, date: dateList[pageNo - 1]);
     if (res.success) {
       needAuth = false;
-      postList.addAll(res.data ?? []);
+      postList.addAll(res.data.cast<Post2>());
     } else {
       needAuth = res.data == Auth.notAllow;
     }

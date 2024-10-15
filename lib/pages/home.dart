@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/TabBarViewPage.dart';
+import 'package:v2ex/components/tab_page/tab_hot_page.dart';
+import 'package:v2ex/components/tab_page/tab_page.dart';
 import 'package:v2ex/main.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/LoginForm.dart';
@@ -19,7 +20,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
-    new TabItem(title: '最热', id: 'hot', type: TabType.tab),
+    new TabItem(title: '最热', id: 'hot', type: TabType.hot),
     new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node),
     new TabItem(title: '最新', id: 'new', type: TabType.latest),
     new TabItem(title: '全部', id: 'all', type: TabType.tab),
@@ -49,7 +50,8 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
         return Tab(text: e.title);
       }).toList();
       pages = tabMap.map((e) {
-        return new TabBarViewPage(tab: e);
+        if (e.type == TabType.hot) return new TabHotPage(tab: e);
+        return new TabPage(tab: e);
       }).toList();
     });
   }

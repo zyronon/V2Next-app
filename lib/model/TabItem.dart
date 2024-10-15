@@ -1,6 +1,6 @@
 import 'package:v2ex/model/Post2.dart';
 
-enum TabType { tab, node, recent, latest }
+enum TabType { tab, node, recent, latest, hot }
 
 class TabItem {
   String title = '';

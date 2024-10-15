@@ -22,8 +22,9 @@ class Http {
     BaseOptions options = BaseOptions(
         //请求基地址,可以包含子路径
         baseUrl: Strings.v2exHost,
+        followRedirects: true,
         connectTimeout: const Duration(seconds: 12),
-        contentType: Headers.formUrlEncodedContentType,
+        // contentType: Headers.formUrlEncodedContentType,
         headers: {
           'Origin': Strings.v2exHost,
           'user-agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,

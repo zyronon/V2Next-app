@@ -61,7 +61,7 @@ class BaseController extends GetxController {
   initData() async {
     Response res = await Http().get('/notes');
     print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},realUri:${res.realUri}');
-    if (!res.isRedirect) {
+    if (!res.isRedirect && !(res.data as String).contains('其他登录方式')) {
       Document document = parse(res.data);
       Element? avatarEl = document.querySelector('#menu-entry .avatar');
       if (avatarEl != null) {
