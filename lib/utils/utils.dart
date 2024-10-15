@@ -336,7 +336,14 @@ class Utils {
               username.remove();
             }
             String s = bottomInfo.text.replaceAll('•  最后回复来自', '').trim();
-            item.lastReplyDate = s.replaceFirst(' +08:00', '');;
+            item.lastReplyDate = s.replaceFirst(' +08:00', '').trim();
+            print('item.lastReplyDate${item.lastReplyDate}');
+            if(item.lastReplyDate == '置顶'){
+              item.isTop = true;
+              item.lastReplyDate = '';
+            }
+            print('item.lastReplyDate222222222${item.lastReplyDate}');
+
           }
         } else {
           Element? topicInfoEl = aNode.querySelector('.topic_info');

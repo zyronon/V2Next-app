@@ -19,11 +19,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
-    new TabItem(
-      title: '最热',
-      id: 'hot',
-      type: TabType.tab,
-    ),
+    new TabItem(title: '最热', id: 'hot', type: TabType.tab),
     new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node),
     new TabItem(title: '最新', id: 'new', type: TabType.latest),
     new TabItem(title: '全部', id: 'all', type: TabType.tab),

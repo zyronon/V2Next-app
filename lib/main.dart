@@ -39,7 +39,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ScreenUtilInit(
         designSize: const Size(375, 750),
         minTextAdapt: true,
@@ -84,17 +83,17 @@ class MyApp extends StatelessWidget {
             builder: (BuildContext context, Widget? child) {
               return GetBuilder(
                   init: IndexController(),
-                  builder: (_){
-                return FlutterSmartDialog(
-                  child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
-                    child: DefaultTextStyle(
-                      style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 14.sp)),
-                      child: child!,
-                    ),
-                  ),
-                );
-              });
+                  builder: (_) {
+                    return FlutterSmartDialog(
+                      child: MediaQuery(
+                        data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
+                        child: DefaultTextStyle(
+                          style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 14.sp)),
+                          child: child!,
+                        ),
+                      ),
+                    );
+                  });
             },
             routes: {
               '/': (context) => const Index(),

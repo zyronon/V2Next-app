@@ -14,17 +14,16 @@ import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取
-  static Future<Result<T>> getPostListByTab<T>({required TabItem tab, int pageNo = 0}) async {
-    // Result res = new Result<T>();
+  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 0}) async {
+    Result res = new Result();
     Response response;
     switch (tab.type) {
       case TabType.tab:
         response = await Http().get('/', data: {'tab': tab.id});
         Document document = parse(response.data);
         List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
-        // res.success = true;
-        // res.data = Utils().parsePagePostList(aRootNode);
-        return Result<T>(data: Utils().parsePagePostList(aRootNode));
+        res.success = true;
+        res.data = Utils().parsePagePostList(aRootNode);
         break;
       case TabType.node:
         NodeListModel? s = await getNodePageInfo(nodeId: tab.id, pageNo: pageNo);
@@ -33,24 +32,26 @@ class Api {
           res.data = s.topicList;
         } else {
           res.success = false;
-          // res.data = Auth.notAllow;
+          res.data = Auth.notAllow;
         }
         break;
       case TabType.latest:
-      // return await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
+        List<Post2> list = await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
+        res.success = true;
+        res.data = list;
+        break;
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
       // case TabType.node:
-      // var r = await getTopicsByNodeId(id, p);
-      // res['topicList'] = r.topicList;
-      // return res;
-      // break;
+      //   var r = await getTopicsByNodeId(id, p);
+      //   res['topicList'] = r.topicList;
+      //   return res;
+      //   break;
       default:
         response = await Http().get('/', data: {'tab': 'all'});
         break;
     }
-
-    // return res;
+    return res;
   }
 
   static Future<NodeListModel?> getNodePageInfo({required String nodeId, int pageNo = 0}) async {

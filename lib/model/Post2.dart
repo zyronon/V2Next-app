@@ -102,6 +102,7 @@ class Post2 {
   int collectCount = 0;
   int lastReadFloor = 0;
   int totalPage = 0;
+  bool isTop = false;
   bool isFavorite = false;
   bool isIgnore = false;
   bool isThanked = false;
@@ -185,12 +186,12 @@ class NodeListModel {
   List<Post2> topicList = [];
 }
 
-class Result<T> {
+class Result {
   bool success;
-  T data;
+  dynamic data;
   String msg;
 
-  Result({this.success = true, required this.data, this.msg = ''});
+  Result({this.success = true, this.data = null, this.msg = ''});
 }
 
 enum Auth { normal, notAllow }

@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/TabPage/TabPageController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -93,7 +92,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                     },
                   );
                 }
-                if (_.postList.length == 0)
+                if (_.needAuth)
                   return Container(
                     height: 0.8.sh,
                     child: Center(
@@ -104,11 +103,17 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                         children: [
                           Image.asset('assets/images/nodata.png', width: 125, height: 125),
                           Text('没有数据', style: TextStyle(fontSize: 24.sp)),
-                          ElevatedButton(
-                              onPressed: () {
-                                Get.toNamed('/login');
-                              },
-                              child: Text('登录'))
+                          SizedBox(height: 20.w),
+                          TDButton(
+                            text: '登录',
+                            size: TDButtonSize.large,
+                            type: TDButtonType.fill,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            onTap: () {
+                              Get.toNamed('/login');
+                            },
+                          )
                         ],
                       ),
                     )),
@@ -142,17 +147,36 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                     SizedBox(height: 4.w),
                                     Row(
                                       children: [
-                                        if (_.postList[index].lastReplyDate.isNotEmpty)
+                                        if (_.postList[index].isTop) ...[
+                                          DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              borderRadius: BorderRadius.circular(3.r),
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
+                                              child: Text(
+                                                '置顶',
+                                                style: TextStyle(color: Colors.white, fontSize: 10.sp, height: 1.4),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10.w),
+                                        ],
+                                        if (_.postList[index].lastReplyDate.isNotEmpty) ...[
                                           Text(
                                             _.postList[index].lastReplyDate,
                                             style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
                                           ),
-                                        if (_.postList[index].createDateAgo.isNotEmpty)
+                                          SizedBox(width: 10.w),
+                                        ],
+                                        if (_.postList[index].createDateAgo.isNotEmpty) ...[
                                           Text(
                                             _.postList[index].createDateAgo + '发布',
                                             style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
                                           ),
-                                        SizedBox(width: 10.w),
+                                          SizedBox(width: 10.w),
+                                        ],
                                         if (_.postList[index].node.title.isNotEmpty)
                                           // 这里的点击事件，最新index.xml获取到的数据没有url
                                           DecoratedBox(
@@ -164,7 +188,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                                               child: Text(
                                                 _.postList[index].node.title,
-                                                style: TextStyle(color: Colors.black54, fontSize: 10.sp),
+                                                style: TextStyle(color: Colors.black54, fontSize: 10.sp, height: 1.4),
                                               ),
                                             ),
                                           ),
@@ -183,11 +207,7 @@ class _TabBarViewPageState extends State<TabBarViewPage> with AutomaticKeepAlive
                                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                                     child: Text(
                                       _.postList[index].replyCount.toString(),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.w500, height: 1.4),
                                     ),
                                   ),
                                 ),
