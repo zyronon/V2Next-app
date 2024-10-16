@@ -90,7 +90,7 @@ class Post2 {
   String url;
   String href;
   Member member;
-  Node node;
+  V2Node node;
   String title;
   String id;
   String type;
@@ -130,7 +130,7 @@ class Post2 {
     this.url = '',
     this.href = '',
     Member? member, // 使用可选参数
-    Node? node,     // 使用可选参数
+    V2Node? node,     // 使用可选参数
     this.title = '',
     this.id = '',
     this.type = '',
@@ -153,7 +153,7 @@ class Post2 {
     this.isEdit = false,
     this.isMove = false,
   })  : member = member ?? Member(), // 如果传入为 null，则赋默认值
-        node = node ?? Node();        // 如果传入为 null，则赋默认值
+        node = node ?? V2Node();        // 如果传入为 null，则赋默认值
 
   // fromJson 方法
   Post2.fromJson(Map<String, dynamic> json)
@@ -172,7 +172,7 @@ class Post2 {
         url = json['url'] ?? '',
         href = json['href'] ?? '',
         member = json['member'] != null ? Member.fromJson(json['member']) : Member(),
-        node = json['node'] != null ? Node.fromJson(json['node']) : Node(),
+        node = json['node'] != null ? V2Node.fromJson(json['node']) : V2Node(),
         title = json['title'] ?? '',
         id = json['id'].toString() ?? '',
         type = json['type'] ?? '',
@@ -232,26 +232,26 @@ class Member {
   }
 }
 
-class Node {
-  String title;
-  String url;
+class V2Node {
+  String cnName;
+  String enName;
 
   // 构造函数，带默认值
-  Node({
-    this.title = '',
-    this.url = '',
+  V2Node({
+    this.cnName = '',
+    this.enName = '',
   });
 
   // fromJson 方法
-  Node.fromJson(Map<String, dynamic> json)
-      : title = json['title'] ?? '',
-        url = json['url'] ?? '';
+  V2Node.fromJson(Map<String, dynamic> json)
+      : cnName = json['title'] ?? '',
+        enName = json['url'] ?? '';
 
   // toJson 方法
   Map<String, dynamic> toJson() {
     return {
-      'title': title,
-      'url': url,
+      'title': cnName,
+      'url': enName,
     };
   }
 }
@@ -291,7 +291,8 @@ class UserConfig {
 
 class NodeListModel {
   String nodeId = ''; // 节点id
-  String nodeName = ''; // 节点名称
+  String nodeEnName = ''; // 节点url
+  String nodeCnName = ''; // 节点名称
   String nodeIntro = ''; // 节点描述
   String topicCount = ''; // 主题数量
   bool isFavorite = false; // 是否收藏节点

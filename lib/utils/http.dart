@@ -95,8 +95,8 @@ class DioRequestWeb {
         }
         var tagANodes = topicInfo.querySelectorAll('a');
         if (tagANodes[0].attributes['class'] == 'node') {
-          item.node.title = tagANodes[0].text;
-          item.node.url = tagANodes[0].attributes['href']!.replaceFirst('/go/', '');
+          item.node.cnName = tagANodes[0].text;
+          item.node.enName = tagANodes[0].attributes['href']!.replaceFirst('/go/', '');
         }
         if (tagANodes[1].attributes['href'] != null) {
           item.member.username = tagANodes[1].attributes['href']!.replaceFirst('/member/', '');
@@ -387,7 +387,7 @@ class DioRequestWeb {
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover = mainHeader!.querySelector('img')!.attributes['src']!;
     // 节点名称
-    detailModel.nodeName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+    detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
     detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述

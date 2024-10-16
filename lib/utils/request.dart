@@ -20,6 +20,7 @@ class Http {
   Http._internal() {
     //BaseOptions、Options、RequestOptions 都可以配置参数，优先级别依次递增，且可以根据优先级别覆盖参数
     BaseOptions options = BaseOptions(
+        validateStatus: (_) => true,
         //请求基地址,可以包含子路径
         baseUrl: Strings.v2exHost,
         followRedirects: true,
@@ -44,9 +45,6 @@ class Http {
         requestHeader: false,
         responseHeader: false,
       ));
-    dio.options.validateStatus = (status) {
-      return status! >= 200 && status < 300 || status == 304 || status == 302;
-    };
   }
 
   /// 设置cookie

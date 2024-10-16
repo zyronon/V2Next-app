@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/footer.dart';
-import 'package:v2ex/components/not-allow.dart';
+import 'package:v2ex/components/loading_list_page.dart';
+import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/components/post_loading_page.dart';
-import 'package:v2ex/components/tab_page/tab_hot_page.dart';
+import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -16,9 +16,10 @@ class TabPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
   List<Post2> postList = [];
+  List<V2Node> nodeList = [];
   final BaseController home = Get.find();
   TabItem tab;
-  int pageNo = 0;
+  int pageNo = 1;
   bool isLoadingMore = false;
 
   TabPageController({required this.tab});
@@ -26,21 +27,22 @@ class TabPageController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    getList(isRefresh: true);
+    getData(isRefresh: true);
   }
 
-  getList({bool isRefresh = false}) async {
-    print('getList:type:${tab.type},id:${tab.id}');
+  getData({bool isRefresh = false}) async {
+    print('getList:type:${tab.type},id:${tab.enName}');
     if (isRefresh) {
       loading = true;
       update();
     }
-    update();
     Result res = await Api.getPostListByTab(tab: tab, pageNo: pageNo);
     if (res.success) {
       if (isRefresh) postList = [];
       needAuth = false;
-      postList.addAll(res.data.cast<Post2>());
+      postList.addAll(res.data['list'].cast<Post2>());
+      nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
+      print(nodeList);
     } else {
       needAuth = res.data == Auth.notAllow;
     }
@@ -48,19 +50,19 @@ class TabPageController extends GetxController {
     update();
   }
 
-  onRefresh() {
-    pageNo = 0;
+  onRefresh() async {
+    pageNo = 1;
     isLoadingMore = false;
-    getList(isRefresh: true);
+    await getData(isRefresh: true);
   }
 
   loadMore() async {
     if (isLoadingMore) return;
+    print('加载更多:${tab.cnName}');
     pageNo++;
-    print('加载更多${tab.title}');
     isLoadingMore = true;
     update();
-    await getList();
+    await getData();
     isLoadingMore = false;
     update();
   }
@@ -79,8 +81,8 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   final ScrollController ctrl = ScrollController();
 
   Future<void> onRefresh() async {
-    final TabPageController c = Get.find(tag: widget.tab.id);
-    c.getList(isRefresh: true);
+    final TabPageController c = Get.find(tag: widget.tab.enName);
+    await c.onRefresh();
     return;
   }
 
@@ -99,7 +101,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
 
   void scrollListener() {
     if (ctrl.position.pixels == ctrl.position.maxScrollExtent) {
-      final TabPageController c = Get.find(tag: widget.tab.id);
+      TabPageController c = Get.find(tag: widget.tab.enName);
       c.loadMore();
     }
   }
@@ -110,11 +112,12 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
     return RefreshIndicator(
         child: GetBuilder<TabPageController>(
             init: TabPageController(tab: widget.tab),
-            tag: widget.tab.id,
+            tag: widget.tab.enName,
             builder: (_) {
-              if (_.loading) return PostLoadingPage();
+              if (_.loading && _.postList.length == 0) return LoadingListPage();
               if (_.needAuth) return NotAllow();
-              return ListView.separated(
+              return ListView.builder(
+                physics: new AlwaysScrollableScrollPhysics(),
                 controller: ctrl,
                 itemCount: _.postList.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -122,16 +125,10 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                     return Column(children: [
                       PostItem(item: _.postList[index], tab: widget.tab),
                       FooterTips(loading: _.isLoadingMore),
+                      if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList)
                     ]);
                   }
                   return PostItem(item: _.postList[index], tab: widget.tab);
-                },
-                //分割器构造器
-                separatorBuilder: (BuildContext context, int index) {
-                  return Container(
-                    height: 6,
-                    color: Color(0xfff1f1f1),
-                  );
                 },
               );
             }),

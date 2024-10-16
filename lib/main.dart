@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/pages/login.dart';
+import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
@@ -100,6 +101,7 @@ class MyApp extends StatelessWidget {
               '/post-detail': (context) => const PostDetail(),
               // '/test': (context) => const PostTest(),
               '/login': (context) => const LoginPage(),
+              '/node': (context) => NodePage(),
             },
           );
         });

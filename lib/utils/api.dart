@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:html/dom.dart' hide Text;
+import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -15,22 +15,31 @@ import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取
-  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 0, String? date}) async {
+  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 1, String? date}) async {
     Result res = new Result();
     Response response;
+    List<Post2> postList = [];
+    List<V2Node> nodeList = [];
     switch (tab.type) {
       case TabType.tab:
-        response = await Http().get('/', data: {'tab': tab.id});
-        Document document = parse(response.data);
-        List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
+        if (pageNo == 1) {
+          response = await Http().get('/', data: {'tab': tab.enName}, isMobile: false);
+          Document document = parse(response.data);
+          List<Element> listEl = document.querySelectorAll("div[class='cell item']");
+          List<Element> childNodeEl = document.querySelectorAll("#SecondaryTabs > a");
+          for (var i in childNodeEl) {
+            nodeList.add(V2Node(enName: i.attributes['href']!.split('/go/')[1], cnName: i.text));
+          }
+          postList = Utils().parsePagePostList(listEl);
+        }
         res.success = true;
-        res.data = Utils().parsePagePostList(aRootNode);
+        res.data = {'list': postList, 'nodeList': nodeList};
         break;
       case TabType.node:
-        NodeListModel? s = await getNodePageInfo(nodeId: tab.id, pageNo: pageNo);
+        NodeListModel? s = await getNodePageInfo(nodeEnName: tab.enName, pageNo: pageNo);
         if (s != null) {
           res.success = true;
-          res.data = s.topicList;
+          res.data = {'list': s.topicList, 'nodeList': nodeList};
         } else {
           res.success = false;
           res.data = Auth.notAllow;
@@ -38,13 +47,10 @@ class Api {
         break;
       case TabType.latest:
         res.success = true;
-        List<Post2> list;
-        if (pageNo == 0) {
-          list = await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
-        } else {
-          list = [];
+        if (pageNo == 1) {
+          postList = await getLatestPostList(nodeId: tab.enName, pageNo: pageNo);
         }
-        res.data = list;
+        res.data = {'list': postList, 'nodeList': nodeList};
         break;
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
@@ -76,8 +82,8 @@ class Api {
         Post2 item = Post2.fromJson(v);
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
-        item.node.title = v['nodeTitle'];
-        item.node.url = v['nodeUrl'];
+        item.node.cnName = v['nodeTitle'];
+        item.node.enName = v['nodeUrl'];
         list.add(item);
       });
       res.success = true;
@@ -95,11 +101,12 @@ class Api {
     return list;
   }
 
-  static Future<NodeListModel?> getNodePageInfo({required String nodeId, int pageNo = 0}) async {
+  static Future<NodeListModel?> getNodePageInfo({required String nodeEnName, int pageNo = 1}) async {
     NodeListModel detailModel = NodeListModel();
-
+    detailModel.nodeEnName = nodeEnName;
     //手机端 收藏人数获取不到
-    Response response = await Http().get('/go/$nodeId', data: {'p': pageNo}, isMobile: false);
+    Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo}, isMobile: false);
+    print(response.statusCode);
     if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
       print('无权限');
       //TODO 无权限
@@ -111,7 +118,7 @@ class Api {
     var mainHeader = document.querySelector('div.box.box-title.node-header');
     detailModel.nodeCover = mainHeader!.querySelector('img')!.attributes['src']!;
     // 节点名称
-    detailModel.nodeName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+    detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
     detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
@@ -165,7 +172,7 @@ class Api {
       Match? match = regExp.firstMatch(item['title']);
       if (match != null) {
         String nodeText = match.group(0)!;
-        p.node.title = nodeText.replaceAll('[', '').replaceAll(']', '');
+        p.node.cnName = nodeText.replaceAll('[', '').replaceAll(']', '');
       }
       String? href = item['link']['href'];
       var match1 = RegExp(r'(\d+)').allMatches(href!);
@@ -248,8 +255,8 @@ class Api {
 
     var as = wrapper!.querySelectorAll('.header > a');
     if (as.isNotEmpty) {
-      post.node.title = as[1].text;
-      post.node.url = as[1].attributes['href']!;
+      post.node.cnName = as[1].text;
+      post.node.enName = as[1].attributes['href']!;
     }
 
     var header = wrapper.querySelector('.header');

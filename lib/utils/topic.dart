@@ -85,8 +85,8 @@ class TopicWebApi {
 
     var as = wrapper!.querySelectorAll('.header > a');
     if (as.isNotEmpty) {
-      post.node.title = as[1].text;
-      post.node.url = as[1].attributes['href']!;
+      post.node.cnName = as[1].text;
+      post.node.enName = as[1].attributes['href']!;
     }
 
     var header = wrapper.querySelector('.header');

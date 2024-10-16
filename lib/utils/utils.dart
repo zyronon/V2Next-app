@@ -313,6 +313,12 @@ class Utils {
           item.member.avatar = avatarEl.attributes['src']!;
         }
 
+        Element? nodeEl = aNode.querySelector('.node');
+        if (nodeEl != null) {
+          item.node.cnName = nodeEl.text;
+          item.node.enName = nodeEl.attributes['href']!.replaceFirst('/go/', '');
+        }
+
         List<Element> spanList = aNode.querySelectorAll('span[class="small fade"]');
         // print('spanList${spanList.length}',);
         if (spanList.isNotEmpty) {
@@ -321,12 +327,6 @@ class Utils {
           if (username != null) {
             item.member.username = username.text;
           }
-          Element? nodeEl = topInfo.querySelector('.node');
-          if (nodeEl != null) {
-            item.node.title = nodeEl.text;
-            item.node.url = nodeEl.attributes['href']!.replaceFirst('/go/', '');
-          }
-
           if (spanList.length > 1) {
             Element bottomInfo = spanList[1];
             Element? username = bottomInfo.querySelector('a');

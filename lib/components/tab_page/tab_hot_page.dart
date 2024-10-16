@@ -8,9 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:v2ex/components/footer.dart';
-import 'package:v2ex/components/not-allow.dart';
+import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/components/post_loading_page.dart';
+import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -68,10 +68,11 @@ class TabHotPageController extends GetxController {
     update();
   }
 
-  onRefresh() {
+  onRefresh() async {
     pageNo = 0;
     isLoadingMore = false;
-    getList(isRefresh: true);
+    await getList(isRefresh: true);
+    Api.getV2HotDateMap().then((v) => dateList = v);
   }
 
   loadMore() async {
@@ -106,8 +107,8 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
   final ScrollController ctrl = ScrollController();
 
   Future<void> onRefresh() async {
-    final TabHotPageController c = Get.find(tag: widget.tab.id);
-    c.getList(isRefresh: true);
+    final TabHotPageController c = Get.find(tag: widget.tab.enName);
+    await c.onRefresh();
     return;
   }
 
@@ -126,13 +127,13 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
 
   void scrollListener() {
     if (ctrl.position.pixels == ctrl.position.maxScrollExtent) {
-      final TabHotPageController c = Get.find(tag: widget.tab.id);
+      final TabHotPageController c = Get.find(tag: widget.tab.enName);
       c.loadMore();
     }
   }
 
   List<Widget> _buildSlivers() {
-    final TabHotPageController c = Get.find(tag: widget.tab.id);
+    final TabHotPageController c = Get.find(tag: widget.tab.enName);
     List<Widget> slivers = [];
     for (var item in c.mapPostList) {
       slivers.add(
@@ -175,9 +176,9 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
     return RefreshIndicator(
         child: GetBuilder<TabHotPageController>(
             init: TabHotPageController(tab: widget.tab),
-            tag: widget.tab.id,
+            tag: widget.tab.enName,
             builder: (_) {
-              if (_.loading) return PostLoadingPage();
+              if (_.loading && _.mapPostList.length == 0) return LoadingListPage();
               if (_.needAuth) return NotAllow();
               return CustomScrollView(
                 controller: ctrl,

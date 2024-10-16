@@ -1,14 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/tab_page/tab_hot_page.dart';
 import 'package:v2ex/components/tab_page/tab_page.dart';
-import 'package:v2ex/main.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/LoginForm.dart';
-import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 
 class Home extends StatefulWidget {
@@ -20,34 +15,33 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
-    new TabItem(title: '最热', id: 'hot', type: TabType.hot),
-    new TabItem(title: '沙盒', id: 'sandbox', type: TabType.node),
-    new TabItem(title: '最新', id: 'new', type: TabType.latest),
-    new TabItem(title: '全部', id: 'all', type: TabType.tab),
-    new TabItem(title: '技术', id: 'tech', type: TabType.tab),
-    new TabItem(title: '创意', id: 'creative', type: TabType.tab),
-    new TabItem(title: '好玩', id: 'play', type: TabType.tab),
-    new TabItem(title: 'Apple', id: 'apple', type: TabType.tab),
-    new TabItem(title: '酷工作', id: 'jobs', type: TabType.tab),
-    new TabItem(title: '交易', id: 'deals', type: TabType.tab),
-    new TabItem(title: '城市', id: 'city', type: TabType.tab),
-    new TabItem(title: '问与答', id: 'qna', type: TabType.tab),
-    new TabItem(title: 'R2', id: 'r2', type: TabType.tab),
-    new TabItem(title: '节点', id: 'nodes', type: TabType.tab),
-    new TabItem(title: '关注', id: 'members', type: TabType.tab),
+    new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
+    new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
+    new TabItem(cnName: '最新', enName: 'new', type: TabType.latest),
+    new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
+    new TabItem(cnName: '技术', enName: 'tech', type: TabType.tab),
+    new TabItem(cnName: '创意', enName: 'creative', type: TabType.tab),
+    new TabItem(cnName: '好玩', enName: 'play', type: TabType.tab),
+    new TabItem(cnName: 'Apple', enName: 'apple', type: TabType.tab),
+    new TabItem(cnName: '酷工作', enName: 'jobs', type: TabType.tab),
+    new TabItem(cnName: '交易', enName: 'deals', type: TabType.tab),
+    new TabItem(cnName: '城市', enName: 'city', type: TabType.tab),
+    new TabItem(cnName: '问与答', enName: 'qna', type: TabType.tab),
+    new TabItem(cnName: 'R2', enName: 'r2', type: TabType.tab),
+    new TabItem(cnName: 'VXNA', enName: 'xna', type: TabType.tab),
+    new TabItem(cnName: '节点', enName: 'nodes', type: TabType.tab),
+    new TabItem(cnName: '关注', enName: 'members', type: TabType.tab),
   ];
 
   List<Widget> tabs = [];
   List<Widget> pages = [];
-
-  final String url = "https://v2ex.com/?tab=hot";
 
   @override
   void initState() {
     super.initState();
     setState(() {
       tabs = tabMap.map((e) {
-        return Tab(text: e.title);
+        return Tab(text: e.cnName);
       }).toList();
       pages = tabMap.map((e) {
         if (e.type == TabType.hot) return new TabHotPage(tab: e);
@@ -56,70 +50,8 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  modalWrap(Widget text, Widget other) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                  margin: EdgeInsets.only(bottom: 10.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                  ),
-                  constraints: BoxConstraints(maxHeight: .5.sh),
-                  padding: EdgeInsets.all(14.w),
-                  width: ScreenUtil().screenWidth * .91,
-                  child: SingleChildScrollView(child: text)),
-              Container(
-                decoration: BoxDecoration(
-                  color: Color(0xfff1f1f1),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.r),
-                    topRight: Radius.circular(10.r),
-                  ),
-                ),
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40.w,
-                        height: 4.w,
-                        margin: EdgeInsets.only(bottom: 10.w, top: 15.w),
-                        decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
-                      ),
-                    ),
-                    other
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   submit() {
     BaseController c = Get.find();
-    // IndexController c = Get.find();
-    // c.textScaleFactor+=0.1;
-    // c.update();
-    // var s = UserConfig();
-    // s.showTopReply = false;
-    // c.setConfig(s);
     c.initData();
     print("test");
   }
@@ -139,7 +71,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                     child: TabBar(
                         tabAlignment: TabAlignment.start,
                         isScrollable: true,
-                        // labelStyle: TextStyle(fontSize: 15.sp),
+                        labelStyle: TextStyle(fontSize: 15.sp),
                         unselectedLabelStyle: TextStyle(fontSize: 15.sp),
                         tabs: tabs),
                     flex: 7,

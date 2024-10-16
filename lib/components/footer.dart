@@ -11,7 +11,7 @@ class FooterTips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 100 + MediaQuery.of(context).padding.bottom,
+      height: 80 + MediaQuery.of(context).padding.bottom,
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Center(
         child: Row(

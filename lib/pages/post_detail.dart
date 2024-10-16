@@ -364,10 +364,10 @@ class PostDetailState extends State<PostDetail> {
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
-      await modalWrap(text: BaseHtmlWidget(html:pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
+      await modalWrap(text: BaseHtmlWidget(html: pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      await modalWrap(text: BaseHtmlWidget(html:ctrl.post.contentHtml), content: _buildEditor());
+      await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentHtml), content: _buildEditor());
     }
     _replyCtrl.text = '';
   }
@@ -921,19 +921,24 @@ class PostDetailState extends State<PostDetail> {
                                               )
                                             ],
                                           ),
-                                          if (ctrl.post.node.title.isNotEmpty)
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black12,
-                                                borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                                child: Text(
-                                                  ctrl.post.node.title,
-                                                  style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                          if (ctrl.post.node.cnName.isNotEmpty)
+                                            InkWell(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black12,
+                                                  borderRadius: BorderRadius.circular(3.0), //3像素圆角
+                                                ),
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                                                  child: Text(
+                                                    ctrl.post.node.cnName,
+                                                    style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                                  ),
                                                 ),
                                               ),
+                                              onTap: () {
+                                                Get.toNamed('/node', arguments: ctrl.post.node);
+                                              },
                                             )
                                         ],
                                       ),
@@ -942,7 +947,7 @@ class PostDetailState extends State<PostDetail> {
                                           ? Skeletonizer.zone(
                                               child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
                                             )
-                                          : BaseHtmlWidget(html:ctrl.post.contentHtml),
+                                          : BaseHtmlWidget(html: ctrl.post.contentHtml),
                                     ],
                                   ),
                                 ),
