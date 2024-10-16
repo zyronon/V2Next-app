@@ -1,13 +1,16 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:skeletonizer/skeletonizer.dart';
-import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/footer.dart';
+import 'package:v2ex/components/not-allow.dart';
+import 'package:v2ex/components/post_item.dart';
+import 'package:v2ex/components/post_loading_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
@@ -67,6 +70,7 @@ class TabHotPageController extends GetxController {
 
   onRefresh() {
     pageNo = 0;
+    isLoadingMore = false;
     getList(isRefresh: true);
   }
 
@@ -85,8 +89,6 @@ class TabHotPageController extends GetxController {
         isLoadingMore = false;
         update();
       }
-    } else {
-      Get.snackbar('提示', '没有更多数据了');
     }
   }
 }
@@ -101,166 +103,32 @@ class TabHotPage extends StatefulWidget {
 }
 
 class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMixin {
-  final ScrollController _scrollController = ScrollController();
-  bool _isLoadingMore = false;
-
-  getPost(Post2 post) {
-    Get.toNamed('/post-detail', arguments: post);
-    // Get.toNamed('/test', arguments: post);
-  }
+  final ScrollController ctrl = ScrollController();
 
   Future<void> onRefresh() async {
     final TabHotPageController c = Get.find(tag: widget.tab.id);
-    c.onRefresh();
+    c.getList(isRefresh: true);
     return;
   }
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollListener);
+    ctrl.addListener(scrollListener);
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
     super.dispose();
+    ctrl.removeListener(scrollListener);
+    ctrl.dispose();
   }
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      _loadMoreItems();
+  void scrollListener() {
+    if (ctrl.position.pixels == ctrl.position.maxScrollExtent) {
+      final TabHotPageController c = Get.find(tag: widget.tab.id);
+      c.loadMore();
     }
-  }
-
-  Future<void> _loadMoreItems() async {
-    final TabHotPageController c = Get.find(tag: widget.tab.id);
-    c.loadMore();
-  }
-
-  Widget _buildItem(Post2 item) {
-    return InkWell(
-      child: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            children: [
-              Row(children: [
-                if (widget.tab.type != TabType.latest)
-                  Padding(
-                    padding: EdgeInsets.only(right: 10.w),
-                    child: BaseAvatar(
-                      src: item.member.avatar,
-                      diameter: 34.w,
-                      radius: 4.w,
-                    ),
-                  ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.member.username,
-                      style: TextStyle(fontSize: 14.sp, height: 1.2),
-                    ),
-                    SizedBox(height: 4.w),
-                    Row(
-                      children: [
-                        if (item.isTop) ...[
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              borderRadius: BorderRadius.circular(3.r),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                              child: Text(
-                                '置顶',
-                                style: TextStyle(color: Colors.white, fontSize: 10.sp, height: 1.4),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                        ],
-                        if (item.lastReplyDateAgo.isNotEmpty) ...[
-                          Text(
-                            item.lastReplyDateAgo,
-                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                          ),
-                          SizedBox(width: 10.w),
-                        ],
-                        if (item.createDateAgo.isNotEmpty) ...[
-                          Text(
-                            item.createDateAgo + '发布',
-                            style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                          ),
-                          SizedBox(width: 10.w),
-                        ],
-                        if (item.node.title.isNotEmpty)
-                          // 这里的点击事件，最新index.xml获取到的数据没有url
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Color(0xffe4e4e4),
-                              borderRadius: BorderRadius.circular(3.r),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                              child: Text(
-                                item.node.title,
-                                style: TextStyle(color: Colors.black54, fontSize: 10.sp, height: 1.4),
-                              ),
-                            ),
-                          ),
-                      ],
-                    )
-                  ],
-                )
-              ]),
-              if (item.replyCount != 0)
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(4.r), //3像素圆角
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
-                    child: Text(
-                      item.replyCount.toString(),
-                      style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.w500, height: 1.4),
-                    ),
-                  ),
-                ),
-            ],
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            verticalDirection: VerticalDirection.down,
-          ),
-          InkWell(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: 10,
-              ),
-              child: Text(
-                item.title,
-                textAlign: TextAlign.left,
-                style: TextStyle(fontWeight: FontWeight.w100, fontSize: 15.sp),
-              ),
-            ),
-            onTap: () => {getPost(item)},
-          ),
-          // InkWell(
-          //   child: Padding(
-          //     padding: EdgeInsets.only(
-          //       top: 10,
-          //     ),
-          //     child: BaseHtmlWidget(html: item.contentHtml),
-          //   ),
-          //   onTap: () => {getPost(item)},
-          // ),
-        ]),
-      ),
-      onTap: () => {getPost(item)},
-    );
   }
 
   List<Widget> _buildSlivers() {
@@ -268,130 +136,130 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
     List<Widget> slivers = [];
     for (var item in c.mapPostList) {
       slivers.add(
-        SliverToBoxAdapter(
-          child: Container(
-            padding: EdgeInsets.all(8.w),
-            color: Colors.grey[100],
-            child: Text(item['date']),
+          // SliverAppBar(title: Text(item['date']),floating: true, )
+          StickySliverToBoxAdapter(
+              child: RepaintBoundary(
+        child: Container(
+          padding: EdgeInsets.all(8.w),
+          color: Colors.grey[100],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Text(item['date'] + '•'),
+                Text(item['date'] == c.currentDate ? '实时' : '采集'),
+                SizedBox(width: 5.w),
+                Icon(Icons.help_outline, size: 14.w),
+              ]),
+              Icon(Icons.calendar_month, size: 18.w)
+            ],
           ),
         ),
-      );
+      )));
       slivers.add(SliverList(
           delegate: SliverChildBuilderDelegate(
         (context, index) {
-          return _buildItem(item['list'][index]);
+          return PostItem(item: item['list'][index], tab: widget.tab);
         },
         childCount: item['list'].length,
       )));
     }
-    slivers.add(SliverToBoxAdapter(
-      child: c.isLoadingMore
-          ? Padding(
-              padding: EdgeInsets.all(8.w),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          : SizedBox.shrink(), // 没有更多数据时不显示
-    ));
+    slivers.add(SliverToBoxAdapter(child: FooterTips(loading: c.isLoadingMore)));
     return slivers;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            onRefresh();
-          },
-          child: Text('刷新')),
-      body: RefreshIndicator(
-          child: GetBuilder<TabHotPageController>(
-              init: TabHotPageController(tab: widget.tab),
-              tag: widget.tab.id,
-              builder: (_) {
-                if (_.loading) {
-                  return ListView.separated(
-                    itemCount: 7,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Skeletonizer.zone(
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Row(children: [
-                              Bone.circle(size: 28),
-                              SizedBox(width: 10.w),
-                              Bone.text(width: 80.w),
-                            ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                            Padding(padding: EdgeInsets.only(top: 10), child: Bone.multiText()),
-                            Padding(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Bone.text(width: 40.w),
-                                      SizedBox(width: 10.w),
-                                      Bone.text(width: 70.w),
-                                      SizedBox(width: 10.w),
-                                      Bone.text(width: 70.w),
-                                      SizedBox(width: 10.w),
-                                      Bone.text(width: 70.w),
-                                    ],
-                                  ),
-                                  Bone.text(width: 30.w),
-                                ],
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              ),
-                            )
-                          ]),
-                        ),
-                      );
-                    },
-                    //分割器构造器
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Container(
-                        height: 6,
-                        color: Color(0xfff1f1f1),
-                      );
-                    },
-                  );
-                }
-                if (_.needAuth)
-                  return Container(
-                    height: 0.8.sh,
-                    child: Center(
-                        child: Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/images/nodata.png', width: 125, height: 125),
-                          Text('没有数据', style: TextStyle(fontSize: 24.sp)),
-                          SizedBox(height: 20.w),
-                          TDButton(
-                            text: '登录',
-                            size: TDButtonSize.large,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () {
-                              Get.toNamed('/login');
-                            },
-                          )
-                        ],
-                      ),
-                    )),
-                  );
-                return CustomScrollView(
-                  controller: _scrollController,
-                  physics: new AlwaysScrollableScrollPhysics(),
-                  slivers: _buildSlivers(),
-                );
-              }),
-          onRefresh: onRefresh),
-    );
+    return RefreshIndicator(
+        child: GetBuilder<TabHotPageController>(
+            init: TabHotPageController(tab: widget.tab),
+            tag: widget.tab.id,
+            builder: (_) {
+              if (_.loading) return PostLoadingPage();
+              if (_.needAuth) return NotAllow();
+              return CustomScrollView(
+                controller: ctrl,
+                physics: new AlwaysScrollableScrollPhysics(),
+                slivers: _buildSlivers(),
+              );
+            }),
+        onRefresh: onRefresh);
   }
 
   @override
   bool get wantKeepAlive => true;
+}
+
+//依次吸顶的header。参考自：https://blog.csdn.net/gzx110304/article/details/132798348
+class StickySliverToBoxAdapter extends SingleChildRenderObjectWidget {
+  const StickySliverToBoxAdapter({super.key, super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _StickyRenderSliverToBoxAdapter();
+}
+
+class _StickyRenderSliverToBoxAdapter extends RenderSliverSingleBoxAdapter {
+//查找前一个吸顶的section
+  RenderSliver? _prev() {
+    if (parent is RenderViewportBase) {
+      RenderSliver? current = this;
+      while (current != null) {
+        current = (parent as RenderViewportBase).childBefore(current);
+        if (current is _StickyRenderSliverToBoxAdapter && current.geometry != null) {
+          return current;
+        }
+      }
+    }
+    return null;
+  }
+
+  @override
+  void performLayout() {
+    if (child == null) {
+      geometry = SliverGeometry.zero;
+      return;
+    }
+    final SliverConstraints constraints = this.constraints;
+    //摆放子View，并把constraints传递给子View
+    child!.layout(constraints.asBoxConstraints(), parentUsesSize: true);
+    //获取子View在滑动主轴方向的尺寸
+    final double childExtent;
+    switch (constraints.axis) {
+      case Axis.horizontal:
+        childExtent = child!.size.width;
+        break;
+      case Axis.vertical:
+        childExtent = child!.size.height;
+        break;
+    }
+
+    final double minExtent = childExtent;
+    final double minAllowedExtent = constraints.remainingPaintExtent > minExtent ? minExtent : constraints.remainingPaintExtent;
+    final double maxExtent = childExtent;
+    final double paintExtent = maxExtent;
+    final double clampedPaintExtent = clampDouble(
+      paintExtent,
+      minAllowedExtent,
+      constraints.remainingPaintExtent,
+    );
+    final double layoutExtent = maxExtent - constraints.scrollOffset;
+
+    geometry = SliverGeometry(
+      scrollExtent: maxExtent,
+      paintOrigin: min(constraints.overlap, 0.0),
+      paintExtent: clampedPaintExtent,
+      layoutExtent: clampDouble(layoutExtent, 0.0, clampedPaintExtent),
+      maxPaintExtent: maxExtent,
+      maxScrollObstructionExtent: minExtent,
+      hasVisualOverflow: true, // Conservatively say we do have overflow to avoid complexity.
+    );
+
+    //上推关键代码: 当前吸顶的Sliver被覆盖了多少，前一个吸顶的Sliver就移动多少
+    RenderSliver? prev = _prev();
+    if (prev != null && constraints.overlap > 0) {
+      setChildParentData(_prev()!, constraints.copyWith(scrollOffset: constraints.overlap), _prev()!.geometry!);
+    }
+  }
 }

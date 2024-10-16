@@ -26,29 +26,6 @@ class Api {
         res.success = true;
         res.data = Utils().parsePagePostList(aRootNode);
         break;
-      case TabType.hot:
-        if (pageNo == 0) {
-          response = await Http().get('/?tab=hot');
-          Document document = parse(response.data);
-          List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
-          res.success = true;
-          res.data = Utils().parsePagePostList(aRootNode);
-        } else {
-          response = await Http().get(Const.v2Hot + '/hot/${date}.json');
-          List<Post2> topicList = [];
-          (response.data as List).forEach((v) {
-            print(v);
-            Post2 item = Post2.fromJson(v);
-            item.member.username = v['username'];
-            item.member.avatar = v['avatar'];
-            item.node.title = v['nodeTitle'];
-            item.node.url = v['nodeUrl'];
-            topicList.add(item);
-          });
-          res.success = true;
-          res.data = topicList;
-        }
-        break;
       case TabType.node:
         NodeListModel? s = await getNodePageInfo(nodeId: tab.id, pageNo: pageNo);
         if (s != null) {
@@ -60,8 +37,13 @@ class Api {
         }
         break;
       case TabType.latest:
-        List<Post2> list = await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
         res.success = true;
+        List<Post2> list;
+        if (pageNo == 0) {
+          list = await getLatestPostList(nodeId: tab.id, pageNo: pageNo);
+        } else {
+          list = [];
+        }
         res.data = list;
         break;
       // case 'changes':
@@ -176,7 +158,7 @@ class Api {
 
     xmlList.forEach((item) {
       Post2 p = new Post2();
-      print(item);
+      // print(item);
       p.title = item['title'].replaceAll(RegExp(r'^\[.*?\]'), '');
       p.title = p.title.trim();
       RegExp regExp = RegExp(r'^\[.*?\]');
