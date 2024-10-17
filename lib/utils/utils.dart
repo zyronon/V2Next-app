@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:collection';
 import 'dart:convert' show utf8, base64;
 import 'dart:developer';
 import 'dart:io';
@@ -337,12 +338,16 @@ class Utils {
             }
             String s = bottomInfo.text.replaceAll('•  最后回复来自', '').trim();
             item.lastReplyDateAgo = s.replaceFirst(' +08:00', '').trim();
-            if(item.lastReplyDateAgo == '置顶'){
+            if (item.lastReplyDateAgo == '置顶') {
               item.isTop = true;
               item.lastReplyDateAgo = '';
             }
           }
         } else {
+          String? style = aNode.attributes['style'];
+          if (style != null) {
+            item.isTop = style.length != 0;
+          }
           Element? topicInfoEl = aNode.querySelector('.topic_info');
           if (topicInfoEl != null) {
             List<Element> strongList = topicInfoEl.querySelectorAll('strong');
@@ -355,8 +360,9 @@ class Utils {
             }
 
             Element? date = topicInfoEl.querySelector('span');
-            if(date !=null){
-              item.lastReplyDateAgo = date.text.replaceFirst(' +08:00', '');;
+            if (date != null) {
+              item.lastReplyDateAgo = date.text.replaceFirst(' +08:00', '');
+              ;
             }
           }
         }

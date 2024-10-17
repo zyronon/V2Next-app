@@ -77,7 +77,7 @@ class _IndexState extends State<Index> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '我'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green[800],
+        selectedItemColor: Const.primaryColor,
         unselectedItemColor: Colors.black,
         onTap: _onItemTapped,
       ),

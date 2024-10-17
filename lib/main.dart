@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/post_detail.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
 
@@ -64,17 +65,17 @@ class MyApp extends StatelessWidget {
                 statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
                 systemNavigationBarColor: Colors.white, // 底部导航栏颜色
               )),
-              colorScheme: const ColorScheme.light(
+              colorScheme: ColorScheme.light(
                 surface: Colors.white,
                 // 和底部导航栏保持一致
                 // surfaceBright: Color(0x00FFFFFF), // 透明背景
-                primary: Color.fromARGB(255, 89, 54, 133),
-                secondary: Color(0xFFE3EDF2),
+                primary: Const.primaryColor,
+                secondary: const Color(0xFFE3EDF2),
                 tertiary: Colors.black,
                 onSecondary: Colors.black,
-                secondaryContainer: Color(0xFFE3EDF2),
+                secondaryContainer: const Color(0xFFE3EDF2),
                 // 骨架屏底色
-                onSecondaryContainer: Color.fromARGB(255, 242, 247, 251),
+                onSecondaryContainer: const Color.fromARGB(255, 242, 247, 251),
                 // 骨架屏亮色
                 inversePrimary: Colors.black54,
               ),

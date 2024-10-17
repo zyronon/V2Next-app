@@ -25,4 +25,6 @@ class Agent {
 class Const {
   static Agent agent = new Agent();
   static String v2Hot = 'https://test4-black-eta.vercel.app';
+  static Color primaryColor = Color(0xff48a24a);
+  // static Color primaryColor = Color(0xff07c160);
 }

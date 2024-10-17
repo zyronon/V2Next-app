@@ -389,7 +389,6 @@ class DioRequestWeb {
     // 节点名称
     detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
-    detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
     if (mainHeader.querySelector('div.intro') != null) {
       detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;

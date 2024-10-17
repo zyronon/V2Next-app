@@ -23,6 +23,7 @@ class Api {
     switch (tab.type) {
       case TabType.tab:
         if (pageNo == 1) {
+          //用pc网站，因为要取子tab。不取子tab可以用mobile网站
           response = await Http().get('/', data: {'tab': tab.enName}, isMobile: false);
           Document document = parse(response.data);
           List<Element> listEl = document.querySelectorAll("div[class='cell item']");
@@ -106,7 +107,6 @@ class Api {
     detailModel.nodeEnName = nodeEnName;
     //手机端 收藏人数获取不到
     Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo}, isMobile: false);
-    print(response.statusCode);
     if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
       print('无权限');
       //TODO 无权限

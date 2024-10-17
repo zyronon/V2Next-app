@@ -1,10 +1,8 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
@@ -55,7 +53,7 @@ class NodeController extends GetxController {
     NodeListModel? res = await Api.getNodePageInfo(nodeEnName: model.nodeEnName, pageNo: pageNo);
     if (res != null) {
       if (isRefresh) model.topicList = [];
-      if (model.nodeId.isEmpty) {
+      if (model.nodeCover.isEmpty && model.topicCount.isEmpty) {
         model = res;
       } else {
         model.topicList.addAll(res.topicList);
