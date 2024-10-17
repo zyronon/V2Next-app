@@ -6,14 +6,14 @@ import 'package:v2ex/components/tab_page/tab_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
     new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
     new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
@@ -69,11 +69,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                 children: [
                   Expanded(
                     child: TabBar(
-                        tabAlignment: TabAlignment.start,
-                        isScrollable: true,
-                        labelStyle: TextStyle(fontSize: 15.sp),
-                        unselectedLabelStyle: TextStyle(fontSize: 15.sp),
-                        tabs: tabs),
+                      tabAlignment: TabAlignment.start,
+                      isScrollable: true,
+                      labelStyle: TextStyle(fontSize: 15.sp),
+                      unselectedLabelStyle: TextStyle(fontSize: 15.sp),
+                      tabs: tabs,
+                    ),
                     flex: 7,
                   ),
                   Expanded(

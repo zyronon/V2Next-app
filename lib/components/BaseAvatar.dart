@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 class BaseAvatar extends StatelessWidget {
   final String src;
   final double diameter;
-  final double radius;
+  double radius;
 
-  const BaseAvatar({super.key, required this.src, required this.diameter, required this.radius});
+  BaseAvatar({super.key, required this.src, required this.diameter, this.radius = 6});
 
-  Widget _default(){
+  Widget _default() {
     return Container(width: diameter, height: diameter);
   }
+
   @override
   Widget build(BuildContext context) {
     if (src != '') {

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/BaseController.dart';
 
-class Me extends StatelessWidget {
+class MePage extends StatelessWidget {
   Widget _buildNumItem(String name, int num, [GestureTapCallback? onTap]) {
     return InkWell(
         child: Column(children: [

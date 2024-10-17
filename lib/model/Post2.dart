@@ -77,6 +77,7 @@ class Reply {
 class Post2 {
   List<dynamic> allReplyUsers;
   String contentRendered;
+  String contentText;
   String createDate;
   String createDateAgo;
   String lastReplyDate;
@@ -95,8 +96,6 @@ class Post2 {
   String id;
   String type;
   String once;
-  String contentHtml;
-  String contentText;
   int replyCount;
   int clickCount;
   int thankCount;
@@ -116,7 +115,6 @@ class Post2 {
   // 构造函数
   Post2({
     this.allReplyUsers = const [],
-    this.contentRendered = '',
     this.createDate = '',
     this.createDateAgo = '',
     this.lastReplyDate = '',
@@ -135,7 +133,7 @@ class Post2 {
     this.id = '',
     this.type = '',
     this.once = '',
-    this.contentHtml = '',
+    this.contentRendered = '',
     this.contentText = '',
     this.replyCount = 0,
     this.clickCount = 0,
@@ -177,7 +175,6 @@ class Post2 {
         id = json['id'].toString() ?? '',
         type = json['type'] ?? '',
         once = json['once'] ?? '',
-        contentHtml = json['contentHtml'] ?? '',
         contentText = json['contentText'] ?? '',
         replyCount = json['replyCount'] ?? 0,
         clickCount = json['clickCount'] ?? 0,
@@ -311,3 +308,26 @@ class Result {
 }
 
 enum Auth { normal, notAllow }
+enum NoticeType { reply, thanksTopic, thanksReply, favTopic } // 消息类型
+
+class MemberNoticeModel {
+  int totalPage = 1; // 总页数
+  int totalCount = 0; // 总条目
+  List<MemberNoticeItem> noticeList = []; // 消息列表
+  bool isEmpty = false; // 无内容
+}
+class MemberNoticeItem  {
+  String memberId = ''; // 回复用户id
+  String memberAvatar = ''; // 回复用户头像
+  String replyContent = ''; // 回复内容
+  var replyContentHtml;
+  List<String> replyMemberId = []; // 被回复id
+  String replyTime = ''; // 回复时间
+  String topicTitle = ''; // 主题标题
+  var topicTitleHtml; // 主题标题
+  String topicId = ''; // 主题id
+  String delIdOne = ''; // 删除id
+  String delIdTwo = ''; // 删除id
+  NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举
+  String topicHref = ''; // 主题href  /t/923791#reply101
+}

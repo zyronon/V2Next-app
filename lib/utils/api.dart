@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
@@ -14,7 +15,7 @@ import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
 
 class Api {
-  //获取
+  //获取tab 主题列表
   static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 1, String? date}) async {
     Result res = new Result();
     Response response;
@@ -67,6 +68,7 @@ class Api {
     return res;
   }
 
+  //获取最热主题列表
   static Future<Result> getHotPostList({String? date}) async {
     Result res = new Result();
     Response response;
@@ -93,6 +95,7 @@ class Api {
     return res;
   }
 
+  //获取v2 最热 时间列表
   static Future<List<String>> getV2HotDateMap() async {
     List<String> list = [];
     Response response = await Http().get(Const.v2Hot + '/hot/map.json');
@@ -150,6 +153,112 @@ class Api {
       detailModel.topicList = Utils().parsePagePostList(topicEle);
     }
     return detailModel;
+  }
+
+  //获取今日热仪
+  static Future<List<Post2>> getTodayHotPostList() async {
+    Response response = await Http().get('/api/topics/hot.json');
+    List<dynamic> list = response.data;
+    return list
+        .map((e) => Post2(
+              id: e['id'].toString(),
+              title: e['title'],
+              member: Member(
+                avatar: e['member']['avatar_normal'],
+                avatarLarge: e['member']['avatar_large'],
+                username: e['member']['username'],
+              ),
+              node: V2Node(
+                enName: e['node']['name'],
+                cnName: e['node']['title'],
+              ),
+              contentText: e['content'],
+              contentRendered: e['content_rendered'],
+              replyCount: e['replies'],
+              lastReplyUsername: e['last_reply_by'],
+            ))
+        .toList();
+  }
+
+  //获取通知
+  static Future<MemberNoticeModel> getNotifications({int pageNo = 1}) async {
+    MemberNoticeModel memberNotices = MemberNoticeModel();
+    List<MemberNoticeItem> noticeList = [];
+
+    Response response = await Http().get('/notifications', data: {'p': pageNo});
+    Document document = parse(response.data);
+    List<Element> cellList = document.querySelectorAll('#notifications > .cell');
+    Element? countEl = document.querySelector('#Main .box .header strong');
+    if (countEl != null) {
+      memberNotices.totalCount = int.parse(countEl.text);
+    }
+    Element? inputEl = document.querySelector('#Main .box .ps_container input');
+    if (inputEl != null) {
+      var max = inputEl.attributes['max'];
+      if (max != null) {
+        memberNotices.totalPage = int.parse(max);
+      }
+    }
+
+    for (var i = 0; i < cellList.length; i++) {
+      var aNode = cellList[i];
+      MemberNoticeItem noticeItem = MemberNoticeItem();
+      noticeItem.memberAvatar =
+      aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+      noticeItem.memberId =
+      aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+
+      var td2Node = aNode.querySelectorAll('tr>td')[1];
+
+      noticeItem.topicId = td2Node
+          .querySelectorAll('span.fade>a')[1]
+          .attributes['href']!
+          .split('/')[2]
+          .split('#')[0];
+      noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
+      noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
+      var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
+      if (noticeItem.topicTitleHtml != null) {
+        // print(noticeItem.topicTitleHtml.querySelectorAll('a'));
+        noticeItem.topicHref = td2Node
+            .querySelector('span.fade')!
+            .querySelectorAll('a')[1]
+            .attributes['href']!;
+      }
+      if (noticeTypeStr.text!.contains('在回复')) {
+        noticeItem.noticeType = NoticeType.reply;
+      }
+      if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
+        noticeItem.noticeType = NoticeType.favTopic;
+      }
+      if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
+        noticeItem.noticeType = NoticeType.thanksTopic;
+      }
+      if (noticeTypeStr.text!.contains('感谢了你在主题')) {
+        noticeItem.noticeType = NoticeType.thanksReply;
+      }
+
+      if (td2Node.querySelector('div.payload') != null) {
+        noticeItem.replyContent =
+            td2Node.querySelector('div.payload')!.text.trim();
+        noticeItem.replyContentHtml =
+            td2Node.querySelector('div.payload')!.innerHtml;
+      } else {
+        noticeItem.replyContentHtml = null;
+      }
+
+      noticeItem.replyTime =
+          td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
+      var delNum = td2Node
+          .querySelector('a.node')!
+          .attributes['onclick']!
+          .replaceAll(RegExp(r"[deleteNotification( | )]"), '');
+      noticeItem.delIdOne = delNum.split(',')[0];
+      noticeItem.delIdTwo = delNum.split(',')[1];
+      noticeList.add(noticeItem);
+    }
+    memberNotices.noticeList = noticeList;
+    return memberNotices;
   }
 
   //获取最新帖子(特殊处理)
@@ -311,7 +420,7 @@ class Api {
     if (t != null) t.remove();
     t = temp.querySelector('.header');
     if (t != null) t.remove();
-    post.contentHtml = temp.innerHtml.replaceAll(' +08:00', '');
+    post.contentRendered = temp.innerHtml.replaceAll(' +08:00', '');
     var contentEl = temp.querySelector('.topic_content');
     if (contentEl != null) {
       post.contentText = contentEl.text.trim();

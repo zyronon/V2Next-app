@@ -228,7 +228,7 @@ class PostDetailState extends State<PostDetail> {
         text: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildPostTitle(), BaseHtmlWidget(html: ctrl.post.contentHtml)],
+          children: [_buildPostTitle(), BaseHtmlWidget(html: ctrl.post.contentRendered)],
         ),
         content: Column(
           children: [
@@ -367,7 +367,7 @@ class PostDetailState extends State<PostDetail> {
       await modalWrap(text: BaseHtmlWidget(html: pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentHtml), content: _buildEditor());
+      await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentRendered), content: _buildEditor());
     }
     _replyCtrl.text = '';
   }
@@ -943,11 +943,11 @@ class PostDetailState extends State<PostDetail> {
                                         ],
                                       ),
                                       _buildPostTitle(),
-                                      ctrl.loading
+                                      (ctrl.loading && ctrl.post.contentRendered.isEmpty)
                                           ? Skeletonizer.zone(
                                               child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
                                             )
-                                          : BaseHtmlWidget(html: ctrl.post.contentHtml),
+                                          : BaseHtmlWidget(html: ctrl.post.contentRendered),
                                     ],
                                   ),
                                 ),

@@ -26,5 +26,9 @@ class Const {
   static Agent agent = new Agent();
   static String v2Hot = 'https://test4-black-eta.vercel.app';
   static Color primaryColor = Color(0xff48a24a);
-  // static Color primaryColor = Color(0xff07c160);
+  static Color line = Color(0xfff1f1f1);
+  static double padding = 10.w;
+  static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
+  static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
+// static Color primaryColor = Color(0xff07c160);
 }

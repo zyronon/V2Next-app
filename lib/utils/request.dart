@@ -61,18 +61,18 @@ class Http {
   /*
    * get请求
    */
-  Future<Response> get(url, {data, isMobile = true}) async {
+  Future<Response> get(url, {data, isMobile = false}) async {
     return request(url, query: data, isMobile: isMobile, method: 'GET');
   }
 
   /*
-   * post请求
+   * post请求，提交
    */
-  Future<Response> post(url, {data, isMobile = true}) async {
+  Future<Response> post(url, {data, isMobile = false}) async {
     return request(url, data: data, isMobile: isMobile, method: 'POST');
   }
 
-  Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = true}) async {
+  Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = false}) async {
     Options options = Options();
     options.method = method;
     if (!isMobile) {

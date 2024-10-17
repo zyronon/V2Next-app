@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/material.dart' ;
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/pages/discover.dart';
+import 'package:v2ex/pages/notifications.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 
@@ -17,14 +17,14 @@ class Index extends StatefulWidget {
 
 class _IndexState extends State<Index> {
   BaseController c = Get.put(BaseController());
-  int _selectedIndex = 0;
-  PageController _controller = PageController();
+  int _selectedIndex = 3;
+  PageController _controller = PageController(initialPage: 3);
   final List<Widget> _Pages = [
-    Home(),
-    Text("Page2"),
+    HomePage(),
+    DiscoverPage(),
     Text("Page3"),
-    Text("Page4"),
-    Me(),
+    NotificationsPage(),
+    MePage(),
   ];
 
   @override
