@@ -203,18 +203,12 @@ class Api {
     for (var i = 0; i < cellList.length; i++) {
       var aNode = cellList[i];
       MemberNoticeItem noticeItem = MemberNoticeItem();
-      noticeItem.memberAvatar =
-      aNode.querySelector('tr>td>a>img')!.attributes['src']!;
-      noticeItem.memberId =
-      aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+      noticeItem.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+      noticeItem.memberId = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
 
       var td2Node = aNode.querySelectorAll('tr>td')[1];
 
-      noticeItem.topicId = td2Node
-          .querySelectorAll('span.fade>a')[1]
-          .attributes['href']!
-          .split('/')[2]
-          .split('#')[0];
+      noticeItem.topicId = td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0];
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
 
@@ -235,18 +229,13 @@ class Api {
       }
 
       if (td2Node.querySelector('div.payload') != null) {
-        noticeItem.replyContentHtml =
-            td2Node.querySelector('div.payload')!.innerHtml;
+        noticeItem.replyContentHtml = td2Node.querySelector('div.payload')!.innerHtml;
       } else {
         noticeItem.replyContentHtml = null;
       }
 
-      noticeItem.replyTime =
-          td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
-      var delNum = td2Node
-          .querySelector('a.node')!
-          .attributes['onclick']!
-          .replaceAll(RegExp(r"[deleteNotification( | )]"), '');
+      noticeItem.replyTime = td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
+      var delNum = td2Node.querySelector('a.node')!.attributes['onclick']!.replaceAll(RegExp(r"[deleteNotification( | )]"), '');
       noticeItem.delIdOne = delNum.split(',')[0];
       noticeItem.delIdTwo = delNum.split(',')[1];
       noticeList.add(noticeItem);
@@ -423,10 +412,15 @@ class Api {
     var topicButtons = document.querySelector('.topic_buttons');
     if (topicButtons != null) {
       var tbs = topicButtons.querySelectorAll('.tb');
-      var favoriteNode = tbs[0];
-      post.isFavorite = favoriteNode.text == '取消收藏';
-      var ignoreNode = tbs[2];
-      post.isIgnore = ignoreNode.text == '取消忽略';
+      if (tbs.isNotEmpty) {
+        print(tbs);
+        var favoriteNode = tbs[0];
+        post.isFavorite = favoriteNode.text == '取消收藏';
+        if (tbs.length > 2) {
+          var ignoreNode = tbs[2];
+          post.isIgnore = ignoreNode.text == '取消忽略';
+        }
+      }
 
       var thankNode = topicButtons.querySelector('#topic_thank .topic_thanked');
       if (thankNode != null) {

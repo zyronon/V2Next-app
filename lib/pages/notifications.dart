@@ -40,9 +40,9 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
     new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
-    new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
-    new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
-    new TabItem(cnName: '最新', enName: 'new', type: TabType.latest),
+    new TabItem(cnName: '回复', enName: 'hot', type: TabType.hot),
+    new TabItem(cnName: '感谢', enName: 'sandbox', type: TabType.node),
+    new TabItem(cnName: '收藏', enName: 'new', type: TabType.latest),
   ];
 
   @override
@@ -76,6 +76,7 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                   ),
                   Expanded(
                       child: TabBarView(
+                          physics:NeverScrollableScrollPhysics(),
                           children: tabMap.map((e) {
                     return RefreshIndicator(
                       child: ListView(

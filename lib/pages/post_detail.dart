@@ -75,9 +75,9 @@ class PostDetailController extends GetxController {
     isShowFixedTitle = false;
     loading = true;
     update();
-    Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
+    // Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('825072');
+    Post2 topicDetailModel = await Api.getPostDetail('825072');
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
     loading = false;
     post = topicDetailModel;
@@ -1011,7 +1011,7 @@ class PostDetailState extends State<PostDetail> {
                               (context, index) {
                                 if (normalListCtx != context) normalListCtx = context;
                                 // return ListTile(title: Text('1111$index'));
-                                return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 0), _buildDivider()]);
+                                return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 1), _buildDivider()]);
                               },
                               childCount: ctrl.getReplyList().length,
                             )),

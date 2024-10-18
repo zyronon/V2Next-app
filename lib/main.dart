@@ -90,7 +90,7 @@ class MyApp extends StatelessWidget {
                       child: MediaQuery(
                         data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
                         child: DefaultTextStyle(
-                          style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 14.sp)),
+                          style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 14.sp,height: 1)),
                           child: child!,
                         ),
                       ),

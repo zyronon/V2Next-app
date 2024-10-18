@@ -56,14 +56,14 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              String floorNumber = widget.noticeItem.topicHref.split('#reply')[1];
-              NoticeType noticeType = widget.noticeItem.noticeType;
-              Map<String, String> parameters = {};
-              if (noticeType.name == NoticeType.reply.name || noticeType.name == NoticeType.thanksReply.name) {
-                // 回复 or 感谢回复
-                parameters = {'source': 'notice', 'floorNumber': floorNumber};
-              }
-              Get.toNamed('/t/${widget.noticeItem.topicId}', parameters: parameters);
+              // String floorNumber = widget.noticeItem.topicHref.split('#reply')[1];
+              // NoticeType noticeType = widget.noticeItem.noticeType;
+              // Map<String, String> parameters = {};
+              // if (noticeType == NoticeType.reply || noticeType == NoticeType.thanksReply) {
+              //   回复 or 感谢回复
+              // parameters = {'source': 'notice', 'floorNumber': floorNumber};
+              // }
+              Get.toNamed('/post-detail', arguments: Post2(id: widget.noticeItem.topicId));
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
@@ -76,7 +76,6 @@ class _NoticeItemState extends State<NoticeItem> {
   }
 
   Widget content() {
-    final herotag = widget.noticeItem.memberId + Random().nextInt(999).toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -85,16 +84,12 @@ class _NoticeItemState extends State<NoticeItem> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                GestureDetector(
-                  onTap: () => Get.toNamed('/member/${widget.noticeItem.memberId}', parameters: {
-                    'memberAvatar': widget.noticeItem.memberAvatar,
-                    'heroTag': herotag,
-                  }),
-                  child: BaseAvatar(
+                BaseAvatar(
                     src: widget.noticeItem.memberAvatar,
                     diameter: 30.w,
-                  ),
-                ),
+                    onTap: () => Get.toNamed('/member', parameters: {
+                          'id': widget.noticeItem.memberId,
+                        })),
                 SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,10 +109,10 @@ class _NoticeItemState extends State<NoticeItem> {
           ],
         ),
         SizedBox(height: 6.w),
-        if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复了你：'),
-        if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢了：'),
-        if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢了：'),
-        if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏了：'),
+        if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复：'),
+        if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢：'),
+        if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢：'),
+        if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏：'),
         SizedBox(height: 6.w),
         if (widget.noticeItem.replyContentHtml != null)
           Stack(
@@ -127,14 +122,16 @@ class _NoticeItemState extends State<NoticeItem> {
               ),
               Positioned.fill(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [Container(width: 4.w, color: Colors.grey[300])],
+                  children: [Container(width: 3.w, color: Colors.grey[300])],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(top:Const.padding,bottom: Const.padding,right: Const.padding),
-                child: BaseHtmlWidget(html: widget.noticeItem.replyContentHtml),
-                margin: EdgeInsets.only(left: 10.w),
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  padding: EdgeInsets.only(top: Const.padding, bottom: Const.padding, right: Const.padding),
+                  child: BaseHtmlWidget(html: widget.noticeItem.replyContentHtml),
+                  margin: EdgeInsets.only(left: 10.w),
+                ),
               )
             ],
           ),
@@ -150,7 +147,7 @@ class _NoticeItemState extends State<NoticeItem> {
             // padding: EdgeInsets.all(10.w),
             child: Text(
               widget.noticeItem.topicTitle,
-              style: TextStyle(color: Color(0xff2395f1),decoration: TextDecoration.underline),
+              style: TextStyle(color: Color(0xff2395f1), decoration: TextDecoration.underline, decorationColor: Color(0xff2395f1)),
             ),
           ),
       ],
