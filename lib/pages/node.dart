@@ -181,16 +181,7 @@ class NodePage extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        CachedNetworkImage(
-                                          imageUrl: _.model.nodeCover,
-                                          height: 62,
-                                          width: 62,
-                                          fit: BoxFit.cover,
-                                          // fadeOutDuration: const Duration(milliseconds: 800),
-                                          // fadeInDuration: const Duration(milliseconds: 300),
-                                          errorWidget: (context, url, error) => const Center(child: Text('加载失败')),
-                                          placeholder: (context, url) => const Center(child: Text('加载中')),
-                                        ),
+                                        BaseAvatar(src: _.model.nodeCover, diameter: 62, radius: 0),
                                         const SizedBox(width: 6),
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.center,

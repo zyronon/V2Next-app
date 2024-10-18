@@ -15,9 +15,11 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -75,12 +77,11 @@ class PostDetailController extends GetxController {
     isShowFixedTitle = false;
     loading = true;
     update();
-    Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
-    // Post2 topicDetailModel = await Api.getPostDetail('825072');
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
+    post = await Api.getPostDetail(Get.arguments.id);
+    // post = await Api.getPostDetail('825072');
     loading = false;
-    post = topicDetailModel;
     update();
     observerController.reattach();
   }
@@ -94,9 +95,6 @@ class PostDetailController extends GetxController {
 }
 
 class PostDetail extends StatefulWidget {
-  // final Post post;
-  // const Me({super.key, required this.post});
-
   const PostDetail({super.key});
 
   @override
@@ -111,7 +109,6 @@ class PostDetailState extends State<PostDetail> {
   BuildContext? topListCtx; //高赞回复
   BuildContext? firstChildCtx;
   bool reverseSort = false; // 倒序
-  bool isLoading = false; // 请求状态 正序/倒序
 
   @override
   void initState() {
@@ -330,7 +327,7 @@ class PostDetailState extends State<PostDetail> {
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(10.r)),
                     ),
-                    constraints: BoxConstraints(maxHeight: .5.sh),
+                    constraints: BoxConstraints(maxHeight: .3.sh),
                     padding: EdgeInsets.all(14.w),
                     width: ScreenUtil().screenWidth * .91,
                     child: SingleChildScrollView(child: text)),
@@ -412,7 +409,7 @@ class PostDetailState extends State<PostDetail> {
   Widget clickWidget(Widget widget, onTap) {
     return InkWell(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
+        padding: EdgeInsets.fromLTRB(14.w, 6.w, 14.w, 6.w),
         child: widget,
       ),
       onTap: onTap,
@@ -432,7 +429,6 @@ class PostDetailState extends State<PostDetail> {
   }
 
   onReply() async {
-    BaseController bc = Get.find();
     var res = await TopicWebApi.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text, 0);
     if (res == 'true') {
       if (context.mounted) {
@@ -479,9 +475,30 @@ class PostDetailState extends State<PostDetail> {
     }
   }
 
+  showMemberList(){
+    PostDetailController pdc = Get.find();
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child:Container(color: Colors.white,child:  Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              ...pdc.post.allReplyUsers.map((u){
+                return Text(u);
+              })
+            ],
+          )),
+        );
+      },
+    );
+  }
+
   Widget _buildEditor() {
     return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.w),
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.w),
       child: Column(
         children: [
           Container(
@@ -506,7 +523,7 @@ class PostDetailState extends State<PostDetail> {
               children: [
                 Row(children: [
                   _buildClickIcon(Icons.sentiment_satisfied_alt, () {}),
-                  _buildClickIcon(Icons.alternate_email),
+                  _buildClickIcon(Icons.alternate_email,showMemberList),
                   _buildClickIcon(Icons.add_photo_alternate),
                   _buildClickIcon(Icons.format_quote, () {
                     _replyCtrl.text = _replyCtrl.text + '\n---\n${ctrl.reply.id.isEmpty ? ctrl.post.contentText : ctrl.reply.replyText}\n---';
@@ -646,7 +663,7 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  Widget space() {
+  Widget _buildSpace() {
     return SliverToBoxAdapter(
       child: Container(
         width: 100.sw,
@@ -671,7 +688,16 @@ class PostDetailState extends State<PostDetail> {
         width: double.infinity,
         padding: EdgeInsets.only(top: 4.w, bottom: 4.w),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.black12)),
+          border: Border(bottom: BorderSide(color: Const.line)),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2), // 阴影颜色
+              spreadRadius: 1,                      // 扩散半径
+              blurRadius: 10,                       // 模糊半径
+              offset: Offset(0, 2),              // 阴影偏移量 (x, y)
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -709,9 +735,18 @@ class PostDetailState extends State<PostDetail> {
   Widget _buildToolbar() {
     return Container(
         width: double.infinity,
-        padding: EdgeInsets.fromLTRB(14.w, 4.w, 6.w, 4.w),
+        padding: EdgeInsets.fromLTRB(14.w, 0.w, 6.w, 4.w),
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.black12)),
+          border: Border(top: BorderSide(color: Const.line)),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2), // 阴影颜色
+              spreadRadius: 1,                      // 扩散半径
+              blurRadius: 10,                       // 模糊半径
+              offset: Offset(0, -2),              // 阴影偏移量 (x, y)
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -723,7 +758,7 @@ class PostDetailState extends State<PostDetail> {
                     '说点什么...',
                     style: TextStyle(color: Colors.black54),
                   ),
-                  decoration: BoxDecoration(border: Border.all(color: Colors.black26), borderRadius: BorderRadius.circular(8.r)),
+                  decoration: BoxDecoration(border: Border.all(color: Colors.black12), borderRadius: BorderRadius.circular(4.r)),
                   padding: EdgeInsets.all(6.w),
                 ),
                 onTap: () {
@@ -768,7 +803,7 @@ class PostDetailState extends State<PostDetail> {
                 Column(
                   children: [
                     Icon(
-                      TDIcons.chart,
+                      TDIcons.chat,
                       size: 24.sp,
                       color: Colors.grey,
                     ),
@@ -960,7 +995,7 @@ class PostDetailState extends State<PostDetail> {
                               );
                             },
                           ),
-                          space(),
+                          _buildSpace(),
 
                           if (ctrl.loading) ...[
                             //普通回复
@@ -1004,7 +1039,7 @@ class PostDetailState extends State<PostDetail> {
                                 },
                                 childCount: ctrl.post.topReplyList.length,
                               )),
-                              space(),
+                              _buildSpace(),
                             ],
 
                             //普通回复
@@ -1020,13 +1055,7 @@ class PostDetailState extends State<PostDetail> {
                               },
                               childCount: ctrl.getReplyList().length,
                             )),
-                            SliverToBoxAdapter(
-                                child: Container(
-                              height: 100.w,
-                              child: Center(
-                                child: Text('没有更多了'),
-                              ),
-                            )),
+                            SliverToBoxAdapter(child: FooterTips()),
                           ]
                         ],
                       ),

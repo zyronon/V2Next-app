@@ -14,6 +14,7 @@ class PostItem extends StatelessWidget {
   PostItem({required this.item, required this.tab});
 
   goPostDetail() {
+    item.member.avatarLarge = item.member.avatar;
     Get.toNamed('/post-detail', arguments: item);
     // Get.toNamed('/test', arguments: post);
   }

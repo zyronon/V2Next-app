@@ -109,7 +109,7 @@ class Api {
     NodeListModel detailModel = NodeListModel();
     detailModel.nodeEnName = nodeEnName;
     //手机端 收藏人数获取不到
-    Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo}, isMobile: false);
+    Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo});
     if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
       print('无权限');
       //TODO 无权限
@@ -118,7 +118,7 @@ class Api {
 
     var document = parse(response.data);
     var mainBox = document.body!.children[1].querySelector('#Main');
-    var mainHeader = document.querySelector('div.box.box-title.node-header');
+    var mainHeader = mainBox!.querySelector('.node-header');
     detailModel.nodeCover = mainHeader!.querySelector('img')!.attributes['src']!;
     // 节点名称
     detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
@@ -348,7 +348,7 @@ class Api {
     var as = wrapper!.querySelectorAll('.header > a');
     if (as.isNotEmpty) {
       post.node.cnName = as[1].text;
-      post.node.enName = as[1].attributes['href']!;
+      post.node.enName = as[1].attributes['href']!.replaceAll('/go/', '');
     }
 
     var header = wrapper.querySelector('.header');

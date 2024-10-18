@@ -17,13 +17,21 @@ class ReplyItem extends StatelessWidget {
   final int type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
   final int index;
 
-  const ReplyItem({super.key, required this.item, required this.onThank, required this.onMenu, required this.type, required this.index, required this.onTap});
+  const ReplyItem({
+    super.key,
+    required this.item,
+    required this.onThank,
+    required this.onMenu,
+    required this.type,
+    required this.index,
+    required this.onTap,
+  });
 
   getPadding() {
     if (item.level == 0) {
       return EdgeInsets.fromLTRB(10.w, 8.w, 8.w, 8.w);
     }
-    return EdgeInsets.only(top: 0.w);
+    return EdgeInsets.only(top: index > 0 ? 8.w : 0.w);
   }
 
   @override
@@ -38,10 +46,9 @@ class ReplyItem extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    if ((item.level == 0 && type == 0) || type == 1) ...[
-                      BaseAvatar(src: item.avatar, diameter: 26.w, radius: 4.w),
-                      SizedBox(width: 10.w),
-                    ],
+                    // if ((item.level == 0 && type == 0) || type == 1)
+                    BaseAvatar(src: item.avatar, diameter: 26.w, radius: 4.w),
+                    SizedBox(width: 10.w),
                     Expanded(
                         child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,15 +122,14 @@ class ReplyItem extends StatelessWidget {
             verticalDirection: VerticalDirection.down,
           ),
           Padding(
-            padding: EdgeInsets.only(top: 6.w, bottom: (item.children.length == 0 && item.level == 0) ? 0 : 6.w, right: item.level == 0 ? 0 : 10.w),
-            child: SelectionArea(
-                child: InkWell(
-              child: Container(
-                width: double.infinity,
-                child: BaseHtmlWidget(html: type == 0 ? item.replyContent : item.hideCallUserReplyContent),
+            padding: EdgeInsets.only(top: 6.w, bottom: item.children.length == 0 ? 0 : 6.w, right: item.level == 0 ? 0 : 10.w),
+            child: SizedBox(
+              width: double.infinity,
+              child: BaseHtmlWidget(
+                html: type == 0 ? item.replyContent : item.hideCallUserReplyContent,
+                onTap: () => onTap(item),
               ),
-              onTap: () => onTap(item),
-            )),
+            ),
           ),
           if (item.children.length != 0)
             Stack(
@@ -132,8 +138,8 @@ class ReplyItem extends StatelessWidget {
                 if (item.level != 0) Positioned.fill(child: Row(children: [Container(width: 1.w, color: Colors.grey[300])])),
                 Container(
                   padding: EdgeInsets.only(
-                    top: item.level == 0 ? 6.w : 0,
-                    bottom: item.level == 0 ? 6.w : 0,
+                    top: item.level == 0 ? 8.w : 0,
+                    bottom: item.level == 0 ? 8.w : 0,
                     left: 14.w,
                   ),
                   child: Column(
