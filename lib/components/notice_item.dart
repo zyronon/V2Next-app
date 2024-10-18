@@ -1,17 +1,18 @@
 import 'dart:math';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 
 // TODO 样式
 class NoticeItem extends StatefulWidget {
   final MemberNoticeItem noticeItem;
   final Function? onDeleteNotice;
 
-  const NoticeItem({required this.noticeItem, this.onDeleteNotice, Key? key})
-      : super(key: key);
+  const NoticeItem({required this.noticeItem, this.onDeleteNotice, Key? key}) : super(key: key);
 
   @override
   State<NoticeItem> createState() => _NoticeItemState();
@@ -44,11 +45,7 @@ class _NoticeItemState extends State<NoticeItem> {
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.clear_all_rounded),
-                SizedBox(width: 6),
-                Text('删除')
-              ],
+              children: [Icon(Icons.clear_all_rounded), SizedBox(width: 6), Text('删除')],
             )),
         direction: DismissDirection.endToStart,
         key: ValueKey<String>(widget.noticeItem.delIdOne),
@@ -59,17 +56,14 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              String floorNumber =
-                  widget.noticeItem.topicHref.split('#reply')[1];
+              String floorNumber = widget.noticeItem.topicHref.split('#reply')[1];
               NoticeType noticeType = widget.noticeItem.noticeType;
               Map<String, String> parameters = {};
-              if (noticeType.name == NoticeType.reply.name ||
-                  noticeType.name == NoticeType.thanksReply.name) {
+              if (noticeType.name == NoticeType.reply.name || noticeType.name == NoticeType.thanksReply.name) {
                 // 回复 or 感谢回复
                 parameters = {'source': 'notice', 'floorNumber': floorNumber};
               }
-              Get.toNamed('/t/${widget.noticeItem.topicId}',
-                  parameters: parameters);
+              Get.toNamed('/t/${widget.noticeItem.topicId}', parameters: parameters);
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
@@ -82,103 +76,83 @@ class _NoticeItemState extends State<NoticeItem> {
   }
 
   Widget content() {
-    final herotag =
-        widget.noticeItem.memberId + Random().nextInt(999).toString();
+    final herotag = widget.noticeItem.memberId + Random().nextInt(999).toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        if (widget.noticeItem.topicTitleHtml != null)
-          Container(
-            alignment: Alignment.centerLeft,
-            margin: const EdgeInsets.only(top: 2, bottom: 10, right: 10),
-            // child: Text(
-            //   Characters(widget.noticeItem.replyContent).join('\u{200B}'),
-            //   style: Theme.of(context)
-            //       .textTheme
-            //       .titleSmall!
-            //       .copyWith(height: 1.6, fontWeight: FontWeight.w500),
-            // ),
-            child: BaseHtmlWidget(
-              html: widget.noticeItem.topicTitleHtml,
-            ),
-          ),
-        if (widget.noticeItem.replyContentHtml != null)
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(right: 10, bottom: 10),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                color: Theme.of(context).colorScheme.surface,
-                border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(0.1))),
-            // child: Text(widget.noticeItem.topicTitle),
-            child: BaseHtmlWidget(
-              html: widget.noticeItem.replyContentHtml,
-            ),
-          ),
         Row(
-          // 两端对齐
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Get.toNamed(
-                      '/member/${widget.noticeItem.memberId}',
-                      parameters: {
-                        'memberAvatar': widget.noticeItem.memberAvatar,
-                        'heroTag': herotag,
-                      }),
-                  child: Hero(
-                    tag: herotag,
-                    child: BaseAvatar(
-                      src: widget.noticeItem.memberAvatar,
-                      diameter: 33,
-                    ),
+                  onTap: () => Get.toNamed('/member/${widget.noticeItem.memberId}', parameters: {
+                    'memberAvatar': widget.noticeItem.memberAvatar,
+                    'heroTag': herotag,
+                  }),
+                  child: BaseAvatar(
+                    src: widget.noticeItem.memberAvatar,
+                    diameter: 30.w,
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        widget.noticeItem.memberId,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium!
-                            .copyWith(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    const SizedBox(height: 1.5),
-                    Row(
-                      children: [
-                        if (widget.noticeItem.replyTime.isNotEmpty) ...[
-                          Text(
-                            widget.noticeItem.replyTime,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
-                          ),
-                        ],
-                      ],
-                    )
+                    Text(widget.noticeItem.memberId),
+                    SizedBox(height: 1.5.w),
+                    if (widget.noticeItem.replyTime.isNotEmpty)
+                      Text(widget.noticeItem.replyTime,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey,
+                          )),
                   ],
                 )
               ],
             ),
           ],
         ),
+        SizedBox(height: 6.w),
+        if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复了你：'),
+        if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢了：'),
+        if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢了：'),
+        if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏了：'),
+        SizedBox(height: 6.w),
+        if (widget.noticeItem.replyContentHtml != null)
+          Stack(
+            children: [
+              Positioned.fill(
+                child: Container(color: Colors.grey[100]),
+              ),
+              Positioned.fill(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [Container(width: 4.w, color: Colors.grey[300])],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top:Const.padding,bottom: Const.padding,right: Const.padding),
+                child: BaseHtmlWidget(html: widget.noticeItem.replyContentHtml),
+                margin: EdgeInsets.only(left: 10.w),
+              )
+            ],
+          ),
+        SizedBox(height: 6.w),
+        if (widget.noticeItem.topicTitle.isNotEmpty)
+          Container(
+            alignment: Alignment.centerLeft,
+            // decoration: BoxDecoration(
+            //   color: Colors.grey[200],
+            //   borderRadius: BorderRadius.circular(5.r),
+            // ),
+            // margin: EdgeInsets.only(top: 2.w, bottom: 10.w, right: 10.w),
+            // padding: EdgeInsets.all(10.w),
+            child: Text(
+              widget.noticeItem.topicTitle,
+              style: TextStyle(color: Color(0xff2395f1),decoration: TextDecoration.underline),
+            ),
+          ),
       ],
     );
   }

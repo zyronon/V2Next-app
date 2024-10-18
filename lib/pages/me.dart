@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/BaseController.dart';
 
@@ -87,7 +88,7 @@ class MePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Column(children: [
-                  _buildMenuItem('余额', Icons.currency_bitcoin, () {
+                  _buildMenuItem('余额', TDIcons.money_circle, () {
                     Get.toNamed('/balance');
                   }),
                   Divider(height: 1.w, color: Colors.grey[200]),
@@ -95,11 +96,11 @@ class MePage extends StatelessWidget {
                     Get.toNamed('/notes');
                   }),
                   Divider(height: 1.w, color: Colors.grey[200]),
-                  _buildMenuItem('反馈', Icons.bug_report, () {
+                  _buildMenuItem('反馈', TDIcons.service, () {
                     Get.toNamed('/feedback');
                   }),
                   Divider(height: 1.w, color: Colors.grey[200]),
-                  _buildMenuItem('设置', Icons.settings, () {
+                  _buildMenuItem('设置', TDIcons.setting, () {
                     Get.toNamed('/setting');
                   }),
                 ]))

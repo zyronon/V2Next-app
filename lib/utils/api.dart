@@ -216,16 +216,12 @@ class Api {
           .split('/')[2]
           .split('#')[0];
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
-      noticeItem.topicTitleHtml = td2Node.querySelector('span.fade')!.innerHtml;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
-      if (noticeItem.topicTitleHtml != null) {
-        // print(noticeItem.topicTitleHtml.querySelectorAll('a'));
-        noticeItem.topicHref = td2Node
-            .querySelector('span.fade')!
-            .querySelectorAll('a')[1]
-            .attributes['href']!;
-      }
+
       if (noticeTypeStr.text!.contains('在回复')) {
+        noticeItem.noticeType = NoticeType.reply;
+      }
+      if (noticeTypeStr.text!.contains('回复了你')) {
         noticeItem.noticeType = NoticeType.reply;
       }
       if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
@@ -239,8 +235,6 @@ class Api {
       }
 
       if (td2Node.querySelector('div.payload') != null) {
-        noticeItem.replyContent =
-            td2Node.querySelector('div.payload')!.text.trim();
         noticeItem.replyContentHtml =
             td2Node.querySelector('div.payload')!.innerHtml;
       } else {

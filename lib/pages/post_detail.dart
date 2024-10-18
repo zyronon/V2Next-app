@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/reply_item.dart';
@@ -201,12 +202,12 @@ class PostDetailState extends State<PostDetail> {
         content: Column(children: [
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('回复', Icons.chat_bubble_outline, () {
+        _buildReplyMenuOption('回复', TDIcons.chat, () {
           Get.back();
           onShowReplyModalClick(val);
         }),
         Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
-        _buildReplyMenuOption('感谢', Icons.favorite_border, () {}),
+        _buildReplyMenuOption('感谢', TDIcons.heart, () {}),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
@@ -214,7 +215,7 @@ class PostDetailState extends State<PostDetail> {
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('复制', Icons.content_copy, () {}),
+        _buildReplyMenuOption('复制', TDIcons.file_copy, () {}),
         Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
         _buildReplyMenuOption('忽略', Icons.block, () {}),
       ])),
@@ -233,16 +234,16 @@ class PostDetailState extends State<PostDetail> {
         content: Column(
           children: [
             Row(children: [
-              optionItem('保存', Icons.bookmark_border),
+              optionItem('保存', TDIcons.books),
               optionItem('深色模式', Icons.bookmark_border),
-              optionItem('报告', Icons.bookmark_border),
-              optionItem('忽略', Icons.bookmark_border),
+              optionItem('报告', TDIcons.info_circle),
+              optionItem('忽略', TDIcons.browse_off),
             ]),
             Row(children: [
-              optionItem('稍后阅读', Icons.bookmark_border),
-              optionItem('复制内容', Icons.content_copy),
-              optionItem('复制链接', Icons.link),
-              optionItem('浏览器打开', Icons.travel_explore),
+              optionItem('稍后阅读', TDIcons.books),
+              optionItem('复制内容', TDIcons.file_copy),
+              optionItem('复制链接', TDIcons.link),
+              optionItem('浏览器打开', TDIcons.logo_chrome),
             ]),
             Stack(
               children: [
@@ -730,7 +731,7 @@ class PostDetailState extends State<PostDetail> {
                 Column(
                   children: [
                     Icon(
-                      ctrl.post.isFavorite ? Icons.star : Icons.star_border,
+                      ctrl.post.isFavorite ? TDIcons.star_filled : TDIcons.star,
                       size: 24.sp,
                       color: ctrl.post.isFavorite ? Colors.red : Colors.grey,
                     ),
@@ -746,7 +747,7 @@ class PostDetailState extends State<PostDetail> {
                 Column(
                   children: [
                     Icon(
-                      ctrl.post.isThanked ? Icons.favorite : Icons.favorite_border,
+                      ctrl.post.isThanked ? TDIcons.heart_filled : TDIcons.heart,
                       size: 24.sp,
                       color: ctrl.post.isThanked ? Colors.red : Colors.grey,
                     ),
@@ -762,7 +763,7 @@ class PostDetailState extends State<PostDetail> {
                 Column(
                   children: [
                     Icon(
-                      Icons.chat_bubble_outline,
+                      TDIcons.chart,
                       size: 24.sp,
                       color: Colors.grey,
                     ),

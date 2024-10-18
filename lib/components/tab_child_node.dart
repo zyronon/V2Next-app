@@ -4,14 +4,15 @@ import 'package:v2ex/model/Post2.dart';
 
 class TabChildNodes extends StatelessWidget {
   final List<V2Node> list;
+
   const TabChildNodes({Key? key, required this.list}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var line = Expanded(
         child: Divider(
-          color: Theme.of(context).primaryColor.withOpacity(0.1),
-        ));
+      color: Theme.of(context).primaryColor.withOpacity(0.1),
+    ));
 
     return Container(
       padding: EdgeInsets.only(
@@ -22,19 +23,12 @@ class TabChildNodes extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 25),
           Container(
             width: double.infinity,
             alignment: Alignment.center,
             child: Row(
               mainAxisSize: MainAxisSize.max,
-              children: [
-                line,
-                const SizedBox(width: 8),
-                Text('相关节点', style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(width: 8),
-                line
-              ],
+              children: [line, const SizedBox(width: 8), Text('相关节点', style: Theme.of(context).textTheme.titleSmall), const SizedBox(width: 8), line],
             ),
           ),
           const SizedBox(height: 10),
@@ -44,7 +38,7 @@ class TabChildNodes extends StatelessWidget {
                 TextButton(
                     onPressed: () async {
                       await Future.delayed(const Duration(milliseconds: 200));
-                      Get.toNamed('/node',arguments: i);
+                      Get.toNamed('/node', arguments: i);
                     },
                     child: Text(i.cnName))
             ],
