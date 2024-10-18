@@ -75,9 +75,9 @@ class PostDetailController extends GetxController {
     isShowFixedTitle = false;
     loading = true;
     update();
-    // Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
+    Post2 topicDetailModel = await Api.getPostDetail(Get.arguments.id);
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
-    Post2 topicDetailModel = await Api.getPostDetail('825072');
+    // Post2 topicDetailModel = await Api.getPostDetail('825072');
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
     loading = false;
     post = topicDetailModel;
@@ -215,6 +215,8 @@ class PostDetailState extends State<PostDetail> {
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
+        _buildReplyMenuOption('base64解密', TDIcons.lock_on, () {}),
+        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
         _buildReplyMenuOption('复制', TDIcons.file_copy, () {}),
         Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
         _buildReplyMenuOption('忽略', Icons.block, () {}),
@@ -244,6 +246,9 @@ class PostDetailState extends State<PostDetail> {
               optionItem('复制内容', TDIcons.file_copy),
               optionItem('复制链接', TDIcons.link),
               optionItem('浏览器打开', TDIcons.logo_chrome),
+            ]),
+            Row(children: [
+              optionItem('base64解密', TDIcons.books),
             ]),
             Stack(
               children: [
