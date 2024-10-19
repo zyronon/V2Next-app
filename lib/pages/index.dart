@@ -17,8 +17,8 @@ class Index extends StatefulWidget {
 
 class _IndexState extends State<Index> {
   BaseController c = Get.put(BaseController());
-  int _selectedIndex = 3;
-  PageController _controller = PageController(initialPage: 3);
+  int _selectedIndex = 0;
+  PageController _controller = PageController(initialPage: 0);
   final List<Widget> _Pages = [
     HomePage(),
     DiscoverPage(),

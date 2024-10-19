@@ -1,29 +1,30 @@
 import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_v2ex/components/common/image_loading.dart';
-import 'package:flutter_v2ex/utils/storage.dart';
+import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/image_loading.dart';
+import 'package:v2ex/components/member_list.dart';
+import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_v2ex/components/topic/html_render.dart';
-import 'package:flutter_v2ex/components/topic/member_list.dart';
 import 'package:extended_text_field/extended_text_field.dart';
+import 'package:get/get.dart';
 import 'package:v2ex/components/extended_text/selection_controls.dart';
 import 'package:v2ex/components/extended_text/text_span_builder.dart';
-import 'package:flutter_v2ex/http/topic.dart';
-import 'package:flutter_v2ex/utils/string.dart';
-import 'package:flutter_v2ex/utils/utils.dart';
+import 'package:v2ex/utils/topic.dart';
+import 'package:v2ex/utils/string.dart';
+import 'package:v2ex/utils/utils.dart';
+import 'package:v2ex/model/BaseController.dart';
 
 class ReplyNew extends StatefulWidget {
-  final List? replyMemberList;
+  final List<Reply>? replyMemberList;
   final String topicId;
-  final int? totalPage;
-  final List? replyList;
+  final List<Reply>? replyList;
 
   const ReplyNew({
     this.replyMemberList,
     required this.topicId,
-    this.totalPage,
     this.replyList,
     super.key,
   });
@@ -53,6 +54,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   bool ableClean = false;
   double _emoticonHeight = 0.0;
   String toolbarType = 'input';
+  BaseController bc = Get.find<BaseController>();
 
   @override
   void initState() {
@@ -63,9 +65,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     _replyContentController.addListener(_printLatestValue);
     // 界面观察者 必须
     WidgetsBinding.instance.addObserver(this);
-    myUserName = GStorage().getUserInfo().isNotEmpty
-        ? GStorage().getUserInfo()['userName']
-        : '';
+    myUserName = bc.member.username;
   }
 
   Future<dynamic> onSubmit() async {
@@ -87,14 +87,14 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       String replyUser = '';
       // 有且只有一个
       if (widget.replyMemberList!.isNotEmpty) {
-        for (var i in widget.replyMemberList as List) {
-          replyUser += '@${i.userName} #${i.floorNumber}  ';
+        for (var i in widget.replyMemberList! ) {
+          replyUser += '@${i.username} #${i.floor}  ';
         }
       }
       // print(_replyContent);
       // return;
       var res = await TopicWebApi.onSubmitReplyTopic(
-          widget.topicId, replyUser + _replyContent, widget.totalPage!);
+          widget.topicId, replyUser + _replyContent);
       if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
@@ -131,7 +131,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       return;
     }
     // Don't use 'BuildContext's across async gaps 防止异步函数丢失上下文，传入context
-    var atReplyList = List.from(widget.replyList!);
+    List<Reply> atReplyList = List.from(widget.replyList!);
     if (atReplyList.isEmpty) {
       // 主题无回复时，不显示@面板，不失焦
       return;
@@ -197,11 +197,11 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             });
             for (int i = 0; i < atMemberList.length; i++) {
               String atUserName = '';
-              int atFloor = atMemberList[i].floorNumber;
+              int atFloor = atMemberList[i].floor;
               if (i == 0) {
-                atUserName = atMemberList[i].userName;
+                atUserName = atMemberList[i].username;
               } else {
-                atUserName = '@${atMemberList[i].userName}';
+                atUserName = '@${atMemberList[i].username}';
               }
               _replyContentController.text =
                   '${_replyContentController.text}$atUserName #$atFloor ';
@@ -359,7 +359,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                 widget.replyMemberList!.isEmpty
                     ? '回复楼主'
                     : widget.replyMemberList!.length == 1
-                        ? '回复@${widget.replyMemberList![0].userName}'
+                        ? '回复@${widget.replyMemberList![0].username}'
                         : '回复',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
@@ -405,8 +405,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 150),
                 child: ClipRect(
-                  child: HtmlRender(
-                    htmlContent: widget.replyMemberList![0].contentRendered,
+                  child: BaseHtmlWidget(
+                    html: widget.replyMemberList![0].replyContent,
                   ),
                 ),
                 // child: SizedBox(
@@ -428,54 +428,54 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                 color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: ExtendedTextField(
-                  key: _key,
-                  selectionControls: _myExtendedMaterialTextSelectionControls,
-                  specialTextSpanBuilder: MySpecialTextSpanBuilder(
-                      controller: _replyContentController),
-                  controller: _replyContentController,
-                  minLines: 1,
-                  maxLines: null,
-                  autofocus: true,
-                  focusNode: replyContentFocusNode,
-                  decoration: const InputDecoration(
-                      hintText: "输入回复内容", border: InputBorder.none),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  // validator: (v) {
-                  //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
-                  // },
-                  onChanged: (value) {
-                    if (value.endsWith('@')) {
-                      print('TextFormField 唤起');
-                      onShowMember(context);
-                    }
-                  },
-                  // onSaved: (val) {
-                  //   _replyContent = val!;
-                  // },
-                  // textSelectionGestureDetectorBuilder: ({
-                  //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
-                  //       delegate,
-                  //   required Function showToolbar,
-                  //   required Function hideToolbar,
-                  //   required Function? onTap,
-                  //   required BuildContext context,
-                  //   required Function? requestKeyboard,
-                  // }) {
-                  //   return MyCommonTextSelectionGestureDetectorBuilder(
-                  //     delegate: delegate,
-                  //     showToolbar: showToolbar,
-                  //     hideToolbar: hideToolbar,
-                  //     onTap: () {},
-                  //     context: context,
-                  //     requestKeyboard: requestKeyboard,
-                  //   );
-                  // },
-                ),
-              ),
+              // child: Form(
+              //   key: _formKey,
+              //   autovalidateMode: AutovalidateMode.onUserInteraction,
+              //   child: ExtendedTextField(
+              //     key: _key,
+              //     selectionControls: _myExtendedMaterialTextSelectionControls,
+              //     specialTextSpanBuilder: MySpecialTextSpanBuilder(
+              //         controller: _replyContentController),
+              //     controller: _replyContentController,
+              //     minLines: 1,
+              //     maxLines: null,
+              //     autofocus: true,
+              //     focusNode: replyContentFocusNode,
+              //     decoration: const InputDecoration(
+              //         hintText: "输入回复内容", border: InputBorder.none),
+              //     style: Theme.of(context).textTheme.bodyLarge,
+              //     // validator: (v) {
+              //     //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
+              //     // },
+              //     onChanged: (value) {
+              //       if (value.endsWith('@')) {
+              //         print('TextFormField 唤起');
+              //         onShowMember(context);
+              //       }
+              //     },
+              //     // onSaved: (val) {
+              //     //   _replyContent = val!;
+              //     // },
+              //     // textSelectionGestureDetectorBuilder: ({
+              //     //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
+              //     //       delegate,
+              //     //   required Function showToolbar,
+              //     //   required Function hideToolbar,
+              //     //   required Function? onTap,
+              //     //   required BuildContext context,
+              //     //   required Function? requestKeyboard,
+              //     // }) {
+              //     //   return MyCommonTextSelectionGestureDetectorBuilder(
+              //     //     delegate: delegate,
+              //     //     showToolbar: showToolbar,
+              //     //     hideToolbar: hideToolbar,
+              //     //     onTap: () {},
+              //     //     context: context,
+              //     //     requestKeyboard: requestKeyboard,
+              //     //   );
+              //     // },
+              //   ),
+              // ),
             ),
           ),
           SizedBox(

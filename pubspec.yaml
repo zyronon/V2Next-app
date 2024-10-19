@@ -81,6 +81,12 @@ dependencies:
 
   cached_network_image: ^3.4.1
 
+  # markdown 输入
+  expandable: ^5.0.1
+  extended_text_field: ^16.0.0
+  extended_text_library: ^12.0.0
+  # 图片选择&上传
+  wechat_assets_picker: ^9.1.0
 
 dev_dependencies:
   flutter_test:

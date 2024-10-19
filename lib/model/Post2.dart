@@ -9,6 +9,7 @@ class Reply {
   bool isMod = false;
   bool isDup = false;
   bool isUse = false;
+  bool isChoose = false;
   bool isWrong = false;
   String id = '';
   String replyContent = '';
@@ -32,6 +33,7 @@ class Reply {
         "isMod": isMod,
         "isDup": isDup,
         "isUse": isUse,
+        "isChoose": isChoose,
         "isWrong": isWrong,
         "id": id,
         "reply_content": replyContent,
@@ -58,6 +60,7 @@ class Reply {
     s.isDup = json["isDup"];
     s.isUse = json["isUse"];
     s.isWrong = json["isWrong"];
+    s.isChoose = json["isChoose"];
     s.id = json["id"];
     s.replyContent = json["reply_content"];
     s.replyText = json["reply_text"];
@@ -128,7 +131,7 @@ class Post2 {
     this.url = '',
     this.href = '',
     Member? member, // 使用可选参数
-    V2Node? node,     // 使用可选参数
+    V2Node? node, // 使用可选参数
     this.title = '',
     this.id = '',
     this.type = '',
@@ -150,8 +153,9 @@ class Post2 {
     this.isAppend = false,
     this.isEdit = false,
     this.isMove = false,
-  })  : member = member ?? Member(), // 如果传入为 null，则赋默认值
-        node = node ?? V2Node();        // 如果传入为 null，则赋默认值
+  })  : member = member ?? Member(),
+        // 如果传入为 null，则赋默认值
+        node = node ?? V2Node(); // 如果传入为 null，则赋默认值
 
   // fromJson 方法
   Post2.fromJson(Map<String, dynamic> json)
@@ -308,6 +312,7 @@ class Result {
 }
 
 enum Auth { normal, notAllow }
+
 enum NoticeType { reply, thanksTopic, thanksReply, favTopic } // 消息类型
 
 class MemberNoticeModel {
@@ -316,7 +321,8 @@ class MemberNoticeModel {
   List<MemberNoticeItem> noticeList = []; // 消息列表
   bool isEmpty = false; // 无内容
 }
-class MemberNoticeItem  {
+
+class MemberNoticeItem {
   String memberId = ''; // 回复用户id
   String memberAvatar = ''; // 回复用户头像
   String replyContent = ''; // 回复内容

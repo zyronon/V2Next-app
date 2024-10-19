@@ -71,6 +71,25 @@ class Http {
   Future<Response> post(url, {data, isMobile = false}) async {
     return request(url, data: data, isMobile: isMobile, method: 'POST');
   }
+  /*
+   * post请求，提交
+   */
+  Future<Response> upload(url, {data,required Options options}) async {
+
+    // print('post-data: $data');
+    try {
+      Response response = await dio.request(
+        url,
+        data: data,
+        options: options,
+      );
+      // debugPrint('post success---------${response.data}');
+      return response;
+    } on DioException catch (e) {
+      debugPrint('post error---------$e');
+      return Future.error(ApiInterceptor.dioError(e));
+    }
+  }
 
   Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = false}) async {
     Options options = Options();

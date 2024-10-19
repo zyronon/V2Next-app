@@ -16,6 +16,8 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/storage.dart';
+import 'package:v2ex/utils/upload.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Utils {
   static Future<String> getCookiePath() async {
@@ -419,5 +421,23 @@ class Utils {
       return "${d.year}-${_twoDigits(d.month)}-${_twoDigits(d.day)} "
           "${_twoDigits(d.hour)}:${_twoDigits(d.minute)}";
     }
+  }
+
+  Future uploadImage() async {
+    final List<AssetEntity>? assets = await AssetPicker.pickAssets(
+      Get.context!,
+      pickerConfig: const AssetPickerConfig(
+        maxAssets: 1,
+        requestType: RequestType.image,
+      ),
+    );
+    if (assets != null && assets.isNotEmpty) {
+      SmartDialog.showLoading(msg: '上传中...');
+      AssetEntity? file = assets[0];
+      var res = await Upload.uploadImage('1', file);
+      SmartDialog.dismiss();
+      return res;
+    }
+    return ('no image selected');
   }
 }

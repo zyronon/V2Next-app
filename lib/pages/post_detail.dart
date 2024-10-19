@@ -17,6 +17,7 @@ import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/reply_item.dart';
+import 'package:v2ex/components/reply_new.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
@@ -362,8 +363,29 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
+  List<Reply> replyMemberList = [];
+
   onShowReplyModalClick([Reply? val]) async {
     PostDetailController pdc = PostDetailController.to();
+
+    List<Reply> replyList = List.from(pdc.post.replyList);
+    replyList.retainWhere((i) => i.isChoose);
+    setState(() {
+      replyMemberList = replyList;
+    });
+    showModalBottomSheet<Map>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return ReplyNew(
+          replyMemberList: replyMemberList,
+          topicId: pdc.post.id,
+          replyList: pdc.post.replyList,
+        );
+      },
+    );
+    return;
+
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
@@ -429,7 +451,7 @@ class PostDetailState extends State<PostDetail> {
   }
 
   onReply() async {
-    var res = await TopicWebApi.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text, 0);
+    var res = await TopicWebApi.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text);
     if (res == 'true') {
       if (context.mounted) {
         setState(() {
@@ -475,7 +497,7 @@ class PostDetailState extends State<PostDetail> {
     }
   }
 
-  showMemberList(){
+  showMemberList() {
     PostDetailController pdc = Get.find();
     return showModalBottomSheet(
       isScrollControlled: true,
@@ -483,14 +505,16 @@ class PostDetailState extends State<PostDetail> {
       context: context,
       builder: (BuildContext context) {
         return SingleChildScrollView(
-          child:Container(color: Colors.white,child:  Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              ...pdc.post.allReplyUsers.map((u){
-                return Text(u);
-              })
-            ],
-          )),
+          child: Container(
+              color: Colors.white,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  ...pdc.post.allReplyUsers.map((u) {
+                    return Text(u);
+                  })
+                ],
+              )),
         );
       },
     );
@@ -523,7 +547,7 @@ class PostDetailState extends State<PostDetail> {
               children: [
                 Row(children: [
                   _buildClickIcon(Icons.sentiment_satisfied_alt, () {}),
-                  _buildClickIcon(Icons.alternate_email,showMemberList),
+                  _buildClickIcon(Icons.alternate_email, showMemberList),
                   _buildClickIcon(Icons.add_photo_alternate),
                   _buildClickIcon(Icons.format_quote, () {
                     _replyCtrl.text = _replyCtrl.text + '\n---\n${ctrl.reply.id.isEmpty ? ctrl.post.contentText : ctrl.reply.replyText}\n---';
@@ -693,9 +717,9 @@ class PostDetailState extends State<PostDetail> {
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.2), // 阴影颜色
-              spreadRadius: 1,                      // 扩散半径
-              blurRadius: 10,                       // 模糊半径
-              offset: Offset(0, 2),              // 阴影偏移量 (x, y)
+              spreadRadius: 1, // 扩散半径
+              blurRadius: 10, // 模糊半径
+              offset: Offset(0, 2), // 阴影偏移量 (x, y)
             ),
           ],
         ),
@@ -742,9 +766,9 @@ class PostDetailState extends State<PostDetail> {
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.2), // 阴影颜色
-              spreadRadius: 1,                      // 扩散半径
-              blurRadius: 10,                       // 模糊半径
-              offset: Offset(0, -2),              // 阴影偏移量 (x, y)
+              spreadRadius: 1, // 扩散半径
+              blurRadius: 10, // 模糊半径
+              offset: Offset(0, -2), // 阴影偏移量 (x, y)
             ),
           ],
         ),

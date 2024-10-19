@@ -154,7 +154,7 @@ class TopicWebApi {
   }
 
   // 回复主题
-  static Future<String> onSubmitReplyTopic(String id, String replyContent, int totalPage) async {
+  static Future<String> onSubmitReplyTopic(String id, String replyContent) async {
     SmartDialog.showLoading(msg: '回复中...');
     int once = GStorage().getOnce();
     Options options = Options();
