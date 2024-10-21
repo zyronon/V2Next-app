@@ -56,12 +56,12 @@ class _NoticeItemState extends State<NoticeItem> {
           color: Theme.of(context).colorScheme.onInverseSurface,
           child: InkWell(
             onTap: () {
-              // String floorNumber = widget.noticeItem.topicHref.split('#reply')[1];
+              // String floor = widget.noticeItem.topicHref.split('#reply')[1];
               // NoticeType noticeType = widget.noticeItem.noticeType;
               // Map<String, String> parameters = {};
               // if (noticeType == NoticeType.reply || noticeType == NoticeType.thanksReply) {
               //   回复 or 感谢回复
-              // parameters = {'source': 'notice', 'floorNumber': floorNumber};
+              // parameters = {'source': 'notice', 'floor': floor};
               // }
               Get.toNamed('/post-detail', arguments: Post2(id: widget.noticeItem.topicId));
             },

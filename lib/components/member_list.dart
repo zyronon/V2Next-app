@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/model/BaseController.dart';
@@ -36,10 +37,8 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     myUserName = bc.member.username;
-    widget.replyList!.removeWhere((item) => item.username == myUserName);
   }
 
   void _checkAll() {
@@ -67,58 +66,34 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
   Widget build(BuildContext context) {
     return Container(
       clipBehavior: Clip.hardEdge,
-      height: MediaQuery.of(context).size.height - statusBarHeight - 85,
+      height: MediaQuery.of(context).size.height - statusBarHeight - 115,
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
       ),
-      // child: Column(
-      //   children: [
-      //     Container(
-      //       padding: const EdgeInsets.only(top: 10, left: 20, right: 15),
-      //       margin: const EdgeInsets.only(bottom: 5),
-      //       child: sheetHead(),
-      //     ),
-      //     Expanded(
-      //       child: ListView.builder(
-      //         padding: EdgeInsets.zero,
-      //         itemCount: widget.replyList!.length,
-      //         itemBuilder: (BuildContext context, int index) {
-      //           if (index == widget.replyList!.length) {
-      //             return SizedBox(
-      //                 height: MediaQuery.of(context).padding.bottom);
-      //           } else {
-      //             return memberItem(widget.replyList![index]);
-      //           }
-      //         },
-      //       ),
-      //     ),
-      //   ],
-      // ),
-      child: Scaffold(
-        appBar: AppBar(
-          leading: null,
-          automaticallyImplyLeading: false,
-          toolbarHeight: 65.0,
-          title: sheetHead(),
-        ),
-        body: NotificationListener<ScrollNotification>(
-          onNotification: _handleScrollNotification,
-          child: ListView.builder(
-            padding: EdgeInsets.zero,
-            controller: _listScrollController,
-            itemCount: widget.replyList!.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              if (index == widget.replyList!.length) {
-                return SizedBox(height: MediaQuery.of(context).padding.bottom);
-              } else {
-                return memberItem(widget.replyList![index]);
-              }
-            },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 10, left: 20, right: 15),
+            margin: const EdgeInsets.only(bottom: 5),
+            child: sheetHead(),
           ),
-        ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: widget.replyList!.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (index == widget.replyList!.length) {
+                  return SizedBox(height: MediaQuery.of(context).padding.bottom);
+                } else {
+                  return memberItem(widget.replyList![index]);
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -129,14 +104,11 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
       children: [
         Text.rich(
           TextSpan(
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(letterSpacing: 1),
+            style: TextStyle(fontSize: 16.sp),
             children: [
               const TextSpan(text: '选择要'),
-              TextSpan(
-                text: '@',
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w900),
-              ),
-              const TextSpan(text: '的用户')
+              const TextSpan(text: '@', style: TextStyle(fontWeight: FontWeight.w900)),
+              const TextSpan(text: '的用户'),
             ],
           ),
         ),
@@ -159,30 +131,43 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
     );
   }
 
-  Widget memberItem(replyItem) {
-    return ListTile(
-      onTap: () {
-        // 直接选中
-        Navigator.pop(context, {'atMemberList': List.filled(1, replyItem)});
-      },
-      leading: BaseAvatar(src: replyItem.avatar, diameter: 38),
-      title: Text.rich(TextSpan(children: [
-        TextSpan(text: '${replyItem.userName} '),
-        TextSpan(text: ' ${replyItem.floorNumber}楼', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).colorScheme.outline))
-      ])),
-      subtitle: Text(replyItem.content, maxLines: 1, style: Theme.of(context).textTheme.labelMedium!),
-      trailing: Transform.scale(
-        scale: 0.8,
-        child: Checkbox(
-          value: replyItem.isChoose,
-          onChanged: (bool? checkValue) {
-            // 多选
-            setState(() {
-              replyItem.isChoose = checkValue;
-            });
-          },
+  Widget memberItem(Reply replyItem) {
+    return InkWell(
+      child: Container(
+        padding: EdgeInsets.only(left: 15, right: 5),
+        margin: EdgeInsets.only(bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(TextSpan(children: [
+                  TextSpan(text: '${replyItem.username} ', style: TextStyle(fontSize: 16.sp)),
+                  TextSpan(text: ' ${replyItem.floor}楼', style: TextStyle(color: Colors.grey, fontSize: 11.sp))
+                ])),
+                Text(replyItem.replyText, maxLines: 2, style: TextStyle(color: Colors.grey, fontSize: 12.sp))
+              ],
+            )),
+            Transform.scale(
+              scale: 0.8,
+              child: Checkbox(
+                value: replyItem.isChoose,
+                onChanged: (bool? checkValue) {
+                  // 多选
+                  setState(() {
+                    replyItem.isChoose = checkValue!;
+                  });
+                },
+              ),
+            )
+          ],
         ),
       ),
+      onTap: () {
+        Navigator.pop(context, {'atMemberList': List.filled(1, replyItem)});
+      },
     );
   }
 }

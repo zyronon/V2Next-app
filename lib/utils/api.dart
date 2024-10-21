@@ -30,7 +30,10 @@ class Api {
           List<Element> listEl = document.querySelectorAll("div[class='cell item']");
           List<Element> childNodeEl = document.querySelectorAll("#SecondaryTabs > a");
           for (var i in childNodeEl) {
-            nodeList.add(V2Node(enName: i.attributes['href']!.split('/go/')[1], cnName: i.text));
+            List<String> s = i.attributes['href']!.split('/go/');
+            if (s.isNotEmpty && s.length >= 2) {
+              nodeList.add(V2Node(enName: s[1], cnName: i.text));
+            }
           }
           postList = Utils().parsePagePostList(listEl);
         }

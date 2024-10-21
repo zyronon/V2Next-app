@@ -367,7 +367,14 @@ class PostDetailState extends State<PostDetail> {
 
   onShowReplyModalClick([Reply? val]) async {
     PostDetailController pdc = PostDetailController.to();
-
+    if (val != null) {
+      pdc.setReply(val);
+      // _replyCtrl.text = '#${val.username} #${val.floor} ';
+      // await modalWrap(text: BaseHtmlWidget(html: pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
+    } else {
+      pdc.setReply(new Reply());
+      // await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentRendered), content: _buildEditor());
+    }
     List<Reply> replyList = List.from(pdc.post.replyList);
     replyList.retainWhere((i) => i.isChoose);
     setState(() {

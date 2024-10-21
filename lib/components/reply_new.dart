@@ -5,6 +5,7 @@ import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/image_loading.dart';
 import 'package:v2ex/components/member_list.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -34,18 +35,20 @@ class ReplyNew extends StatefulWidget {
 }
 
 class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
+  PostDetailController pdc = PostDetailController.to();
+
   final TextEditingController _replyContentController = TextEditingController();
-  final MyTextSelectionControls _myExtendedMaterialTextSelectionControls =
-      MyTextSelectionControls();
-  final GlobalKey<ExtendedTextFieldState> _key =
-      GlobalKey<ExtendedTextFieldState>();
+  final MyTextSelectionControls _myExtendedMaterialTextSelectionControls = MyTextSelectionControls();
+  final GlobalKey<ExtendedTextFieldState> _key = GlobalKey<ExtendedTextFieldState>();
 
   final GlobalKey _formKey = GlobalKey<FormState>();
+
   // late String _replyContent = '';
   final statusBarHeight = GStorage().getStatusBarHeight();
   List atReplyList = []; // @用户列表
   List atMemberList = []; // 选中的用户列表
   final FocusNode replyContentFocusNode = FocusNode();
+
   // bool _isKeyboardActived = true; // 当前键盘是否是激活状态
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 100); // 设置延迟时间
@@ -87,14 +90,13 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       String replyUser = '';
       // 有且只有一个
       if (widget.replyMemberList!.isNotEmpty) {
-        for (var i in widget.replyMemberList! ) {
+        for (var i in widget.replyMemberList!) {
           replyUser += '@${i.username} #${i.floor}  ';
         }
       }
       // print(_replyContent);
       // return;
-      var res = await TopicWebApi.onSubmitReplyTopic(
-          widget.topicId, replyUser + _replyContent);
+      var res = await TopicWebApi.onSubmitReplyTopic(widget.topicId, replyUser + _replyContent);
       if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
@@ -138,13 +140,14 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     }
     // 键盘收起
     replyContentFocusNode.unfocus();
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       for (var i = 0; i < atReplyList.length; i++) {
         atReplyList[i].isChoose = false;
       }
       setState(() {
         atReplyList = atReplyList;
       });
+      print(atReplyList.length);
       showModalBottomSheet<Map>(
         context: context,
         isScrollControlled: true,
@@ -157,34 +160,30 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         if (value != null) {
           if (value.containsKey('checkStatus')) {
             // 全选 去重去本人 不显示楼层
-            List atMemberList = value['atMemberList'];
+            List<Reply> atMemberList = value['atMemberList'];
             Set<String> set = {}; // 定义一个空集合
             for (var i = 0; i < atMemberList.length; i++) {
-              if (atMemberList[i].userName != myUserName) {
-                set.add(atMemberList[i].userName);
+              if (atMemberList[i].username != myUserName) {
+                set.add(atMemberList[i].username);
               }
             }
             List newAtMemberList = set.toList();
             for (int i = 0; i < newAtMemberList.length; i++) {
               String atUserName = '';
               if (i == 0) {
-                atUserName = type == 'input'
-                    ? newAtMemberList[i]
-                    : '@${newAtMemberList[i]}';
+                atUserName = type == 'input' ? newAtMemberList[i] : '@${newAtMemberList[i]}';
               } else {
                 atUserName = '@${newAtMemberList[i]}';
               }
-              _replyContentController.text =
-                  '${_replyContentController.text}$atUserName ';
+              _replyContentController.text = '${_replyContentController.text}$atUserName ';
             }
           } else {
             // @单用户
             setState(() {
               atMemberList = value['atMemberList'];
-              String atUserName = atMemberList[0].userName;
-              int atFloor = atMemberList[0].floorNumber;
-              _replyContentController.text =
-                  '${_replyContentController.text} ${type == "input" ? atUserName : "@$atUserName"} #$atFloor ';
+              String atUserName = atMemberList[0].username;
+              int atFloor = atMemberList[0].floor;
+              _replyContentController.text = '${_replyContentController.text} ${type == "input" ? atUserName : "@$atUserName"} #$atFloor ';
             });
           }
         }
@@ -203,14 +202,12 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               } else {
                 atUserName = '@${atMemberList[i].username}';
               }
-              _replyContentController.text =
-                  '${_replyContentController.text}$atUserName #$atFloor ';
+              _replyContentController.text = '${_replyContentController.text}$atUserName #$atFloor ';
             }
           }
         }
         // 移动光标
-        _replyContentController.selection = TextSelection.fromPosition(
-            TextPosition(offset: _replyContentController.text.length));
+        _replyContentController.selection = TextSelection.fromPosition(TextPosition(offset: _replyContentController.text.length));
         // 聚焦
         FocusScope.of(context).requestFocus(replyContentFocusNode);
       });
@@ -229,9 +226,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
           actions: [
-            TextButton(
-                onPressed: () => {SmartDialog.dismiss()},
-                child: const Text('手误了')),
+            TextButton(onPressed: () => {SmartDialog.dismiss()}, child: const Text('手误了')),
             TextButton(
                 onPressed: () {
                   SmartDialog.dismiss();
@@ -250,16 +245,12 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     super.didChangeMetrics();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 键盘高度
-      final viewInsets = EdgeInsets.fromWindowPadding(
-          WidgetsBinding.instance.window.viewInsets,
-          WidgetsBinding.instance.window.devicePixelRatio);
+      final viewInsets = EdgeInsets.fromWindowPadding(WidgetsBinding.instance.window.viewInsets, WidgetsBinding.instance.window.devicePixelRatio);
       _debouncer.run(() {
         if (mounted) {
           setState(() {
-            _keyboardHeight =
-                _keyboardHeight == 0.0 ? viewInsets.bottom : _keyboardHeight;
-            _emoticonHeight =
-                _emoticonHeight == 0.0 ? viewInsets.bottom : _emoticonHeight;
+            _keyboardHeight = _keyboardHeight == 0.0 ? viewInsets.bottom : _keyboardHeight;
+            _emoticonHeight = _emoticonHeight == 0.0 ? viewInsets.bottom : _emoticonHeight;
           });
         }
       });
@@ -303,15 +294,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         end = start;
       }
 
-      _replyContentController.value = value.copyWith(
-          text: newText,
-          selection: value.selection.copyWith(
-              baseOffset: end + text.length, extentOffset: end + text.length));
+      _replyContentController.value = value.copyWith(text: newText, selection: value.selection.copyWith(baseOffset: end + text.length, extentOffset: end + text.length));
     } else {
-      _replyContentController.value = TextEditingValue(
-          text: text,
-          selection:
-              TextSelection.fromPosition(TextPosition(offset: text.length)));
+      _replyContentController.value = TextEditingValue(text: text, selection: TextSelection.fromPosition(TextPosition(offset: text.length)));
     }
 
     SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
@@ -351,131 +336,89 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   Navigator.pop(context, res);
                 },
                 icon: const Icon(Icons.close),
-                style: IconButton.styleFrom(
-                    padding: const EdgeInsets.all(9),
-                    backgroundColor: Theme.of(context).colorScheme.background),
+                style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Theme.of(context).colorScheme.background),
               ),
               Text(
-                widget.replyMemberList!.isEmpty
-                    ? '回复楼主'
-                    : widget.replyMemberList!.length == 1
-                        ? '回复@${widget.replyMemberList![0].username}'
-                        : '回复',
+                pdc.reply.id.isEmpty ? '回复楼主' : '回复@${pdc.reply.username}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
-                tooltip: '发送',
+                tooltip: '提交',
                 onPressed: ableClean ? onSubmit : null,
                 icon: const Icon(Icons.send_outlined),
-                style: IconButton.styleFrom(
-                    padding: const EdgeInsets.all(9),
-                    backgroundColor: Theme.of(context).colorScheme.background),
+                style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Theme.of(context).colorScheme.background),
               ),
             ],
           ),
-          // if (widget.replyMemberList!.isNotEmpty)
-          //   if (widget.replyMemberList!.length > 1)
-          //     Container(
-          //       padding: const EdgeInsets.only(left: 12, bottom: 15),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Wrap(
-          //               crossAxisAlignment: WrapCrossAlignment.center,
-          //               runSpacing: 2,
-          //               spacing: 10,
-          //               children: [
-          //                 Text(
-          //                   ' 回复：',
-          //                   style: Theme.of(context).textTheme.titleMedium,
-          //                 ),
-          //                 ...replyList(widget.replyMemberList)
-          //               ],
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          if (widget.replyMemberList!.length == 1) ...[
+          if (pdc.reply.id.isNotEmpty) ...[
             const SizedBox(height: 15),
             Container(
-              padding:
-                  const EdgeInsets.only(top: 0, right: 10, bottom: 0, left: 10),
+              padding: const EdgeInsets.only(top: 0, right: 10, bottom: 0, left: 10),
               alignment: Alignment.topLeft,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 150),
                 child: ClipRect(
                   child: BaseHtmlWidget(
-                    html: widget.replyMemberList![0].replyContent,
+                    html: pdc.reply.replyContent,
                   ),
                 ),
-                // child: SizedBox(
-                //   height: 120,
-                //   child: HtmlRender(
-                //     htmlContent: widget.replyMemberList![0].contentRendered,
-                //   ),
-                // )
               ),
-              // child: Text(widget.replyMemberList![0].content, maxLines: 5),
             ),
           ],
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(top: 15),
-              padding: const EdgeInsets.only(
-                  top: 12, right: 15, left: 15, bottom: 10),
+              padding: const EdgeInsets.only(top: 12, right: 15, left: 15, bottom: 10),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.circular(16),
               ),
-              // child: Form(
-              //   key: _formKey,
-              //   autovalidateMode: AutovalidateMode.onUserInteraction,
-              //   child: ExtendedTextField(
-              //     key: _key,
-              //     selectionControls: _myExtendedMaterialTextSelectionControls,
-              //     specialTextSpanBuilder: MySpecialTextSpanBuilder(
-              //         controller: _replyContentController),
-              //     controller: _replyContentController,
-              //     minLines: 1,
-              //     maxLines: null,
-              //     autofocus: true,
-              //     focusNode: replyContentFocusNode,
-              //     decoration: const InputDecoration(
-              //         hintText: "输入回复内容", border: InputBorder.none),
-              //     style: Theme.of(context).textTheme.bodyLarge,
-              //     // validator: (v) {
-              //     //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
-              //     // },
-              //     onChanged: (value) {
-              //       if (value.endsWith('@')) {
-              //         print('TextFormField 唤起');
-              //         onShowMember(context);
-              //       }
-              //     },
-              //     // onSaved: (val) {
-              //     //   _replyContent = val!;
-              //     // },
-              //     // textSelectionGestureDetectorBuilder: ({
-              //     //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
-              //     //       delegate,
-              //     //   required Function showToolbar,
-              //     //   required Function hideToolbar,
-              //     //   required Function? onTap,
-              //     //   required BuildContext context,
-              //     //   required Function? requestKeyboard,
-              //     // }) {
-              //     //   return MyCommonTextSelectionGestureDetectorBuilder(
-              //     //     delegate: delegate,
-              //     //     showToolbar: showToolbar,
-              //     //     hideToolbar: hideToolbar,
-              //     //     onTap: () {},
-              //     //     context: context,
-              //     //     requestKeyboard: requestKeyboard,
-              //     //   );
-              //     // },
-              //   ),
-              // ),
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: ExtendedTextField(
+                  key: _key,
+                  selectionControls: _myExtendedMaterialTextSelectionControls,
+                  specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: _replyContentController),
+                  controller: _replyContentController,
+                  minLines: 1,
+                  maxLines: null,
+                  autofocus: true,
+                  focusNode: replyContentFocusNode,
+                  decoration: const InputDecoration(hintText: "输入回复内容", border: InputBorder.none),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  // validator: (v) {
+                  //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
+                  // },
+                  onChanged: (value) {
+                    if (value.endsWith('@')) {
+                      print('TextFormField 唤起');
+                      onShowMember(context);
+                    }
+                  },
+                  // onSaved: (val) {
+                  //   _replyContent = val!;
+                  // },
+                  // textSelectionGestureDetectorBuilder: ({
+                  //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
+                  //       delegate,
+                  //   required Function showToolbar,
+                  //   required Function hideToolbar,
+                  //   required Function? onTap,
+                  //   required BuildContext context,
+                  //   required Function? requestKeyboard,
+                  // }) {
+                  //   return MyCommonTextSelectionGestureDetectorBuilder(
+                  //     delegate: delegate,
+                  //     showToolbar: showToolbar,
+                  //     hideToolbar: hideToolbar,
+                  //     onTap: () {},
+                  //     context: context,
+                  //     requestKeyboard: requestKeyboard,
+                  //   );
+                  // },
+                ),
+              ),
             ),
           ),
           SizedBox(
@@ -492,25 +435,18 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                           toolbarType = 'input';
                         });
                         // replyContentFocusNode.requestFocus();
-                        FocusScope.of(context)
-                            .requestFocus(replyContentFocusNode);
+                        FocusScope.of(context).requestFocus(replyContentFocusNode);
                       },
                       icon: Icon(
                         Icons.keyboard,
                         size: 22,
-                        color: toolbarType == 'input'
-                            ? Theme.of(context).colorScheme.onBackground
-                            : Theme.of(context).colorScheme.outline,
+                        color: toolbarType == 'input' ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.outline,
                       ),
-                      highlightColor:
-                          Theme.of(context).colorScheme.onInverseSurface,
+                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith((states) {
-                          return toolbarType == 'input'
-                              ? Theme.of(context).highlightColor
-                              : null;
+                        backgroundColor: MaterialStateProperty.resolveWith((states) {
+                          return toolbarType == 'input' ? Theme.of(context).highlightColor : null;
                         }),
                       )),
                 ),
@@ -525,8 +461,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                         size: 22,
                         color: Theme.of(context).colorScheme.outline,
                       ),
-                      highlightColor:
-                          Theme.of(context).colorScheme.onInverseSurface,
+                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all(EdgeInsets.zero),
                       )),
@@ -543,19 +478,13 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                       icon: Icon(
                         Icons.emoji_emotions,
                         size: 22,
-                        color: toolbarType == 'emoticon'
-                            ? Theme.of(context).colorScheme.onBackground
-                            : Theme.of(context).colorScheme.outline,
+                        color: toolbarType == 'emoticon' ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.outline,
                       ),
-                      highlightColor:
-                          Theme.of(context).colorScheme.onInverseSurface,
+                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith((states) {
-                          return toolbarType == 'emoticon'
-                              ? Theme.of(context).highlightColor
-                              : null;
+                        backgroundColor: MaterialStateProperty.resolveWith((states) {
+                          return toolbarType == 'emoticon' ? Theme.of(context).highlightColor : null;
                         }),
                       )),
                 ),
@@ -566,25 +495,19 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                   child: IconButton(
                     onPressed: () async {
                       var res = await Utils().uploadImage();
-                      _replyContentController.text =
-                          '${_replyContentController.text}${res['link']}';
-                      _replyContentController.selection =
-                          TextSelection.fromPosition(TextPosition(
-                              offset: _replyContentController.text.length));
+                      _replyContentController.text = '${_replyContentController.text}${res['link']}';
+                      _replyContentController.selection = TextSelection.fromPosition(TextPosition(offset: _replyContentController.text.length));
                     },
                     icon: Icon(
                       Icons.image,
                       size: 22,
                       color: Theme.of(context).colorScheme.outline,
                     ),
-                    style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
                   ),
                 ),
                 const Spacer(),
-                TextButton(
-                    onPressed: ableClean ? onCleanInput : null,
-                    child: const Text('清空输入'))
+                TextButton(onPressed: ableClean ? onCleanInput : null, child: const Text('清空输入'))
                 // IconButton(
                 //     onPressed: () {}, icon: const Icon(Icons.clear_all)),
               ],
@@ -596,24 +519,17 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             duration: const Duration(milliseconds: 300),
             child: Container(
               width: double.infinity,
-              height:
-                  toolbarType == 'input' ? _keyboardHeight : _emoticonHeight,
+              height: toolbarType == 'input' ? _keyboardHeight : _emoticonHeight,
               padding: const EdgeInsets.only(left: 4, right: 4),
               // decoration: BoxDecoration(border: Border.all()),
               child: GridView.builder(
-                padding: EdgeInsets.only(
-                    top: 4, bottom: MediaQuery.of(context).padding.bottom),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                    childAspectRatio: 1),
+                padding: EdgeInsets.only(top: 4, bottom: MediaQuery.of(context).padding.bottom),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8, crossAxisSpacing: 4, mainAxisSpacing: 4, childAspectRatio: 1),
                 itemCount: Strings.coolapkEmoticon.length,
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () {
-                      insertText(
-                          '[${Strings.coolapkEmoticon.keys.toList()[index]}]');
+                      insertText('[${Strings.coolapkEmoticon.keys.toList()[index]}]');
                     },
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
@@ -631,19 +547,6 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         ],
       ),
     );
-  }
-
-  List<Widget> replyList(replyMemberList) {
-    List<Widget> widgetList = [];
-    for (var i in replyMemberList) {
-      widgetList.add(
-          // TextButton(
-          //   onPressed: () => {},
-          //   child: Text(i.userName),
-          // ),
-          FilledButton.tonal(onPressed: () => {}, child: Text(i.userName)));
-    }
-    return widgetList;
   }
 }
 
@@ -665,33 +568,3 @@ class Debouncer {
     });
   }
 }
-
-// class MyCommonTextSelectionGestureDetectorBuilder
-//     extends CommonTextSelectionGestureDetectorBuilder {
-//   MyCommonTextSelectionGestureDetectorBuilder(
-//       {required ExtendedTextSelectionGestureDetectorBuilderDelegate delegate,
-//       required Function showToolbar,
-//       required Function hideToolbar,
-//       required Function? onTap,
-//       required BuildContext context,
-//       required Function? requestKeyboard})
-//       : super(
-//           delegate: delegate,
-//           showToolbar: showToolbar,
-//           hideToolbar: hideToolbar,
-//           onTap: onTap,
-//           context: context,
-//           requestKeyboard: requestKeyboard,
-//         );
-
-//   @override
-//   void onTapDown(TapDownDetails details) {
-//     super.onTapDown(details);
-
-//     /// always show toolbar
-//     shouldShowSelectionToolbar = true;
-//   }
-
-//   @override
-//   bool get showToolbarInWeb => true;
-// }
