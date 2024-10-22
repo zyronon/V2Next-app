@@ -16,7 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   List<TabItem> tabMap = [
     new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
-    new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
+    // new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
+    new TabItem(cnName: '水深火热', enName: 'flamewar', type: TabType.node),
     new TabItem(cnName: '最新', enName: 'new', type: TabType.latest),
     new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
     new TabItem(cnName: '技术', enName: 'tech', type: TabType.tab),

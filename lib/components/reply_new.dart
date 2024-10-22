@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/image_loading.dart';
 import 'package:v2ex/components/member_list.dart';
@@ -214,32 +215,6 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     });
   }
 
-  // 清空内容
-  void onCleanInput() {
-    SmartDialog.show(
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('提示'),
-          content: Text(
-            '将清空所输入的内容',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-          actions: [
-            TextButton(onPressed: () => {SmartDialog.dismiss()}, child: const Text('手误了')),
-            TextButton(
-                onPressed: () {
-                  SmartDialog.dismiss();
-                  _replyContentController.clear();
-                  _replyContentController.text = '';
-                },
-                child: const Text('清空'))
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
@@ -315,205 +290,176 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height - statusBarHeight,
-      padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
+    return SingleChildScrollView(
+        child: Container(
+      // height: MediaQuery.of(context).size.height - statusBarHeight * 2,
+      // padding: const EdgeInsets.only(top: 25, left: 12, right: 12),
       decoration: const BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
         ),
       ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20, left: 12, right: 12, top: 12),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                tooltip: '关闭弹框',
-                onPressed: () {
-                  Map res = {'replyStatus': 'cancel'};
-                  Navigator.pop(context, res);
-                },
-                icon: const Icon(Icons.close),
-                style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Theme.of(context).colorScheme.background),
-              ),
-              Text(
-                pdc.reply.id.isEmpty ? '回复楼主' : '回复@${pdc.reply.username}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              IconButton(
-                tooltip: '提交',
-                onPressed: ableClean ? onSubmit : null,
-                icon: const Icon(Icons.send_outlined),
-                style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Theme.of(context).colorScheme.background),
-              ),
-            ],
-          ),
           if (pdc.reply.id.isNotEmpty) ...[
-            const SizedBox(height: 15),
             Container(
-              padding: const EdgeInsets.only(top: 0, right: 10, bottom: 0, left: 10),
-              alignment: Alignment.topLeft,
-              child: Container(
-                constraints: const BoxConstraints(maxHeight: 150),
-                child: ClipRect(
-                  child: BaseHtmlWidget(
-                    html: pdc.reply.replyContent,
-                  ),
-                ),
-              ),
-            ),
-          ],
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 15),
-              padding: const EdgeInsets.only(top: 12, right: 15, left: 15, bottom: 10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: ExtendedTextField(
-                  key: _key,
-                  selectionControls: _myExtendedMaterialTextSelectionControls,
-                  specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: _replyContentController),
-                  controller: _replyContentController,
-                  minLines: 1,
-                  maxLines: null,
-                  autofocus: true,
-                  focusNode: replyContentFocusNode,
-                  decoration: const InputDecoration(hintText: "输入回复内容", border: InputBorder.none),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  // validator: (v) {
-                  //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
-                  // },
-                  onChanged: (value) {
-                    if (value.endsWith('@')) {
-                      print('TextFormField 唤起');
-                      onShowMember(context);
-                    }
-                  },
-                  // onSaved: (val) {
-                  //   _replyContent = val!;
-                  // },
-                  // textSelectionGestureDetectorBuilder: ({
-                  //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
-                  //       delegate,
-                  //   required Function showToolbar,
-                  //   required Function hideToolbar,
-                  //   required Function? onTap,
-                  //   required BuildContext context,
-                  //   required Function? requestKeyboard,
-                  // }) {
-                  //   return MyCommonTextSelectionGestureDetectorBuilder(
-                  //     delegate: delegate,
-                  //     showToolbar: showToolbar,
-                  //     hideToolbar: hideToolbar,
-                  //     onTap: () {},
-                  //     context: context,
-                  //     requestKeyboard: requestKeyboard,
-                  //   );
-                  // },
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 52,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          toolbarType = 'input';
-                        });
-                        // replyContentFocusNode.requestFocus();
-                        FocusScope.of(context).requestFocus(replyContentFocusNode);
-                      },
-                      icon: Icon(
-                        Icons.keyboard,
-                        size: 22,
-                        color: toolbarType == 'input' ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.outline,
-                      ),
-                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        backgroundColor: MaterialStateProperty.resolveWith((states) {
-                          return toolbarType == 'input' ? Theme.of(context).highlightColor : null;
-                        }),
-                      )),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: IconButton(
-                      onPressed: () => onShowMember(context, type: 'click'),
-                      icon: Icon(
-                        Icons.alternate_email_rounded,
-                        size: 22,
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      )),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: IconButton(
-                      onPressed: () {
-                        toolbarType = 'emoticon';
-                        replyContentFocusNode.unfocus();
-                      },
-                      icon: Icon(
-                        Icons.emoji_emotions,
-                        size: 22,
-                        color: toolbarType == 'emoticon' ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.outline,
-                      ),
-                      highlightColor: Theme.of(context).colorScheme.onInverseSurface,
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        backgroundColor: MaterialStateProperty.resolveWith((states) {
-                          return toolbarType == 'emoticon' ? Theme.of(context).highlightColor : null;
-                        }),
-                      )),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: IconButton(
-                    onPressed: () async {
-                      var res = await Utils().uploadImage();
-                      _replyContentController.text = '${_replyContentController.text}${res['link']}';
-                      _replyContentController.selection = TextSelection.fromPosition(TextPosition(offset: _replyContentController.text.length));
-                    },
-                    icon: Icon(
-                      Icons.image,
-                      size: 22,
-                      color: Theme.of(context).colorScheme.outline,
+                margin: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.topLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('回复：'),
+                        Text(pdc.reply.username,style: TextStyle(fontSize: 15)),
+                        SizedBox(width: 4),
+                        Text('${pdc.reply.floor.toString()}楼',style: TextStyle(fontSize: 12,color: Colors.grey)),
+                      ],
                     ),
-                    style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    SizedBox(height: 4),
+                    BaseHtmlWidget(
+                      ellipsis: true,
+                      html: pdc.reply.replyContent,
+                    )
+                  ],
+                )),
+          ],
+          Container(
+            padding: const EdgeInsets.only(right: 10, left: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Column(
+              children: [
+                Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: ExtendedTextField(
+                    key: _key,
+                    selectionControls: _myExtendedMaterialTextSelectionControls,
+                    specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: _replyContentController),
+                    controller: _replyContentController,
+                    minLines: 2,
+                    maxLines: 4,
+                    autofocus: true,
+                    focusNode: replyContentFocusNode,
+                    decoration: const InputDecoration(hintText: "请尽量让自己的回复能够对别人有帮助", border: InputBorder.none),
+                    style: TextStyle(fontSize: 14),
+                    // validator: (v) {
+                    //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
+                    // },
+                    onChanged: (value) {
+                      if (value.endsWith('@')) {
+                        print('TextFormField 唤起');
+                        onShowMember(context);
+                      }
+                    },
+                    // onSaved: (val) {
+                    //   _replyContent = val!;
+                    // },
+                    // textSelectionGestureDetectorBuilder: ({
+                    //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
+                    //       delegate,
+                    //   required Function showToolbar,
+                    //   required Function hideToolbar,
+                    //   required Function? onTap,
+                    //   required BuildContext context,
+                    //   required Function? requestKeyboard,
+                    // }) {
+                    //   return MyCommonTextSelectionGestureDetectorBuilder(
+                    //     delegate: delegate,
+                    //     showToolbar: showToolbar,
+                    //     hideToolbar: hideToolbar,
+                    //     onTap: () {},
+                    //     context: context,
+                    //     requestKeyboard: requestKeyboard,
+                    //   );
+                    // },
                   ),
                 ),
-                const Spacer(),
-                TextButton(onPressed: ableClean ? onCleanInput : null, child: const Text('清空输入'))
-                // IconButton(
-                //     onPressed: () {}, icon: const Icon(Icons.clear_all)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Spacer(),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: IconButton(
+                          onPressed: () => onShowMember(context, type: 'click'),
+                          icon: Icon(
+                            Icons.alternate_email_rounded,
+                            size: 22,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                          highlightColor: Theme.of(context).colorScheme.onInverseSurface,
+                          style: ButtonStyle(
+                            padding: MaterialStateProperty.all(EdgeInsets.zero),
+                          )),
+                    ),
+                    const SizedBox(width: 3),
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: IconButton(
+                          onPressed: () {
+                            toolbarType = 'emoticon';
+                            replyContentFocusNode.unfocus();
+                          },
+                          icon: Icon(
+                            Icons.emoji_emotions,
+                            size: 22,
+                            color: toolbarType == 'emoticon' ? Theme.of(context).colorScheme.onBackground : Theme.of(context).colorScheme.outline,
+                          ),
+                          highlightColor: Theme.of(context).colorScheme.onInverseSurface,
+                          style: ButtonStyle(
+                            padding: MaterialStateProperty.all(EdgeInsets.zero),
+                            backgroundColor: MaterialStateProperty.resolveWith((states) {
+                              return toolbarType == 'emoticon' ? Theme.of(context).highlightColor : null;
+                            }),
+                          )),
+                    ),
+                    const SizedBox(width: 3),
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: IconButton(
+                        onPressed: () async {
+                          var res = await Utils().uploadImage();
+                          _replyContentController.text = '${_replyContentController.text}${res['link']}';
+                          _replyContentController.selection = TextSelection.fromPosition(TextPosition(offset: _replyContentController.text.length));
+                        },
+                        icon: Icon(
+                          Icons.image,
+                          size: 22,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(14.w, 6.w, 14.w, 6.w),
+                        decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
+                        child: Text(
+                          '回复',
+                          style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                        ),
+                      ),
+                      onTap: ableClean ? onSubmit : null,
+                    )
+                    // IconButton(
+                    //     onPressed: () {}, icon: const Icon(Icons.clear_all)),
+                  ],
+                ),
+                SizedBox(height: 8),
               ],
             ),
           ),
-          // 表情选择框 键盘高度
           AnimatedSize(
             curve: Curves.linear,
             duration: const Duration(milliseconds: 300),
@@ -544,9 +490,10 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
               ),
             ),
           ),
+
         ],
       ),
-    );
+    ));
   }
 }
 

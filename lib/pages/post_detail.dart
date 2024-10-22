@@ -1,15 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -383,6 +377,7 @@ class PostDetailState extends State<PostDetail> {
     showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ReplyNew(
           replyMemberList: replyMemberList,
