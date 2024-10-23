@@ -130,10 +130,8 @@ class TopicWebApi {
   // 收藏主题
   static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
     int once = GStorage().getOnce();
-    SmartDialog.showLoading(msg: isCollect ? '取消中...' : '收藏中...');
     String url = isCollect ? ("/unfavorite/topic/$topicId?once=$once") : ("/favorite/topic/$topicId?once=$once");
     var response = await Request().get(url, extra: {'ua': 'mob'});
-    SmartDialog.dismiss();
     // 返回的pc端ua
     if (response.statusCode == 200 || response.statusCode == 302) {
       if (response.statusCode == 200) {

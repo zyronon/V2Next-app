@@ -98,6 +98,7 @@ class PostDetail extends StatefulWidget {
 
 class PostDetailState extends State<PostDetail> {
   PostDetailController ctrl = Get.put(PostDetailController());
+  BaseController bc = Get.find<BaseController>();
   TextEditingController _replyCtrl = new TextEditingController();
   BuildContext? headerCtx;
   BuildContext? normalListCtx; //正常回复
@@ -387,7 +388,6 @@ class PostDetailState extends State<PostDetail> {
       },
     );
     return;
-
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
@@ -578,29 +578,32 @@ class PostDetailState extends State<PostDetail> {
 
   //收藏帖子
   onCollect() async {
-    bool needLogin = !(GStorage().getLoginStatus());
-    if (needLogin) {
+    if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
-    var res = await TopicWebApi.favoriteTopic(ctrl.post.isFavorite, ctrl.post.id);
-    if (res) {
-      setState(() {
-        ctrl.post.isFavorite = !ctrl.post.isFavorite;
-        ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
-      });
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(ctrl.post.isFavorite ? '已收藏' : '已取消收藏'),
-          showCloseIcon: true,
-        ),
-      );
+    bool isFavorite = ctrl.post.isFavorite;
+    ctrl.post.isFavorite = !isFavorite;
+    ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
+    ctrl.update();
+
+    var res = await TopicWebApi.favoriteTopic(isFavorite, ctrl.post.id);
+    if (!res) {
+      ctrl.post.isFavorite = !ctrl.post.isFavorite;
+      ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
+      ctrl.update();
+      Get.snackbar('提示', '',
+          colorText: Colors.white,
+          duration: Duration(seconds: 5),
+          messageText: Text(
+            isFavorite ? '取消收藏失败' : '收藏失败',
+            style: TextStyle(fontSize: 16, color: Colors.white),
+          ),
+          backgroundColor: Colors.redAccent);
     }
   }
 
   //感谢帖子
   onThankPostClick() async {
-    BaseController bc = Get.find();
     if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
