@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 
@@ -20,20 +20,10 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
   // final statusBarHeight = GStorage().getStatusBarHeight();
   BaseController bc = Get.find<BaseController>();
   final statusBarHeight = 0;
-  final ScrollController _listScrollController = ScrollController();
   int _currentIndex = 0;
   bool checkStatus = false; // 是否全选
   IconData iconData = Icons.done;
   String myUserName = '';
-
-  // 滑动至顶部下拉关闭bottomSheet +2 降低灵敏度
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollEndNotification && _listScrollController.offset + 2 <= _listScrollController.position.minScrollExtent && notification.metrics.extentBefore == 0) {
-      Get.back();
-      return true;
-    }
-    return false;
-  }
 
   @override
   void initState() {
@@ -65,9 +55,10 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Container(
-      clipBehavior: Clip.hardEdge,
+      // clipBehavior: Clip.hardEdge,
       height: MediaQuery.of(context).size.height - statusBarHeight - 115,
       decoration: const BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -76,21 +67,34 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(top: 10, left: 20, right: 15),
-            margin: const EdgeInsets.only(bottom: 5),
+            padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
             child: sheetHead(),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: widget.replyList!.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (index == widget.replyList!.length) {
-                  return SizedBox(height: MediaQuery.of(context).padding.bottom);
-                } else {
-                  return memberItem(widget.replyList![index]);
-                }
-              },
+              child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: widget.replyList!.length,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == widget.replyList!.length) {
+                return SizedBox(height: MediaQuery.of(context).padding.bottom);
+              } else {
+                return memberItem(widget.replyList![index]);
+              }
+            },
+          )),
+          Container(
+            padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TDButton(
+                  text: '确定',
+                  type: TDButtonType.fill,
+                  shape: TDButtonShape.rectangle,
+                  theme: TDButtonTheme.primary,
+                  onTap:_checkAll,
+                ),
+              ],
             ),
           ),
         ],
@@ -112,19 +116,12 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
             ],
           ),
         ),
-        IconButton(
-          tooltip: '全部选中',
-          onPressed: () {
-            _checkAll();
-          },
-          icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Icon(iconData, key: ValueKey<IconData>(iconData), size: 28.0, color: Theme.of(context).colorScheme.primary),
-          ),
-          // icon: Icon(!checkStatus ? Icons.done : Icons.done_all, color: Theme.of(context).colorScheme.primary,),
-          style: IconButton.styleFrom(
-            padding: const EdgeInsets.all(9),
-            // backgroundColor: Theme.of(context).colorScheme.background
+        InkWell(
+          onTap: _checkAll,
+          child: Icon(
+            !checkStatus ? Icons.done : Icons.done_all,
+            size: 28.0,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ],

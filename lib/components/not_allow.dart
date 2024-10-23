@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/BaseController.dart';
 
 class NotAllow extends StatelessWidget {
+  BaseController bc = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -19,16 +22,17 @@ class NotAllow extends StatelessWidget {
                 Image.asset('assets/images/nodata.png', width: 125, height: 125),
                 Text('没有权限', style: TextStyle(fontSize: 24.sp)),
                 SizedBox(height: 20.w),
-                TDButton(
-                  text: '登录',
-                  size: TDButtonSize.large,
-                  type: TDButtonType.fill,
-                  shape: TDButtonShape.rectangle,
-                  theme: TDButtonTheme.primary,
-                  onTap: () {
-                    Get.toNamed('/login');
-                  },
-                )
+                if (!bc.isLogin)
+                  TDButton(
+                    text: '登录',
+                    size: TDButtonSize.large,
+                    type: TDButtonType.fill,
+                    shape: TDButtonShape.rectangle,
+                    theme: TDButtonTheme.primary,
+                    onTap: () {
+                      Get.toNamed('/login');
+                    },
+                  )
               ],
             ),
           )),

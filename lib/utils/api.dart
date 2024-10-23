@@ -113,16 +113,16 @@ class Api {
     detailModel.nodeEnName = nodeEnName;
     //手机端 收藏人数获取不到
     Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo});
-    if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式')) {
+    var document = parse(response.data);
+    var mainBox = document.body!.children[1].querySelector('#Main');
+    var mainHeader = mainBox!.querySelector('.node-header');
+    if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式') || mainHeader == null) {
       print('无权限');
       //TODO 无权限
       return null;
     }
 
-    var document = parse(response.data);
-    var mainBox = document.body!.children[1].querySelector('#Main');
-    var mainHeader = mainBox!.querySelector('.node-header');
-    detailModel.nodeCover = mainHeader!.querySelector('img')!.attributes['src']!;
+    detailModel.nodeCover = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
     detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数

@@ -88,6 +88,8 @@ dependencies:
   # 图片选择&上传
   wechat_assets_picker: ^9.1.0
 
+  modal_bottom_sheet: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
