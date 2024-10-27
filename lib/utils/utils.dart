@@ -263,9 +263,43 @@ class Utils {
     return val.map((v) => Reply.fromJson(v.toJson())).toList();
   }
 
-  //TODO
-  static String checkPhotoLink2Img(String val) {
-    return val;
+  static checkPhotoLink2Img(Element dom) {
+    // bool replaceImgur = window.config['replaceImgur'];
+    bool replaceImgur = true;
+    String prefixImg = replaceImgur ? "https://img.noobzone.ru/getimg.php?url=" : '';
+
+    List<Element> imgList = dom.querySelectorAll('img');
+    imgList.forEach((Element a) {
+      String href = a.attributes['src']!;
+      if (href.contains('imgur.com')) {
+        a.attributes['originUrl'] = a.attributes['src']!;
+        a.attributes['notice'] = '此img标签由V2Next脚本解析';
+        if (!['.png', '.jpg', '.jpeg', '.gif', '.PNG', '.JPG', '.JPEG', '.GIF'].any((ext) => href.contains(ext))) {
+          href += '.png';
+        }
+        a.attributes['src'] = prefixImg + href;
+      }
+    });
+
+    List<Element> aList = dom.querySelectorAll('a');
+    aList.forEach((Element a) {
+      String href = a.attributes['href']!;
+      if (a.children.isEmpty && a.text == href) {
+        if (['.png', '.jpg', '.jpeg', '.gif', '.PNG', '.JPG', '.JPEG', '.GIF'].any((ext) => href.contains(ext))) {
+          Element img = Element.tag('img');
+          img.attributes['originUrl'] = a.attributes['href']!;
+          img.attributes['notice'] = '此img标签由V2Next脚本解析';
+
+          if (href.contains('imgur.com')) {
+            img.attributes['src'] = prefixImg + href;
+          } else {
+            img.attributes['src'] = href;
+          }
+          a.text = '';
+          a.append(img);
+        }
+      }
+    });
   }
 
   // 定义一个函数，返回一个处理后的Future，包含状态和结果

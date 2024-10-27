@@ -406,6 +406,7 @@ class Api {
     if (t != null) t.remove();
     t = temp.querySelector('.header');
     if (t != null) t.remove();
+    Utils.checkPhotoLink2Img(temp);
     post.contentRendered = temp.innerHtml.replaceAll(' +08:00', '');
     var contentEl = temp.querySelector('.topic_content');
     if (contentEl != null) {
@@ -490,7 +491,8 @@ class Api {
       Reply item = Reply();
       item.id = node.attributes['id']!.replaceAll('r_', '');
       var replyContentElement = node.querySelector('.reply_content');
-      item.replyContent = Utils.checkPhotoLink2Img(replyContentElement!.innerHtml);
+      Utils.checkPhotoLink2Img(replyContentElement!);
+      item.replyContent = replyContentElement!.innerHtml;
       item.replyText = replyContentElement.text;
 
       var parsedContent = Utils.parseReplyContent(item.replyContent);

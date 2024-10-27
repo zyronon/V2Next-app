@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:fwfh_cached_network_image/fwfh_cached_network_image.dart';
+
+// import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -41,7 +43,7 @@ class BaseHtmlWidget extends StatelessWidget {
                     Get.defaultDialog(
                       title: '解码结果',
                       middleText: res,
-                      radius:10,
+                      radius: 10,
                       actions: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end, // 按钮右对齐
@@ -85,7 +87,7 @@ class BaseHtmlWidget extends StatelessWidget {
             ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
             renderMode: RenderMode.column,
             textStyle: TextStyle(fontSize: 14.sp),
-            // factoryBuilder: () => MyWidgetFactory(),
+            factoryBuilder: () => MyWidgetFactory(),
             customStylesBuilder: (element) {
               if (element.classes.contains('subtle')) {
                 return {
@@ -108,6 +110,10 @@ class BaseHtmlWidget extends StatelessWidget {
               }
               return null;
             },
+            onTapUrl: (url) {
+              Utils.openBrowser(url);
+              return true;
+            },
           ),
           onTap: onTap,
         ));
@@ -116,3 +122,6 @@ class BaseHtmlWidget extends StatelessWidget {
 
 // class MyWidgetFactory extends WidgetFactory with UrlLauncherFactory {
 // }
+
+class MyWidgetFactory extends WidgetFactory with CachedNetworkImageFactory {
+}
