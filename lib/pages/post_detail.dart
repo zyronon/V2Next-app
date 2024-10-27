@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -74,7 +75,9 @@ class PostDetailController extends GetxController {
     update();
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
-    post = await Api.getPostDetail(Get.arguments.id);
+    // post = await Api.getPostDetail('825072');
+    post = await Api.getPostDetail('1026938');
+    // post = await Api.getPostDetail(Get.arguments.id);
     // post = await Api.getPostDetail('825072');
     loading = false;
     update();
@@ -89,14 +92,14 @@ class PostDetailController extends GetxController {
   }
 }
 
-class PostDetail extends StatefulWidget {
-  const PostDetail({super.key});
+class PostDetailPage extends StatefulWidget {
+  const PostDetailPage({super.key});
 
   @override
-  State<PostDetail> createState() => PostDetailState();
+  State<PostDetailPage> createState() => PostDetailPageState();
 }
 
-class PostDetailState extends State<PostDetail> {
+class PostDetailPageState extends State<PostDetailPage> {
   PostDetailController ctrl = Get.put(PostDetailController());
   BaseController bc = Get.find<BaseController>();
   TextEditingController _replyCtrl = new TextEditingController();
@@ -157,7 +160,7 @@ class PostDetailState extends State<PostDetail> {
     );
   }
 
-  Widget optionItem(String text, IconData icon) {
+  Widget optionItem(String text, IconData icon, [GestureTapCallback? onTap]) {
     return InkWell(
         child: Container(
           child: Column(
@@ -179,12 +182,7 @@ class PostDetailState extends State<PostDetail> {
           width: .25.sw,
           padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
         ),
-        onTap: () {
-          debugPrint('1');
-          ctrl.config.showTopReply = !ctrl.config.showTopReply;
-          ctrl.update();
-          Get.back();
-        });
+        onTap: onTap);
   }
 
   //显示回复菜单弹窗
@@ -196,95 +194,124 @@ class PostDetailState extends State<PostDetail> {
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
         _buildReplyMenuOption('回复', TDIcons.chat, () {
+          if (!bc.isLogin) {
+            Get.toNamed('/login');
+            return;
+          }
           Get.back();
           onShowReplyModalClick(val);
         }),
         Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
-        _buildReplyMenuOption('感谢', TDIcons.heart, () {}),
+        _buildReplyMenuOption('感谢', TDIcons.heart, () {
+          if (!bc.isLogin) {
+            Get.toNamed('/login');
+            return;
+          }
+          if (val.isThanked) {
+            Utils.toast('这个回复已经被感谢过了');
+            return;
+          }
+          if (val.username == bc.member.username) {
+            Utils.toast('不能感谢自己');
+            return;
+          }
+          Get.back();
+          onThankReplyClick(val);
+        }),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('上下文', Icons.content_paste_search, () {}),
+        _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
+          //TODO
+          Utils.toast('未实现');
+        }),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('base64解密', TDIcons.lock_on, () {}),
+        _buildReplyMenuOption('复制', TDIcons.file_copy, () {
+          Utils.copy(val.replyText);
+        }),
         Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
-        _buildReplyMenuOption('复制', TDIcons.file_copy, () {}),
-        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
-        _buildReplyMenuOption('忽略', Icons.block, () {}),
+        _buildReplyMenuOption('忽略', Icons.block, () {
+          //TODO
+          Utils.toast('未实现');
+        }),
       ])),
       SizedBox(height: 20.w)
     ]));
   }
 
+  //TODO
   //显示帖子菜单弹窗
   showPostMenuModal() {
     modalWrap(
-        text: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildPostTitle(), BaseHtmlWidget(html: ctrl.post.contentRendered)],
-        ),
         content: Column(
+      children: [
+        Row(children: [
+          optionItem('保存', TDIcons.books, () {
+            ctrl.config.showTopReply = !ctrl.config.showTopReply;
+            ctrl.update();
+            Get.back();
+          }),
+          optionItem('深色模式', Icons.bookmark_border),
+          optionItem('报告', TDIcons.info_circle),
+          optionItem('忽略', TDIcons.browse_off),
+        ]),
+        Row(children: [
+          optionItem('稍后阅读', TDIcons.books),
+          optionItem('复制内容', TDIcons.file_copy, () {
+            Utils.copy(ctrl.post.contentText);
+          }),
+          optionItem('复制链接', TDIcons.link, () {
+            Utils.copy(Const.v2ex + '/t/' + ctrl.post.id);
+          }),
+          optionItem('浏览器打开', TDIcons.logo_chrome,() {
+            Get.back();
+            Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
+          }),
+        ]),
+        Stack(
           children: [
-            Row(children: [
-              optionItem('保存', TDIcons.books),
-              optionItem('深色模式', Icons.bookmark_border),
-              optionItem('报告', TDIcons.info_circle),
-              optionItem('忽略', TDIcons.browse_off),
-            ]),
-            Row(children: [
-              optionItem('稍后阅读', TDIcons.books),
-              optionItem('复制内容', TDIcons.file_copy),
-              optionItem('复制链接', TDIcons.link),
-              optionItem('浏览器打开', TDIcons.logo_chrome),
-            ]),
-            Row(children: [
-              optionItem('base64解密', TDIcons.books),
-            ]),
-            Stack(
-              children: [
-                Positioned(
-                    left: .13.sw,
-                    bottom: 22.w,
-                    child: Container(
-                      width: 0.74.sw,
-                      height: 1.w,
-                      color: Colors.black54,
-                    )),
-                Container(
-                    padding: EdgeInsets.only(bottom: 20.w),
-                    child: Row(
-                      children: [
-                        getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
-                        getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
-                        getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
-                        getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
-                      ],
-                    )),
-                Positioned(
-                    left: .23.sw,
-                    bottom: 16.w,
-                    child: Container(
-                      width: 12.w,
-                      height: 12.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(50.r),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 3.w, //阴影模糊程度
-                              spreadRadius: 3.w //阴影扩散程度
-                              )
-                        ],
-                      ),
-                    )),
-              ],
-            )
+            Positioned(
+                left: .13.sw,
+                bottom: 22.w,
+                child: Container(
+                  width: 0.74.sw,
+                  height: 1.w,
+                  color: Colors.black54,
+                )),
+            Container(
+                padding: EdgeInsets.only(bottom: 20.w),
+                child: Row(
+                  children: [
+                    getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
+                    getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
+                    getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
+                    getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
+                  ],
+                )),
+            Positioned(
+                left: .23.sw,
+                bottom: 16.w,
+                child: Container(
+                  width: 12.w,
+                  height: 12.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(50.r),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 3.w, //阴影模糊程度
+                          spreadRadius: 3.w //阴影扩散程度
+                          )
+                    ],
+                  ),
+                )),
           ],
-        ));
+        )
+      ],
+    ));
   }
 
   Widget getTextSizeOptionItem(Widget text) {
@@ -306,52 +333,36 @@ class PostDetailState extends State<PostDetail> {
             ))));
   }
 
-  modalWrap({required Widget content, Widget? text, Color? color = const Color(0xfff1f1f1)}) async {
+  modalWrap({required Widget content, Color? color = const Color(0xfff1f1f1)}) async {
     return showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       context: context,
       builder: (BuildContext context) {
         return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (text != null)
-                Container(
-                    margin: EdgeInsets.only(bottom: 10.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                    ),
-                    constraints: BoxConstraints(maxHeight: .3.sh),
-                    padding: EdgeInsets.all(14.w),
-                    width: ScreenUtil().screenWidth * .91,
-                    child: SingleChildScrollView(child: text)),
-              Container(
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.r),
-                    topRight: Radius.circular(10.r),
+          child: Container(
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.r),
+                topRight: Radius.circular(10.r),
+              ),
+            ),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+            width: double.infinity,
+            child: Column(
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 4.w,
+                    margin: EdgeInsets.only(bottom: 20.w, top: 20.w),
+                    decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
                   ),
                 ),
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40.w,
-                        height: 4.w,
-                        margin: EdgeInsets.only(bottom: 20.w, top: 20.w),
-                        decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
-                      ),
-                    ),
-                    content
-                  ],
-                ),
-              ),
-            ],
+                content
+              ],
+            ),
           ),
         );
       },
@@ -360,15 +371,16 @@ class PostDetailState extends State<PostDetail> {
 
   List<Reply> replyMemberList = [];
 
+  //TODO 需要处理未登录逻辑
   onShowReplyModalClick([Reply? val]) async {
     PostDetailController pdc = PostDetailController.to();
     if (val != null) {
       pdc.setReply(val);
       // _replyCtrl.text = '#${val.username} #${val.floor} ';
-      // await modalWrap(text: BaseHtmlWidget(html: pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
+      // await modalWrap(  content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      // await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentRendered), content: _buildEditor());
+      // await modalWrap(  content: _buildEditor());
     }
     List<Reply> replyList = List.from(pdc.post.replyList);
     replyList.retainWhere((i) => i.isChoose);
@@ -391,10 +403,10 @@ class PostDetailState extends State<PostDetail> {
     if (val != null) {
       pdc.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
-      await modalWrap(text: BaseHtmlWidget(html: pdc.reply.replyContent), content: _buildEditor(), color: Colors.white);
+      await modalWrap(content: _buildEditor(), color: Colors.white);
     } else {
       pdc.setReply(new Reply());
-      await modalWrap(text: BaseHtmlWidget(html: ctrl.post.contentRendered), content: _buildEditor());
+      await modalWrap(content: _buildEditor());
     }
     _replyCtrl.text = '';
   }
@@ -608,12 +620,12 @@ class PostDetailState extends State<PostDetail> {
       return Get.toNamed('/login');
     }
     // if (ctrl.post.member.username == bc.member.username) {
-    //   SmartDialog.showToast('不能感谢自己');
+    //   Utils.toast('不能感谢自己');
     //   return;
     // }
 
     if (ctrl.post.isThanked) {
-      SmartDialog.showToast('这个主题已经被感谢过了');
+      Utils.toast('这个主题已经被感谢过了');
       return;
     }
 
@@ -634,7 +646,7 @@ class PostDetailState extends State<PostDetail> {
                 ctrl.post.isThanked = true;
                 ctrl.post.thankCount += 1;
                 ctrl.update();
-                SmartDialog.showToast('感谢成功');
+                Utils.toast('感谢成功');
                 Get.back();
               }
             }),
@@ -649,22 +661,21 @@ class PostDetailState extends State<PostDetail> {
   void thankReply(Reply val) async {}
 
   //感谢回复
-  onThankReplyClick(Reply val) {
-    BaseController bc = Get.find();
+  onThankReplyClick(Reply val) async {
     if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
 
     if (val.isThanked) {
-      SmartDialog.showToast('这个回复已经被感谢过了');
+      Utils.toast('这个回复已经被感谢过了');
       return;
     }
     if (val.username == bc.member.username) {
-      SmartDialog.showToast('不能感谢自己');
+      Utils.toast('不能感谢自己');
       return;
     }
 
-    showDialog<String>(
+    await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('提示'),
@@ -962,7 +973,7 @@ class PostDetailState extends State<PostDetail> {
                                                       Padding(
                                                         padding: EdgeInsets.only(left: 10.w),
                                                         child: SelectableText(
-                                                          ctrl.post.member.username,
+                                                          ctrl.post.member.username == 'default' ? '' : ctrl.post.member.username,
                                                           style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
                                                         ),
                                                       ),

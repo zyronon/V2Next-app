@@ -12,8 +12,8 @@ import 'package:v2ex/utils/utils.dart';
 
 class Http {
   static late final Http _instance = Http._internal();
-  static late final Dio dio;
   static late CookieManager cookieManager;
+  static late final Dio dio;
 
   factory Http() => _instance;
 

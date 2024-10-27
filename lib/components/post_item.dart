@@ -79,7 +79,7 @@ class PostItem extends StatelessWidget {
                             SizedBox(width: 10.w),
                           ],
                           if (item.node.cnName.isNotEmpty)
-                            // 这里的点击事件，最新index.xml获取到的数据没有url
+                          // 这里的点击事件，最新index.xml获取到的数据没有url
                             InkWell(
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
@@ -95,6 +95,10 @@ class PostItem extends StatelessWidget {
                                 ),
                               ),
                               onTap: () {
+                                if (item.node.enName.isEmpty) {
+                                  Get.snackbar('提示', '抱歉，由于源数据未提供节点url，所以无法跳转');
+                                  return;
+                                }
                                 Get.toNamed('/node', arguments: item.node);
                               },
                             ),

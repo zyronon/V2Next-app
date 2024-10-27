@@ -83,18 +83,23 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Padding(
-                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
-                              child: Icon(
-                                Icons.sort,
-                                size: 22.sp,
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
-                              child: Icon(
-                                Icons.search,
-                                size: 22.sp,
-                              )),
+                          InkWell(
+                            child: Padding(
+                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                                child: Icon(
+                                  Icons.sort,
+                                  size: 22.sp,
+                                )),
+                          ),
+                          InkWell(
+                            child: Padding(
+                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                                child: Icon(
+                                  Icons.search,
+                                  size: 22.sp,
+                                )),
+                            onTap: ()=>Get.toNamed('/search'),
+                          ),
                           Padding(
                               padding: EdgeInsets.only(left: 6.w, right: 6.w),
                               child: Icon(

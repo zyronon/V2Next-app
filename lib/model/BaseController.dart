@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
@@ -59,7 +60,7 @@ class BaseController extends GetxController {
   }
 
   initData() async {
-    Response res = await Http().get('/notes');
+    Response res = await Http().get('/notes', isMobile: true);
     print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},realUri:${res.realUri}');
     if (!res.isRedirect && !(res.data as String).contains('其他登录方式')) {
       Document document = parse(res.data);
@@ -81,6 +82,10 @@ class BaseController extends GetxController {
               print('actionCounts:${i.text}');
             }
             if (rightBarNode.querySelector('#money') != null) {
+              var imgList = rightBarNode.querySelectorAll('#money > a img');
+              imgList.forEach((img) {
+                img.attributes['src'] = Const.v2ex + img.attributes['src']!;
+              });
               member.balance = rightBarNode.querySelector('#money >a')!.innerHtml;
               print('$member.balance${member.balance}');
             }

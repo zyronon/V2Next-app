@@ -1,13 +1,14 @@
 // ignore_for_file: avoid_print
 
-import 'dart:collection';
-import 'dart:convert' show utf8, base64;
+import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart' hide Cookie;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' hide Text;
@@ -15,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/upload.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -439,5 +441,57 @@ class Utils {
       return res;
     }
     return ('no image selected');
+  }
+
+  static Future<void> syncCookies(String url) async {
+    final inAppCookieManager = CookieManager.instance();
+    CookieJar cookieJar = Http.cookieManager.cookieJar;
+    // var cookies = await inAppCookieManager.getCookies(url: WebUri(url));
+    // List<Cookie> jarCookies = [];
+    // if (cookies.isNotEmpty) {
+    //   for (var i in cookies) {
+    //     jarCookies.add(Cookie(i.name, i.value));
+    //   }
+    // }
+    // cookieJar.saveFromResponse(Uri.parse(url), jarCookies);
+    // var cookieString = jarCookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+    // Http.dio.options.headers['cookie'] = cookieString;
+
+    // debugger();
+    // 从 Dio 的 CookieJar 获取 Cookie 并设置到 InAppWebView 中
+    final dioCookies = await cookieJar.loadForRequest(Uri.parse(url));
+    for (var cookie in dioCookies) {
+      // final expiresDate = DateTime.now().add(Duration(days: 3)).millisecondsSinceEpoch;
+      await inAppCookieManager.setCookie(
+        url: WebUri(url),
+        name: cookie.name,
+        value: cookie.value,
+        domain: cookie.domain,
+        // path: cookie.path!,
+        path: '/',
+        // expiresDate: expiresDate,
+        expiresDate: cookie.expires != null ? cookie.expires!.millisecondsSinceEpoch : null,
+        isSecure: cookie.secure,
+        isHttpOnly: cookie.httpOnly,
+      );
+    }
+  }
+
+  static toast(String msg) {
+    SmartDialog.showToast(msg);
+  }
+
+  static Future<void> copy(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    toast('已复制');
+  }
+
+  static Future<void> openBrowser(String url) async {
+    final Uri uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  static base64Decode2(String base64String) {
+    return utf8.decode(base64Decode(base64String));
   }
 }

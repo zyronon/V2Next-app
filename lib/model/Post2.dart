@@ -202,6 +202,7 @@ class Member {
   String username;
   String avatarLarge;
   String balance;
+  //依次是节点、主题、特别关注
   List<int> actionCounts;
 
   // 构造函数，带默认值

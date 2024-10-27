@@ -3,19 +3,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 class MePage extends StatelessWidget {
   Widget _buildNumItem(String name, int num, [GestureTapCallback? onTap]) {
-    return InkWell(
-        child: Column(children: [
-          Text(num.toString(), style: TextStyle(fontSize: 18.sp)),
-          Text(name, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
-        ]),
-        onTap: onTap);
+    return Expanded(
+        child: InkWell(
+            child: Column(children: [
+              Text(num.toString(), style: TextStyle(fontSize: 18.sp)),
+              Text(name, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
+            ]),
+            onTap: onTap));
   }
 
-  Widget _buildMenuItem(String name, IconData icon, [GestureTapCallback? onTap]) {
+  Widget _buildMenuItem({required String name, required IconData icon, Widget? right, GestureTapCallback? onTap}) {
     return InkWell(
       child: Container(
           height: 60.w,
@@ -26,9 +29,12 @@ class MePage extends StatelessWidget {
               Row(children: [
                 Icon(icon),
                 SizedBox(width: 10.w),
-                Text(name,style: TextStyle(fontSize: 15.sp)),
+                Text(name, style: TextStyle(fontSize: 15.sp)),
               ]),
-              Icon(Icons.keyboard_arrow_right),
+              Row(children: [
+                if (right != null) right,
+                Icon(Icons.keyboard_arrow_right),
+              ])
             ],
           )),
       onTap: onTap,
@@ -70,13 +76,20 @@ class MePage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildNumItem('节点收藏', 3),
+                  _buildNumItem('节点收藏', _.member.actionCounts[0], () {
+                    Get.to(BaseWebView(url: 'https://www.v2ex.com/my/nodes'), transition: Transition.cupertino);
+                  }),
                   Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                  _buildNumItem('主题收藏', 3),
+                  _buildNumItem('主题收藏', _.member.actionCounts[1], () {
+                    // Get.toNamed('/post-collect');
+                    Get.to(BaseWebView(url: 'https://www.v2ex.com/my/topics'), transition: Transition.cupertino);
+                  }),
                   Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                  _buildNumItem('特别关注', 3),
-                  Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                  _buildNumItem('历史浏览', 3),
+                  _buildNumItem('特别关注', _.member.actionCounts[2], () {
+                    Get.to(BaseWebView(url: 'https://www.v2ex.com/my/following'), transition: Transition.cupertino);
+                  }),
+                  // Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                  // _buildNumItem('历史浏览', 3),
                 ],
               ),
             ),
@@ -88,19 +101,21 @@ class MePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Column(children: [
-                  _buildMenuItem('余额', TDIcons.money_circle, () {
+                  _buildMenuItem(name: '余额',icon:  TDIcons.money_circle,right: BaseHtmlWidget(html: _.member.balance), onTap: () {
                     Get.toNamed('/balance');
                   }),
+
                   Divider(height: 1.w, color: Colors.grey[200]),
-                  _buildMenuItem('记事本', Icons.format_list_bulleted, () {
-                    Get.toNamed('/notes');
+                  _buildMenuItem(name: '记事本',icon:  Icons.format_list_bulleted, onTap: () {
+                    // Get.toNamed('/notes');
+                    Get.to(BaseWebView(url: 'https://www.v2ex.com/notes'), transition: Transition.cupertino);
                   }),
                   Divider(height: 1.w, color: Colors.grey[200]),
-                  _buildMenuItem('反馈', TDIcons.service, () {
+                  _buildMenuItem(name: '反馈',icon:  TDIcons.service, onTap: () {
                     Get.toNamed('/feedback');
                   }),
                   Divider(height: 1.w, color: Colors.grey[200]),
-                  _buildMenuItem('设置', TDIcons.setting, () {
+                  _buildMenuItem(name: '设置',icon:  TDIcons.setting, onTap: () {
                     Get.toNamed('/setting');
                   }),
                 ]))

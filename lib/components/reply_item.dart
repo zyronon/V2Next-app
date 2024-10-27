@@ -16,6 +16,7 @@ class ReplyItem extends StatelessWidget {
   final Function onTap;
   final int type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
   final int index;
+  final bool isSub;//判断是否子回复
 
   const ReplyItem({
     super.key,
@@ -25,11 +26,12 @@ class ReplyItem extends StatelessWidget {
     required this.type,
     required this.index,
     required this.onTap,
+    this.isSub = false,
   });
 
   getPadding() {
     if (item.level == 0) {
-      return EdgeInsets.fromLTRB(10.w, 8.w, 8.w, 8.w);
+      return EdgeInsets.fromLTRB(10.w, 8.w, 0.w, 8.w);
     }
     return EdgeInsets.only(top: index > 0 ? 8.w : 0.w);
   }
@@ -106,11 +108,11 @@ class ReplyItem extends StatelessWidget {
                         onTap: () => onThank(item)),
                   InkWell(
                       child: Padding(
-                        padding: EdgeInsets.only(left: 4.w, top: 6.w, bottom: 6.w),
+                        padding: EdgeInsets.only(left: 6.w, top: 6.w, bottom: 6.w, right: 8.w),
                         child: Icon(
                           Icons.more_vert,
                           size: 22.sp,
-                          color: Colors.grey,
+                          color: Colors.grey[400],
                         ),
                       ),
                       onTap: () => onMenu(item))
@@ -122,11 +124,12 @@ class ReplyItem extends StatelessWidget {
             verticalDirection: VerticalDirection.down,
           ),
           Padding(
-            padding: EdgeInsets.only(top: 6.w, bottom: item.children.length == 0 ? 0 : 6.w, right: item.level == 0 ? 0 : 10.w),
+            padding: EdgeInsets.only(top: 6.w, bottom: item.children.length == 0 ? 0 : 6.w, right: 10.w),
             child: SizedBox(
               width: double.infinity,
               child: BaseHtmlWidget(
-                html: type == 0 ? item.replyContent : item.hideCallUserReplyContent,
+                //高赞回复，有可能是子回复，那么这种就需要显示出@信息
+                html: (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent,
                 onTap: () => onTap(item),
               ),
             ),
@@ -151,6 +154,7 @@ class ReplyItem extends StatelessWidget {
                           index: idx,
                           type: type,
                           item: val,
+                          isSub: true,
                           onThank: (e) => onThank(e),
                           onMenu: (e) => onMenu(e),
                           onTap: (e) => onTap(e),

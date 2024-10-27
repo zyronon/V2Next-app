@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -7,13 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide FormData, Response;
 import 'package:html/parser.dart';
-import 'package:v2ex/main.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/package/xpath/src/xpath_base.dart';
 import 'package:v2ex/utils/ConstVal.dart';
-import 'package:v2ex/utils/global.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
