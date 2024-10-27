@@ -76,8 +76,8 @@ class PostDetailController extends GetxController {
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
     // post = await Api.getPostDetail('825072');
-    post = await Api.getPostDetail('1026938');
-    // post = await Api.getPostDetail(Get.arguments.id);
+    // post = await Api.getPostDetail('1026938');
+    post = await Api.getPostDetail(Get.arguments.id);
     // post = await Api.getPostDetail('825072');
     loading = false;
     update();
