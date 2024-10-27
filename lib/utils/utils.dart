@@ -488,7 +488,11 @@ class Utils {
 
   static Future<void> openBrowser(String url) async {
     final Uri uri = Uri.parse(url);
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      toast('无法打开链接 $url');
+    }
   }
 
   static base64Decode2(String base64String) {

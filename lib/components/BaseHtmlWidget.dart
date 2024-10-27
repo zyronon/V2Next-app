@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -87,6 +85,7 @@ class BaseHtmlWidget extends StatelessWidget {
             ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
             renderMode: RenderMode.column,
             textStyle: TextStyle(fontSize: 14.sp),
+            // factoryBuilder: () => MyWidgetFactory(),
             customStylesBuilder: (element) {
               if (element.classes.contains('subtle')) {
                 return {
@@ -114,3 +113,6 @@ class BaseHtmlWidget extends StatelessWidget {
         ));
   }
 }
+
+// class MyWidgetFactory extends WidgetFactory with UrlLauncherFactory {
+// }
