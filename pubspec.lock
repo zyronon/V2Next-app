@@ -297,6 +297,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.5"
+  extended_tabs:
+    dependency: "direct main"
+    description:
+      name: extended_tabs
+      sha256: "97080e2d380e5217d257b3a68ddccf5077e705b74c24acd37b6f2c28cf6c2f01"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   extended_text_field:
     dependency: "direct main"
     description:
@@ -350,6 +358,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_adaptive_scaffold:
+    dependency: "direct main"
+    description:
+      name: flutter_adaptive_scaffold
+      sha256: a464b74540401cade07af0ae84d19f210534cac67651a150fb413507040b74f6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.12"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -1061,6 +1077,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  sync_scroll_library:
+    dependency: transitive
+    description:
+      name: sync_scroll_library
+      sha256: "2e266be24bb7b34686a4b9c592f8a1cd29778060fadd9f5df8535f2410caf196"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   synchronized:
     dependency: transitive
     description:

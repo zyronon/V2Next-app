@@ -93,6 +93,9 @@ dependencies:
 
   modal_bottom_sheet: ^3.0.0
 
+  extended_tabs: ^4.1.0
+  # 响应式
+  flutter_adaptive_scaffold: ^0.1.11
 dev_dependencies:
   flutter_test:
     sdk: flutter

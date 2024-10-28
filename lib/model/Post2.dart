@@ -339,3 +339,11 @@ class MemberNoticeItem {
   NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举
   String topicHref = ''; // 主题href  /t/923791#reply101
 }
+
+class NodeFavModel {
+  String nodeCover = ''; // 节点图标
+  String nodeName = ''; // 节点 名称
+  String nodeId = ''; // 节点id
+  String topicCount = ''; // 节点主题数量
+}
+

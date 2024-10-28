@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:html/parser.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart' hide Element;
@@ -540,5 +541,40 @@ class Utils {
       return false;
     }
     return true;
+  }
+
+  static resolveNode(response, type) {
+    List<Map<dynamic, dynamic>> nodesList = [];
+    var document = parse(response.data);
+    var nodesBox;
+    if (type == 'pc') {
+      // 【设置】中可能关闭【首页显示节点导航】
+      if (document.querySelector('#Main')!.children.length >= 4) {
+        nodesBox = document.querySelector('#Main')!.children.last;
+      }
+    }
+    if (nodesBox != null) {
+      nodesBox.children.removeAt(0);
+      var nodeTd = nodesBox.children;
+      for (var i in nodeTd) {
+        Map nodeItem = {};
+        String fName = i.querySelector('span')!.text;
+        nodeItem['name'] = fName;
+        List<Map> childs = [];
+        var cEl = i.querySelectorAll('a');
+        for (var j in cEl) {
+          Map item = {};
+          item['nodeId'] = j.attributes['href']!.split('/').last;
+          item['nodeName'] = j.text;
+          childs.add(item);
+        }
+        nodeItem['childs'] = childs;
+
+        nodesList.add(nodeItem);
+      }
+      nodesList.insert(0, {'name': '已收藏', 'childs': []});
+      GStorage().setNodes(nodesList);
+      return nodesList;
+    }
   }
 }

@@ -55,7 +55,7 @@ class ReplyNew extends StatefulWidget {
 class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   EditorController ec = Get.put(EditorController());
   BaseController bc = Get.find<BaseController>();
-  PostDetailController pdc = PostDetailController.to();
+  late PostDetailController pdc;
 
   final TextEditingController editorController = TextEditingController();
   final MyTextSelectionControls _myExtendedMaterialTextSelectionControls = MyTextSelectionControls();
@@ -74,6 +74,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    pdc = PostDetailController.to(widget.topicId);
     // 监听输入框聚焦
     focusNode.addListener(() {
       print(focusNode.hasFocus);

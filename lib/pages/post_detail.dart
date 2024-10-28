@@ -41,7 +41,7 @@ class PostDetailController extends GetxController {
     update();
   }
 
-  static to() => Get.find<PostDetailController>();
+  static to(id) => Get.find<PostDetailController>(tag: id);
 
   static PostDetailController get to2 => Get.find<PostDetailController>();
 
@@ -107,7 +107,7 @@ class PostDetailPage extends StatefulWidget {
 
 class PostDetailPageState extends State<PostDetailPage> {
   late String id = Get.arguments.id;
-  late PostDetailController ctrl;
+  late PostDetailController ctrl ;
 
   BaseController bc = Get.find<BaseController>();
   TextEditingController _replyCtrl = new TextEditingController();
@@ -196,8 +196,7 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   //显示回复菜单弹窗
   onShowItemMenuModalClick(Reply val) {
-    PostDetailController c = PostDetailController.to();
-    c.setReply(val);
+    ctrl.setReply(val);
     modalWrap(
         content: Column(children: [
       _buildReplyMenuOptionWrapper(
@@ -382,16 +381,15 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   //TODO 需要处理未登录逻辑
   onShowReplyModalClick([Reply? val]) async {
-    PostDetailController pdc = PostDetailController.to();
     if (val != null) {
-      pdc.setReply(val);
+      ctrl.setReply(val);
       // _replyCtrl.text = '#${val.username} #${val.floor} ';
       // await modalWrap(  content: _buildEditor(), color: Colors.white);
     } else {
-      pdc.setReply(new Reply());
+      ctrl.setReply(new Reply());
       // await modalWrap(  content: _buildEditor());
     }
-    List<Reply> replyList = List.from(pdc.post.replyList);
+    List<Reply> replyList = List.from(ctrl.post.replyList);
     replyList.retainWhere((i) => i.isChoose);
     setState(() {
       replyMemberList = replyList;
@@ -403,18 +401,18 @@ class PostDetailPageState extends State<PostDetailPage> {
       builder: (BuildContext context) {
         return ReplyNew(
           replyMemberList: replyMemberList,
-          topicId: pdc.post.id,
-          replyList: pdc.post.replyList,
+          topicId: ctrl.post.id,
+          replyList: ctrl.post.replyList,
         );
       },
     );
     return;
     if (val != null) {
-      pdc.setReply(val);
+      ctrl.setReply(val);
       _replyCtrl.text = '#${val.username} #${val.floor} ';
       await modalWrap(content: _buildEditor(), color: Colors.white);
     } else {
-      pdc.setReply(new Reply());
+      ctrl.setReply(new Reply());
       await modalWrap(content: _buildEditor());
     }
     _replyCtrl.text = '';

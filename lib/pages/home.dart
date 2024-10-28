@@ -14,37 +14,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
-  List<TabItem> tabMap = [
-    new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
-    // new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
-    new TabItem(cnName: '水深火热', enName: 'flamewar', type: TabType.node),
-    new TabItem(cnName: '最新', enName: 'new', type: TabType.latest),
-    new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
-    new TabItem(cnName: '技术', enName: 'tech', type: TabType.tab),
-    new TabItem(cnName: '创意', enName: 'creative', type: TabType.tab),
-    new TabItem(cnName: '好玩', enName: 'play', type: TabType.tab),
-    new TabItem(cnName: 'Apple', enName: 'apple', type: TabType.tab),
-    new TabItem(cnName: '酷工作', enName: 'jobs', type: TabType.tab),
-    new TabItem(cnName: '交易', enName: 'deals', type: TabType.tab),
-    new TabItem(cnName: '城市', enName: 'city', type: TabType.tab),
-    new TabItem(cnName: '问与答', enName: 'qna', type: TabType.tab),
-    new TabItem(cnName: 'R2', enName: 'r2', type: TabType.tab),
-    new TabItem(cnName: 'VXNA', enName: 'xna', type: TabType.tab),
-    new TabItem(cnName: '节点', enName: 'nodes', type: TabType.tab),
-    new TabItem(cnName: '关注', enName: 'members', type: TabType.tab),
-  ];
+  BaseController bc = BaseController.to;
 
   List<Widget> tabs = [];
   List<Widget> pages = [];
+  var tabKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      tabs = tabMap.map((e) {
+      tabs = bc.tabList.map((e) {
         return Tab(text: e.cnName);
       }).toList();
-      pages = tabMap.map((e) {
+      pages = bc.tabList.map((e) {
         if (e.type == TabType.hot) return new TabHotPage(tab: e);
         return new TabPage(tab: e);
       }).toList();
@@ -53,7 +36,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
   submit() {
     BaseController c = Get.find();
-    c.initData();
+    // c.initData();
+    c.initStorage();
     print("test");
   }
 
@@ -61,6 +45,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   Widget build(BuildContext context) {
     super.build(context);
     return DefaultTabController(
+      key: tabKey,
       length: tabs.length,
       child: Scaffold(
         body: Container(
@@ -90,7 +75,22 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                                   Icons.sort,
                                   size: 22.sp,
                                 )),
-                            onTap: () => Get.toNamed('/tab_node'),
+                            onTap: () async {
+                              var r = await Get.toNamed('/tab_node');
+                              print('r$r');
+                              if (r != null) {
+                                setState(() {
+                                  tabs = bc.tabList.map((e) {
+                                    return Tab(text: e.cnName);
+                                  }).toList();
+                                  pages = bc.tabList.map((e) {
+                                    if (e.type == TabType.hot) return new TabHotPage(tab: e);
+                                    return new TabPage(tab: e);
+                                  }).toList();
+                                  tabKey = UniqueKey();
+                                });
+                              }
+                            },
                           ),
                           InkWell(
                             child: Padding(
@@ -112,11 +112,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             ],
           ),
         ),
-        // floatingActionButton: FloatingActionButton(
-        //     onPressed: () {
-        //       submit();
-        //     },
-        //     child: Text('test')),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              submit();
+            },
+            child: Text('test')),
       ),
     );
   }

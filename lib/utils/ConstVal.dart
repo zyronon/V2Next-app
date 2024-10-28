@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:v2ex/model/TabItem.dart';
 
 export '';
 
@@ -33,5 +34,24 @@ class Const {
   static double padding = 10.w;
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
+  static String allNodes = '/api/nodes/all.json';
+  static List<TabItem> defaultTabList =  [
+    new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),
+    // new TabItem(cnName: '沙盒', enName: 'sandbox', type: TabType.node),
+    new TabItem(cnName: '水深火热', enName: 'flamewar', type: TabType.node),
+    new TabItem(cnName: '最新', enName: 'new', type: TabType.latest),
+    new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
+    new TabItem(cnName: '技术', enName: 'tech', type: TabType.tab),
+    new TabItem(cnName: '创意', enName: 'creative', type: TabType.tab),
+    new TabItem(cnName: '好玩', enName: 'play', type: TabType.tab),
+    new TabItem(cnName: 'Apple', enName: 'apple', type: TabType.tab),
+    new TabItem(cnName: '酷工作', enName: 'jobs', type: TabType.tab),
+    new TabItem(cnName: '交易', enName: 'deals', type: TabType.tab),
+    new TabItem(cnName: '城市', enName: 'city', type: TabType.tab),
+    new TabItem(cnName: '问与答', enName: 'qna', type: TabType.tab),
+    new TabItem(cnName: 'R2', enName: 'r2', type: TabType.tab),
+    new TabItem(cnName: '节点', enName: 'nodes', type: TabType.tab),
+    new TabItem(cnName: '关注', enName: 'members', type: TabType.tab),
+  ];
 // static Color primaryColor = Color(0xff07c160);
 }

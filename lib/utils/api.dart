@@ -8,6 +8,7 @@ import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -569,4 +570,61 @@ class Api {
   reply(String id, String content) {}
 
   collect(String id, int type) {}
+
+  // 获取所有节点 pc
+  static Future getNodes() async {
+    Response response;
+    response = await Http().get(
+      '/',
+    );
+    return Utils.resolveNode(response, 'pc');
+  }
+
+  // 所有节点
+  static Future<List<NodeItem>> getAllNodes() async {
+    Response response = await Http().get(
+      Const.allNodes,
+    );
+    List<dynamic> list = response.data;
+    return list.map((e) => NodeItem.fromJson(e)).toList();
+  }
+
+
+  // 获取收藏的节点
+  static Future<List<NodeFavModel>> getFavNodes() async {
+    List<NodeFavModel> favNodeList = [];
+    Response response;
+    response = await Http().get('/my/nodes');
+    var bodyDom = parse(response.data).body;
+    var nodeListWrap = bodyDom!.querySelector('div[id="my-nodes"]');
+    List<Element> nodeListDom = [];
+    if (nodeListWrap != null) {
+      nodeListDom = nodeListWrap.querySelectorAll('a');
+      for (var i in nodeListDom) {
+        NodeFavModel item = NodeFavModel();
+        if (i.querySelector('img') != null) {
+          item.nodeCover = i.querySelector('img')!.attributes['src']!;
+          if (item.nodeCover.contains('/static')) {
+            item.nodeCover = '';
+          }
+          item.nodeId = i.attributes['href']!.split('/')[2];
+        }
+        item.nodeName = i.querySelector('span.fav-node-name')!.text;
+        item.topicCount = i.querySelector('span.f12.fade')!.text;
+        favNodeList.add(item);
+      }
+    }
+
+    var noticeNode =
+    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    if (noticeNode != null) {
+      // 未读消息
+      var unRead =
+      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      if (int.parse(unRead) > 0) {
+        // eventBus.emit('unRead', int.parse(unRead));
+      }
+    }
+    return favNodeList;
+  }
 }
