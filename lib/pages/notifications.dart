@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
 
 import '../model/Post2.dart';
@@ -45,6 +47,8 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
     new TabItem(cnName: '收藏', enName: 'new', type: TabType.latest),
   ];
 
+  BaseController bc = Get.find();
+
   @override
   void initState() {
     super.initState();
@@ -75,23 +79,24 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                     }).toList(),
                   ),
                   Expanded(
-                      child: TabBarView(
-                          physics:NeverScrollableScrollPhysics(),
-                          children: tabMap.map((e) {
-                    return RefreshIndicator(
-                      child: ListView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        children: [
-                          ..._.data.noticeList.map((v) {
-                            return NoticeItem(
-                                noticeItem: v,
-                                onDeleteNotice: () => {});
-                          })
-                        ],
-                      ),
-                      onRefresh: _.getData,
-                    );
-                  }).toList()))
+                    child: bc.isLogin
+                        ? TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            children: tabMap.map((e) {
+                              return RefreshIndicator(
+                                child: ListView(
+                                  physics: AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    ..._.data.noticeList.map((v) {
+                                      return NoticeItem(noticeItem: v, onDeleteNotice: () => {});
+                                    })
+                                  ],
+                                ),
+                                onRefresh: _.getData,
+                              );
+                            }).toList())
+                        : NotAllow(),
+                  )
                 ],
               ),
             ),

@@ -85,27 +85,22 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         children: [
                           InkWell(
                             child: Padding(
-                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                                padding: EdgeInsets.only(left: 10.w, right: 10.w),
                                 child: Icon(
                                   Icons.sort,
                                   size: 22.sp,
                                 )),
+                            onTap: () => Get.toNamed('/tab_node'),
                           ),
                           InkWell(
                             child: Padding(
-                                padding: EdgeInsets.only(left: 6.w, right: 6.w),
+                                padding: EdgeInsets.only(left: 10.w, right: 10.w),
                                 child: Icon(
                                   Icons.search,
                                   size: 22.sp,
                                 )),
-                            onTap: ()=>Get.toNamed('/search'),
+                            onTap: () => Get.toNamed('/search'),
                           ),
-                          Padding(
-                              padding: EdgeInsets.only(left: 6.w, right: 6.w),
-                              child: Icon(
-                                Icons.mail_outline,
-                                size: 22.sp,
-                              )),
                         ],
                       ),
                     ),

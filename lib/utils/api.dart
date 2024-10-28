@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
@@ -305,10 +305,10 @@ class Api {
             title: const Text('权限不足'),
             content: const Text('登录后查看主题内容'),
             actions: [
-              TextButton(onPressed: (() => {SmartDialog.dismiss(), Navigator.pop(context)}), child: const Text('返回上一页')),
+              TextButton(onPressed: (() => {SmartDialog.dismiss(), Get.back()}), child: const Text('返回')),
               TextButton(
                   // TODO
-                  onPressed: (() => {Navigator.of(context).pushNamed('/login')}),
+                  onPressed: (() => {Get.toNamed('/login')}),
                   child: const Text('去登录'))
             ],
           );

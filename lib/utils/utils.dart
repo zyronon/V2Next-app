@@ -532,4 +532,13 @@ class Utils {
   static base64Decode2(String base64String) {
     return utf8.decode(base64Decode(base64String));
   }
+
+  static bool checkIsLogin() {
+    BaseController bc = Get.find();
+    if (!bc.isLogin) {
+      Get.toNamed('/login');
+      return false;
+    }
+    return true;
+  }
 }

@@ -26,6 +26,8 @@ class Const {
   static Agent agent = new Agent();
   static String v2Hot = 'https://v2hotlist.vercel.app';
   static String v2ex = 'https://www.v2ex.com';
+  static String git = 'https://github.com/zyronon/V2Next';
+  static String issues = 'https://github.com/zyronon/V2Next/issues';
   static Color primaryColor = Color(0xff48a24a);
   static Color line = Color(0xfff1f1f1);
   static double padding = 10.w;

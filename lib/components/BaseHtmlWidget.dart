@@ -7,6 +7,7 @@ import 'package:fwfh_cached_network_image/fwfh_cached_network_image.dart';
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class BaseHtmlWidget extends StatelessWidget {
@@ -111,6 +112,13 @@ class BaseHtmlWidget extends StatelessWidget {
               return null;
             },
             onTapUrl: (url) {
+              print('url--------------------${url.toString()}');
+              if (url.contains('v2ex.com/t/')) {
+                var match = RegExp(r'(\d+)').allMatches(url.replaceAll('v2ex.com/t/', ''));
+                var result = match.map((m) => m.group(0)).toList();
+                Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
+                return true;
+              }
               Utils.openBrowser(url);
               return true;
             },
@@ -123,5 +131,4 @@ class BaseHtmlWidget extends StatelessWidget {
 // class MyWidgetFactory extends WidgetFactory with UrlLauncherFactory {
 // }
 
-class MyWidgetFactory extends WidgetFactory with CachedNetworkImageFactory {
-}
+class MyWidgetFactory extends WidgetFactory with CachedNetworkImageFactory {}

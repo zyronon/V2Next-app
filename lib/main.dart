@@ -14,6 +14,7 @@ import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/post-collect.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
+import 'package:v2ex/pages/tab_node.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
@@ -107,6 +108,7 @@ class MyApp extends StatelessWidget {
               '/login': (context) => const LoginPage(),
               '/node': (context) => NodePage(),
               '/search': (context) => SearchPage(),
+              '/tab_node': (context) => TabNodePage(),
             },
           );
         });

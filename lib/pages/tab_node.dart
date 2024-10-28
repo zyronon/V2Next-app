@@ -9,7 +9,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/utils.dart';
 
-class MePage extends StatelessWidget {
+class TabNodePage extends StatelessWidget {
   Widget _buildNumItem(String name, int num, [GestureTapCallback? onTap]) {
     return Expanded(
         child: InkWell(
@@ -49,7 +49,6 @@ class MePage extends StatelessWidget {
       appBar: AppBar(elevation: 0, toolbarHeight: 0),
       body: GetBuilder<BaseController>(builder: (_) {
         return Container(
-          padding: EdgeInsets.all(20.w),
           color: Colors.grey[300],
           child: Column(
             children: [

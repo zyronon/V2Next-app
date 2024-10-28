@@ -202,6 +202,7 @@ class Member {
   String username;
   String avatarLarge;
   String balance;
+
   //依次是节点、主题、特别关注
   List<int> actionCounts;
 
@@ -211,7 +212,7 @@ class Member {
     this.username = 'default',
     this.avatarLarge = '',
     this.balance = '',
-    this.actionCounts = const [],
+    this.actionCounts = const [0, 0, 0],
   });
 
   // fromJson 方法
@@ -220,7 +221,7 @@ class Member {
         username = json['username'] ?? 'default',
         avatarLarge = json['avatarLarge'] ?? '',
         balance = json['balance'] ?? '',
-        actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [];
+        actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0];
 
   // toJson 方法
   Map<String, dynamic> toJson() {
