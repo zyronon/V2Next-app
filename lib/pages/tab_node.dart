@@ -10,7 +10,7 @@ class Controller extends GetxController {
   BaseController bc = BaseController.to;
   var isEdit = false.obs;
   var showSort = false.obs;
-  var tabMap = <TabItem>[].obs;
+  var tabList = <TabItem>[].obs;
 
   void reorderItem(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex -= 1;
@@ -22,7 +22,7 @@ class Controller extends GetxController {
   void onInit() {
     super.onInit();
     // tabMap.value = List.from(bc.tabMap);
-    tabMap.assignAll(bc.tabList);
+    tabList.assignAll(bc.tabList);
   }
 }
 
@@ -48,12 +48,7 @@ class TabNodePage extends StatelessWidget {
         false; // 如果对话框被关闭，返回 false
   }
 
-  Widget _buildIconButton({
-    VoidCallback? onTap,
-    required IconData icon,
-    required String text,
-    TDButtonTheme theme = TDButtonTheme.primary
-  }) {
+  Widget _buildIconButton({VoidCallback? onTap, required IconData icon, required String text, TDButtonTheme theme = TDButtonTheme.primary}) {
     return TDButton(
       text: text,
       size: TDButtonSize.small,
@@ -61,13 +56,6 @@ class TabNodePage extends StatelessWidget {
       shape: TDButtonShape.rectangle,
       theme: theme,
       onTap: onTap,
-    );
-    return IconButton(
-      tooltip: text,
-      onPressed: onTap,
-      icon: Icon(icon, size: 22.0, color: Const.primaryColor),
-      // icon: Icon(!checkStatus ? Icons.done : Icons.done_all, color: Theme.of(context).colorScheme.primary,),
-      style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Colors.white),
     );
   }
 
@@ -83,107 +71,88 @@ class TabNodePage extends StatelessWidget {
                     children: [
                       TDNavBar(
                         height: 48,
-                        title: '当前Tab',
+                        title: 'Tab列表',
                         screenAdaptation: false,
                         useDefaultBack: true,
                       ),
                       Expanded(
-                          child: Column(
-                        children: [
-                          if (_.isEdit.value) ...[
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TDButton(
-                                    text: '恢复默认',
-                                    size: TDButtonSize.small,
-                                    type: TDButtonType.fill,
-                                    shape: TDButtonShape.rectangle,
-                                    theme: TDButtonTheme.primary,
-                                    onTap: () {
-                                      // _.bc.setTabMap(Const.defaultTabList);
-                                      _.tabMap.assignAll(Const.defaultTabList);
-                                      _.isEdit.value = true;
-                                    },
-                                  ),
-                                  SizedBox(width: 5),
-                                  _buildIconButton(
-                                      text: '添加',
-                                      icon: TDIcons.add,
-                                      onTap: () async {
-                                        var r = await Get.toNamed('/node_list');
-                                        if (r != null) {
-                                          _.tabMap.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
-                                          _.isEdit.value = true;
-                                        }
-                                      }),
-                                ],
+                          child: _.isEdit.value
+                              ? Container(
+                            color: Colors.grey[200],
+                            child: ReorderableListView(
+                              header: Container(
+                                alignment: Alignment(-0.95, 0),
+                                height: 45,
+                                child: Text('长按进行拖动排序'),
                               ),
-                            ),
-                            Expanded(
-                                child: ReorderableListView(
                               onReorder: (int oldIndex, int newIndex) {
                                 if (newIndex > oldIndex) newIndex -= 1;
-                                final item = _.tabMap.removeAt(oldIndex);
-                                _.tabMap.insert(newIndex, item);
+                                final item = _.tabList.removeAt(oldIndex);
+                                _.tabList.insert(newIndex, item);
                                 _.isEdit.value = true;
                               },
                               children: [
-                                for (final item in _.tabMap)
+                                for (final item in _.tabList)
                                   Container(
                                     key: ValueKey(item),
                                     padding: EdgeInsets.all(8),
-                                    margin: EdgeInsets.only(bottom: 8),
-                                    decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4)),
+                                    margin: EdgeInsets.only(bottom: 5),
+                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(item.cnName),
                                         Row(
                                           children: [
-                                            Icon(Icons.more_vert, color: Colors.grey),
+                                            Icon(TDIcons.move, color: Colors.grey),
                                             SizedBox(width: 10),
-                                            Icon(Icons.close, color: Colors.grey),
+                                            InkWell(
+                                              child: Icon(Icons.close, color: Colors.grey),
+                                              onTap: () {
+                                                _.tabList.remove(item);
+                                              },
+                                            )
                                           ],
                                         )
                                       ],
                                     ),
                                   )
                               ],
-                            ))
-                          ] else
-                            Wrap(
-                                alignment: WrapAlignment.start,
-                                // 主轴对齐方式为靠左
-                                crossAxisAlignment: WrapCrossAlignment.start,
-                                // 交叉轴对齐方式为靠左
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _.tabMap
-                                    .map(
-                                      (i) => TDTag(
-                                        i.cnName,
-                                        isLight: true,
-                                        size: TDTagSize.large,
-                                        onCloseTap: () {
-                                          _.tabMap.remove(i);
-                                          _.isEdit.value = true;
-                                        },
-                                      ),
-                                    )
-                                    .toList()),
-                          SizedBox(height: 20),
-                        ],
-                      )),
-                      SizedBox(height: 20),
+                            ),
+                          )
+                              : Column(
+                                  children: [
+                                    Wrap(
+                                        alignment: WrapAlignment.start,
+                                        crossAxisAlignment: WrapCrossAlignment.start,
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: _.tabList.map((i) => TDTag(i.cnName, isLight: true, size: TDTagSize.large)).toList()),
+                                    Padding(
+                                        padding: EdgeInsets.fromLTRB(8, 20, 8, 8),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Icon(
+                                              Icons.priority_high,
+                                              size: 16,
+                                              color: Colors.grey[400],
+                                            ),
+                                            SizedBox(width: 5),
+                                            Expanded(
+                                                child: Text(
+                                              '默认Tab为特殊Tab，处理逻辑和自行添加的节点不同，删除后无法再从节点列表添加，误删除请点击"编辑"=>"恢复默认"按钮',
+                                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                                            )),
+                                          ],
+                                        ))
+                                  ],
+                                )),
                       Container(
                         padding: EdgeInsets.all(8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SizedBox(width: 5),
                             if (!_.isEdit.value) ...[
                               _buildIconButton(
                                   text: '编辑',
@@ -200,23 +169,45 @@ class TabNodePage extends StatelessWidget {
                                   icon: TDIcons.refresh,
                                   theme: TDButtonTheme.light,
                                   onTap: () {
+                                    _.tabList.assignAll(_.bc.tabList);
                                     _.isEdit.value = false;
+                                  }),
+                              SizedBox(width: 5),
+                              TDButton(
+                                text: '恢复默认',
+                                size: TDButtonSize.small,
+                                type: TDButtonType.fill,
+                                shape: TDButtonShape.rectangle,
+                                theme: TDButtonTheme.primary,
+                                onTap: () {
+                                  // _.bc.setTabMap(Const.defaultTabList);
+                                  _.tabList.assignAll(Const.defaultTabList);
+                                },
+                              ),
+                              SizedBox(width: 5),
+                              _buildIconButton(
+                                  text: '添加',
+                                  icon: TDIcons.add,
+                                  onTap: () async {
+                                    var r = await Get.toNamed('/node_list');
+                                    if (r != null) {
+                                      _.tabList.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
+                                    }
                                   }),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '重置',
                                   icon: TDIcons.refresh,
                                   onTap: () {
-                                    _.tabMap.assignAll(_.bc.tabList);
-                                    _.isEdit.value = false;
+                                    _.tabList.assignAll(_.bc.tabList);
                                   }),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '保存',
                                   icon: TDIcons.save,
                                   onTap: () {
-                                    _.bc.setTabMap(_.tabMap);
-                                    Get.back(result: 'change');
+                                    _.bc.setTabMap(_.tabList);
+                                    _.isEdit.value = false;
                                   })
                             ]
                           ],

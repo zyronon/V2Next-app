@@ -107,7 +107,7 @@ class PostDetailPage extends StatefulWidget {
 
 class PostDetailPageState extends State<PostDetailPage> {
   late String id = Get.arguments.id;
-  late PostDetailController ctrl ;
+  late PostDetailController ctrl;
 
   BaseController bc = Get.find<BaseController>();
   TextEditingController _replyCtrl = new TextEditingController();
@@ -169,29 +169,8 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Widget optionItem(String text, IconData icon, [GestureTapCallback? onTap]) {
-    return InkWell(
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(100.r)),
-                  padding: EdgeInsets.all(12.w),
-                  margin: EdgeInsets.only(bottom: 8.w),
-                  child: Icon(
-                    icon,
-                    size: 28.sp,
-                    color: Colors.black54,
-                  )),
-              Text(text)
-            ],
-          ),
-          width: .25.sw,
-          padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
-        ),
-        onTap: onTap);
+  Widget _buildLine() {
+    return Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]);
   }
 
   //显示回复菜单弹窗
@@ -209,18 +188,18 @@ class PostDetailPageState extends State<PostDetailPage> {
           Get.back();
           onShowReplyModalClick(val);
         }),
-        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
+        _buildLine(),
         _buildReplyMenuOption('感谢', TDIcons.heart, () {
           if (!bc.isLogin) {
             Get.toNamed('/login');
             return;
           }
           if (val.isThanked) {
-            Utils.toast('这个回复已经被感谢过了');
+            Utils.toast(msg: '这个回复已经被感谢过了');
             return;
           }
           if (val.username == bc.member.username) {
-            Utils.toast('不能感谢自己');
+            Utils.toast(msg: '不能感谢自己');
             return;
           }
           Get.back();
@@ -231,7 +210,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           child: Column(children: [
         _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
           //TODO
-          Utils.toast('未实现');
+          Utils.toast(msg: '未实现');
         }),
       ])),
       _buildReplyMenuOptionWrapper(
@@ -239,13 +218,12 @@ class PostDetailPageState extends State<PostDetailPage> {
         _buildReplyMenuOption('复制', TDIcons.file_copy, () {
           Utils.copy(val.replyText);
         }),
-        Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]),
-        _buildReplyMenuOption('忽略', Icons.block, () {
+        _buildLine(),
+        _buildReplyMenuOption('忽略', TDIcons.browse_off, () {
           //TODO
-          Utils.toast('未实现');
+          Utils.toast(msg: '未实现');
         }),
       ])),
-      SizedBox(height: 20.w)
     ]));
   }
 
@@ -255,29 +233,40 @@ class PostDetailPageState extends State<PostDetailPage> {
     modalWrap(
         content: Column(
       children: [
-        Row(children: [
-          optionItem('保存', TDIcons.books, () {
-            ctrl.config.showTopReply = !ctrl.config.showTopReply;
-            ctrl.update();
-            Get.back();
-          }),
-          optionItem('深色模式', Icons.bookmark_border),
-          optionItem('报告', TDIcons.info_circle),
-          optionItem('忽略', TDIcons.browse_off),
-        ]),
-        Row(children: [
-          optionItem('稍后阅读', TDIcons.books),
-          optionItem('复制内容', TDIcons.file_copy, () {
+        _buildReplyMenuOptionWrapper(
+            child: Column(children: [
+          _buildReplyMenuOption('复制内容', TDIcons.file_copy, () {
             Utils.copy(ctrl.post.contentText);
           }),
-          optionItem('复制链接', TDIcons.link, () {
+          _buildLine(),
+          _buildReplyMenuOption('复制链接', TDIcons.link, () {
             Utils.copy(Const.v2ex + '/t/' + ctrl.post.id);
           }),
-          optionItem('浏览器打开', TDIcons.logo_chrome, () {
-            Get.back();
-            Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
+        ])),
+        _buildReplyMenuOptionWrapper(
+            child: Column(children: [
+          _buildReplyMenuOption('忽略', TDIcons.browse_off, () {
+            //TODO
+            Utils.toast(msg: '未实现');
           }),
-        ]),
+          _buildLine(),
+          _buildReplyMenuOption('报告', TDIcons.info_circle, () {
+            //TODO
+            Utils.toast(msg: '未实现');
+          }),
+        ])),
+        _buildReplyMenuOptionWrapper(
+            child: Column(children: [
+              _buildReplyMenuOption('浏览器打开', TDIcons.logo_chrome, () {
+                Get.back();
+                Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
+              }),
+              _buildLine(),
+              _buildReplyMenuOption('调整排版', TDIcons.view_module, () {
+                Get.back();
+                Get.toNamed('/layout');
+              }),
+            ])),
         Stack(
           children: [
             Positioned(
@@ -364,11 +353,12 @@ class PostDetailPageState extends State<PostDetailPage> {
                   child: Container(
                     width: 40.w,
                     height: 4.w,
-                    margin: EdgeInsets.only(bottom: 20.w, top: 20.w),
+                    margin: EdgeInsets.only(bottom: 10.w, top: 10.w),
                     decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
                   ),
                 ),
-                content
+                content,
+                SizedBox(height: 20.w)
               ],
             ),
           ),
@@ -429,9 +419,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Widget _buildIcon(
-    IconData icon,
-  ) {
+  Widget _buildIcon(IconData icon) {
     return Icon(
       icon,
       size: 24.sp,
@@ -632,7 +620,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     // }
 
     if (ctrl.post.isThanked) {
-      Utils.toast('这个主题已经被感谢过了');
+      Utils.toast(msg: '这个主题已经被感谢过了');
       return;
     }
 
@@ -653,7 +641,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                 ctrl.post.isThanked = true;
                 ctrl.post.thankCount += 1;
                 ctrl.update();
-                Utils.toast('感谢成功');
+                Utils.toast(msg: '感谢成功');
                 Get.back();
               }
             }),
@@ -674,11 +662,11 @@ class PostDetailPageState extends State<PostDetailPage> {
     }
 
     if (val.isThanked) {
-      Utils.toast('这个回复已经被感谢过了');
+      Utils.toast(msg: '这个回复已经被感谢过了');
       return;
     }
     if (val.username == bc.member.username) {
-      Utils.toast('不能感谢自己');
+      Utils.toast(msg: '不能感谢自己');
       return;
     }
 
@@ -752,8 +740,8 @@ class PostDetailPageState extends State<PostDetailPage> {
             Expanded(
               child: Row(
                 children: [
-                  _buildClickIcon(Icons.arrow_back, () {
-                    Navigator.pop(context);
+                  _buildClickIcon(Icons.arrow_back_ios_new, () {
+                    Get.back();
                   }),
                   Expanded(
                       child: InkWell(

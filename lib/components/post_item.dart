@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -79,7 +78,7 @@ class PostItem extends StatelessWidget {
                             SizedBox(width: 10.w),
                           ],
                           if (item.node.cnName.isNotEmpty)
-                          // 这里的点击事件，最新index.xml获取到的数据没有url
+                            // 这里的点击事件，最新index.xml获取到的数据没有url
                             InkWell(
                               child: DecoratedBox(
                                 decoration: BoxDecoration(

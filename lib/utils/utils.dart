@@ -512,13 +512,13 @@ class Utils {
     }
   }
 
-  static toast(String msg) {
-    SmartDialog.showToast(msg);
+  static toast({String msg = '', int duration = 3}) {
+    SmartDialog.showToast(msg, displayTime: Duration(seconds: duration));
   }
 
   static Future<void> copy(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
-    toast('已复制');
+    toast(msg: '已复制');
   }
 
   static Future<void> openBrowser(String url) async {
@@ -526,7 +526,7 @@ class Utils {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      toast('无法打开链接 $url');
+      toast(msg: '无法打开链接 $url');
     }
   }
 
@@ -576,5 +576,9 @@ class Utils {
       GStorage().setNodes(nodesList);
       return nodesList;
     }
+  }
+
+  static PreferredSizeWidget appBar() {
+    return AppBar(elevation: 0, toolbarHeight: 0);
   }
 }

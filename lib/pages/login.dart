@@ -307,13 +307,13 @@ class _LoginPageState extends State<LoginPage> {
                     Get.back(result: {'loginStatus': 'success'});
                   } else if (signResult == 'false') {
                     // 登录失败
-                    SmartDialog.showToast('登录失败了');
+                    Utils.toast(msg:'登录失败了');
                   } else if (result == '2fa') {
                     print('login 需要两步验证 $result');
                     Login.twoFADialog();
                   }
                 } else {
-                  SmartDialog.showToast('取消登录');
+                  Utils.toast(msg: '取消登录');
                 }
               },
               child: Row(children: [

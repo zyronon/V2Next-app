@@ -76,20 +76,17 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                                   size: 22.sp,
                                 )),
                             onTap: () async {
-                              var r = await Get.toNamed('/tab_node');
-                              print('r$r');
-                              if (r != null) {
-                                setState(() {
-                                  tabs = bc.tabList.map((e) {
-                                    return Tab(text: e.cnName);
-                                  }).toList();
-                                  pages = bc.tabList.map((e) {
-                                    if (e.type == TabType.hot) return new TabHotPage(tab: e);
-                                    return new TabPage(tab: e);
-                                  }).toList();
-                                  tabKey = UniqueKey();
-                                });
-                              }
+                              await Get.toNamed('/tab_node');
+                              setState(() {
+                                tabs = bc.tabList.map((e) {
+                                  return Tab(text: e.cnName);
+                                }).toList();
+                                pages = bc.tabList.map((e) {
+                                  if (e.type == TabType.hot) return new TabHotPage(tab: e);
+                                  return new TabPage(tab: e);
+                                }).toList();
+                                tabKey = UniqueKey();
+                              });
                             },
                           ),
                           InkWell(

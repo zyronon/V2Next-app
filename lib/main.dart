@@ -9,6 +9,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:v2ex/pages/layout.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/node_list.dart';
@@ -111,6 +112,7 @@ class MyApp extends StatelessWidget {
               '/search': (context) => SearchPage(),
               '/tab_node': (context) => TabNodePage(),
               '/node_list': (context) => NodeListPage(),
+              '/layout': (context) => LayoutPage(),
             },
           );
         });

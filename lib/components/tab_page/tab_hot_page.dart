@@ -15,6 +15,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class TabHotPageController extends GetxController {
   bool loading = true;
@@ -151,7 +152,13 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
                 Text(item['date'] + '•'),
                 Text(item['date'] == c.currentDate ? '实时' : '采集'),
                 SizedBox(width: 5.w),
-                Icon(Icons.help_outline, size: 14.w),
+                InkWell(
+                  child: Icon(Icons.help_outline, size: 14.w),
+                  onTap: () => Utils.toast(
+                    msg: item['date'] == c.currentDate ? '列表数据来源于实时请求v2ex.com解析' : '列表数据来源于当天23:30采集，回复时间以当天23:30为准',
+                    duration: 5
+                  ),
+                )
               ]),
               Icon(Icons.calendar_month, size: 18.w)
             ],

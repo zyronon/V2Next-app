@@ -74,7 +74,7 @@ class BaseHtmlWidget extends StatelessWidget {
                       ],
                     );
                   } catch (e) {
-                    Utils.toast('解码失败');
+                    Utils.toast(msg: '解码失败');
                   }
                 })
           ];

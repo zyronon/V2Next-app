@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/back.dart';
 import 'package:v2ex/model/Post2.dart';
 
 class SearchPage extends StatefulWidget {
@@ -52,14 +53,20 @@ class _SearchPageState extends State<SearchPage> {
         ),
         body: SafeArea(
             child: Column(children: <Widget>[
-              //TODO 没有返回按钮
-          TDSearchBar(
-            placeHolder: '搜索',
-            needCancel: true,
-            onSubmitted: (val) {
-              print(val);
-              webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.google.com/search?q=site:v2ex.com/t%20 ${val.toString()}')));
-            },
+          //TODO 没有返回按钮
+          Row(
+            children: [
+              Back(),
+              Expanded(
+                  child: TDSearchBar(
+                placeHolder: '搜索',
+                padding: EdgeInsets.fromLTRB(0, 8, 16, 8),
+                onSubmitted: (val) {
+                  print(val);
+                  webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.google.com/search?q=site:v2ex.com/t%20 ${val.toString()}')));
+                },
+              ))
+            ],
           ),
           Expanded(
             child: Stack(

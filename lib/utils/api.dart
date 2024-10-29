@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
@@ -297,7 +298,10 @@ class Api {
     var document = parse(response.data);
     var wrapper = document.querySelector('#Main');
 
-    if (response.redirects.isNotEmpty || document.querySelector('#Main > div.box > div.message') != null) {
+    //不知为何dio的 重写向检测不到，加上下面两个判断
+    //给出提示了就是没权限
+    //如果没有头像，那也是没权限
+    if (response.redirects.isNotEmpty || document.querySelector('#Main > div.box > div.message') != null || document.querySelector('#Main > .box > .header .avatar') == null) {
       SmartDialog.show(
         useSystem: true,
         animationType: SmartAnimationType.centerFade_otherSlide,
@@ -589,7 +593,6 @@ class Api {
     return list.map((e) => NodeItem.fromJson(e)).toList();
   }
 
-
   // 获取收藏的节点
   static Future<List<NodeFavModel>> getFavNodes() async {
     List<NodeFavModel> favNodeList = [];
@@ -615,12 +618,10 @@ class Api {
       }
     }
 
-    var noticeNode =
-    bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
+    var noticeNode = bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
     if (noticeNode != null) {
       // 未读消息
-      var unRead =
-      noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
+      var unRead = noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
       if (int.parse(unRead) > 0) {
         // eventBus.emit('unRead', int.parse(unRead));
       }
