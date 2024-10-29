@@ -48,6 +48,29 @@ class TabNodePage extends StatelessWidget {
         false; // 如果对话框被关闭，返回 false
   }
 
+  Widget _buildIconButton({
+    VoidCallback? onTap,
+    required IconData icon,
+    required String text,
+    TDButtonTheme theme = TDButtonTheme.primary
+  }) {
+    return TDButton(
+      text: text,
+      size: TDButtonSize.small,
+      type: TDButtonType.fill,
+      shape: TDButtonShape.rectangle,
+      theme: theme,
+      onTap: onTap,
+    );
+    return IconButton(
+      tooltip: text,
+      onPressed: onTap,
+      icon: Icon(icon, size: 22.0, color: Const.primaryColor),
+      // icon: Icon(!checkStatus ? Icons.done : Icons.done_all, color: Theme.of(context).colorScheme.primary,),
+      style: IconButton.styleFrom(padding: const EdgeInsets.all(9), backgroundColor: Colors.white),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetX(
@@ -55,43 +78,50 @@ class TabNodePage extends StatelessWidget {
         builder: (_) {
           return PopScope(
               child: Scaffold(
-                appBar: AppBar(elevation: 0, toolbarHeight: 0),
-                body: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Column(
+                  appBar: AppBar(elevation: 0, toolbarHeight: 0),
+                  body: Column(
                     children: [
+                      TDNavBar(
+                        height: 48,
+                        title: '当前Tab',
+                        screenAdaptation: false,
+                        useDefaultBack: true,
+                      ),
                       Expanded(
                           child: Column(
                         children: [
-                          TDNavBar(
-                            height: 48,
-                            title: '当前Tab',
-                            screenAdaptation: false,
-                            useDefaultBack: true,
-                          ),
-                          Wrap(
-                              alignment: WrapAlignment.start,
-                              // 主轴对齐方式为靠左
-                              crossAxisAlignment: WrapCrossAlignment.start,
-                              // 交叉轴对齐方式为靠左
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _.tabMap
-                                  .map(
-                                    (i) => TDTag(
-                                      i.cnName,
-                                      needCloseIcon: true,
-                                      isLight: true,
-                                      size: TDTagSize.large,
-                                      onCloseTap: () {
-                                        _.tabMap.remove(i);
-                                        _.isEdit.value = true;
-                                      },
-                                    ),
-                                  )
-                                  .toList()),
-                          SizedBox(height: 20),
-                          if (_.showSort.value)
+                          if (_.isEdit.value) ...[
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TDButton(
+                                    text: '恢复默认',
+                                    size: TDButtonSize.small,
+                                    type: TDButtonType.fill,
+                                    shape: TDButtonShape.rectangle,
+                                    theme: TDButtonTheme.primary,
+                                    onTap: () {
+                                      // _.bc.setTabMap(Const.defaultTabList);
+                                      _.tabMap.assignAll(Const.defaultTabList);
+                                      _.isEdit.value = true;
+                                    },
+                                  ),
+                                  SizedBox(width: 5),
+                                  _buildIconButton(
+                                      text: '添加',
+                                      icon: TDIcons.add,
+                                      onTap: () async {
+                                        var r = await Get.toNamed('/node_list');
+                                        if (r != null) {
+                                          _.tabMap.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
+                                          _.isEdit.value = true;
+                                        }
+                                      }),
+                                ],
+                              ),
+                            ),
                             Expanded(
                                 child: ReorderableListView(
                               onReorder: (int oldIndex, int newIndex) {
@@ -109,86 +139,91 @@ class TabNodePage extends StatelessWidget {
                                     decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [Text(item.cnName), Icon(Icons.more_vert)],
+                                      children: [
+                                        Text(item.cnName),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.more_vert, color: Colors.grey),
+                                            SizedBox(width: 10),
+                                            Icon(Icons.close, color: Colors.grey),
+                                          ],
+                                        )
+                                      ],
                                     ),
                                   )
                               ],
                             ))
+                          ] else
+                            Wrap(
+                                alignment: WrapAlignment.start,
+                                // 主轴对齐方式为靠左
+                                crossAxisAlignment: WrapCrossAlignment.start,
+                                // 交叉轴对齐方式为靠左
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _.tabMap
+                                    .map(
+                                      (i) => TDTag(
+                                        i.cnName,
+                                        isLight: true,
+                                        size: TDTagSize.large,
+                                        onCloseTap: () {
+                                          _.tabMap.remove(i);
+                                          _.isEdit.value = true;
+                                        },
+                                      ),
+                                    )
+                                    .toList()),
+                          SizedBox(height: 20),
                         ],
                       )),
                       SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TDButton(
-                            text: '恢复默认',
-                            size: TDButtonSize.small,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () {
-                              // _.bc.setTabMap(Const.defaultTabList);
-                              _.tabMap.assignAll(Const.defaultTabList);
-                              _.isEdit.value = true;
-                              _.showSort.value = false;
-                            },
-                          ),
-                          SizedBox(width: 10),
-                          TDButton(
-                            text: '排序',
-                            size: TDButtonSize.small,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () => _.showSort.value = true,
-                          ),
-                          SizedBox(width: 10),
-                          TDButton(
-                            text: '添加',
-                            size: TDButtonSize.small,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () async {
-                              var r = await Get.toNamed('/node_list');
-                              if (r != null) {
-                                _.tabMap.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
-                                _.isEdit.value = true;
-                              }
-                            },
-                          ),
-                          SizedBox(width: 10),
-                          if (_.isEdit.value) ...[
-                            TDButton(
-                              text: '重置',
-                              size: TDButtonSize.small,
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
-                              theme: TDButtonTheme.primary,
-                              onTap: () {
-                                _.tabMap.assignAll(_.bc.tabList);
-                                _.isEdit.value = false;
-                              },
-                            ),
-                            SizedBox(width: 10),
-                            TDButton(
-                              text: '保存',
-                              size: TDButtonSize.small,
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
-                              theme: TDButtonTheme.primary,
-                              onTap: () {
-                                _.bc.setTabMap(_.tabMap);
-                                Get.back(result: 'change');
-                              },
-                            ),
-                          ]
-                        ],
-                      ),
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 5),
+                            if (!_.isEdit.value) ...[
+                              _buildIconButton(
+                                  text: '编辑',
+                                  icon: TDIcons.edit,
+                                  onTap: () async {
+                                    _.isEdit.value = true;
+                                  }),
+                              SizedBox(width: 5),
+                            ],
+                            SizedBox(width: 5),
+                            if (_.isEdit.value) ...[
+                              _buildIconButton(
+                                  text: '取消',
+                                  icon: TDIcons.refresh,
+                                  theme: TDButtonTheme.light,
+                                  onTap: () {
+                                    _.isEdit.value = false;
+                                  }),
+                              SizedBox(width: 5),
+                              _buildIconButton(
+                                  text: '重置',
+                                  icon: TDIcons.refresh,
+                                  onTap: () {
+                                    _.tabMap.assignAll(_.bc.tabList);
+                                    _.isEdit.value = false;
+                                  }),
+                              SizedBox(width: 5),
+                              _buildIconButton(
+                                  text: '保存',
+                                  icon: TDIcons.save,
+                                  onTap: () {
+                                    _.bc.setTabMap(_.tabMap);
+                                    Get.back(result: 'change');
+                                  })
+                            ]
+                          ],
+                        ),
+                      )
                     ],
-                  ),
-                ),
-              ),
+                  )),
               canPop: !_.isEdit.value,
               onPopInvokedWithResult: (bool didPop, bool? result) async {
                 if (!didPop) {
