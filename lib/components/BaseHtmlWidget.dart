@@ -7,6 +7,7 @@ import 'package:fwfh_cached_network_image/fwfh_cached_network_image.dart';
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/utils.dart';
 
@@ -20,6 +21,7 @@ class BaseHtmlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var selectedText = '';
+    BaseController bc = BaseController.to;
 
     return SelectionArea(
         onSelectionChanged: (SelectedContent? selectContent) => selectedText = selectContent?.plainText ?? "",
@@ -87,7 +89,7 @@ class BaseHtmlWidget extends StatelessWidget {
           child: HtmlWidget(
             ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
             renderMode: RenderMode.column,
-            textStyle: TextStyle(fontSize: 14.sp),
+            textStyle: TextStyle(fontSize: bc.layout.fontSize,height: bc.layout.lineHeight),
             factoryBuilder: () => MyWidgetFactory(),
             customStylesBuilder: (element) {
               if (element.classes.contains('subtle')) {

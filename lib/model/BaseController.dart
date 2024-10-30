@@ -55,6 +55,8 @@ class BaseController extends GetxController {
 
   UserConfig get currentConfig => config[member.username]!;
 
+  Layout get layout => currentConfig.layout;
+
   @override
   void onInit() {
     super.onInit();
@@ -149,7 +151,7 @@ class BaseController extends GetxController {
       print(r3);
       List<TabItem> list = (r3 as List).map((v) => TabItem.fromJson(v)).toList();
       setTabMap(list);
-    }else{
+    } else {
       setTabMap(Const.defaultTabList);
     }
     update();

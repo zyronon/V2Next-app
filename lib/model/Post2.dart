@@ -259,11 +259,39 @@ class V2Node {
   }
 }
 
+class Layout {
+  double fontSize;
+  double lineHeight;
+  double paragraphHeight;
+
+  Layout({
+    this.fontSize = 14,
+    this.lineHeight = 1.3,
+    this.paragraphHeight = 1.1,
+  });
+
+  // fromJson 方法
+  Layout.fromJson(Map<String, dynamic> json)
+      : fontSize = json['fontSize']?.toDouble() ?? 14,
+        lineHeight = json['lineHeight'].toDouble() ?? 1.3,
+        paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
+
+  // toJson 方法
+  Map<String, dynamic> toJson() {
+    return {
+      'fontSize': fontSize,
+      'lineHeight': lineHeight,
+      'paragraphHeight': paragraphHeight,
+    };
+  }
+}
+
 class UserConfig {
   bool showTopReply;
   double version;
   String configPrefix;
   String configNoteId;
+  Layout layout;
 
   // 构造函数，带默认值
   UserConfig({
@@ -271,7 +299,8 @@ class UserConfig {
     this.version = 0.1,
     this.configPrefix = '--mob-config--',
     this.configNoteId = '',
-  });
+    Layout? layout,
+  }) : layout = layout ?? Layout();
 
   // fromJson 方法
   UserConfig.fromJson(Map<String, dynamic> json)
@@ -279,6 +308,7 @@ class UserConfig {
         version = json['version']?.toDouble() ?? 0.1,
         // 防止类型不匹配时出错
         configPrefix = json['configPrefix'] ?? '--mob-config--',
+        layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
         configNoteId = json['configNoteId'] ?? '';
 
   // toJson 方法
@@ -288,6 +318,7 @@ class UserConfig {
       'version': version,
       'configPrefix': configPrefix,
       'configNoteId': configNoteId,
+      'layout': layout.toJson(),
     };
   }
 }
@@ -346,4 +377,3 @@ class NodeFavModel {
   String nodeId = ''; // 节点id
   String topicCount = ''; // 节点主题数量
 }
-
