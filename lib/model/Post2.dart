@@ -195,6 +195,48 @@ class Post2 {
         isAppend = json['isAppend'] ?? false,
         isEdit = json['isEdit'] ?? false,
         isMove = json['isMove'] ?? false;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'allReplyUsers': allReplyUsers,
+      'contentRendered': contentRendered,
+      'contentText': contentText,
+      'createDate': createDate,
+      'createDateAgo': createDateAgo,
+      'lastReplyDate': lastReplyDate,
+      'lastReplyDateAgo': lastReplyDateAgo,
+      'lastReplyUsername': lastReplyUsername,
+      'fr': fr,
+      'replyList': replyList.map((item) => item.toJson()).toList(),
+      'topReplyList': topReplyList.map((item) => item.toJson()).toList(),
+      'nestedReplies': nestedReplies.map((item) => item.toJson()).toList(),
+      'username': username,
+      'url': url,
+      'href': href,
+      'member': member.toJson(),
+      'node': node.toJson(),
+      'title': title,
+      'id': id,
+      'type': type,
+      'once': once,
+      'replyCount': replyCount,
+      'clickCount': clickCount,
+      'thankCount': thankCount,
+      'collectCount': collectCount,
+      'lastReadFloor': lastReadFloor,
+      'totalPage': totalPage,
+      'isTop': isTop,
+      'isFavorite': isFavorite,
+      'isIgnore': isIgnore,
+      'isThanked': isThanked,
+      'isReport': isReport,
+      'inList': inList,
+      'isAppend': isAppend,
+      'isEdit': isEdit,
+      'isMove': isMove,
+    };
+  }
+
 }
 
 class Member {
@@ -262,26 +304,26 @@ class V2Node {
 class Layout {
   double fontSize;
   double lineHeight;
-  double paragraphHeight;
+  // double paragraphHeight;
 
   Layout({
-    this.fontSize = 14,
-    this.lineHeight = 1.3,
-    this.paragraphHeight = 1.1,
+    this.fontSize = 16,
+    this.lineHeight = 1.2,
+    // this.paragraphHeight = 1.1,
   });
 
   // fromJson 方法
   Layout.fromJson(Map<String, dynamic> json)
       : fontSize = json['fontSize']?.toDouble() ?? 14,
-        lineHeight = json['lineHeight'].toDouble() ?? 1.3,
-        paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
+        lineHeight = json['lineHeight'].toDouble() ?? 1.3;
+        // paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
 
   // toJson 方法
   Map<String, dynamic> toJson() {
     return {
       'fontSize': fontSize,
       'lineHeight': lineHeight,
-      'paragraphHeight': paragraphHeight,
+      // 'paragraphHeight': paragraphHeight,
     };
   }
 }

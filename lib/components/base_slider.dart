@@ -1,13 +1,13 @@
-
 import 'package:flutter/material.dart';
 
-class BaseSlider extends StatefulWidget {
-  @override
-  _BaseSliderState createState() => _BaseSliderState();
-}
+class BaseSlider extends StatelessWidget {
+  double value = 18;
+  double min = 18;
+  double max = 18;
+  int divisions = 18;
+  ValueChanged<double> onChanged;
 
-class _BaseSliderState extends State<BaseSlider> {
-  double _sliderValue = 18;
+  BaseSlider({required this.value, required this.min, required this.max, required this.onChanged, required this.divisions});
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +25,12 @@ class _BaseSliderState extends State<BaseSlider> {
         showValueIndicator: ShowValueIndicator.always,
       ),
       child: Slider(
-        min: 0,
-        max: 100,
-        value: _sliderValue,
-        divisions: 100,
-        label: _sliderValue.round().toString(),
-        onChanged: (value) {
-          setState(() {
-            _sliderValue = value;
-          });
-        },
+        min: min,
+        max: max,
+        value: value,
+        divisions: divisions,
+        label: value.round().toString(),
+        onChanged: onChanged,
       ),
     );
   }

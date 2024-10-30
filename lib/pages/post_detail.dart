@@ -10,6 +10,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_slider.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/components/reply_new.dart';
@@ -109,7 +110,7 @@ class PostDetailPageState extends State<PostDetailPage> {
   late String id = Get.arguments.id;
   late PostDetailController ctrl;
 
-  BaseController bc = Get.find<BaseController>();
+  BaseController bc = BaseController.to;
   TextEditingController _replyCtrl = new TextEditingController();
   BuildContext? headerCtx;
   BuildContext? normalListCtx; //正常回复
@@ -267,46 +268,6 @@ class PostDetailPageState extends State<PostDetailPage> {
                 Get.toNamed('/layout');
               }),
             ])),
-        Stack(
-          children: [
-            Positioned(
-                left: .13.sw,
-                bottom: 22.w,
-                child: Container(
-                  width: 0.74.sw,
-                  height: 1.w,
-                  color: Colors.black54,
-                )),
-            Container(
-                padding: EdgeInsets.only(bottom: 20.w),
-                child: Row(
-                  children: [
-                    getTextSizeOptionItem(Text('小', style: TextStyle(fontSize: 10.sp))),
-                    getTextSizeOptionItem(Text('标准', style: TextStyle(fontSize: 12.sp))),
-                    getTextSizeOptionItem(Text('大', style: TextStyle(fontSize: 16.sp))),
-                    getTextSizeOptionItem(Text('特大', style: TextStyle(fontSize: 18.sp))),
-                  ],
-                )),
-            Positioned(
-                left: .23.sw,
-                bottom: 16.w,
-                child: Container(
-                  width: 12.w,
-                  height: 12.w,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(50.r),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 3.w, //阴影模糊程度
-                          spreadRadius: 3.w //阴影扩散程度
-                          )
-                    ],
-                  ),
-                )),
-          ],
-        )
       ],
     ));
   }
@@ -454,7 +415,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       child: SelectableText(
         ctrl.post?.title ?? '',
         textAlign: TextAlign.left,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+        style: TextStyle(fontSize: bc.layout.fontSize * 1.2, height: bc.layout.lineHeight, fontWeight: FontWeight.bold),
       ),
     );
   }

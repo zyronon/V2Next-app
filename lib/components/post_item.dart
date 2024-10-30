@@ -21,6 +21,7 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BaseController bc = BaseController.to;
     return InkWell(
       child: Column(children: [
         Padding(
@@ -134,7 +135,7 @@ class PostItem extends StatelessWidget {
                 child: Text(
                   item.title,
                   textAlign: TextAlign.left,
-                  style: TextStyle(fontWeight: FontWeight.w100, fontSize: 15.sp),
+                  style: TextStyle(fontSize: bc.layout.fontSize, height: bc.layout.lineHeight),
                 ),
               ),
               onTap: goPostDetail,
