@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' ;
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/pages/discover.dart';
+import 'package:v2ex/pages/discover/discover.dart';
 import 'package:v2ex/pages/notifications.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/ConstVal.dart';
@@ -22,7 +22,6 @@ class _IndexState extends State<Index> {
   final List<Widget> _Pages = [
     HomePage(),
     DiscoverPage(),
-    Text("Page3"),
     NotificationsPage(),
     MePage(),
   ];
@@ -72,9 +71,8 @@ class _IndexState extends State<Index> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
           BottomNavigationBarItem(icon: Icon(Icons.business), label: '发现'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: '发帖'),
           BottomNavigationBarItem(icon: Icon(Icons.notifications), label: '通知'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '我'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '我的'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Const.primaryColor,

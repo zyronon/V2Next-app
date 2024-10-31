@@ -56,6 +56,7 @@ class BaseController extends GetxController {
   UserConfig get currentConfig => config[member.username]!;
 
   Layout get layout => currentConfig.layout;
+  double get fontSize => currentConfig.layout.fontSize;
 
   @override
   void onInit() {

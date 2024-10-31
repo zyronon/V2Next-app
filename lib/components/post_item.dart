@@ -33,18 +33,14 @@ class PostItem extends StatelessWidget {
                   if (tab.type != TabType.latest)
                     Padding(
                       padding: EdgeInsets.only(right: 10.w),
-                      child: BaseAvatar(
-                        src: item.member.avatar,
-                        diameter: 30.w,
-                        radius: 4.w,
-                      ),
+                      child: BaseAvatar(src: item.member.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
                     ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         item.member.username,
-                        style: TextStyle(fontSize: 14.sp, height: 1.2),
+                        style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2),
                       ),
                       SizedBox(height: 4.w),
                       Row(
@@ -68,14 +64,14 @@ class PostItem extends StatelessWidget {
                           if (item.lastReplyDateAgo.isNotEmpty) ...[
                             Text(
                               item.lastReplyDateAgo,
-                              style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                              style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
                             ),
                             SizedBox(width: 10.w),
                           ],
                           if (item.createDateAgo.isNotEmpty) ...[
                             Text(
                               item.createDateAgo + '发布',
-                              style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                              style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
                             ),
                             SizedBox(width: 10.w),
                           ],
@@ -91,7 +87,7 @@ class PostItem extends StatelessWidget {
                                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                                   child: Text(
                                     item.node.cnName,
-                                    style: TextStyle(color: Colors.black54, fontSize: 10.sp, height: 1.4),
+                                    style: TextStyle(color: Colors.black54, fontSize: bc.fontSize * 0.6, height: 1.4),
                                   ),
                                 ),
                               ),
@@ -118,7 +114,7 @@ class PostItem extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                       child: Text(
                         item.replyCount.toString(),
-                        style: TextStyle(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.w500, height: 1.4),
+                        style: TextStyle(color: Colors.black, fontSize: bc.fontSize * 0.6, fontWeight: FontWeight.w500, height: 1.4),
                       ),
                     ),
                   ),

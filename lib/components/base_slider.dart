@@ -29,7 +29,7 @@ class BaseSlider extends StatelessWidget {
         max: max,
         value: value,
         divisions: divisions,
-        label: value.round().toString(),
+        label: value.toString(),
         onChanged: onChanged,
       ),
     );

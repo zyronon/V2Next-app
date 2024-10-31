@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:v2ex/main.dart';
 
 class BaseAvatar extends StatelessWidget {
   final String src;
@@ -14,6 +15,7 @@ class BaseAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    IndexController ic = IndexController.to;
     if (src != '') {
       // return TDAvatar(size: TDAvatarSize.small, type: TDAvatarType.normal, shape: TDAvatarShape.square, avatarUrl: src);
       return InkWell(
@@ -21,8 +23,8 @@ class BaseAvatar extends StatelessWidget {
               borderRadius: BorderRadius.circular(radius),
               child: Image.network(
                 src,
-                width: diameter,
-                height: diameter,
+                width: ic.textScaleFactor * diameter,
+                height: ic.textScaleFactor * diameter,
                 fit: BoxFit.cover,
                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {

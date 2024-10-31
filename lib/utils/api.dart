@@ -160,29 +160,48 @@ class Api {
     return detailModel;
   }
 
-  //获取今日热仪
-  static Future<List<Post2>> getTodayHotPostList() async {
-    Response response = await Http().get('/api/topics/hot.json');
-    List<dynamic> list = response.data;
-    return list
-        .map((e) => Post2(
-              id: e['id'].toString(),
-              title: e['title'],
-              member: Member(
-                avatar: e['member']['avatar_normal'],
-                avatarLarge: e['member']['avatar_large'],
-                username: e['member']['username'],
-              ),
-              node: V2Node(
-                enName: e['node']['name'],
-                cnName: e['node']['title'],
-              ),
-              contentText: e['content'],
-              contentRendered: e['content_rendered'],
-              replyCount: e['replies'],
-              lastReplyUsername: e['last_reply_by'],
-            ))
-        .toList();
+  //获取发布页
+  static Future<Result> getDiscoverInfo({String? date}) async {
+    Result res = new Result();
+    Response response;
+    if (date == '') {
+      response = await Http().get('/api/topics/hot.json');
+      List<dynamic> list = response.data;
+      res.success = true;
+      res.data = list
+          .map((e) => Post2(
+                id: e['id'].toString(),
+                title: e['title'],
+                member: Member(
+                  avatar: e['member']['avatar_normal'],
+                  avatarLarge: e['member']['avatar_large'],
+                  username: e['member']['username'],
+                ),
+                node: V2Node(
+                  enName: e['node']['name'],
+                  cnName: e['node']['title'],
+                ),
+                contentText: e['content'],
+                contentRendered: e['content_rendered'],
+                replyCount: e['replies'],
+                lastReplyUsername: e['last_reply_by'],
+              ))
+          .toList();
+    } else {
+      response = await Http().get(Const.v2Hot + '/hot/${date}.json');
+      List<Post2> list = [];
+      (response.data as List).forEach((v) {
+        Post2 item = Post2.fromJson(v);
+        item.member.username = v['username'];
+        item.member.avatar = v['avatar'];
+        item.node.cnName = v['nodeTitle'];
+        item.node.enName = v['nodeUrl'];
+        list.add(item);
+      });
+      res.success = true;
+      res.data = list;
+    }
+    return res;
   }
 
   //获取通知

@@ -308,14 +308,14 @@ class Layout {
 
   Layout({
     this.fontSize = 16,
-    this.lineHeight = 1.2,
+    this.lineHeight = 1.4,
     // this.paragraphHeight = 1.1,
   });
 
   // fromJson 方法
   Layout.fromJson(Map<String, dynamic> json)
-      : fontSize = json['fontSize']?.toDouble() ?? 14,
-        lineHeight = json['lineHeight'].toDouble() ?? 1.3;
+      : fontSize = json['fontSize']?.toDouble() ?? 16,
+        lineHeight = json['lineHeight'].toDouble() ?? 1.4;
         // paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
 
   // toJson 方法

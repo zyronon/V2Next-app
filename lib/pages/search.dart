@@ -14,7 +14,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  InAppWebViewController? webViewController;
+  late TextEditingController editingController = new TextEditingController();
+  late InAppWebViewController webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
     isInspectable: kDebugMode,
     mediaPlaybackRequiresUserGesture: false,
@@ -36,12 +37,13 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onRefresh: () async {
         if (defaultTargetPlatform == TargetPlatform.android) {
-          webViewController?.reload();
+          webViewController.reload();
         } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          webViewController?.loadUrl(urlRequest: URLRequest(url: await webViewController?.getUrl()));
+          webViewController.loadUrl(urlRequest: URLRequest(url: await webViewController.getUrl()));
         }
       },
     );
+
   }
 
   @override
@@ -59,11 +61,12 @@ class _SearchPageState extends State<SearchPage> {
               Back(),
               Expanded(
                   child: TDSearchBar(
+                controller: editingController,
                 placeHolder: '搜索',
                 padding: EdgeInsets.fromLTRB(0, 8, 16, 8),
                 onSubmitted: (val) {
                   print(val);
-                  webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.google.com/search?q=site:v2ex.com/t%20 ${val.toString()}')));
+                  webViewController.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.google.com/search?q=site:v2ex.com/t%20 ${val.toString()}')));
                 },
               ))
             ],
@@ -76,6 +79,11 @@ class _SearchPageState extends State<SearchPage> {
                   pullToRefreshController: pullToRefreshController,
                   onWebViewCreated: (controller) {
                     webViewController = controller;
+                    var searchKey = Get.arguments;
+                    if (searchKey != null) {
+                      editingController.text = searchKey.toString();
+                      webViewController.loadUrl(urlRequest: URLRequest(url: WebUri('https://www.google.com/search?q=site:v2ex.com/t%20 ${searchKey.toString()}')));
+                    }
                   },
                   onPermissionRequest: (controller, request) async {
                     return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);

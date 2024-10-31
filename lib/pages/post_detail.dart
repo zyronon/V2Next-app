@@ -258,16 +258,17 @@ class PostDetailPageState extends State<PostDetailPage> {
         ])),
         _buildReplyMenuOptionWrapper(
             child: Column(children: [
-              _buildReplyMenuOption('浏览器打开', TDIcons.logo_chrome, () {
-                Get.back();
-                Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
-              }),
-              _buildLine(),
-              _buildReplyMenuOption('调整排版', TDIcons.view_module, () {
-                Get.back();
-                Get.toNamed('/layout');
-              }),
-            ])),
+          _buildReplyMenuOption('浏览器打开', TDIcons.logo_chrome, () {
+            Get.back();
+            Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
+          }),
+          _buildLine(),
+          _buildReplyMenuOption('调整排版', TDIcons.view_module, () async {
+            Get.back();
+            await Get.toNamed('/layout');
+            ctrl.update();
+          }),
+        ])),
       ],
     ));
   }
@@ -833,7 +834,7 @@ class PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget _buildDivider() {
-    return Divider(color: Color(0xfff1f1f1), height: 1.w);
+    return Divider(color: Color(0xfff1f1f1), height: 1);
   }
 
   Widget _buildListHeader(String left, [bool right = true]) {
@@ -914,52 +915,37 @@ class PostDetailPageState extends State<PostDetailPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Row(
+                                              Expanded(
+                                                  child: Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 verticalDirection: VerticalDirection.down,
                                                 children: [
-                                                  BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: 30.w, radius: 4.w),
-                                                  Column(
+                                                  BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
+                                                  Expanded(
+                                                      child: Column(
                                                     mainAxisAlignment: MainAxisAlignment.start,
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       //用户名
-                                                      Row(
-                                                        mainAxisAlignment: MainAxisAlignment.start,
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Padding(
-                                                            padding: EdgeInsets.only(left: 10.w),
-                                                            child: SelectableText(
-                                                              ctrl.post.member.username == 'default' ? '' : ctrl.post.member.username,
-                                                              style: TextStyle(fontSize: 15.sp, height: 1.2, color: Colors.black54),
-                                                            ),
-                                                          ),
-                                                        ],
+                                                      Padding(
+                                                        padding: EdgeInsets.only(left: 10.w),
+                                                        child: SelectableText(
+                                                          ctrl.post.member.username == 'default' ? '' : ctrl.post.member.username,
+                                                          style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
+                                                        ),
                                                       ),
                                                       //时间、点击量
-                                                      Row(
-                                                        children: [
-                                                          Padding(
-                                                            padding: EdgeInsets.only(left: 10.w),
-                                                            child: Text(
-                                                              ctrl.post.createDateAgo,
-                                                              style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                            ),
-                                                          ),
-                                                          Padding(
-                                                            padding: EdgeInsets.only(left: 10.w),
-                                                            child: Text(
-                                                              ctrl.post.clickCount.toString() + '次点击',
-                                                              style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
+                                                      Padding(
+                                                        padding: EdgeInsets.only(left: 10.w),
+                                                        child: Text(
+                                                          ctrl.post.createDateAgo + '   ' + ctrl.post.clickCount.toString() + '次点击',
+                                                          style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
+                                                        ),
+                                                      ),
                                                     ],
-                                                  )
+                                                  ))
                                                 ],
-                                              ),
+                                              )),
                                               if (ctrl.post.node.cnName.isNotEmpty)
                                                 InkWell(
                                                   child: Container(
@@ -971,7 +957,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                                                       padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
                                                       child: Text(
                                                         ctrl.post.node.cnName,
-                                                        style: TextStyle(color: Colors.black, fontSize: 12.sp),
+                                                        style: TextStyle(color: Colors.black, fontSize: bc.fontSize * 0.8),
                                                       ),
                                                     ),
                                                   ),

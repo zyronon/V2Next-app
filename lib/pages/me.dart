@@ -108,6 +108,42 @@ class MePage extends StatelessWidget {
                   ),
                   child: Column(children: [
                     _buildMenuItem(
+                        name: '创作新主题',
+                        icon: TDIcons.money_circle,
+                        right: BaseHtmlWidget(html: _.member.balance),
+                        onTap: () {
+                          if (!Utils.checkIsLogin()) return;
+                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
+                        }),
+                    Divider(height: 1.w, color: Colors.grey[200]),
+                    _buildMenuItem(
+                        name: '最近查看过的主题',
+                        icon: TDIcons.money_circle,
+                        right: BaseHtmlWidget(html: _.member.balance),
+                        onTap: () {
+                          if (!Utils.checkIsLogin()) return;
+                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
+                        }),
+                    Divider(height: 1.w, color: Colors.grey[200]),
+                    _buildMenuItem(
+                        name: 'VXNA',
+                        icon: TDIcons.money_circle,
+                        right: BaseHtmlWidget(html: _.member.balance),
+                        onTap: () {
+                          if (!Utils.checkIsLogin()) return;
+                          Get.to(BaseWebView(url: 'https://www.v2ex.com/xna'), transition: Transition.cupertino);
+                        }),
+                    Divider(height: 1.w, color: Colors.grey[200]),
+                    _buildMenuItem(
+                        name: '特别关注',
+                        icon: TDIcons.money_circle,
+                        right: BaseHtmlWidget(html: _.member.balance),
+                        onTap: () {
+                          if (!Utils.checkIsLogin()) return;
+                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
+                        }),
+                    Divider(height: 1.w, color: Colors.grey[200]),
+                    _buildMenuItem(
                         name: '余额',
                         icon: TDIcons.money_circle,
                         right: BaseHtmlWidget(html: _.member.balance),

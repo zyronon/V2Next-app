@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/user_tag.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 
@@ -15,7 +16,7 @@ class ReplyItem extends StatelessWidget {
   final Function onTap;
   final int type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
   final int index;
-  final bool isSub;//判断是否子回复
+  final bool isSub; //判断是否子回复
 
   const ReplyItem({
     super.key,
@@ -29,14 +30,17 @@ class ReplyItem extends StatelessWidget {
   });
 
   getPadding() {
+    BaseController bc = BaseController.to;
+
     if (item.level == 0) {
-      return EdgeInsets.fromLTRB(10.w, 8.w, 0.w, 8.w);
+      return EdgeInsets.fromLTRB(10.w, bc.fontSize - 8, 0.w, bc.fontSize - 8);
     }
     return EdgeInsets.only(top: index > 0 ? 8.w : 0.w);
   }
 
   @override
   Widget build(BuildContext context) {
+    BaseController bc = BaseController.to;
     return InkWell(
       child: Padding(
         padding: getPadding(),
@@ -48,7 +52,7 @@ class ReplyItem extends StatelessWidget {
                 child: Row(
                   children: [
                     // if ((item.level == 0 && type == 0) || type == 1)
-                    BaseAvatar(src: item.avatar, diameter: 26.w, radius: 4.w),
+                    BaseAvatar(src: item.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
                     SizedBox(width: 10.w),
                     Expanded(
                         child: Column(
@@ -57,7 +61,7 @@ class ReplyItem extends StatelessWidget {
                         Row(children: [
                           SelectableText(
                             item.username,
-                            style: TextStyle(fontSize: 13.sp, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
+                            style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
                           ),
                           if (item.isOp) UserTag(type: 'OP'),
                           if (item.isMod) UserTag(type: 'MOD'),
@@ -66,14 +70,14 @@ class ReplyItem extends StatelessWidget {
                           children: [
                             Text(
                               item.floor.toString() + '楼',
-                              style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                              style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
                             ),
                             Expanded(
                                 child: Padding(
                               padding: EdgeInsets.only(left: 8.w),
                               child: Text(
                                 item.date,
-                                style: TextStyle(fontSize: 11.sp, height: 1.2, color: Colors.grey),
+                                style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
                               ),
                             ))
                           ],
@@ -123,7 +127,7 @@ class ReplyItem extends StatelessWidget {
             verticalDirection: VerticalDirection.down,
           ),
           Padding(
-            padding: EdgeInsets.only(top: 6.w, bottom: item.children.length == 0 ? 0 : 6.w, right: 10.w),
+            padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),
             child: SizedBox(
               width: double.infinity,
               child: BaseHtmlWidget(
