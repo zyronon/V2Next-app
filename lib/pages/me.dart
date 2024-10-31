@@ -35,11 +35,22 @@ class MePage extends StatelessWidget {
               ]),
               Row(children: [
                 if (right != null) right,
-                Icon(Icons.keyboard_arrow_right),
+                Icon(Icons.keyboard_arrow_right,color: Colors.grey),
               ])
             ],
           )),
       onTap: onTap,
+    );
+  }
+
+  Widget _card(Widget content) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: content,
     );
   }
 
@@ -50,34 +61,43 @@ class MePage extends StatelessWidget {
       body: GetBuilder<BaseController>(builder: (_) {
         return Container(
           padding: EdgeInsets.all(20.w),
-          color: Colors.grey[300],
+          color: Colors.grey[100],
           child: Column(
             children: [
-              Row(
-                children: [
-                  BaseAvatar(src: _.member.avatar, diameter: 60.r, radius: 100.r),
-                  SizedBox(width: 10.w),
-                  Column(
-                    children: [
-                      InkWell(
-                        child: Text(
-                          _.isLogin ? _.member.username : '登录',
-                          style: TextStyle(fontSize: 20.sp),
+              _card(Column(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        _.member.avatar.isNotEmpty
+                            ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
+                            : Container(
+                          child: Image.asset(
+                            'assets/images/user.png',
+                            width: 70,
+                            height: 70,
+                          ),
                         ),
-                        onTap: () => Get.toNamed('/login'),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-              SizedBox(height: 20.w),
-              Container(
-                padding: EdgeInsets.fromLTRB(12.w, 30.w, 12.w, 30.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
+                        SizedBox(width: 10.w),
+                        Column(
+                          children: [
+                            InkWell(
+                              child: Text(
+                                _.isLogin ? _.member.username : '登录',
+                                style: TextStyle(fontSize: 18.sp),
+                              ),
+                              onTap: () => Get.toNamed('/login'),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    Icon(Icons.keyboard_arrow_right,color: Colors.grey),
+                  ],
                 ),
-                child: Row(
+                Divider(color: Const.line,height: 30.w),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildNumItem('节点收藏', _.member.actionCounts[0], () {
@@ -97,8 +117,8 @@ class MePage extends StatelessWidget {
                     // Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
                     // _buildNumItem('历史浏览', 3),
                   ],
-                ),
-              ),
+                )
+              ],)),
               SizedBox(height: 20.w),
               Container(
                   padding: EdgeInsets.fromLTRB(12.w, 0.w, 12.w, 0.w),
@@ -109,7 +129,7 @@ class MePage extends StatelessWidget {
                   child: Column(children: [
                     _buildMenuItem(
                         name: '创作新主题',
-                        icon: TDIcons.money_circle,
+                        icon: Icons.create_outlined,
                         right: BaseHtmlWidget(html: _.member.balance),
                         onTap: () {
                           if (!Utils.checkIsLogin()) return;
@@ -117,26 +137,8 @@ class MePage extends StatelessWidget {
                         }),
                     Divider(height: 1.w, color: Colors.grey[200]),
                     _buildMenuItem(
-                        name: '最近查看过的主题',
-                        icon: TDIcons.money_circle,
-                        right: BaseHtmlWidget(html: _.member.balance),
-                        onTap: () {
-                          if (!Utils.checkIsLogin()) return;
-                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
-                        }),
-                    Divider(height: 1.w, color: Colors.grey[200]),
-                    _buildMenuItem(
-                        name: 'VXNA',
-                        icon: TDIcons.money_circle,
-                        right: BaseHtmlWidget(html: _.member.balance),
-                        onTap: () {
-                          if (!Utils.checkIsLogin()) return;
-                          Get.to(BaseWebView(url: 'https://www.v2ex.com/xna'), transition: Transition.cupertino);
-                        }),
-                    Divider(height: 1.w, color: Colors.grey[200]),
-                    _buildMenuItem(
-                        name: '特别关注',
-                        icon: TDIcons.money_circle,
+                        name: '最近浏览',
+                        icon: Icons.history,
                         right: BaseHtmlWidget(html: _.member.balance),
                         onTap: () {
                           if (!Utils.checkIsLogin()) return;
