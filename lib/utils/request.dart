@@ -61,26 +61,35 @@ class Http {
   /*
    * get请求
    */
-  Future<Response> get(url, {data, isMobile = false}) async {
-    return request(url, query: data, isMobile: isMobile, method: 'GET');
+  Future<Response> get(url, {data, isMobile = false, responseType}) async {
+    return request(url, query: data, isMobile: isMobile, method: 'GET', responseType: responseType);
   }
 
   /*
    * post请求，提交
    */
-  Future<Response> post(url, {data, isMobile = false}) async {
-    return request(url, data: data, isMobile: isMobile, method: 'POST');
+  Future<Response> post(url, {data, isMobile = false, options}) async {
+    return request(url, data: data, isMobile: isMobile, method: 'POST', options: options);
   }
-  /*
-   * post请求，提交
-   */
-  Future<Response> upload(url, {data,required Options options}) async {
+
+  Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = false, responseType = null, options = null}) async {
+    if (options == null) {
+      options = Options();
+      if (responseType != null) {
+        options.responseType = responseType;
+      }
+    }
+    if (!isMobile) {
+      options.headers = {'user-agent': Const.agent.pc};
+    }
+    options.method = method;
 
     // print('post-data: $data');
     try {
       Response response = await dio.request(
         url,
         data: data,
+        queryParameters: query,
         options: options,
       );
       // debugPrint('post success---------${response.data}');
@@ -91,18 +100,12 @@ class Http {
     }
   }
 
-  Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = false}) async {
-    Options options = Options();
-    options.method = method;
-    if (!isMobile) {
-      options.headers = {'user-agent': Const.agent.pc};
-    }
+  Future<Response> upload(url, {data, required Options options}) async {
     // print('post-data: $data');
     try {
       Response response = await dio.request(
         url,
         data: data,
-        queryParameters: query,
         options: options,
       );
       // debugPrint('post success---------${response.data}');

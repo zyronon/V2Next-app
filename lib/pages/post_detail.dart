@@ -644,7 +644,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           ),
           TextButton(
             onPressed: () async {
-              var res = await DioRequestWeb.thankReply(val.id, ctrl.post.id);
+              var res = await Api.thankReply(val.id, ctrl.post.id);
               if (res) {
                 var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
                 ctrl.post.replyList[index].isThanked = true;

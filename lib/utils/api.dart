@@ -2,17 +2,23 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Element;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart' hide Response;
+import 'package:get/get.dart' hide Response, FormData;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model_login_detail.dart';
+import 'package:v2ex/package/xpath/src/xpath_base.dart' hide Element;
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
+import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
 
@@ -646,5 +652,239 @@ class Api {
       }
     }
     return favNodeList;
+  }
+
+  // 感谢回复
+  static Future thankReply(String replyId, String topicId) async {
+    int once = GStorage().getOnce();
+    SmartDialog.showLoading();
+    try {
+      var response = await Http().post("/thank/reply/$replyId?once=$once");
+      // print('1019 thankReply: $response');
+      var data = jsonDecode(response.toString());
+      SmartDialog.dismiss();
+      bool responseStatus = data['success'];
+      if (responseStatus) {
+        SmartDialog.showToast('操作成功');
+      } else {
+        SmartDialog.showToast(data['message']);
+      }
+      if (data['once'] != null) {
+        int onceR = data['once'];
+        GStorage().setOnce(onceR);
+      }
+      // 操作成功
+      return responseStatus;
+    } on DioException catch (e) {
+      SmartDialog.dismiss();
+      SmartDialog.showToast(e.message!);
+    }
+  }
+
+  static Future<Result> createNoteItem(String itemName) async {
+    FormData formData = FormData.fromMap({'content': itemName, 'parent_id': 0, 'syntax': 0});
+    Response res = await Http().post('/notes/new', data: formData);
+
+    if (res.statusCode == 302) {
+      String? url = res.headers.value('location');
+      if (url != null && url.contains('/notes/')) {
+        url = url.replaceAll('/notes/', '');
+        return Result(success: true, data: url);
+      }
+    }
+    return Result(success: false);
+  }
+
+  static Future<Result> editNoteItem(String val, String id) async {
+    FormData formData = FormData.fromMap({'content': val, 'syntax': 0});
+    Response res = await Http().post('/notes/edit/$id', data: formData);
+    return Result(success: res.statusCode == 302);
+  }
+
+  //获取记事本条目内容
+  static Future<Result> getNoteItemContent(String id, String prefix) async {
+    Response res = await Http().get('/notes/edit/${id}');
+    if (res.statusCode == 200) {
+      var document = parse(res.data);
+      var editorEl = document.querySelector('.note_editor');
+      if (editorEl != null) {
+        String text = editorEl.innerHtml;
+        if (text == prefix) {
+          return Result(success: false);
+        } else {
+          String json = text.substring(prefix.length);
+          try {
+            return Result(success: true, data: jsonDecode(json));
+          } catch (e) {
+            return Result(success: false);
+          }
+        }
+      }
+    }
+    return Result(success: false);
+  }
+
+  // 获取登录字段
+  static Future<LoginDetailModel> getLoginKey() async {
+    LoginDetailModel loginKeyMap = LoginDetailModel();
+    Response response;
+    response = await Http().get('/signin', isMobile: true);
+
+    var document = parse(response.data);
+    var tableDom = document.querySelector('table');
+    if (document.body!.querySelector('div.dock_area') != null) {
+      // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
+      String tipsContent = document.body!.querySelector('#Main > div.box > div.cell > div > p')!.innerHtml;
+      String tipsIp = document.body!.querySelector('#Main > div.box > div.dock_area > div.cell')!.text;
+      SmartDialog.show(
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  tipsIp,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 4),
+                Text(tipsContent),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: (() => {SmartDialog.dismiss()}), child: const Text('知道了'))
+            ],
+          );
+        },
+      );
+      return loginKeyMap;
+    }
+    var trsDom = tableDom!.querySelectorAll('tr');
+
+    for (var aNode in trsDom) {
+      String keyName = aNode.querySelector('td')!.text;
+      if (keyName.isNotEmpty) {
+        if (keyName == '用户名') {
+          loginKeyMap.userNameHash = aNode.querySelector('input')!.attributes['name']!;
+        }
+        if (keyName == '密码') {
+          loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
+          loginKeyMap.passwordHash = aNode.querySelector('input.sl')!.attributes['name']!;
+        }
+        if (keyName.contains('机器')) {
+          loginKeyMap.codeHash = aNode.querySelector('input')!.attributes['name']!;
+        }
+      }
+      if (aNode.querySelector('img') != null) {
+        loginKeyMap.captchaImg = '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
+      }
+    }
+
+    // 获取验证码
+    ResponseType resType = ResponseType.bytes;
+    Response res = await Http().get("/_captcha", data: {'once': loginKeyMap.once}, responseType: resType, isMobile: true);
+    //  登录后未2fa 退出，第二次进入触发
+    if (res.redirects.isNotEmpty && res.redirects[0].location.path == '/2fa') {
+      loginKeyMap.twoFa = true;
+    } else {
+      if ((res.data as List<int>).isEmpty) {
+        throw Exception('NetworkImage is an empty file');
+      }
+      loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
+    }
+    return loginKeyMap;
+  }
+
+  // 登录
+  static Future<String> onLogin(LoginDetailModel args) async {
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      // 必须字段
+      'Referer': '${Strings.v2exHost}/signin',
+      'Origin': Strings.v2exHost,
+      'user-agent': Const.agent.ios
+    };
+
+    FormData formData = FormData.fromMap({
+      args.userNameHash: args.userNameValue,
+      args.passwordHash: args.passwordValue,
+      args.codeHash: args.codeValue,
+      'once': args.once,
+      'next': args.next,
+    });
+
+    Response response = await Http().post('/signin', data: formData, options: options, isMobile: true);
+    options.contentType = Headers.jsonContentType; // 还原
+    print('status${response.statusCode}');
+    if (response.statusCode == 302) {
+      // 登录成功，重定向
+      return await getUserInfo();
+    } else {
+      // 登录失败，去获取错误提示信息
+      Document document = parse(response.data);
+      Element? problem = document.querySelector('#Wrapper .problem');
+      String? errorInfo;
+      if (problem != null) {
+        errorInfo = problem.text;
+      }
+      SmartDialog.showToast(errorInfo!);
+      return 'false';
+    }
+  }
+
+  // 获取当前用户信息
+  static Future<String> getUserInfo() async {
+    print('getUserInfo');
+    var response = await Http().get('/write', isMobile: true);
+    // SmartDialog.dismiss();
+    if (response.redirects.isNotEmpty) {
+      print('getUserInfo 2fa');
+      // 需要两步验证
+      if (response.redirects[0].location.path == "/2fa") {
+        response = await Http().get('/2fa');
+      }
+    }
+    var document = parse(response.data);
+    var imgEl = document.querySelector('#menu-entry .avatar');
+    if (imgEl != null) {
+      BaseController bc = Get.find<BaseController>();
+      Member member = new Member();
+      member.avatar = imgEl.attributes["src"]!;
+      member.username = imgEl.attributes["alt"]!;
+      bc.setMember(member);
+      // todo 判断用户是否开启了两步验证
+      // 需要两步验证
+      print('两步验证判断');
+      if (response.requestOptions.path == "/2fa") {
+        print('需要两步验证');
+        var tree = ETree.fromString(response.data);
+        // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
+        String once = tree.xpath("//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!.first.attributes["value"];
+        GStorage().setOnce(int.parse(once));
+        SmartDialog.dismiss();
+        return "2fa";
+      } else {
+        GStorage().setLoginStatus(true);
+        SmartDialog.dismiss();
+        return "true";
+      }
+    }
+    SmartDialog.dismiss();
+    return "false";
+  }
+
+  static loginOut() async {
+    BaseController bc = BaseController.to;
+    bc.setMember(Member());
+    int once = GStorage().getOnce();
+    await Http().get('/signout?once=$once');
+    await Http.cookieManager.cookieJar.deleteAll();
+    Http.dio.options.headers['cookie'] = '';
+    final inAppCookieManager = CookieManager.instance();
+    inAppCookieManager.deleteAllCookies();
   }
 }

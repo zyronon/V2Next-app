@@ -7,6 +7,7 @@ import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class MePage extends StatelessWidget {
@@ -35,7 +36,7 @@ class MePage extends StatelessWidget {
               ]),
               Row(children: [
                 if (right != null) right,
-                Icon(Icons.keyboard_arrow_right,color: Colors.grey),
+                Icon(Icons.keyboard_arrow_right, color: Colors.grey),
               ])
             ],
           )),
@@ -64,61 +65,86 @@ class MePage extends StatelessWidget {
           color: Colors.grey[100],
           child: Column(
             children: [
-              _card(Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+              _card(Column(
+                children: [
+                  InkWell(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _.member.avatar.isNotEmpty
-                            ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
-                            : Container(
-                          child: Image.asset(
-                            'assets/images/user.png',
-                            width: 70,
-                            height: 70,
-                          ),
-                        ),
-                        SizedBox(width: 10.w),
-                        Column(
+                        Row(
                           children: [
-                            InkWell(
-                              child: Text(
-                                _.isLogin ? _.member.username : '登录',
-                                style: TextStyle(fontSize: 18.sp),
+                            _.member.avatar.isNotEmpty
+                                ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
+                                : Container(
+                              child: Image.asset(
+                                'assets/images/user.png',
+                                width: 70,
+                                height: 70,
                               ),
-                              onTap: () => Get.toNamed('/login'),
                             ),
+                            SizedBox(width: 10.w),
+                            Text(
+                              _.isLogin ? _.member.username : '登录',
+                              style: TextStyle(fontSize: 18.sp),
+                            )
                           ],
-                        )
+                        ),
+                        Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                       ],
                     ),
-                    Icon(Icons.keyboard_arrow_right,color: Colors.grey),
-                  ],
-                ),
-                Divider(color: Const.line,height: 30.w),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildNumItem('节点收藏', _.member.actionCounts[0], () {
+                    onTap: () {
+                      if (_.isLogin) {
+                        Get.to(BaseWebView(url: 'https://www.v2ex.com/member/${_.member.username}'), transition: Transition.cupertino);
+                      }
+                      else {
+                        Get.toNamed('/login');
+                      }
+                    },
+                  ),
+                  Divider(color: Const.line, height: 30.w),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildNumItem('节点收藏', _.member.actionCounts[0], () {
+                        if (!Utils.checkIsLogin()) return;
+                        Get.to(BaseWebView(url: 'https://www.v2ex.com/my/nodes'), transition: Transition.cupertino);
+                      }),
+                      Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                      _buildNumItem('主题收藏', _.member.actionCounts[1], () {
+                        if (!Utils.checkIsLogin()) return;
+                        Get.to(BaseWebView(url: 'https://www.v2ex.com/my/topics'), transition: Transition.cupertino);
+                      }),
+                      Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                      _buildNumItem('特别关注', _.member.actionCounts[2], () {
+                        if (!Utils.checkIsLogin()) return;
+                        Get.to(BaseWebView(url: 'https://www.v2ex.com/my/following'), transition: Transition.cupertino);
+                      }),
+                      // Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
+                      // _buildNumItem('历史浏览', 3),
+                    ],
+                  ),
+                  SizedBox(height: 20.w),
+                  Divider(height: 1.w, color: Colors.grey[200]),
+                  _buildMenuItem(
+                      name: '余额',
+                      icon: TDIcons.money_circle,
+                      right: BaseHtmlWidget(html: _.member.balance),
+                      onTap: () {
+                        if (!Utils.checkIsLogin()) return;
+                        Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
+                      }),
+                ],
+              )),
+              SizedBox(height: 20.w),
+              _card(
+                _buildMenuItem(
+                    name: '创作新主题',
+                    icon: Icons.create_outlined,
+                    onTap: () {
                       if (!Utils.checkIsLogin()) return;
-                      Get.to(BaseWebView(url: 'https://www.v2ex.com/my/nodes'), transition: Transition.cupertino);
+                      Get.to(BaseWebView(url: 'https://www.v2ex.com/write'), transition: Transition.cupertino);
                     }),
-                    Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                    _buildNumItem('主题收藏', _.member.actionCounts[1], () {
-                      if (!Utils.checkIsLogin()) return;
-                      Get.to(BaseWebView(url: 'https://www.v2ex.com/my/topics'), transition: Transition.cupertino);
-                    }),
-                    Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                    _buildNumItem('特别关注', _.member.actionCounts[2], () {
-                      if (!Utils.checkIsLogin()) return;
-                      Get.to(BaseWebView(url: 'https://www.v2ex.com/my/following'), transition: Transition.cupertino);
-                    }),
-                    // Container(width: 1.w, height: 25.w, color: Colors.grey[200]),
-                    // _buildNumItem('历史浏览', 3),
-                  ],
-                )
-              ],)),
+              ),
               SizedBox(height: 20.w),
               Container(
                   padding: EdgeInsets.fromLTRB(12.w, 0.w, 12.w, 0.w),
@@ -128,27 +154,8 @@ class MePage extends StatelessWidget {
                   ),
                   child: Column(children: [
                     _buildMenuItem(
-                        name: '创作新主题',
-                        icon: Icons.create_outlined,
-                        right: BaseHtmlWidget(html: _.member.balance),
-                        onTap: () {
-                          if (!Utils.checkIsLogin()) return;
-                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
-                        }),
-                    Divider(height: 1.w, color: Colors.grey[200]),
-                    _buildMenuItem(
                         name: '最近浏览',
                         icon: Icons.history,
-                        right: BaseHtmlWidget(html: _.member.balance),
-                        onTap: () {
-                          if (!Utils.checkIsLogin()) return;
-                          Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
-                        }),
-                    Divider(height: 1.w, color: Colors.grey[200]),
-                    _buildMenuItem(
-                        name: '余额',
-                        icon: TDIcons.money_circle,
-                        right: BaseHtmlWidget(html: _.member.balance),
                         onTap: () {
                           if (!Utils.checkIsLogin()) return;
                           Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
@@ -175,6 +182,13 @@ class MePage extends StatelessWidget {
                         icon: TDIcons.setting,
                         onTap: () {
                           Get.toNamed('/setting');
+                        }),
+                    Divider(height: 1.w, color: Colors.grey[200]),
+                    _buildMenuItem(
+                        name: 'logout',
+                        icon: TDIcons.setting,
+                        onTap: () {
+                          Api.loginOut();
                         }),
                   ]))
             ],

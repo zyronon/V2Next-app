@@ -9,6 +9,7 @@ import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/request.dart';
 
@@ -110,7 +111,7 @@ class BaseController extends GetxController {
         List<Element> tagItems = nodeListEl.where((v) => v.text.contains(currentConfig.configPrefix)).toList();
         if (tagItems.isNotEmpty) {
           currentConfig.configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
-          Result res = await DioRequestWeb.getNoteItemContent(currentConfig.configNoteId, currentConfig.configPrefix);
+          Result res = await Api.getNoteItemContent(currentConfig.configNoteId, currentConfig.configPrefix);
           if (res.success) {
             print('获取配置${res.data.toString()}');
             config[member.username] = UserConfig.fromJson(res.data);
@@ -119,10 +120,10 @@ class BaseController extends GetxController {
           } else {}
         } else {
           print('初始化配置');
-          Result r = await DioRequestWeb.createNoteItem(currentConfig.configPrefix);
+          Result r = await Api.createNoteItem(currentConfig.configPrefix);
           if (r.success) {
             currentConfig.configNoteId = r.data;
-            await DioRequestWeb.editNoteItem(
+            await Api.editNoteItem(
               currentConfig.configPrefix + jsonEncode(currentConfig.toJson()),
               currentConfig.configNoteId,
             );
