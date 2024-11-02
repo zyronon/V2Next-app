@@ -65,43 +65,43 @@ class MePage extends StatelessWidget {
           color: Colors.grey[100],
           child: Column(
             children: [
-              _card(Column(
-                children: [
-                  InkWell(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              InkWell(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            _.member.avatar.isNotEmpty
-                                ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
-                                : Container(
-                              child: Image.asset(
-                                'assets/images/user.png',
-                                width: 70,
-                                height: 70,
-                              ),
-                            ),
-                            SizedBox(width: 10.w),
-                            Text(
-                              _.isLogin ? _.member.username : '登录',
-                              style: TextStyle(fontSize: 18.sp),
-                            )
-                          ],
+                        _.member.avatar.isNotEmpty
+                            ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
+                            : Container(
+                          child: Image.asset(
+                            'assets/images/user.png',
+                            width: 70,
+                            height: 70,
+                          ),
                         ),
-                        Icon(Icons.keyboard_arrow_right, color: Colors.grey),
+                        SizedBox(width: 10.w),
+                        Text(
+                          _.isLogin ? _.member.username : '登录',
+                          style: TextStyle(fontSize: 18.sp),
+                        )
                       ],
                     ),
-                    onTap: () {
-                      if (_.isLogin) {
-                        Get.to(BaseWebView(url: 'https://www.v2ex.com/member/${_.member.username}'), transition: Transition.cupertino);
-                      }
-                      else {
-                        Get.toNamed('/login');
-                      }
-                    },
-                  ),
-                  Divider(color: Const.line, height: 30.w),
+                    Icon(Icons.keyboard_arrow_right, color: Colors.grey),
+                  ],
+                ),
+                onTap: () {
+                  if (_.isLogin) {
+                    Get.to(BaseWebView(url: 'https://www.v2ex.com/member/${_.member.username}'), transition: Transition.cupertino);
+                  }
+                  else {
+                    Get.toNamed('/login');
+                  }
+                },
+              ),
+              Divider(color: Const.line, height: 30.w),
+              _card(Column(
+                children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

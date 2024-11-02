@@ -725,41 +725,20 @@ class Api {
   }
 
   // 获取登录字段
-  static Future<LoginDetailModel> getLoginKey() async {
+  static Future<Result> getLoginKey() async {
+    Result result = Result(success: false);
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
     response = await Http().get('/signin', isMobile: true);
 
     var document = parse(response.data);
     var tableDom = document.querySelector('table');
-    if (document.body!.querySelector('div.dock_area') != null) {
+    if (document.body!.querySelector('.dock_area') != null) {
       // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
-      String tipsContent = document.body!.querySelector('#Main > div.box > div.cell > div > p')!.innerHtml;
-      String tipsIp = document.body!.querySelector('#Main > div.box > div.dock_area > div.cell')!.text;
-      SmartDialog.show(
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('提示'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  tipsIp,
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.error),
-                ),
-                const SizedBox(height: 4),
-                Text(tipsContent),
-              ],
-            ),
-            actions: [
-              TextButton(onPressed: (() => {SmartDialog.dismiss()}), child: const Text('知道了'))
-            ],
-          );
-        },
-      );
-      return loginKeyMap;
+      String tipsContent = document.body!.querySelector('#Wrapper  .box .cell  p')!.innerHtml;
+      String tipsIp = document.body!.querySelector('#Wrapper .box .dock_area  .cell')!.text;
+      result.data = [tipsIp, tipsContent];
+      return result;
     }
     var trsDom = tableDom!.querySelectorAll('tr');
 
@@ -767,11 +746,11 @@ class Api {
       String keyName = aNode.querySelector('td')!.text;
       if (keyName.isNotEmpty) {
         if (keyName == '用户名') {
-          loginKeyMap.userNameHash = aNode.querySelector('input')!.attributes['name']!;
+          loginKeyMap.usernameHash = aNode.querySelector('input')!.attributes['name']!;
         }
         if (keyName == '密码') {
           loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
-          loginKeyMap.passwordHash = aNode.querySelector('input.sl')!.attributes['name']!;
+          loginKeyMap.pwdHash = aNode.querySelector('input.sl')!.attributes['name']!;
         }
         if (keyName.contains('机器')) {
           loginKeyMap.codeHash = aNode.querySelector('input')!.attributes['name']!;
@@ -794,11 +773,15 @@ class Api {
       }
       loginKeyMap.captchaImgBytes = Uint8List.fromList(res.data!);
     }
-    return loginKeyMap;
+    result.success = true;
+    result.data = loginKeyMap;
+    return result;
+    // return loginKeyMap;
   }
 
   // 登录
-  static Future<String> onLogin(LoginDetailModel args) async {
+  static Future<Result> onLogin(LoginDetailModel args) async {
+    debugger();
     Options options = Options();
     options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
@@ -806,41 +789,51 @@ class Api {
       // 必须字段
       'Referer': '${Strings.v2exHost}/signin',
       'Origin': Strings.v2exHost,
-      'user-agent': Const.agent.ios
     };
 
     FormData formData = FormData.fromMap({
-      args.userNameHash: args.userNameValue,
-      args.passwordHash: args.passwordValue,
-      args.codeHash: args.codeValue,
+      args.usernameHash: args.username,
+      args.pwdHash: args.pwd,
+      args.codeHash: args.code,
       'once': args.once,
-      'next': args.next,
+      'next': '/',
     });
 
     Response response = await Http().post('/signin', data: formData, options: options, isMobile: true);
     options.contentType = Headers.jsonContentType; // 还原
     print('status${response.statusCode}');
-    if (response.statusCode == 302) {
-      // 登录成功，重定向
+    Result res = Result(success: false, data: []);
+    Document document = parse(response.data);
+    Element? problem = document.querySelector('#Wrapper .problem');
+    if (document.querySelector('.dock_area') != null) {
+      // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
+      String tipsContent = document.body!.querySelector('#Wrapper  .box .cell  p')!.innerHtml;
+      String tipsIp = document.body!.querySelector('#Wrapper .box .dock_area  .cell')!.text;
+      res.data = [tipsIp, tipsContent];
+      res.success = false;
+    }
+    // 登录失败，去获取错误提示信息
+    else if (problem != null) {
+      res.data = [problem.text];
+      res.success = false;
+    } else if (response.statusCode == 302) {
       return await getUserInfo();
     } else {
-      // 登录失败，去获取错误提示信息
-      Document document = parse(response.data);
-      Element? problem = document.querySelector('#Wrapper .problem');
-      String? errorInfo;
-      if (problem != null) {
-        errorInfo = problem.text;
+      var imgEl = document.querySelector('#menu-entry .avatar');
+      if (imgEl != null) {
+        return await getUserInfo();
       }
-      SmartDialog.showToast(errorInfo!);
-      return 'false';
+      res.data = ['登录失败'];
+      res.success = false;
     }
+    return res;
   }
 
   // 获取当前用户信息
-  static Future<String> getUserInfo() async {
+  static Future<Result> getUserInfo() async {
+    Result res = Result(data: []);
     print('getUserInfo');
     var response = await Http().get('/write', isMobile: true);
-    // SmartDialog.dismiss();
     if (response.redirects.isNotEmpty) {
       print('getUserInfo 2fa');
       // 需要两步验证
@@ -859,22 +852,19 @@ class Api {
       // todo 判断用户是否开启了两步验证
       // 需要两步验证
       print('两步验证判断');
+      res.success = true;
       if (response.requestOptions.path == "/2fa") {
         print('需要两步验证');
         var tree = ETree.fromString(response.data);
         // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
         String once = tree.xpath("//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!.first.attributes["value"];
         GStorage().setOnce(int.parse(once));
-        SmartDialog.dismiss();
-        return "2fa";
-      } else {
-        GStorage().setLoginStatus(true);
-        SmartDialog.dismiss();
-        return "true";
+        res.data = '2fa';
       }
+    } else {
+      res.success = false;
     }
-    SmartDialog.dismiss();
-    return "false";
+    return res;
   }
 
   static loginOut() async {

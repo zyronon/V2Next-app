@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -57,6 +58,7 @@ class BaseController extends GetxController {
   UserConfig get currentConfig => config[member.username]!;
 
   Layout get layout => currentConfig.layout;
+
   double get fontSize => currentConfig.layout.fontSize;
 
   @override
@@ -68,7 +70,7 @@ class BaseController extends GetxController {
 
   initData() async {
     Response res = await Http().get('/notes', isMobile: true);
-    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},realUri:${res.realUri}');
+    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},是否登录:${!(res.data as String).contains('其他登录方式')}');
     if (!res.isRedirect && !(res.data as String).contains('其他登录方式')) {
       Document document = parse(res.data);
       Element? avatarEl = document.querySelector('#menu-entry .avatar');
@@ -151,6 +153,7 @@ class BaseController extends GetxController {
     var r3 = _box.read(StoreKeys.tabMap.toString());
     if (r3 != null) {
       print(r3);
+      r3 = jsonDecode(r3);
       List<TabItem> list = (r3 as List).map((v) => TabItem.fromJson(v)).toList();
       setTabMap(list);
     } else {
@@ -171,7 +174,7 @@ class BaseController extends GetxController {
 
   setTabMap(val) {
     tabList.assignAll(val);
-    _box.write(StoreKeys.tabMap.toString(), tabList);
+    _box.write(StoreKeys.tabMap.toString(), jsonEncode(tabList));
     update();
   }
 }

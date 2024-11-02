@@ -1,39 +1,75 @@
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/utils/api.dart';
-import 'package:v2ex/utils/login.dart';
-import 'package:v2ex/utils/utils.dart';
-import 'package:v2ex/utils/string.dart';
-import 'package:v2ex/utils/http.dart';
-import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/event_bus.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:v2ex/utils/login.dart';
+import 'package:v2ex/utils/storage.dart';
+import 'package:v2ex/utils/string.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class Controller extends GetxController {
   var codeImg = '';
-  bool passwordVisible = true; // 默认隐藏密码
-  bool loadingCodeImg = true;
-  bool loadingLogin = false;
+  var showPwd = true.obs;
+  var loadingCodeImg = true.obs;
+  var loadingLogin = false.obs;
   late LoginDetailModel loginKey = LoginDetailModel();
 
+  showBanModal(List val){
+    SmartDialog.show(
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('提示'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                val[0],
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 4),
+              Text(val[1]),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: (() => {SmartDialog.dismiss()}), child: const Text('关闭'))
+          ],
+        );
+      },
+    );
+  }
+
   getSignKey() async {
-    loadingCodeImg = true;
+    loadingCodeImg.value = true;
     var res = await Api.getLoginKey();
-    loadingCodeImg = false;
-    if (res.twoFa) {
-      Login.twoFADialog();
+    loadingCodeImg.value = false;
+    if (res.success) {
+      if (res.data.twoFa) {
+        Login.twoFADialog();
+      } else {
+        loginKey = res.data;
+      }
     } else {
-      loginKey = res;
+      showBanModal(res.data);
     }
-    return res;
   }
 
   static Controller get to => Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+    this.getSignKey();
+  }
 }
 
 class LoginPage extends StatefulWidget {
@@ -55,8 +91,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    usernameController.text = 'shzbkzo';
-    pwdController.text = 'o894948816O!';
+    //TODO 记得改密码
+    // usernameController.text = 'shzbkzo';
+    // pwdController.text = 'o894948816O!';
+    usernameController.text = 'ttentau1';
+    pwdController.text = 'o8949488816';
     // _codeController.text = '1234';
   }
 
@@ -68,9 +107,8 @@ class _LoginPageState extends State<LoginPage> {
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios), onPressed: () => Get.back(result: {'loginStatus': 'cancel'})),
         actions: [TextButton(onPressed: () => Utils.openURL('https://www.v2ex.com/signup'), child: const Text('注册账号')), const SizedBox(width: 12)],
       ),
-      body: GetBuilder(
+      body: GetX<Controller>(
           init: Controller(),
-          initState: Controller.to.getSignKey(),
           builder: (_) {
             return Stack(
               alignment: AlignmentDirectional.bottomCenter,
@@ -94,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: TextFormField(
                                 controller: usernameController,
                                 focusNode: usernameTextFieldNode,
-                                autofocus: true,
+                                // autofocus: true,
                                 decoration: InputDecoration(
                                   labelText: '用户名',
                                   border: OutlineInputBorder(
@@ -108,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                               onPointerDown: (e) => FocusScope.of(context).requestFocus(pwdTextFieldNode),
                               child: TextFormField(
                                   controller: pwdController,
-                                  obscureText: _.passwordVisible,
+                                  obscureText: _.showPwd.value,
                                   focusNode: pwdTextFieldNode,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
@@ -117,13 +155,11 @@ class _LoginPageState extends State<LoginPage> {
                                     labelText: '密码',
                                     suffixIcon: IconButton(
                                       icon: Icon(
-                                        _.passwordVisible ? Icons.visibility : Icons.visibility_off,
+                                        _.showPwd.value ? Icons.visibility : Icons.visibility_off,
                                         color: Theme.of(context).colorScheme.primary,
                                       ),
                                       onPressed: () {
-                                        setState(() {
-                                          _.passwordVisible = !_.passwordVisible;
-                                        });
+                                        _.showPwd.value = !_.showPwd.value;
                                       },
                                     ),
                                   ),
@@ -156,13 +192,15 @@ class _LoginPageState extends State<LoginPage> {
                                     onTap: () {
                                       _.getSignKey();
                                     },
-                                    child: _.loadingCodeImg
+                                    child: _.loadingCodeImg.value
                                         ? Container(child: SpinKitWave(color: Colors.grey[300], size: 24.w), margin: EdgeInsets.only(right: 60.w))
-                                        : Image.memory(
-                                            _.loginKey.captchaImgBytes!,
-                                            height: 52.w,
-                                            fit: BoxFit.fitHeight,
-                                          ),
+                                        : _.loginKey.captchaImgBytes != null
+                                            ? Image.memory(
+                                                _.loginKey.captchaImgBytes!,
+                                                height: 52.w,
+                                                fit: BoxFit.fitHeight,
+                                              )
+                                            : null,
                                   ),
                                 ),
                               ),
@@ -173,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                               padding: const EdgeInsets.all(20),
                               child: TDButton(
                                 text: '登录',
-                                iconWidget: _.loadingLogin
+                                iconWidget: _.loadingLogin.value
                                     ? TDLoading(
                                         size: TDLoadingSize.small,
                                         icon: TDLoadingIcon.circle,
@@ -190,36 +228,30 @@ class _LoginPageState extends State<LoginPage> {
                                     print(usernameController.text);
                                     print(pwdController.text);
                                     print(codeController.text);
-                                    //验证通过提交数据
-                                    (_formKey.currentState as FormState).save();
-                                    _.loginKey.userNameValue = usernameController.text;
-                                    _.loginKey.passwordValue = pwdController.text;
-                                    _.loginKey.codeValue = codeController.text;
+                                    _.loginKey.username = usernameController.text;
+                                    _.loginKey.pwd = pwdController.text;
+                                    _.loginKey.code = codeController.text;
                                     // 键盘收起
                                     codeTextFieldNode.unfocus();
-                                    setState(() {
-                                      _.loadingLogin = true;
-                                    });
-                                    var result = await Api.onLogin(_.loginKey);
-                                    setState(() {
-                                      _.loadingLogin = false;
-                                    });
-                                    if (result == 'true') {
-                                      // 登录成功
-                                      GStorage().setLoginStatus(true);
-                                      Get.back(result: {'loginStatus': 'success'});
-                                    } else if (result == 'false') {
-                                      // 登录失败
-                                      setState(() {
-                                        // _passwordController.value =
-                                        //     const TextEditingValue(text: '');
+                                    _.loadingLogin.value = true;
+                                    Result result = await Api.onLogin(_.loginKey);
+                                    _.loadingLogin.value = false;
+                                    if (result.success) {
+                                      if (result.data == '2fa') {
+                                        Login.twoFADialog();
+                                      } else {
+                                        Get.back(result: {'loginStatus': 'success'});
+                                      }
+                                    } else {
+                                      if (result.data.length == 2) {
+                                        _.showBanModal(result.data);
+                                      } else {
+                                        SmartDialog.showToast(result.data[0]);
                                         codeController.value = const TextEditingValue(text: '');
-                                      });
-                                      Timer(const Duration(milliseconds: 500), () {
-                                        _.getSignKey();
-                                      });
-                                    } else if (result == '2fa') {
-                                      Login.twoFADialog();
+                                        Timer(const Duration(milliseconds: 500), () {
+                                          _.getSignKey();
+                                        });
+                                      }
                                     }
                                   }
                                 },
@@ -227,11 +259,6 @@ class _LoginPageState extends State<LoginPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // TextButton(onPressed: () => Utils.launchURL('https://www.v2ex.com/signin'), child: Text(
-                              //   '网页登录',
-                              //   style: TextStyle(color: Colors.grey[600]),
-                              // ),),
-                              // const SizedBox(width: 10),
                               TextButton(
                                 onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
                                 child: Text(

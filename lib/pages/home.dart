@@ -36,8 +36,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
   submit() {
     BaseController c = Get.find();
-    // c.initData();
-    c.initStorage();
+    c.initData();
+    // c.initStorage();
     print("test");
   }
 
