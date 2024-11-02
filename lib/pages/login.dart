@@ -233,6 +233,9 @@ class _LoginPageState extends State<LoginPage> {
                                     _.loginKey.code = codeController.text;
                                     // 键盘收起
                                     codeTextFieldNode.unfocus();
+
+                                    print(_.loginKey.once);
+                                    return;
                                     _.loadingLogin.value = true;
                                     Result result = await Api.onLogin(_.loginKey);
                                     _.loadingLogin.value = false;

@@ -20,20 +20,26 @@ class Http {
   Http._internal() {
     //BaseOptions、Options、RequestOptions 都可以配置参数，优先级别依次递增，且可以根据优先级别覆盖参数
     BaseOptions options = BaseOptions(
-        validateStatus: (_) => true,
+        // validateStatus: (_) => true,
         //请求基地址,可以包含子路径
         baseUrl: Strings.v2exHost,
-        followRedirects: true,
+        // followRedirects: true,
         connectTimeout: const Duration(seconds: 12),
+        //响应流上前后两次接受到数据的间隔，单位为毫秒。
+        receiveTimeout: const Duration(seconds: 12),
         // contentType: Headers.formUrlEncodedContentType,
-        headers: {
-          'Origin': Strings.v2exHost,
-          'user-agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
-        });
+        headers:{
+
+        }
+        // headers: {
+        //   'Origin': Strings.v2exHost,
+        //   'user-agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
+        // }
+        );
 
     dio = Dio(options);
     //使用原生平台的http。不然太慢了
-    dio.httpClientAdapter = NativeAdapter();
+    // dio.httpClientAdapter = NativeAdapter();
 
     setCookie();
     //添加拦截器
@@ -45,6 +51,11 @@ class Http {
         requestHeader: false,
         responseHeader: false,
       ));
+
+
+    dio.options.validateStatus = (status) {
+      return status! >= 200 && status < 300 || status == 304 || status == 302;
+    };
   }
 
   /// 设置cookie
@@ -75,9 +86,9 @@ class Http {
   Future<Response> request(url, {query = const <String, dynamic>{}, data = const <String, dynamic>{}, method, isMobile = false, responseType = null, options = null}) async {
     if (options == null) {
       options = Options();
-      if (responseType != null) {
-        options.responseType = responseType;
-      }
+    }
+    if (responseType != null) {
+      options.responseType = responseType;
     }
     if (!isMobile) {
       options.headers = {'user-agent': Const.agent.pc};
@@ -89,7 +100,7 @@ class Http {
       Response response = await dio.request(
         url,
         data: data,
-        queryParameters: query,
+        // queryParameters: query,
         options: options,
       );
       // debugPrint('post success---------${response.data}');

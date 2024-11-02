@@ -22,6 +22,8 @@ import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
 
+import 'init.dart';
+
 class Api {
   //获取tab 主题列表
   static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 1, String? date}) async {
@@ -729,7 +731,8 @@ class Api {
     Result result = Result(success: false);
     LoginDetailModel loginKeyMap = LoginDetailModel();
     Response response;
-    response = await Http().get('/signin', isMobile: true);
+    // response = await Http().get('/signin', isMobile: true);
+    response = await Request().get('/signin');
 
     var document = parse(response.data);
     var tableDom = document.querySelector('table');
@@ -776,12 +779,10 @@ class Api {
     result.success = true;
     result.data = loginKeyMap;
     return result;
-    // return loginKeyMap;
   }
 
   // 登录
   static Future<Result> onLogin(LoginDetailModel args) async {
-    debugger();
     Options options = Options();
     options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
@@ -789,6 +790,7 @@ class Api {
       // 必须字段
       'Referer': '${Strings.v2exHost}/signin',
       'Origin': Strings.v2exHost,
+      'user-agent': Const.agent.ios
     };
 
     FormData formData = FormData.fromMap({
@@ -799,38 +801,49 @@ class Api {
       'next': '/',
     });
 
+    // Response response = await Request().post('/signin', data: formData, options: options);
     Response response = await Http().post('/signin', data: formData, options: options, isMobile: true);
     options.contentType = Headers.jsonContentType; // 还原
+    debugger();
     print('status${response.statusCode}');
     Result res = Result(success: false, data: []);
-    Document document = parse(response.data);
-    Element? problem = document.querySelector('#Wrapper .problem');
-    if (document.querySelector('.dock_area') != null) {
-      // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
-      String tipsContent = document.body!.querySelector('#Wrapper  .box .cell  p')!.innerHtml;
-      String tipsIp = document.body!.querySelector('#Wrapper .box .dock_area  .cell')!.text;
-      res.data = [tipsIp, tipsContent];
-      res.success = false;
-    }
-    // 登录失败，去获取错误提示信息
-    else if (problem != null) {
-      res.data = [problem.text];
-      res.success = false;
-    } else if (response.statusCode == 302) {
+
+    if (response.statusCode == 302) {
       return await getUserInfo();
     } else {
-      var imgEl = document.querySelector('#menu-entry .avatar');
-      if (imgEl != null) {
-        return await getUserInfo();
+      Document document = parse(response.data);
+      Element? problem = document.querySelector('#Wrapper .problem');
+      if (document.querySelector('.dock_area') != null) {
+        // 由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
+        String tipsContent = document.body!.querySelector('#Wrapper  .box .cell  p')!.innerHtml;
+        String tipsIp = document.body!.querySelector('#Wrapper .box .dock_area  .cell')!.text;
+        res.data = [tipsIp, tipsContent];
+        res.success = false;
       }
-      res.data = ['登录失败'];
-      res.success = false;
+      // 登录失败，去获取错误提示信息
+      else if (problem != null) {
+        var text = problem.querySelector('li');
+        if (text != null) {
+          res.data = [text.text];
+        } else {
+          res.data = ['登录失败了'];
+        }
+        res.success = false;
+      } else {
+        var imgEl = document.querySelector('#menu-entry .avatar');
+        if (imgEl != null) {
+          return await getUserInfo();
+        }
+        res.data = ['登录失败'];
+        res.success = false;
+      }
     }
     return res;
   }
 
   // 获取当前用户信息
   static Future<Result> getUserInfo() async {
+    debugger();
     Result res = Result(data: []);
     print('getUserInfo');
     var response = await Http().get('/write', isMobile: true);
@@ -862,6 +875,7 @@ class Api {
         res.data = '2fa';
       }
     } else {
+      res.data = ['登录失败了2'];
       res.success = false;
     }
     return res;

@@ -33,7 +33,7 @@ void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize(); // Dio 初始化
-  await Request().setCookie();
+  // await Request().setCookie();
   await Http().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);

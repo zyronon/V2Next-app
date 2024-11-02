@@ -70,6 +70,7 @@ class BaseController extends GetxController {
 
   initData() async {
     Response res = await Http().get('/notes', isMobile: true);
+    debugger();
     print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},是否登录:${!(res.data as String).contains('其他登录方式')}');
     if (!res.isRedirect && !(res.data as String).contains('其他登录方式')) {
       Document document = parse(res.data);
