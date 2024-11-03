@@ -4,9 +4,6 @@ enum ThemeType { light, dark, system } // 主题切换
 const int baseFontSize = 14;
 
 class Strings {
-  static String v2exHost = "https://www.v2ex.com";
-  static String remoteUrl = "https://github.com/guozhigq/flutter_v2ex";
-
   /// 提交tag时 记得更改
   static String currentVersion = 'v1.2.6';
   static int maxAge = 7; // 最多记录7天已读

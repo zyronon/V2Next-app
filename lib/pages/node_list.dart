@@ -1,8 +1,13 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:extended_tabs/extended_tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
 
@@ -15,6 +20,9 @@ class NodeListPage extends StatefulWidget {
 
 class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMixin {
   List nodesList = GStorage().getNodes().isNotEmpty ? GStorage().getNodes() : [];
+
+  // List nodesList = [];
+  BaseController bc = BaseController.to;
   late final Axis scrollDirection;
   late TabController tabController;
   bool _isLoading = true;
@@ -23,28 +31,30 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    this.getData();
+  }
+
+  //TODO 这里的加载有问题，没用到缓存
+  Future getData() async {
     if (nodesList.isEmpty) {
-      getNodes().then((res) {
-        tabController = TabController(length: nodesList.toList().length, vsync: this);
-      });
-    } else {
       _isLoading = false;
       tabController = TabController(length: nodesList.toList().length, vsync: this);
-      getAllNodes(nodesList);
+      setState(() {
+
+      });
+      await getAllNodes(nodesList);
+    } else {
+      nodesList = await Api.getNodes();
+      await getAllNodes(nodesList);
+      tabController = TabController(length: nodesList.toList().length, vsync: this);
     }
-    if (GStorage().getLoginStatus()) {
+    if (bc.isLogin) {
       getFavNodes();
     }
   }
 
-  Future getNodes() async {
-    var res = await Api.getNodes();
-    await getAllNodes(res);
-  }
-
   Future getAllNodes(res) async {
     var result = await Api.getAllNodes();
-
     for (var j in res) {
       for (var z in j['childs']) {
         await nodeInfo(z, result);
@@ -123,7 +133,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
         actions: [
           TextButton(
               onPressed: () {
-                Get.toNamed('/topicNodes', parameters: {'source': 'nodes'});
+                Get.toNamed('/topicNodes', arguments: {'source': FromSource.editTab});
               },
               child: const Text('全部节点')),
           // IconButton(onPressed: () {

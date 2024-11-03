@@ -1,12 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:fwfh_cached_network_image/fwfh_cached_network_image.dart';
 
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/image_preview.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -86,51 +87,78 @@ class BaseHtmlWidget extends StatelessWidget {
           );
         },
         child: InkWell(
-          child: HtmlWidget(
-            ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
-            renderMode: RenderMode.column,
-            textStyle: TextStyle(fontSize: bc.layout.fontSize,height: bc.layout.lineHeight),
-            factoryBuilder: () => MyWidgetFactory(),
-            customStylesBuilder: (element) {
-              if (element.classes.contains('subtle')) {
-                return {
-                  'background-color': '#ecfdf5e6',
-                  'border-left': '4px solid #a7f3d0',
-                  'padding': '5px',
-                };
-              }
-              if (element.classes.contains('fade')) {
-                return {'color': '#6b6b6b'};
-              }
-              if (element.classes.contains('outdated')) {
-                return {
-                  'color': 'gray',
-                  'font-size': '14px',
-                  'background-color': '#f9f9f9',
-                  'border-left': '5px solid #f0f0f0',
-                  'padding': '10px',
-                };
-              }
-              return null;
-            },
-            onTapUrl: (url) {
-              print('url--------------------${url.toString()}');
-              if (url.contains('v2ex.com/t/')) {
-                var match = RegExp(r'(\d+)').allMatches(url.replaceAll('v2ex.com/t/', ''));
-                var result = match.map((m) => m.group(0)).toList();
-                Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
+          child: HtmlWidget(ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
+              renderMode: RenderMode.column,
+              textStyle: TextStyle(fontSize: bc.layout.fontSize, height: bc.layout.lineHeight),
+              factoryBuilder: () => MyWidgetFactory(),
+              customStylesBuilder: (element) {
+                if (element.classes.contains('subtle')) {
+                  return {
+                    'background-color': '#ecfdf5e6',
+                    'border-left': '4px solid #a7f3d0',
+                    'padding': '5px',
+                  };
+                }
+                if (element.classes.contains('fade')) {
+                  return {'color': '#6b6b6b'};
+                }
+                if (element.classes.contains('outdated')) {
+                  return {
+                    'color': 'gray',
+                    'font-size': '14px',
+                    'background-color': '#f9f9f9',
+                    'border-left': '5px solid #f0f0f0',
+                    'padding': '10px',
+                  };
+                }
+                return null;
+              },
+              onTapUrl: (url) {
+                print('url--------------------${url.toString()}');
+                if (url.contains('v2ex.com/t/') || url.contains('/t/')) {
+                  url = url.replaceAll('v2ex.com/t/', '');
+                  url = url.replaceAll('/t/', '');
+                  var match = RegExp(r'(\d+)').allMatches(url);
+                  var result = match.map((m) => m.group(0)).toList();
+                  Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
+                  return true;
+                }
+                Utils.openBrowser(url);
                 return true;
-              }
-              Utils.openBrowser(url);
-              return true;
-            },
-          ),
+              },
+              onTapImage: (ImageMetadata imageMetadata) {
+                Get.to(ImagePreview(), arguments: {'imgList': imageMetadata.sources.map((v) => v.url).toList(), 'initialPage': 0});
+              }),
           onTap: onTap,
         ));
   }
 }
 
-// class MyWidgetFactory extends WidgetFactory with UrlLauncherFactory {
-// }
-
 class MyWidgetFactory extends WidgetFactory with CachedNetworkImageFactory {}
+
+/// A mixin that can render IMG with `cached_network_image` plugin.
+mixin CachedNetworkImageFactory on WidgetFactory {
+  /// Uses a custom cache manager.
+  BaseCacheManager? get cacheManager => null;
+
+  @override
+  Widget? buildImageWidget(BuildMetadata meta, ImageSource src) {
+    final url = src.url;
+    if (!url.startsWith(RegExp('https?://'))) {
+      return super.buildImageWidget(meta, src);
+    }
+
+    return CachedNetworkImage(
+      cacheManager: cacheManager,
+      errorWidget: (context, _, error) => onErrorBuilder(context, meta, error, src) ?? widget0,
+      fit: BoxFit.fill,
+      imageUrl: url,
+      //不需要加载框，难看死了
+      // progressIndicatorBuilder: (context, _, progress) {
+      //   final t = progress.totalSize;
+      //   final v = t != null && t > 0 ? progress.downloaded / t : null;
+      //   return onLoadingBuilder(context, meta, v, src) ?? widget0;
+      // },
+    );
+  }
+}

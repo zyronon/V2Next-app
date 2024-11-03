@@ -22,14 +22,14 @@ class Http {
     BaseOptions options = BaseOptions(
         // validateStatus: (_) => true,
         //请求基地址,可以包含子路径
-        baseUrl: Strings.v2exHost,
+        baseUrl: Const.v2exHost,
         // followRedirects: true,
         connectTimeout: const Duration(seconds: 12),
         //响应流上前后两次接受到数据的间隔，单位为毫秒。
         receiveTimeout: const Duration(seconds: 12),
         // contentType: Headers.formUrlEncodedContentType,
         headers: {
-          'Origin': Strings.v2exHost,
+          'Origin': Const.v2exHost,
           'User-Agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
         }
         );

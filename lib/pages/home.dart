@@ -5,7 +5,6 @@ import 'package:v2ex/components/tab_page/tab_hot_page.dart';
 import 'package:v2ex/components/tab_page/tab_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/login.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,12 +34,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     });
   }
 
-  submit() async{
+  submit() async {
     BaseController c = Get.find();
     c.initData();
     // c.initStorage();
     print("test");
-
   }
 
   @override
@@ -72,13 +70,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         children: [
                           InkWell(
                             child: Padding(
-                                padding: EdgeInsets.only(left: 10.w, right: 10.w),
+                                padding: EdgeInsets.all(10.w),
                                 child: Icon(
                                   Icons.sort,
                                   size: 22.sp,
                                 )),
                             onTap: () async {
-                              await Get.toNamed('/tab_node');
+                              await Get.toNamed('/edit_tab');
                               setState(() {
                                 tabs = bc.tabList.map((e) {
                                   return Tab(text: e.cnName);
@@ -93,7 +91,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                           ),
                           InkWell(
                             child: Padding(
-                                padding: EdgeInsets.only(left: 10.w, right: 10.w),
+                                padding: EdgeInsets.all(10.w),
                                 child: Icon(
                                   Icons.search,
                                   size: 22.sp,

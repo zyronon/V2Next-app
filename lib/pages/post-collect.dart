@@ -68,7 +68,7 @@ class _PostCollectPageState extends State<PostCollectPage> {
                     webViewController = controller;
                     String url = 'https://www.v2ex.com/my/topics';
                     // Utils.syncCookies('https://www.v2ex.com/');
-                    Utils.syncCookies(url);
+                    Utils.dioSyncCookie2InApp(url);
                     controller?.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
                   },
                   onPermissionRequest: (controller, request) async {

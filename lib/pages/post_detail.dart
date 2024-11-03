@@ -237,7 +237,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           }),
           _buildLine(),
           _buildReplyMenuOption('复制链接', TDIcons.link, () {
-            Utils.copy(Const.v2ex + '/t/' + ctrl.post.id);
+            Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
           }),
         ])),
         _buildReplyMenuOptionWrapper(
@@ -256,7 +256,7 @@ class PostDetailPageState extends State<PostDetailPage> {
             child: Column(children: [
           _buildReplyMenuOption('浏览器打开', TDIcons.logo_chrome, () {
             Get.back();
-            Utils.openBrowser(Const.v2ex + '/t/' + ctrl.post.id);
+            Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
           }),
           _buildLine(),
           _buildReplyMenuOption('调整排版', TDIcons.view_module, () async {

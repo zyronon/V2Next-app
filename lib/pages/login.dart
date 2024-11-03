@@ -8,9 +8,8 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
+import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
-import 'package:v2ex/utils/event_bus.dart';
-import 'package:v2ex/utils/login.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -54,7 +53,7 @@ class Controller extends GetxController {
     loadingCodeImg.value = false;
     if (res.success) {
       if (res.data.twoFa) {
-        Login.twoFADialog();
+        Utils.twoFADialog();
       } else {
         loginKey = res.data;
       }
@@ -238,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                                     _.loadingLogin.value = false;
                                     if (result.success) {
                                       if (result.data == '2fa') {
-                                        Login.twoFADialog();
+                                        Utils.twoFADialog();
                                       } else {
                                         Get.back(result: {'loginStatus': 'success'});
                                       }
@@ -277,21 +276,19 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       int once = GStorage().getOnce();
                       // Utils.openURL('https://www.v2ex.com/auth/google?once=$once');
-                      var result = await Get.toNamed('/webView', parameters: {'aUrl': '${Strings.v2exHost}/auth/google?once=$once'});
+                      var result = await Get.toNamed('/google_login', arguments: {'aUrl': '${Const.v2exHost}/auth/google?once=$once'});
                       if (result != null && result['signInGoogle'] == 'success') {
                         SmartDialog.showLoading(msg: '获取信息...');
-                        // 登录成功 获取用户信息 / 2FA
-                        var signResult = await Api.getUserInfo();
-                        if (signResult == 'true') {
-                          // 登录成功
-                          eventBus.emit('login', 'success');
-                          Get.back(result: {'loginStatus': 'success'});
-                        } else if (signResult == 'false') {
-                          // 登录失败
+                        Result res = await Api.getUserInfo();
+                        SmartDialog.dismiss();
+                        if (res.success) {
+                          if (res.data == '2fa') {
+                            Utils.twoFADialog();
+                          } else {
+                            Get.back(result: {'loginStatus': 'success'});
+                          }
+                        } else {
                           Utils.toast(msg: '登录失败了');
-                        } else if (result == '2fa') {
-                          print('login 需要两步验证 $result');
-                          Login.twoFADialog();
                         }
                       } else {
                         Utils.toast(msg: '取消登录');

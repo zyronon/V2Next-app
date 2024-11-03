@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:v2ex/utils/login.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class ApiInterceptor extends Interceptor {
   @override
@@ -58,7 +58,7 @@ class ApiInterceptor extends Interceptor {
   loginAuth(reqPath, method, {redirtct}) {
     if (reqPath != '/write' && method == 'GET' && redirtct == '/2fa') {
       SmartDialog.dismiss();
-      Login.twoFADialog();
+      Utils.twoFADialog();
       throw ('该操作需要登录！');
     }
   }

@@ -7,14 +7,16 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:v2ex/pages/google_login.dart';
 import 'package:v2ex/pages/layout.dart';
 import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/node_list.dart';
+import 'package:v2ex/pages/page_nodes_topic.dart';
 import 'package:v2ex/pages/post-collect.dart';
 import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
-import 'package:v2ex/pages/tab_node.dart';
+import 'package:v2ex/pages/edit_tab.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 
@@ -108,9 +110,11 @@ class MyApp extends StatelessWidget {
               '/login': (context) => const LoginPage(),
               '/node': (context) => NodePage(),
               '/search': (context) => SearchPage(),
-              '/tab_node': (context) => TabNodePage(),
+              '/edit_tab': (context) => EditTabPage(),
               '/node_list': (context) => NodeListPage(),
               '/layout': (context) => LayoutPage(),
+              '/topicNodes': (context) => TopicNodesPage(),
+              '/google_login': (context) => GoogleLogin(),
             },
           );
         });

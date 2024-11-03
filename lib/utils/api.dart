@@ -17,7 +17,6 @@ import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
 
@@ -45,13 +44,13 @@ class Api {
           postList = Utils().parsePagePostList(listEl);
         }
         res.success = true;
-        res.data = {'list': postList, 'nodeList': nodeList};
+        res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
         break;
       case TabType.node:
         NodeListModel? s = await getNodePageInfo(nodeEnName: tab.enName, pageNo: pageNo);
         if (s != null) {
           res.success = true;
-          res.data = {'list': s.topicList, 'nodeList': nodeList};
+          res.data = {'list': s.topicList, 'nodeList': nodeList, 'totalPage': s.totalPage};
         } else {
           res.success = false;
           res.data = Auth.notAllow;
@@ -62,7 +61,7 @@ class Api {
         if (pageNo == 1) {
           postList = await getLatestPostList(nodeId: tab.enName, pageNo: pageNo);
         }
-        res.data = {'list': postList, 'nodeList': nodeList};
+        res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
         break;
       // case 'changes':
       //   return await getTopicsRecent('changes', p).then((value) => value);
@@ -630,12 +629,11 @@ class Api {
   static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
     int once = GStorage().getOnce();
     String url = isCollect ? ("/unfavorite/topic/$topicId?once=$once") : ("/favorite/topic/$topicId?once=$once");
-    var response = await Http().get(url, isMobile: true);
-    // 返回的pc端ua
+    var response = await Http().get(url);
     if (response.statusCode == 200 || response.statusCode == 302) {
       if (response.statusCode == 200) {
         var document = parse(response.data);
-        var menuBodyNode = document.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        var menuBodyNode = document.querySelector("#Top .tools");
         var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
         var loginOutHref = loginOutNode.attributes['onclick']!;
         RegExp regExp = RegExp(r'\d{3,}');
@@ -658,8 +656,8 @@ class Api {
     options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
       // 'content-type': 'application/x-www-form-urlencoded',
-      'refer': '${Strings.v2exHost}/t/$id',
-      'origin': Strings.v2exHost
+      'refer': '${Const.v2exHost}/t/$id',
+      'origin': Const.v2exHost
     };
     FormData formData = FormData.fromMap({'once': once, 'content': replyContent});
     Response response = await Http().post('/t/$id', data: formData, isMobile: true, options: options);
@@ -685,17 +683,13 @@ class Api {
   // 获取所有节点 pc
   static Future getNodes() async {
     Response response;
-    response = await Http().get(
-      '/',
-    );
+    response = await Http().get('/');
     return Utils.resolveNode(response, 'pc');
   }
 
   // 所有节点
   static Future<List<NodeItem>> getAllNodes() async {
-    Response response = await Http().get(
-      Const.allNodes,
-    );
+    Response response = await Http().get(Const.allNodes);
     List<dynamic> list = response.data;
     return list.map((e) => NodeItem.fromJson(e)).toList();
   }
@@ -831,6 +825,7 @@ class Api {
         }
         if (keyName == '密码') {
           loginKeyMap.once = aNode.querySelector('input')!.attributes['value']!;
+          GStorage().setOnce(int.parse(loginKeyMap.once));
           loginKeyMap.pwdHash = aNode.querySelector('input.sl')!.attributes['name']!;
         }
         if (keyName.contains('机器')) {
@@ -838,7 +833,7 @@ class Api {
         }
       }
       if (aNode.querySelector('img') != null) {
-        loginKeyMap.captchaImg = '${Strings.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
+        loginKeyMap.captchaImg = '${Const.v2exHost}${aNode.querySelector('img')!.attributes['src']}?once=${loginKeyMap.once}';
       }
     }
 
@@ -866,8 +861,8 @@ class Api {
     options.headers = {
       // 'content-type': 'application/x-www-form-urlencoded',
       // 必须字段
-      'Referer': '${Strings.v2exHost}/signin',
-      'Origin': Strings.v2exHost,
+      'Referer': '${Const.v2exHost}/signin',
+      'Origin': Const.v2exHost,
       'user-agent': Const.agent.ios
     };
 
@@ -920,6 +915,7 @@ class Api {
   }
 
   // 获取当前用户信息
+  //TODO 和basecontroller的结合
   static Future<Result> getUserInfo() async {
     debugger();
     Result res = Result(data: []);
@@ -991,5 +987,44 @@ class Api {
     Http.dio.options.headers['cookie'] = '';
     final inAppCookieManager = CookieManager.instance();
     inAppCookieManager.deleteAllCookies();
+  }
+
+  // 所有节点 topic
+  static Future<List<TopicNodeItem>> getAllNodesT() async {
+    Response response = await Http().get(
+      Const.allNodesT,
+      data: {'fields': 'name,title,topics,aliases', 'sort_by': 'topics', 'reverse': 1},
+      // cacheOptions: DioRequestNet().cacheOptions,
+    );
+    List<dynamic> list = response.data;
+    return list.map((e) => TopicNodeItem.fromJson(e)).toList();
+  }
+
+  // 移动主题节点
+  static moveTopicNode(topicId, nodeName) async {
+    SmartDialog.showLoading(msg: '移动中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Const.v2exHost}/move/topic/$topicId',
+      'Origin': Const.v2exHost,
+      'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'destination': nodeName, // 节点
+    });
+
+    Response response = await Http().post('/move/topic/$topicId', data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    var mainNode = document.querySelector('#Main');
+    if (mainNode!.querySelector('div.inner') != null && mainNode.querySelector('div.inner')!.text.contains('你不能移动这个主题。')) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }

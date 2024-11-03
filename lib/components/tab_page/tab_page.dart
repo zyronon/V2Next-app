@@ -20,6 +20,7 @@ class TabPageController extends GetxController {
   final BaseController home = Get.find();
   TabItem tab;
   int pageNo = 1;
+  int totalPage = 5;
   bool isLoadingMore = false;
 
   TabPageController({required this.tab});
@@ -42,6 +43,7 @@ class TabPageController extends GetxController {
       needAuth = false;
       postList.addAll(res.data['list'].cast<Post2>());
       nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
+      totalPage = res.data['totalPage'];
       print(nodeList);
     } else {
       needAuth = res.data == Auth.notAllow;
@@ -58,6 +60,7 @@ class TabPageController extends GetxController {
 
   loadMore() async {
     if (isLoadingMore) return;
+    if (pageNo >= totalPage) return;
     print('加载更多:${tab.cnName}');
     pageNo++;
     isLoadingMore = true;

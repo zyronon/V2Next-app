@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -70,8 +68,8 @@ class _BaseWebViewState extends State<BaseWebView> {
                       pullToRefreshController: pullToRefreshController,
                       onWebViewCreated: (controller) {
                         webViewController = controller;
-                        Utils.syncCookies(widget.url);
-                        controller?.loadUrl(urlRequest: URLRequest(url: WebUri(widget.url)));
+                        Utils.dioSyncCookie2InApp(widget.url);
+                        controller.loadUrl(urlRequest: URLRequest(url: WebUri(widget.url)));
                       },
                       onPermissionRequest: (controller, request) async {
                         return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);

@@ -4,29 +4,23 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class Controller extends GetxController {
-  var items = List.generate(10, (index) => "Item $index").obs;
   BaseController bc = BaseController.to;
   var isEdit = false.obs;
-  var showSort = false.obs;
   var tabList = <TabItem>[].obs;
-
-  void reorderItem(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex -= 1;
-    final item = items.removeAt(oldIndex);
-    items.insert(newIndex, item);
-  }
 
   @override
   void onInit() {
     super.onInit();
-    // tabMap.value = List.from(bc.tabMap);
     tabList.assignAll(bc.tabList);
   }
 }
 
-class TabNodePage extends StatelessWidget {
+class EditTabPage extends StatelessWidget {
+  final ScrollController scrollController = ScrollController();
+
   Future<bool> _showExitConfirmationDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
@@ -48,7 +42,7 @@ class TabNodePage extends StatelessWidget {
         false; // 如果对话框被关闭，返回 false
   }
 
-  Widget _buildIconButton({VoidCallback? onTap, required IconData icon, required String text, TDButtonTheme theme = TDButtonTheme.primary}) {
+  Widget _buildIconButton({VoidCallback? onTap, required String text, TDButtonTheme theme = TDButtonTheme.primary}) {
     return TDButton(
       text: text,
       size: TDButtonSize.small,
@@ -78,48 +72,49 @@ class TabNodePage extends StatelessWidget {
                       Expanded(
                           child: _.isEdit.value
                               ? Container(
-                            color: Colors.grey[200],
-                            child: ReorderableListView(
-                              header: Container(
-                                alignment: Alignment(-0.95, 0),
-                                height: 45,
-                                child: Text('长按进行拖动排序'),
-                              ),
-                              onReorder: (int oldIndex, int newIndex) {
-                                if (newIndex > oldIndex) newIndex -= 1;
-                                final item = _.tabList.removeAt(oldIndex);
-                                _.tabList.insert(newIndex, item);
-                                _.isEdit.value = true;
-                              },
-                              children: [
-                                for (final item in _.tabList)
-                                  Container(
-                                    key: ValueKey(item),
-                                    padding: EdgeInsets.all(8),
-                                    margin: EdgeInsets.only(bottom: 5),
-                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(item.cnName),
-                                        Row(
-                                          children: [
-                                            Icon(TDIcons.move, color: Colors.grey),
-                                            SizedBox(width: 10),
-                                            InkWell(
-                                              child: Icon(Icons.close, color: Colors.grey),
-                                              onTap: () {
-                                                _.tabList.remove(item);
-                                              },
-                                            )
-                                          ],
-                                        )
-                                      ],
+                                  color: Colors.grey[200],
+                                  child: ReorderableListView(
+                                    scrollController: scrollController,
+                                    header: Container(
+                                      alignment: Alignment(-0.95, 0),
+                                      height: 45,
+                                      child: Text('长按进行拖动排序'),
                                     ),
-                                  )
-                              ],
-                            ),
-                          )
+                                    onReorder: (int oldIndex, int newIndex) {
+                                      if (newIndex > oldIndex) newIndex -= 1;
+                                      final item = _.tabList.removeAt(oldIndex);
+                                      _.tabList.insert(newIndex, item);
+                                      _.isEdit.value = true;
+                                    },
+                                    children: [
+                                      for (final item in _.tabList)
+                                        Container(
+                                          key: ValueKey(item),
+                                          padding: EdgeInsets.all(8),
+                                          margin: EdgeInsets.only(bottom: 5),
+                                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(item.cnName),
+                                              Row(
+                                                children: [
+                                                  Icon(TDIcons.move, color: Colors.grey),
+                                                  SizedBox(width: 10),
+                                                  InkWell(
+                                                    child: Icon(Icons.close, color: Colors.grey),
+                                                    onTap: () {
+                                                      _.tabList.remove(item);
+                                                    },
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                    ],
+                                  ),
+                                )
                               : Column(
                                   children: [
                                     Wrap(
@@ -156,7 +151,6 @@ class TabNodePage extends StatelessWidget {
                             if (!_.isEdit.value) ...[
                               _buildIconButton(
                                   text: '编辑',
-                                  icon: TDIcons.edit,
                                   onTap: () async {
                                     _.isEdit.value = true;
                                   }),
@@ -166,7 +160,6 @@ class TabNodePage extends StatelessWidget {
                             if (_.isEdit.value) ...[
                               _buildIconButton(
                                   text: '取消',
-                                  icon: TDIcons.refresh,
                                   theme: TDButtonTheme.light,
                                   onTap: () {
                                     _.tabList.assignAll(_.bc.tabList);
@@ -187,24 +180,28 @@ class TabNodePage extends StatelessWidget {
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '添加',
-                                  icon: TDIcons.add,
                                   onTap: () async {
                                     var r = await Get.toNamed('/node_list');
                                     if (r != null) {
-                                      _.tabList.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
+                                      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
+                                        Utils.toast(msg: '已存在，请勿重复添加');
+                                      } else {
+                                        _.tabList.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
+                                        Future.delayed(Duration(milliseconds: 300),(){
+                                          scrollController.jumpTo(scrollController.position.maxScrollExtent);
+                                        });
+                                      }
                                     }
                                   }),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '重置',
-                                  icon: TDIcons.refresh,
                                   onTap: () {
                                     _.tabList.assignAll(_.bc.tabList);
                                   }),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '保存',
-                                  icon: TDIcons.save,
                                   onTap: () {
                                     _.bc.setTabMap(_.tabList);
                                     _.isEdit.value = false;

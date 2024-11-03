@@ -82,6 +82,7 @@ class BaseController extends GetxController {
           var rightBarNode = document2.querySelector('#Rightbar > div.box');
           List tableList = rightBarNode!.querySelectorAll('table');
           if (tableList.isNotEmpty) {
+            member.actionCounts = [];
             var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
             for (var i in actionNodes) {
               member.actionCounts.add(int.parse(i.text ?? 0));
@@ -90,7 +91,7 @@ class BaseController extends GetxController {
             if (rightBarNode.querySelector('#money') != null) {
               var imgList = rightBarNode.querySelectorAll('#money > a img');
               imgList.forEach((img) {
-                img.attributes['src'] = Const.v2ex + img.attributes['src']!;
+                img.attributes['src'] = Const.v2exHost + img.attributes['src']!;
               });
               member.balance = rightBarNode.querySelector('#money >a')!.innerHtml;
               print('$member.balance${member.balance}');

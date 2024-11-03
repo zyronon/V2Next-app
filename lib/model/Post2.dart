@@ -393,6 +393,12 @@ class Result {
 
 enum Auth { normal, notAllow }
 
+enum FromSource{
+  search,
+  editTab,
+  move
+}
+
 enum NoticeType { reply, thanksTopic, thanksReply, favTopic } // 消息类型
 
 class MemberNoticeModel {
@@ -424,3 +430,36 @@ class NodeFavModel {
   String nodeId = ''; // 节点id
   String topicCount = ''; // 节点主题数量
 }
+
+class TopicNodeItem {
+  int? topics = 0;
+  List? aliases =  [];
+  String? name = "";
+  String? title =  "";
+
+  TopicNodeItem({
+    this.topics,
+    this.aliases,
+    this.name,
+    this.title,
+  });
+
+  TopicNodeItem.fromJson(Map<String, dynamic> json) {
+    topics = json['topics'];
+    aliases =  json['aliases'];
+    name = json['name'];
+    title = json['title'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['topics'] = topics;
+    data['aliases'] = aliases;
+    data['name'] = name;
+    data['title'] = title;
+
+    return data;
+  }
+
+}
+
