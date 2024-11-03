@@ -170,6 +170,10 @@ class PostDetailPageState extends State<PostDetailPage> {
     return Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]);
   }
 
+  getRelationReply(Reply val){
+
+  }
+
   //显示回复菜单弹窗
   onShowItemMenuModalClick(Reply val) {
     ctrl.setReply(val);
@@ -206,8 +210,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
         _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
-          //TODO
-          Utils.toast(msg: '未实现');
+          getRelationReply(val);
         }),
       ])),
       _buildReplyMenuOptionWrapper(
