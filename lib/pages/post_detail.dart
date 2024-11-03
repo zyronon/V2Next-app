@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -10,7 +9,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
-import 'package:v2ex/components/base_slider.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/reply_item.dart';
 import 'package:v2ex/components/reply_new.dart';
@@ -18,9 +16,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
-import 'package:v2ex/utils/http.dart';
 import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/topic.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class UserConfig {
@@ -335,11 +331,8 @@ class PostDetailPageState extends State<PostDetailPage> {
   onShowReplyModalClick([Reply? val]) async {
     if (val != null) {
       ctrl.setReply(val);
-      // _replyCtrl.text = '#${val.username} #${val.floor} ';
-      // await modalWrap(  content: _buildEditor(), color: Colors.white);
     } else {
       ctrl.setReply(new Reply());
-      // await modalWrap(  content: _buildEditor());
     }
     List<Reply> replyList = List.from(ctrl.post.replyList);
     replyList.retainWhere((i) => i.isChoose);
@@ -361,7 +354,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     return;
     if (val != null) {
       ctrl.setReply(val);
-      _replyCtrl.text = '#${val.username} #${val.floor} ';
       await modalWrap(content: _buildEditor(), color: Colors.white);
     } else {
       ctrl.setReply(new Reply());
@@ -422,7 +414,7 @@ class PostDetailPageState extends State<PostDetailPage> {
   }
 
   onReply() async {
-    var res = await TopicWebApi.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text);
+    var res = await Api.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text);
     if (res == 'true') {
       if (context.mounted) {
         setState(() {
@@ -555,7 +547,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
     ctrl.update();
 
-    var res = await TopicWebApi.favoriteTopic(isFavorite, ctrl.post.id);
+    var res = await Api.favoriteTopic(isFavorite, ctrl.post.id);
     if (!res) {
       ctrl.post.isFavorite = !ctrl.post.isFavorite;
       ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
@@ -598,7 +590,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           ),
           TextButton(
             onPressed: (() async {
-              var res = await TopicWebApi.thankTopic(ctrl.post.id);
+              var res = await Api.thankTopic(ctrl.post.id);
               if (res) {
                 ctrl.post.isThanked = true;
                 ctrl.post.thankCount += 1;
@@ -675,8 +667,8 @@ class PostDetailPageState extends State<PostDetailPage> {
     // print(ctrl.post.replyList[2].replyContent.toString());
     // print(ctrl.post.replyList[2].hideCallUserReplyContent.toString());
     // print(ctrl.post.replyList[2].replyUsers.toString());
-    ctrl.rebuildList();
-    // ctrl.getData();
+    // ctrl.rebuildList();
+    ctrl.getData();
     return;
   }
 

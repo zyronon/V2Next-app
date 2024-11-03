@@ -28,17 +28,15 @@ class Http {
         //响应流上前后两次接受到数据的间隔，单位为毫秒。
         receiveTimeout: const Duration(seconds: 12),
         // contentType: Headers.formUrlEncodedContentType,
-        headers:{
-
+        headers: {
+          'Origin': Strings.v2exHost,
+          'User-Agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
         }
-        // headers: {
-        //   'Origin': Strings.v2exHost,
-        //   'user-agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
-        // }
         );
 
     dio = Dio(options);
-    //使用原生平台的http。不然太慢了
+    //使用原生平台的adapter,不然太慢了
+    //使用了原生平台adapter,无法登录
     // dio.httpClientAdapter = NativeAdapter();
 
     setCookie();
@@ -54,7 +52,7 @@ class Http {
 
 
     dio.options.validateStatus = (status) {
-      return status! >= 200 && status < 300 || status == 304 || status == 302;
+      return status! >= 200 && status < 400;
     };
   }
 
@@ -100,7 +98,7 @@ class Http {
       Response response = await dio.request(
         url,
         data: data,
-        // queryParameters: query,
+        queryParameters: query,
         options: options,
       );
       // debugPrint('post success---------${response.data}');

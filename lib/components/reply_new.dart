@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/extended_text/selection_controls.dart';
 import 'package:v2ex/components/extended_text/text_span_builder.dart';
@@ -14,10 +15,11 @@ import 'package:v2ex/components/image_loading.dart';
 import 'package:v2ex/components/member_list.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/pages/login.dart';
 import 'package:v2ex/pages/post_detail.dart';
+import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
-import 'package:v2ex/utils/topic.dart';
 import 'package:v2ex/utils/utils.dart';
 
 enum Status { input, emoji, call, image }
@@ -85,6 +87,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     editorController.addListener(() {
       ec.text.value = editorController.text;
     });
+    if (pdc.reply.id.isNotEmpty) {
+      editorController.text = '@${pdc.reply.username} #${pdc.reply.floor} ';
+    }
     // 界面观察者 必须
     WidgetsBinding.instance.addObserver(this);
   }
@@ -114,7 +119,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       }
       // print(_replyContent);
       // return;
-      var res = await TopicWebApi.onSubmitReplyTopic(widget.topicId, replyUser + _replyContent);
+      var res = await Api.onSubmitReplyTopic(widget.topicId, replyUser + _replyContent);
       if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
@@ -254,7 +259,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return GetX<EditorController>(builder: (_) {
+    return GetBuilder<EditorController>(builder: (_) {
       return SingleChildScrollView(
           child: Container(
         decoration: const BoxDecoration(
@@ -276,7 +281,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                     children: [
                       Row(
                         children: [
-                          Text('回复：'),
+                          BaseAvatar(src: pdc.reply.avatar, diameter: 24, radius: 5),
+                          SizedBox(width: 4),
                           Text(pdc.reply.username, style: TextStyle(fontSize: 15)),
                           SizedBox(width: 4),
                           Text('${pdc.reply.floor.toString()}楼', style: TextStyle(fontSize: 12, color: Colors.grey)),
@@ -307,7 +313,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                       specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: editorController),
                       controller: editorController,
                       minLines: 2,
-                      maxLines: 4,
+                      maxLines: 5,
                       autofocus: true,
                       focusNode: focusNode,
                       decoration: const InputDecoration(hintText: "请尽量让自己的回复能够对别人有帮助", border: InputBorder.none),
@@ -383,22 +389,29 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      InkWell(
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(14.w, 6.w, 14.w, 6.w),
-                          decoration: BoxDecoration(
-                            color: !ec.disabled ? Colors.blue : Colors.grey,
-                            borderRadius: BorderRadius.circular(6.r),
+                      if (!bc.isLogin) ...[
+                        TDButton(
+                          text: '登录后回复',
+                          size: TDButtonSize.small,
+                          type: TDButtonType.fill,
+                          shape: TDButtonShape.rectangle,
+                          theme: TDButtonTheme.primary,
+                          onTap: () {
+                            Get.to(LoginPage());
+                          },
+                        )
+                      ] else
+                        ...[
+                          TDButton(
+                            text: '回复',
+                            size: TDButtonSize.small,
+                            type: TDButtonType.fill,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            disabled: ec.disabled,
+                            onTap: onSubmit,
                           ),
-                          child: Text(
-                            '回复',
-                            style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                          ),
-                        ),
-                        onTap: !ec.disabled ? onSubmit : null,
-                      )
-                      // IconButton(
-                      //     onPressed: () {}, icon: const Icon(Icons.clear_all)),
+                        ]
                     ],
                   ),
                   SizedBox(height: 8),

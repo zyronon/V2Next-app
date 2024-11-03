@@ -188,7 +188,7 @@ class MePage extends StatelessWidget {
                         name: 'logout',
                         icon: TDIcons.setting,
                         onTap: () {
-                          Api.loginOut();
+                          Api.logout();
                         }),
                   ]))
             ],

@@ -236,7 +236,6 @@ class Post2 {
       'isMove': isMove,
     };
   }
-
 }
 
 class Member {
@@ -244,6 +243,7 @@ class Member {
   String username;
   String avatarLarge;
   String balance;
+  bool needAuth2fa;
 
   //依次是节点、主题、特别关注
   List<int> actionCounts;
@@ -255,6 +255,7 @@ class Member {
     this.avatarLarge = '',
     this.balance = '',
     this.actionCounts = const [0, 0, 0],
+    this.needAuth2fa = false,
   });
 
   // fromJson 方法
@@ -263,6 +264,7 @@ class Member {
         username = json['username'] ?? 'default',
         avatarLarge = json['avatarLarge'] ?? '',
         balance = json['balance'] ?? '',
+        needAuth2fa = json['needAuth2fa'] ?? false,
         actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0];
 
   // toJson 方法
@@ -273,6 +275,7 @@ class Member {
       'avatarLarge': avatarLarge,
       'balance': balance,
       'actionCounts': actionCounts,
+      'needAuth2fa': needAuth2fa,
     };
   }
 }
@@ -304,6 +307,7 @@ class V2Node {
 class Layout {
   double fontSize;
   double lineHeight;
+
   // double paragraphHeight;
 
   Layout({
@@ -316,7 +320,8 @@ class Layout {
   Layout.fromJson(Map<String, dynamic> json)
       : fontSize = json['fontSize']?.toDouble() ?? 16,
         lineHeight = json['lineHeight'].toDouble() ?? 1.4;
-        // paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
+
+  // paragraphHeight = json['paragraphHeight'].toDouble() ?? 1.1;
 
   // toJson 方法
   Map<String, dynamic> toJson() {

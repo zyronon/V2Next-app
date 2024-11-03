@@ -5,6 +5,7 @@ import 'package:v2ex/components/tab_page/tab_hot_page.dart';
 import 'package:v2ex/components/tab_page/tab_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/login.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,11 +35,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     });
   }
 
-  submit() {
+  submit() async{
     BaseController c = Get.find();
     c.initData();
     // c.initStorage();
     print("test");
+
   }
 
   @override

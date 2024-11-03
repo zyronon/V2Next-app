@@ -14,15 +14,12 @@ import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/package/xpath/src/xpath_base.dart' hide Element;
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
-
-import 'init.dart';
 
 class Api {
   //获取tab 主题列表
@@ -602,6 +599,89 @@ class Api {
 
   collect(String id, int type) {}
 
+  // 感谢主题
+  static Future thankTopic(String topicId) async {
+    int once = GStorage().getOnce();
+    SmartDialog.showLoading(msg: '表示感谢ing');
+    try {
+      var response = await Http().post("/thank/topic/$topicId?once=$once");
+      // ua mob
+      var data = jsonDecode(response.toString());
+      SmartDialog.dismiss();
+      bool responseStatus = data['success'];
+      if (responseStatus) {
+        SmartDialog.showToast('操作成功');
+      } else {
+        SmartDialog.showToast(data['message']);
+      }
+      if (data['once'] != null) {
+        int onceR = data['once'];
+        GStorage().setOnce(onceR);
+      }
+      // 操作成功
+      return responseStatus;
+    } on DioError catch (e) {
+      SmartDialog.dismiss();
+      SmartDialog.showToast(e.message!);
+    }
+  }
+
+  // 收藏主题
+  static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
+    int once = GStorage().getOnce();
+    String url = isCollect ? ("/unfavorite/topic/$topicId?once=$once") : ("/favorite/topic/$topicId?once=$once");
+    var response = await Http().get(url, isMobile: true);
+    // 返回的pc端ua
+    if (response.statusCode == 200 || response.statusCode == 302) {
+      if (response.statusCode == 200) {
+        var document = parse(response.data);
+        var menuBodyNode = document.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+        var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+        var loginOutHref = loginOutNode.attributes['onclick']!;
+        RegExp regExp = RegExp(r'\d{3,}');
+        Iterable<Match> matches = regExp.allMatches(loginOutHref);
+        for (Match m in matches) {
+          GStorage().setOnce(int.parse(m.group(0)!));
+        }
+      }
+      // 操作成功
+      return true;
+    }
+    return false;
+  }
+
+  // 回复主题
+  static Future<String> onSubmitReplyTopic(String id, String replyContent) async {
+    SmartDialog.showLoading(msg: '回复中...');
+    int once = GStorage().getOnce();
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 'content-type': 'application/x-www-form-urlencoded',
+      'refer': '${Strings.v2exHost}/t/$id',
+      'origin': Strings.v2exHost
+    };
+    FormData formData = FormData.fromMap({'once': once, 'content': replyContent});
+    Response response = await Http().post('/t/$id', data: formData, isMobile: true, options: options);
+    SmartDialog.dismiss();
+    var bodyDom = parse(response.data).body;
+    if (response.statusCode == 302) {
+      SmartDialog.showToast('回复成功');
+      //TODO  获取最后一页最近一条
+      return 'true';
+    } else if (response.statusCode == 200) {
+      String responseText = '回复失败了';
+      var contentDom = bodyDom!.querySelector('#Wrapper');
+      if (contentDom!.querySelector('div.problem') != null) {
+        responseText = contentDom.querySelector('div.problem')!.text;
+      }
+      return responseText;
+    } else {
+      SmartDialog.dismiss();
+      return 'false';
+    }
+  }
+
   // 获取所有节点 pc
   static Future getNodes() async {
     Response response;
@@ -730,9 +810,7 @@ class Api {
   static Future<Result> getLoginKey() async {
     Result result = Result(success: false);
     LoginDetailModel loginKeyMap = LoginDetailModel();
-    Response response;
-    // response = await Http().get('/signin', isMobile: true);
-    response = await Request().get('/signin');
+    Response response = await Http().get('/signin', isMobile: true);
 
     var document = parse(response.data);
     var tableDom = document.querySelector('table');
@@ -782,7 +860,7 @@ class Api {
   }
 
   // 登录
-  static Future<Result> onLogin(LoginDetailModel args) async {
+  static Future<Result> login(LoginDetailModel args) async {
     Options options = Options();
     options.contentType = Headers.formUrlEncodedContentType;
     options.headers = {
@@ -847,41 +925,64 @@ class Api {
     Result res = Result(data: []);
     print('getUserInfo');
     var response = await Http().get('/write', isMobile: true);
-    if (response.redirects.isNotEmpty) {
-      print('getUserInfo 2fa');
-      // 需要两步验证
-      if (response.redirects[0].location.path == "/2fa") {
-        response = await Http().get('/2fa');
-      }
-    }
+    //需要两步验证
     var document = parse(response.data);
-    var imgEl = document.querySelector('#menu-entry .avatar');
-    if (imgEl != null) {
-      BaseController bc = Get.find<BaseController>();
-      Member member = new Member();
-      member.avatar = imgEl.attributes["src"]!;
-      member.username = imgEl.attributes["alt"]!;
-      bc.setMember(member);
-      // todo 判断用户是否开启了两步验证
-      // 需要两步验证
-      print('两步验证判断');
-      res.success = true;
-      if (response.requestOptions.path == "/2fa") {
-        print('需要两步验证');
-        var tree = ETree.fromString(response.data);
-        // //*[@id="Wrapper"]/div/div[1]/div[2]/form/table/tbody/tr[3]/td[2]/input[1]
-        String once = tree.xpath("//*[@id='Wrapper']/div/div[1]/div[2]/form/table/tr[3]/td[2]/input[@name='once']")!.first.attributes["value"];
-        GStorage().setOnce(int.parse(once));
+    BaseController bc = Get.find<BaseController>();
+    Member member = new Member();
+    if (response.data.contains('两步验证登录')) {
+      var once = document.querySelector('input[name="once"]');
+      if (once != null) {
+        GStorage().setOnce(int.parse(once.attributes['value']!));
+        res.success = true;
         res.data = '2fa';
+        member.needAuth2fa = true;
       }
+      //如果开了2fa，那么这里返回的将是电脑页面，取不到头像
+      var tops = document.querySelectorAll('.top');
+      member.username = tops[1].text;
     } else {
-      res.data = ['登录失败了2'];
-      res.success = false;
+      var imgEl = document.querySelector('#menu-entry .avatar');
+      if (imgEl != null) {
+        member.avatar = imgEl.attributes["src"]!;
+        member.username = imgEl.attributes["alt"]!;
+        res.success = true;
+      } else {
+        res.data = ['登录失败了2'];
+        res.success = false;
+      }
     }
+    bc.setMember(member);
     return res;
   }
 
-  static loginOut() async {
+  // 2fa登录
+  static Future<String> twoFALOgin(String code) async {
+    SmartDialog.showLoading();
+    Response response;
+    FormData formData = FormData.fromMap({
+      "once": GStorage().getOnce(),
+      "code": code,
+    });
+    response = await Http().post('/2fa', data: formData);
+    // var document = parse(response.data);
+    // log(document.body!.innerHtml);
+    // var menuBodyNode = document.querySelector("div[id='menu-body']");
+    // var loginOutNode =
+    // menuBodyNode!.querySelectorAll('div.cell').last.querySelector('a');
+    // var loginOutHref = loginOutNode!.attributes['href'];
+    // int once = int.parse(loginOutHref!.split('once=')[1]);
+    // GStorage().setOnce(once);
+    SmartDialog.dismiss();
+    if (response.statusCode == 302) {
+      print('成功');
+      return 'true';
+    } else {
+      SmartDialog.showToast('验证失败，请重新输入');
+      return 'false';
+    }
+  }
+
+  static logout() async {
     BaseController bc = BaseController.to;
     bc.setMember(Member());
     int once = GStorage().getOnce();

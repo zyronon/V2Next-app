@@ -1,13 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:v2ex/utils/login.dart';
 
 class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // print("请求之前");
-    // 在请求之前添加头部或认证信息
-    // options.headers['Authorization'] = 'Bearer token';
-    // options.headers['Content-Type'] = 'application/json';
     loginAuth(options.path, options.method);
     handler.next(options);
   }
@@ -27,15 +24,14 @@ class ApiInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 处理网络请求错误
-    // handler.next(err);
-    // SmartDialog.showToast(
-    //   await dioError(err),
-    //   displayType: SmartToastType.onlyRefresh,
-    // );
+    SmartDialog.showToast(
+      await dioError(err),
+      displayType: SmartToastType.onlyRefresh,
+    );
     super.onError(err, handler);
   }
 
-  static Future<String> dioError(DioException error) async{
+  static Future<String> dioError(DioException error) async {
     switch (error.type) {
       case DioExceptionType.badCertificate:
         return '证书有误！';
@@ -57,9 +53,13 @@ class ApiInterceptor extends Interceptor {
         return "Dio异常";
     }
   }
+
   // 登录验证
   loginAuth(reqPath, method, {redirtct}) {
-    bool needLogin = false;
-
+    if (reqPath != '/write' && method == 'GET' && redirtct == '/2fa') {
+      SmartDialog.dismiss();
+      Login.twoFADialog();
+      throw ('该操作需要登录！');
+    }
   }
 }

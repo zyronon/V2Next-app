@@ -1,16 +1,13 @@
 // ignore_for_file: avoid_print
 
-import 'package:v2ex/utils/init.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
 import 'package:v2ex/pages/login.dart';
+import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/utils/global.dart';
 
 import 'event_bus.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:v2ex/utils/global.dart';
-import 'package:v2ex/utils/http.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/pages/login.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class Login {
   static void onLogin() {
@@ -22,10 +19,8 @@ class Login {
       ),
     ).then(
       (value) => {
-        if (value['loginStatus'] == 'cancel')
-          {SmartDialog.showToast('取消登录'), eventBus.emit('login', 'cancel')},
-        if (value['loginStatus'] == 'success')
-          {SmartDialog.showToast('登录成功'), eventBus.emit('login', 'success')}
+        if (value['loginStatus'] == 'cancel') {SmartDialog.showToast('取消登录'), eventBus.emit('login', 'cancel')},
+        if (value['loginStatus'] == 'success') {SmartDialog.showToast('登录成功'), eventBus.emit('login', 'success')}
       },
     );
   }
@@ -55,8 +50,7 @@ class Login {
             TextButton(
                 onPressed: () async {
                   if (isPopDialog) {
-                    SmartDialog.dismiss()
-                        .then((value) => Get.toNamed('/login'));
+                    SmartDialog.dismiss().then((value) => Get.toNamed('/login'));
                   } else {
                     Get.toNamed('/login');
                   }
@@ -68,11 +62,11 @@ class Login {
     );
   }
 
-  static void twoFADialog() {
+  static twoFADialog({VoidCallback? onSuccess}) async {
     String _currentPage = Get.currentRoute;
     print('_currentPage: $_currentPage');
     var twoFACode = '';
-    SmartDialog.show(
+    return SmartDialog.show(
       useSystem: true,
       animationType: SmartAnimationType.centerFade_otherSlide,
       builder: (BuildContext context) {
@@ -86,9 +80,7 @@ class Login {
               TextField(
                 decoration: InputDecoration(
                   labelText: '验证码',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(6.0)),
                 ),
                 onChanged: (e) {
                   twoFACode = e;
@@ -99,40 +91,31 @@ class Login {
           actions: [
             TextButton(
                 onPressed: () async {
-                  await Login.signOut();
                   SmartDialog.dismiss();
-                  eventBus.emit('login', 'cancel');
-                  if (_currentPage == '/login' ||
-                      _currentPage.startsWith('/t/')) {
-                    Get.back(result: {'loginStatus': 'cancel'});
+                  await Api.logout();
+                  if (_currentPage == '/login' || _currentPage == '/post_detail') {
+                    Get.back(result: false);
                   }
                 },
                 child: const Text('取消')),
             TextButton(
                 onPressed: () async {
                   if (twoFACode.length == 6) {
-                    var res = await DioRequestWeb.twoFALOgin(twoFACode);
+                    var res = await Api.twoFALOgin(twoFACode);
                     if (res == 'true') {
-                      GStorage().setLoginStatus(true);
-                      eventBus.emit('login', 'success');
-                      SmartDialog.showToast('登录成功',
-                              displayTime: const Duration(milliseconds: 500))
-                          .then((res) {
-                        // 登录页面需要关闭当前页面，其余情况只关闭dialog
+                      Api.getUserInfo();
+                      SmartDialog.showToast('登录成功', displayTime: const Duration(milliseconds: 500)).then((res) {
                         SmartDialog.dismiss();
                         if (_currentPage == '/login') {
                           print('😊😊 - 登录成功');
-                          Get.back(result: {'loginStatus': 'success'});
+                          Get.back(result: true);
                         }
                       });
                     } else {
                       twoFACode = '';
                     }
                   } else {
-                    SmartDialog.showToast(
-                      '验证码有误',
-                      displayTime: const Duration(milliseconds: 500),
-                    );
+                    SmartDialog.showToast('验证码有误', displayTime: const Duration(milliseconds: 500));
                   }
                 },
                 child: const Text('登录'))
@@ -140,17 +123,5 @@ class Login {
         );
       },
     );
-  }
-
-  static signOut() async {
-    // 重置登录状态
-    GStorage().setLoginStatus(false);
-    GStorage().setUserInfo({});
-    GStorage().setSignStatus('');
-    await DioRequestWeb.loginOut();
-    // 重新设置cookie start
-    await Request.cookieManager.cookieJar.deleteAll();
-    Request.dio.options.headers['cookie'] = '';
-    // eventBus.emit('login', 'loginOut');
   }
 }

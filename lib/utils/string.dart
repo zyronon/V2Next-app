@@ -9,29 +9,6 @@ class Strings {
 
   /// 提交tag时 记得更改
   static String currentVersion = 'v1.2.6';
-  List base64BlackList = [
-    "bilibili",
-    "Bilibili",
-    "MyTomato",
-    "InDesign",
-    "Encrypto",
-    "encrypto",
-    "Window10",
-    "USERNAME",
-    "airpords",
-    "Windows7",
-    "iMessage",
-    "appStore",
-    "appStore",
-    "Installation",
-    "markdown",
-    "Markdown",
-    "nofollow",
-    "noopener",
-    "referrer",
-    "loading=",
-    "embedded"
-  ];
   static int maxAge = 7; // 最多记录7天已读
 
   // 酷安表情

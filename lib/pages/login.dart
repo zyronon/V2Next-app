@@ -22,7 +22,7 @@ class Controller extends GetxController {
   var loadingLogin = false.obs;
   late LoginDetailModel loginKey = LoginDetailModel();
 
-  showBanModal(List val){
+  showBanModal(List val) {
     SmartDialog.show(
       animationType: SmartAnimationType.centerFade_otherSlide,
       builder: (BuildContext context) {
@@ -233,11 +233,8 @@ class _LoginPageState extends State<LoginPage> {
                                     _.loginKey.code = codeController.text;
                                     // 键盘收起
                                     codeTextFieldNode.unfocus();
-
-                                    print(_.loginKey.once);
-                                    return;
                                     _.loadingLogin.value = true;
-                                    Result result = await Api.onLogin(_.loginKey);
+                                    Result result = await Api.login(_.loginKey);
                                     _.loadingLogin.value = false;
                                     if (result.success) {
                                       if (result.data == '2fa') {

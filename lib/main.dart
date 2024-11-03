@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +16,6 @@ import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
 import 'package:v2ex/pages/tab_node.dart';
 import 'package:v2ex/utils/ConstVal.dart';
-import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/request.dart';
 
 import 'pages/index.dart';
@@ -33,7 +30,6 @@ void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize(); // Dio 初始化
-  // await Request().setCookie();
   await Http().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);

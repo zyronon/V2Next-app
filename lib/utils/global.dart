@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
-import 'package:v2ex/utils/http.dart';
-import 'package:v2ex/utils/init.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:v2ex/utils/request.dart';
 // import 'package:v2ex/service/local_notice.dart';
 // import 'package:v2ex/utils/hive.dart';
 // import 'package:v2ex/utils/proxy.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:v2ex/utils/init.dart';
 import 'package:v2ex/utils/storage.dart';
 
 class Routes {
@@ -61,7 +57,7 @@ class Global {
     // Hive初始化 历史浏览box
     // await initHive();
     // Dio 初始化
-    await Request().setCookie();
+    await Http().setCookie();
     // 自动签到
     var userInfo = GStorage().getUserInfo();
     if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
