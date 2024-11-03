@@ -37,7 +37,7 @@ class Http {
     dio = Dio(options);
     //使用原生平台的adapter,不然太慢了
     //使用了原生平台adapter,无法登录
-    // dio.httpClientAdapter = NativeAdapter();
+    dio.httpClientAdapter = NativeAdapter();
 
     setCookie();
     //添加拦截器

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
@@ -201,8 +202,13 @@ class MePage extends StatelessWidget {
                     _buildMenuItem(
                         name: 'logout',
                         icon: TDIcons.setting,
-                        onTap: () {
-                          Api.logout();
+                        onTap: () async {
+                          await Api.logout();
+                          Restart.restartApp(
+                            // Customizing the restart notification message (only needed on iOS)
+                            notificationTitle: 'Restarting App',
+                            notificationBody: 'Please tap here to open the app again.',
+                          );
                         }),
                   ]))
             ],

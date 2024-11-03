@@ -874,12 +874,11 @@ class Api {
       'next': '/',
     });
 
-    // Response response = await Request().post('/signin', data: formData, options: options);
+    Result res = Result(success: false, data: []);
     Response response = await Http().post('/signin', data: formData, options: options, isMobile: true);
     options.contentType = Headers.jsonContentType; // 还原
     debugger();
     print('status${response.statusCode}');
-    Result res = Result(success: false, data: []);
 
     if (response.statusCode == 302) {
       return await getUserInfo();
@@ -978,7 +977,7 @@ class Api {
     }
   }
 
-  static logout() async {
+  static Future logout() async {
     BaseController bc = BaseController.to;
     bc.setMember(Member());
     int once = GStorage().getOnce();
