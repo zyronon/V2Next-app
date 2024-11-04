@@ -9,7 +9,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:v2ex/pages/google_login.dart';
 import 'package:v2ex/pages/layout.dart';
-import 'package:v2ex/pages/login.dart';
+import 'package:v2ex/pages/login/login.dart';
+import 'package:v2ex/pages/login/login_dio.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/node_list.dart';
 import 'package:v2ex/pages/page_nodes_topic.dart';
@@ -31,8 +32,7 @@ class IndexController extends GetxController {
 void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
-  await ScreenUtil.ensureScreenSize(); // Dio 初始化
-  await Http().setCookie();
+  await ScreenUtil.ensureScreenSize();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {

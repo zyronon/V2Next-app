@@ -7,6 +7,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/pages/login/login_api.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/request.dart';
@@ -66,71 +67,13 @@ class BaseController extends GetxController {
   }
 
   initData() async {
-    Response res = await Http().get('/notes', isMobile: true);
-    print('initData,isRedirect:${res.isRedirect},statusCode:${res.statusCode},是否登录:${!(res.data as String).contains('其他登录方式')}');
-    if (!res.isRedirect && !(res.data as String).contains('其他登录方式')) {
-      Document document = parse(res.data);
-      Element? avatarEl = document.querySelector('#menu-entry .avatar');
-      if (avatarEl != null) {
-        member.username = avatarEl.attributes['alt']!;
-        member.avatar = avatarEl.attributes['src']!;
-        print('当前用户${member.username}');
-        setMember(member);
-
-        Http().get('/?tab=all', isMobile: false).then((res2) {
-          Document document2 = parse(res2.data);
-          var rightBarNode = document2.querySelector('#Rightbar > div.box');
-          List tableList = rightBarNode!.querySelectorAll('table');
-          if (tableList.isNotEmpty) {
-            member.actionCounts = [];
-            var actionNodes = tableList[1]!.querySelectorAll('span.bigger');
-            for (var i in actionNodes) {
-              member.actionCounts.add(int.parse(i.text ?? 0));
-              print('actionCounts:${i.text}');
-            }
-            if (rightBarNode.querySelector('#money') != null) {
-              var imgList = rightBarNode.querySelectorAll('#money > a img');
-              imgList.forEach((img) {
-                img.attributes['src'] = Const.v2exHost + img.attributes['src']!;
-              });
-              member.balance = rightBarNode.querySelector('#money >a')!.innerHtml;
-              print('$member.balance${member.balance}');
-            }
-            var noticeEl = rightBarNode.querySelectorAll('a.fade');
-            if (noticeEl.isNotEmpty) {
-              var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
-              print('$unRead条未读消息');
-              member.actionCounts.add(int.parse(unRead));
-            }
-            setMember(member);
-          }
-        });
-      }
-      List<Element> nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
-      if (nodeListEl.isNotEmpty) {
-        List<Element> tagItems = nodeListEl.where((v) => v.text.contains(currentConfig.configPrefix)).toList();
-        if (tagItems.isNotEmpty) {
-          currentConfig.configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
-          Result res = await Api.getNoteItemContent(currentConfig.configNoteId, currentConfig.configPrefix);
-          if (res.success) {
-            print('获取配置${res.data.toString()}');
-            config[member.username] = UserConfig.fromJson(res.data);
-            _box.write(StoreKeys.config.toString(), config);
-            update();
-          } else {}
-        } else {
-          print('初始化配置');
-          Result r = await Api.createNoteItem(currentConfig.configPrefix);
-          if (r.success) {
-            currentConfig.configNoteId = r.data;
-            await Api.editNoteItem(
-              currentConfig.configPrefix + jsonEncode(currentConfig.toJson()),
-              currentConfig.configNoteId,
-            );
-          }
+    LoginApi.getUserInfo2().then((res) {
+      if (res.success) {
+        if (res.data != '2fa') {
+          setUserinfo(res.data);
         }
       }
-    }
+    });
   }
 
   initStorage() {
@@ -158,6 +101,20 @@ class BaseController extends GetxController {
       setTabMap(Const.defaultTabList);
     }
     update();
+  }
+
+  setUserinfo(Map val) {
+    member = val['member'];
+    if (config[member.username] == null) {
+      config[member.username] = new UserConfig();
+    }
+    _box.write(StoreKeys.currentMember.toString(), member);
+
+    UserConfig uc = val['uc'];
+    config[member.username] = uc;
+    _box.write(StoreKeys.config.toString(), config);
+    update();
+    Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
   }
 
   setMember(Member val) {

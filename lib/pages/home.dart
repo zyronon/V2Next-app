@@ -5,6 +5,7 @@ import 'package:v2ex/components/tab_page/tab_hot_page.dart';
 import 'package:v2ex/components/tab_page/tab_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/utils/request.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     BaseController c = Get.find();
     c.initData();
     // c.initStorage();
-    print("test");
+    // Http().setCookie();
   }
 
   @override

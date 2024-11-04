@@ -10,45 +10,33 @@ import 'package:v2ex/utils/interceptor.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 
-class Http {
-  static late final Http _instance = Http._internal();
-  static CookieManager? cookieManager;
+class LoginDio {
+  static late final LoginDio _instance = LoginDio._internal();
+  static late CookieManager cookieManager;
   static late final Dio dio;
 
-  factory Http() => _instance;
+  factory LoginDio() => _instance;
 
-  Http._internal() {
-    //BaseOptions、Options、RequestOptions 都可以配置参数，优先级别依次递增，且可以根据优先级别覆盖参数
+  //使用了原生平台adapter,无法登录，但不使用就太慢了...，所以复制了一份dio实例，专们用于登录
+  LoginDio._internal() {
     BaseOptions options = BaseOptions(
-        // validateStatus: (_) => true,
-        //请求基地址,可以包含子路径
-        baseUrl: Const.v2exHost,
-        // followRedirects: true,
-        connectTimeout: const Duration(seconds: 12),
-        //响应流上前后两次接受到数据的间隔，单位为毫秒。
-        receiveTimeout: const Duration(seconds: 12),
-        // contentType: Headers.formUrlEncodedContentType,
-        headers: {
-          'Origin': Const.v2exHost,
-          'User-Agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
-        });
-
+      baseUrl: Const.v2exHost,
+      connectTimeout: const Duration(seconds: 12),
+      receiveTimeout: const Duration(seconds: 12),
+      headers: {
+        'Origin': Const.v2exHost,
+        'User-Agent': Platform.isIOS ? Const.agent.ios : Const.agent.android,
+      },
+    );
     dio = Dio(options);
-    //使用原生平台的adapter,不然太慢了
-    //使用了原生平台adapter,无法登录
-    dio.httpClientAdapter = NativeAdapter();
-
     setCookie();
-    //添加拦截器
     dio.interceptors
       ..add(ApiInterceptor())
-      // 日志拦截器 输出请求、响应内容
       ..add(LogInterceptor(
         request: false,
         requestHeader: false,
         responseHeader: false,
       ));
-
     dio.options.validateStatus = (status) {
       return status! >= 200 && status < 400;
     };
@@ -56,17 +44,13 @@ class Http {
 
   /// 设置cookie
   setCookie() async {
-    if (cookieManager != null) {
-      dio.interceptors.remove(cookieManager);
-    }
-
     var cookiePath = await Utils.getCookiePath();
     var cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage(cookiePath),
     );
     cookieManager = CookieManager(cookieJar);
-    dio.interceptors.add(cookieManager!);
+    dio.interceptors.add(cookieManager);
   }
 
   /*
@@ -101,22 +85,6 @@ class Http {
         url,
         data: data,
         queryParameters: query,
-        options: options,
-      );
-      // debugPrint('post success---------${response.data}');
-      return response;
-    } on DioException catch (e) {
-      debugPrint('post error---------$e');
-      return Future.error(ApiInterceptor.dioError(e));
-    }
-  }
-
-  Future<Response> upload(url, {data, required Options options}) async {
-    // print('post-data: $data');
-    try {
-      Response response = await dio.request(
-        url,
-        data: data,
         options: options,
       );
       // debugPrint('post success---------${response.data}');

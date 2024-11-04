@@ -6,12 +6,12 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
+import 'package:v2ex/pages/login/login_api.dart';
 import 'package:v2ex/utils/ConstVal.dart';
-import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class Controller extends GetxController {
@@ -49,7 +49,7 @@ class Controller extends GetxController {
 
   getSignKey() async {
     loadingCodeImg.value = true;
-    var res = await Api.getLoginKey();
+    var res = await LoginApi.getLoginKey();
     loadingCodeImg.value = false;
     if (res.success) {
       if (res.data.twoFa) {
@@ -234,19 +234,20 @@ class _LoginPageState extends State<LoginPage> {
                                     codeTextFieldNode.unfocus();
                                     if (_.loadingLogin.value) return;
                                     _.loadingLogin.value = true;
-                                    Result result = await Api.login(_.loginKey);
+                                    Result res = await LoginApi.login(_.loginKey);
                                     _.loadingLogin.value = false;
-                                    if (result.success) {
-                                      if (result.data == '2fa') {
+                                    if (res.success) {
+                                      if (res.data == '2fa') {
                                         Utils.twoFADialog();
                                       } else {
+                                        BaseController.to.setUserinfo(res.data);
                                         Get.back(result: {'loginStatus': 'success'});
                                       }
                                     } else {
-                                      if (result.data.length == 2) {
-                                        _.showBanModal(result.data);
+                                      if (res.data.length == 2) {
+                                        _.showBanModal(res.data);
                                       } else {
-                                        SmartDialog.showToast(result.data[0]);
+                                        SmartDialog.showToast(res.data[0]);
                                         codeController.value = const TextEditingValue(text: '');
                                         Timer(const Duration(milliseconds: 500), () {
                                           _.getSignKey();
@@ -280,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                       var result = await Get.toNamed('/google_login', arguments: {'aUrl': '${Const.v2exHost}/auth/google?once=$once'});
                       if (result != null && result['signInGoogle'] == 'success') {
                         SmartDialog.showLoading(msg: '获取信息...');
-                        Result res = await Api.getUserInfo();
+                        Result res = await LoginApi.getUserInfo();
                         SmartDialog.dismiss();
                         if (res.success) {
                           if (res.data == '2fa') {

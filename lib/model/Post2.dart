@@ -393,11 +393,7 @@ class Result {
 
 enum Auth { normal, notAllow }
 
-enum FromSource{
-  search,
-  editTab,
-  move
-}
+enum FromSource { search, editTab, move }
 
 enum NoticeType { reply, thanksTopic, thanksReply, favTopic } // 消息类型
 
@@ -433,9 +429,9 @@ class NodeFavModel {
 
 class TopicNodeItem {
   int? topics = 0;
-  List? aliases =  [];
+  List? aliases = [];
   String? name = "";
-  String? title =  "";
+  String? title = "";
 
   TopicNodeItem({
     this.topics,
@@ -446,7 +442,7 @@ class TopicNodeItem {
 
   TopicNodeItem.fromJson(Map<String, dynamic> json) {
     topics = json['topics'];
-    aliases =  json['aliases'];
+    aliases = json['aliases'];
     name = json['name'];
     title = json['title'];
   }
@@ -460,6 +456,4 @@ class TopicNodeItem {
 
     return data;
   }
-
 }
-

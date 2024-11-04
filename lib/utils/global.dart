@@ -57,7 +57,7 @@ class Global {
     // Hive初始化 历史浏览box
     // await initHive();
     // Dio 初始化
-    await Http().setCookie();
+    // await Http().setCookie();
     // 自动签到
     var userInfo = GStorage().getUserInfo();
     if (userInfo.isNotEmpty && GStorage().getAutoSign()) {

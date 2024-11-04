@@ -7,6 +7,7 @@ import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/pages/login/login_api.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -203,7 +204,7 @@ class MePage extends StatelessWidget {
                         name: 'logout',
                         icon: TDIcons.setting,
                         onTap: () async {
-                          await Api.logout();
+                          await LoginApi.logout();
                           Restart.restartApp(
                             // Customizing the restart notification message (only needed on iOS)
                             notificationTitle: 'Restarting App',
