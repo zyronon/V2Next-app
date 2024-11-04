@@ -17,4 +17,9 @@ samples, guidance on mobile development, and a full API reference.
 
 flutter build apk --split-per-abi
 
-- 测试在回复或者主题里面，打开另一个帖子
+[x] 测试在回复或者主题里面，打开另一个帖子
+[ ] 可修改展示楼层
+[ ] 标签功能
+[ ] 表情功能、图片功能、@功能
+[ ] 自动签到功能
+[ ] 完善搜索
