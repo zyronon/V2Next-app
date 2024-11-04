@@ -11,9 +11,9 @@ import 'BaseAvatar.dart';
 
 class ReplyItem extends StatelessWidget {
   final Reply item;
-  final Function onThank;
-  final Function onMenu;
-  final Function onTap;
+  final Function? onThank;
+  final Function? onMenu;
+  final Function? onTap;
   final int type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
   final int index;
   final bool isSub; //判断是否子回复
@@ -21,11 +21,11 @@ class ReplyItem extends StatelessWidget {
   const ReplyItem({
     super.key,
     required this.item,
-    required this.onThank,
-    required this.onMenu,
+    this.onThank,
+    this.onMenu,
+    this.onTap,
     required this.type,
     required this.index,
-    required this.onTap,
     this.isSub = false,
   });
 
@@ -108,17 +108,20 @@ class ReplyItem extends StatelessWidget {
                                 ))
                           ],
                         ),
-                        onTap: () => onThank(item)),
-                  InkWell(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 6.w, top: 6.w, bottom: 6.w, right: 8.w),
-                        child: Icon(
-                          Icons.more_vert,
-                          size: 22.sp,
-                          color: Colors.grey[400],
+                        onTap: () => onThank?.call(item)),
+                  if (onMenu != null)
+                    InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 6.w, top: 6.w, bottom: 6.w, right: 8.w),
+                          child: Icon(
+                            Icons.more_vert,
+                            size: 22.sp,
+                            color: Colors.grey[400],
+                          ),
                         ),
-                      ),
-                      onTap: () => onMenu(item))
+                        onTap: () => onMenu?.call(item))
+                  else
+                    SizedBox(width: 8.w)
                 ],
               )
             ],
@@ -133,7 +136,7 @@ class ReplyItem extends StatelessWidget {
               child: BaseHtmlWidget(
                 //高赞回复，有可能是子回复，那么这种就需要显示出@信息
                 html: (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent,
-                onTap: () => onTap(item),
+                onTap: () => onTap?.call(item),
               ),
             ),
           ),
@@ -158,9 +161,9 @@ class ReplyItem extends StatelessWidget {
                           type: type,
                           item: val,
                           isSub: true,
-                          onThank: (e) => onThank(e),
-                          onMenu: (e) => onMenu(e),
-                          onTap: (e) => onTap(e),
+                          onThank: (e) => onThank?.call(e),
+                          onMenu: (e) => onMenu?.call(e),
+                          onTap: (e) => onTap?.call(e),
                         );
                       })
                     ],
@@ -170,7 +173,7 @@ class ReplyItem extends StatelessWidget {
             )
         ]),
       ),
-      onTap: () => onTap(item),
+      onTap: () => onTap?.call(item),
     );
   }
 }

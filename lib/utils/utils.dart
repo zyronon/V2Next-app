@@ -510,7 +510,7 @@ class Utils {
     }
   }
 
-  static inAppSyncCookie2Dio(List cookiesList, String url) async {
+  static Future inAppSyncCookie2Dio(List cookiesList, String url) async {
     // 接收 flutter_inappwebview Cookie List
     // domain url
     List<Cookie> jarCookies = [];

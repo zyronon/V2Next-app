@@ -85,7 +85,6 @@ dependencies:
 
   intl: ^0.18.0
 
-
   # markdown 输入
   expandable: ^5.0.1
   extended_text_field: ^16.0.0

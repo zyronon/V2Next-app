@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -132,15 +133,17 @@ class PostDetailPageState extends State<PostDetailPage> {
     // Navigator.pushNamed(context, 'Home');
   }
 
-  Widget _buildReplyMenuOptionWrapper({required Widget child}) {
-    return Container(
-      margin: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: child,
-    );
+  Widget _buildReplyMenuOptionWrapper({required Widget child, bool disabled = false}) {
+    return Opacity(
+        opacity: disabled ? 0.4 : 1,
+        child: Container(
+          margin: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: child,
+        ));
   }
 
   //回复菜单操作项
@@ -170,8 +173,106 @@ class PostDetailPageState extends State<PostDetailPage> {
     return Row(children: [SizedBox(width: 40.w), Expanded(child: Divider(color: Colors.grey[300], height: 1.w))]);
   }
 
-  getRelationReply(Reply val){
-
+  showRelationReplyListModal(Reply val) {
+    var replyUsers = val.replyUsers;
+    var username = val.username;
+    replyUsers.add(username);
+    var floor = val.floor;
+    List list = ctrl.post.replyList.where((v) {
+      //找出两个人所有的回复。
+      if (replyUsers.contains(v.username)) {
+        //如果超过目标楼层
+        if (v.floor > floor) {
+          //只找回复目标的
+          if (v.replyUsers.contains(username)) {
+            return true;
+          }
+          //自己回复，并与@的人相关的
+          if (v.username == username) {
+            for (int i = 0; i < val.replyUsers.length; i++) {
+              if (v.replyUsers.contains(val.replyUsers[i])) {
+                return true;
+              }
+            }
+          }
+        } else {
+          //前面的不管回复的谁都要
+          return true;
+        }
+      }
+      return false;
+    }).toList();
+    showMaterialModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          // clipBehavior: Clip.hardEdge,
+          // height: MediaQuery.of(context).size.height - 0 - 115,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          constraints: BoxConstraints(
+            maxHeight: 500.0, // 设置最大高度为 300
+          ),
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.w,
+                  margin: EdgeInsets.only(bottom: 10.w, top: 10.w),
+                  decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
+                ),
+              ),
+              Expanded(
+                  child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: list.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ReplyItem(
+                    item: list[index],
+                    onThank: null,
+                    onMenu: null,
+                    type: 0,
+                    index: index,
+                    isSub: false,
+                    // onTap: (i) {
+                    //   int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
+                    //   if (rIndex > -1) {
+                    //     jumpToIndexItem(index: rIndex);
+                    //   }
+                    // },
+                  );
+                },
+              )),
+              SizedBox(height: 20.w)
+            ],
+          ),
+        );
+        return Column(
+          children: list
+              .map((v) => ReplyItem(
+                    item: v,
+                    onThank: null,
+                    onMenu: null,
+                    type: 1,
+                    index: 0,
+                    onTap: (i) {
+                      int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
+                      if (rIndex > -1) {
+                        jumpToIndexItem(index: rIndex);
+                      }
+                    },
+                  ))
+              .toList(),
+        );
+      },
+    );
   }
 
   //显示回复菜单弹窗
@@ -209,10 +310,14 @@ class PostDetailPageState extends State<PostDetailPage> {
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
-          getRelationReply(val);
-        }),
-      ])),
+            _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
+              print('val.replyUsers${val.replyUsers}');
+              if(val.replyUsers.length != 0){
+                showRelationReplyListModal(val);
+              }
+            }),
+          ]),
+          disabled: val.replyUsers.length == 0),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
         _buildReplyMenuOption('复制', TDIcons.file_copy, () {
@@ -355,14 +460,6 @@ class PostDetailPageState extends State<PostDetailPage> {
       },
     );
     return;
-    if (val != null) {
-      ctrl.setReply(val);
-      await modalWrap(content: _buildEditor(), color: Colors.white);
-    } else {
-      ctrl.setReply(new Reply());
-      await modalWrap(content: _buildEditor());
-    }
-    _replyCtrl.text = '';
   }
 
   Widget _buildReplyItem(Reply item, int index, int type) {
@@ -483,60 +580,6 @@ class PostDetailPageState extends State<PostDetailPage> {
               )),
         );
       },
-    );
-  }
-
-  Widget _buildEditor() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.w),
-      child: Column(
-        children: [
-          Container(
-            child: TextField(
-              controller: _replyCtrl,
-              maxLines: 6,
-              autofocus: false,
-              decoration: InputDecoration(
-                hintText: "请尽量让自己的回复能够对别人有帮助",
-                hintStyle: TextStyle(color: Colors.black26),
-                border: InputBorder.none,
-              ),
-            ),
-            padding: EdgeInsets.only(left: 8.w, right: 8.w),
-            decoration: BoxDecoration(color: Color(0xfff1f1f1), borderRadius: BorderRadius.circular(6.r)),
-            margin: EdgeInsets.only(bottom: 10.w),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 0.w, right: 10.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(children: [
-                  _buildClickIcon(Icons.sentiment_satisfied_alt, () {}),
-                  _buildClickIcon(Icons.alternate_email, showMemberList),
-                  _buildClickIcon(Icons.add_photo_alternate),
-                  _buildClickIcon(Icons.format_quote, () {
-                    _replyCtrl.text = _replyCtrl.text + '\n---\n${ctrl.reply.id.isEmpty ? ctrl.post.contentText : ctrl.reply.replyText}\n---';
-                  }),
-                ]),
-                InkWell(
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(14.w, 6.w, 14.w, 6.w),
-                    decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(6.r)),
-                    child: Text(
-                      '回复',
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                  ),
-                  onTap: () {
-                    onReply();
-                  },
-                )
-              ],
-            ),
-          )
-        ],
-      ),
     );
   }
 
@@ -724,6 +767,19 @@ class PostDetailPageState extends State<PostDetailPage> {
         ));
   }
 
+  jumpToIndexItem({int index = 0}) {
+    ctrl.setShowFixedTitle(true);
+    firstChildCtx = normalListCtx;
+    // _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+    ctrl.observerController.animateTo(
+      sliverContext: normalListCtx,
+      index: index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.ease,
+      // offset: (v)=>24.w
+    );
+  }
+
   Widget _buildToolbar() {
     return Container(
         width: double.infinity,
@@ -807,16 +863,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                 ), () {
               if (firstChildCtx == null || firstChildCtx == headerCtx) {
                 debugPrint('当前是 - headerCtx');
-                ctrl.setShowFixedTitle(true);
-                firstChildCtx = normalListCtx;
-                // _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                ctrl.observerController.animateTo(
-                  sliverContext: normalListCtx,
-                  index: 0,
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                  // offset: (v)=>24.w
-                );
+                jumpToIndexItem(index: 0);
               } else {
                 debugPrint('当前是 - listCtx');
                 ctrl.setShowFixedTitle(false);

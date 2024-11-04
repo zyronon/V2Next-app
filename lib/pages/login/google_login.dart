@@ -1,13 +1,8 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/utils/utils.dart';
-
-import '../utils/ConstVal.dart';
 
 class GoogleLogin extends StatefulWidget {
   const GoogleLogin({super.key});
@@ -64,7 +59,7 @@ class _GoogleLoginState extends State<GoogleLogin> {
                     pullToRefreshController: pullToRefreshController,
                     onWebViewCreated: (controller) async {
                       webViewController = controller;
-                      Utils.dioSyncCookie2InApp(aUrl);
+                      await Utils.dioSyncCookie2InApp(aUrl);
                       controller.loadUrl(
                         urlRequest: URLRequest(
                           url: WebUri(aUrl),
@@ -87,8 +82,8 @@ class _GoogleLoginState extends State<GoogleLogin> {
                           strUrl == 'https://www.v2ex.com/2fa') {
                         // 使用cookieJar保存cookie
                         List<Cookie> cookies = await cookieManager.getCookies(url: url!);
-                        var res = await Utils.inAppSyncCookie2Dio(cookies, strUrl);
-                        if (res && strUrl.contains('/2fa')) {
+                        await Utils.inAppSyncCookie2Dio(cookies, strUrl);
+                        if (strUrl.contains('/2fa')) {
                           SmartDialog.show(
                             useSystem: true,
                             animationType: SmartAnimationType.centerFade_otherSlide,

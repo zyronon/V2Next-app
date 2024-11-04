@@ -67,7 +67,7 @@ class BaseController extends GetxController {
   }
 
   initData() async {
-    LoginApi.getUserInfo2().then((res) {
+    LoginApi.getUserInfo().then((res) {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);

@@ -520,8 +520,11 @@ class Api {
       item.id = node.attributes['id']!.replaceAll('r_', '');
       var replyContentElement = node.querySelector('.reply_content');
       Utils.checkPhotoLink2Img(replyContentElement!);
-      item.replyContent = replyContentElement!.innerHtml;
+      item.replyContent = replyContentElement.innerHtml;
       item.replyText = replyContentElement.text;
+
+      var noElement = node.querySelector('.no');
+      item.floor = int.parse(noElement!.text);
 
       var parsedContent = Utils.parseReplyContent(item.replyContent);
       item.hideCallUserReplyContent = item.replyContent;
@@ -549,9 +552,6 @@ class Api {
 
       var avatarElement = node.querySelector('td img');
       item.avatar = avatarElement!.attributes['src']!;
-
-      var noElement = node.querySelector('.no');
-      item.floor = int.parse(noElement!.text);
 
       var thankAreaElement = node.querySelector('.thank_area');
       if (thankAreaElement != null) {

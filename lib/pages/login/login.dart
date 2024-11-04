@@ -132,6 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                                 controller: usernameController,
                                 focusNode: usernameTextFieldNode,
                                 // autofocus: true,
+                                textInputAction: TextInputAction.next,
                                 decoration: InputDecoration(
                                   labelText: '用户名',
                                   border: OutlineInputBorder(
@@ -147,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                                   controller: pwdController,
                                   obscureText: _.showPwd.value,
                                   focusNode: pwdTextFieldNode,
+                                  textInputAction: TextInputAction.next,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(6.0),
@@ -171,6 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: TextFormField(
                                     controller: codeController,
                                     keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.done,
                                     focusNode: codeTextFieldNode,
                                     decoration: InputDecoration(
                                       border: OutlineInputBorder(

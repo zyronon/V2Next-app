@@ -7,7 +7,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:v2ex/pages/google_login.dart';
+import 'package:v2ex/pages/login/google_login.dart';
 import 'package:v2ex/pages/layout.dart';
 import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/pages/login/login_dio.dart';
@@ -33,6 +33,8 @@ void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
+  LoginDio().setCookie();
+  Http().setCookie();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {

@@ -99,7 +99,7 @@ class LoginApi {
     print('status${response.statusCode}');
 
     if (response.statusCode == 302) {
-      return await getUserInfo2();
+      return await getUserInfo();
     } else {
       Document document = parse(response.data);
       Element? problem = document.querySelector('#Wrapper .problem');
@@ -132,8 +132,10 @@ class LoginApi {
   }
 
   // 获取当前用户信息
-  //TODO 和basecontroller的结合
-  static Future<Result> getUserInfo2() async {
+  static Future<Result> getUserInfo() async {
+    //有可能是刚登录，需要同步一下cookie
+    await Http().setCookie();
+    debugger();
     Result result = Result(data: []);
     print('getUserInfo');
     Member member = new Member();
@@ -217,43 +219,6 @@ class LoginApi {
       }
     }
     return result;
-  }
-
-  // 获取当前用户信息
-  static Future<Result> getUserInfo() async {
-    debugger();
-    Result res = Result(data: []);
-    print('getUserInfo');
-    var response = await LoginDio().get('/write', isMobile: true);
-    //需要两步验证
-    var document = parse(response.data);
-    BaseController bc = Get.find<BaseController>();
-    Member member = new Member();
-    if (response.data.contains('两步验证登录')) {
-      var once = document.querySelector('input[name="once"]');
-      if (once != null) {
-        GStorage().setOnce(int.parse(once.attributes['value']!));
-        res.success = true;
-        res.data = '2fa';
-        member.needAuth2fa = true;
-      }
-      //如果开了2fa，那么这里返回的将是电脑页面，取不到头像
-      var tops = document.querySelectorAll('.top');
-      member.username = tops[1].text;
-    } else {
-      var imgEl = document.querySelector('#menu-entry .avatar');
-      if (imgEl != null) {
-        member.avatar = imgEl.attributes["src"]!;
-        member.username = imgEl.attributes["alt"]!;
-        res.success = true;
-        await Http().setCookie();
-      } else {
-        res.data = ['登录失败了2'];
-        res.success = false;
-      }
-    }
-    bc.setMember(member);
-    return res;
   }
 
   // 2fa登录
