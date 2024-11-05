@@ -6,95 +6,24 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/reply_item.dart';
-import 'package:v2ex/components/reply_new.dart';
+import 'package:v2ex/pages/post_detail/components/reply_new.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/pages/post_detail/components/post_navbar.dart';
+import 'package:v2ex/pages/post_detail/components/post_space.dart';
+import 'package:v2ex/pages/post_detail/components/post_toolbar.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 
-class UserConfig {
-  bool showTopReply = true;
-}
-
-class PostDetailController extends GetxController {
-  bool isShowFixedTitle = false;
-  Post2 post = new Post2();
-  Reply reply = new Reply();
-  int scrollIndex = 0;
-  bool loading = false;
-  UserConfig config = UserConfig();
-  ScrollController _scrollController = ScrollController();
-  late SliverObserverController observerController = SliverObserverController(controller: _scrollController);
-
-  setShowFixedTitle(bool val) {
-    this.isShowFixedTitle = val;
-    update();
-  }
-
-  static to(id) => Get.find<PostDetailController>(tag: id);
-
-  static PostDetailController get to2 => Get.find<PostDetailController>();
-
-  setReply(Reply val) {
-    reply = val;
-    update();
-  }
-
-  rebuildList() {
-    post = Utils.buildList(post, post.replyList);
-    update();
-    observerController.reattach();
-  }
-
-  List<Reply> getReplyList() {
-    return post.nestedReplies;
-  }
-
-  getListLength() {
-    return getReplyList().length + post.topReplyList.length + 1;
-  }
-
-  Reply getReplyItem(index) {
-    return post.replyList[index - 1];
-  }
-
-  @override
-  onInit() {
-    super.onInit();
-    getData();
-  }
-
-  getData() async {
-    post = Get.arguments;
-    isShowFixedTitle = false;
-    loading = true;
-    update();
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
-    // post = await Api.getPostDetail('825072');
-    // post = await Api.getPostDetail('1026938');
-    post = await Api.getPostDetail(Get.arguments.id);
-    // post = await Api.getPostDetail('825072');
-    loading = false;
-    update();
-    observerController.reattach();
-  }
-
-  @override
-  void onClose() {
-    print('onClose');
-    super.onClose();
-    _scrollController.dispose();
-  }
-}
+import 'components/post_header.dart';
+import 'components/post_list_header.dart';
+import 'components/post_list_loading.dart';
+import 'controller.dart';
 
 class PostDetailPage extends StatefulWidget {
   const PostDetailPage({super.key});
@@ -312,7 +241,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           child: Column(children: [
             _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
               print('val.replyUsers${val.replyUsers}');
-              if(val.replyUsers.length != 0){
+              if (val.replyUsers.length != 0) {
                 showRelationReplyListModal(val);
               }
             }),
@@ -459,7 +388,6 @@ class PostDetailPageState extends State<PostDetailPage> {
         );
       },
     );
-    return;
   }
 
   Widget _buildReplyItem(Reply item, int index, int type) {
@@ -473,24 +401,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Widget _buildIcon(IconData icon) {
-    return Icon(
-      icon,
-      size: 24.sp,
-      color: Colors.black54,
-    );
-  }
-
-  Widget _buildClickIcon(IconData icon, [GestureTapCallback? onTap]) {
-    return InkWell(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
-        child: _buildIcon(icon),
-      ),
-      onTap: onTap,
-    );
-  }
-
   Widget clickWidget(Widget widget, onTap) {
     return InkWell(
       child: Padding(
@@ -498,18 +408,6 @@ class PostDetailPageState extends State<PostDetailPage> {
         child: widget,
       ),
       onTap: onTap,
-    );
-  }
-
-  //标题
-  Widget _buildPostTitle() {
-    return Padding(
-      padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
-      child: SelectableText(
-        ctrl.post?.title ?? '',
-        textAlign: TextAlign.left,
-        style: TextStyle(fontSize: bc.layout.fontSize * 1.2, height: bc.layout.lineHeight, fontWeight: FontWeight.bold),
-      ),
     );
   }
 
@@ -560,29 +458,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
-  showMemberList() {
-    PostDetailController pdc = Get.find();
-    return showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-              color: Colors.white,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  ...pdc.post.allReplyUsers.map((u) {
-                    return Text(u);
-                  })
-                ],
-              )),
-        );
-      },
-    );
-  }
-
   //收藏帖子
   onCollect() async {
     if (!bc.isLogin) {
@@ -618,12 +493,10 @@ class PostDetailPageState extends State<PostDetailPage> {
     //   Utils.toast('不能感谢自己');
     //   return;
     // }
-
     if (ctrl.post.isThanked) {
       Utils.toast(msg: '这个主题已经被感谢过了');
       return;
     }
-
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -660,7 +533,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
-
     if (val.isThanked) {
       Utils.toast(msg: '这个回复已经被感谢过了');
       return;
@@ -669,7 +541,6 @@ class PostDetailPageState extends State<PostDetailPage> {
       Utils.toast(msg: '不能感谢自己');
       return;
     }
-
     await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -698,16 +569,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Widget _buildSpace() {
-    return SliverToBoxAdapter(
-      child: Container(
-        width: 100.sw,
-        height: 14.w,
-        color: Colors.grey[100],
-      ),
-    );
-  }
-
   Future<void> onRefresh() async {
     // print(ctrl.post.replyList[2].replyFloor.toString());
     // print(ctrl.post.replyList[2].replyContent.toString());
@@ -716,55 +577,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     // ctrl.rebuildList();
     ctrl.getData();
     return;
-  }
-
-  Widget _buildNavbar() {
-    return Container(
-        width: double.infinity,
-        padding: EdgeInsets.only(top: 4.w, bottom: 4.w),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Const.line)),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2), // 阴影颜色
-              spreadRadius: 1, // 扩散半径
-              blurRadius: 10, // 模糊半径
-              offset: Offset(0, 2), // 阴影偏移量 (x, y)
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  _buildClickIcon(Icons.arrow_back_ios_new, () {
-                    Get.back();
-                  }),
-                  Expanded(
-                      child: InkWell(
-                    child: AnimatedOpacity(
-                      opacity: ctrl.isShowFixedTitle ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: Text(
-                        ctrl.post.title,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: TextStyle(fontSize: 16.sp),
-                      ),
-                    ),
-                    onTap: () {
-                      ctrl._scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                    },
-                  ))
-                ],
-              ),
-            ),
-            _buildClickIcon(Icons.more_vert, showPostMenuModal)
-          ],
-        ));
   }
 
   jumpToIndexItem({int index = 0}) {
@@ -777,127 +589,6 @@ class PostDetailPageState extends State<PostDetailPage> {
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
       // offset: (v)=>24.w
-    );
-  }
-
-  Widget _buildToolbar() {
-    return Container(
-        width: double.infinity,
-        padding: EdgeInsets.fromLTRB(14.w, 0.w, 6.w, 4.w),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: Const.line)),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2), // 阴影颜色
-              spreadRadius: 1, // 扩散半径
-              blurRadius: 10, // 模糊半径
-              offset: Offset(0, -2), // 阴影偏移量 (x, y)
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: InkWell(
-                child: Container(
-                  child: Text(
-                    '说点什么...',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                  decoration: BoxDecoration(border: Border.all(color: Colors.black12), borderRadius: BorderRadius.circular(4.r)),
-                  padding: EdgeInsets.all(6.w),
-                ),
-                onTap: () {
-                  onShowReplyModalClick();
-                },
-              ),
-            ),
-            SizedBox(width: 6.w),
-            clickWidget(
-                Column(
-                  children: [
-                    Icon(
-                      ctrl.post.isFavorite ? TDIcons.star_filled : TDIcons.star,
-                      size: 24.sp,
-                      color: ctrl.post.isFavorite ? Colors.red : Colors.grey,
-                    ),
-                    Text(
-                      ctrl.post.collectCount.toString(),
-                      style: TextStyle(fontSize: 10.sp, color: ctrl.post.isFavorite ? Colors.red : Colors.grey),
-                    )
-                  ],
-                ), () {
-              onCollect();
-            }),
-            clickWidget(
-                Column(
-                  children: [
-                    Icon(
-                      ctrl.post.isThanked ? TDIcons.heart_filled : TDIcons.heart,
-                      size: 24.sp,
-                      color: ctrl.post.isThanked ? Colors.red : Colors.grey,
-                    ),
-                    Text(
-                      ctrl.post.thankCount.toString(),
-                      style: TextStyle(fontSize: 10.sp, color: ctrl.post.isThanked ? Colors.red : Colors.grey),
-                    )
-                  ],
-                ), () {
-              onThankPostClick();
-            }),
-            clickWidget(
-                Column(
-                  children: [
-                    Icon(
-                      TDIcons.chat,
-                      size: 24.sp,
-                      color: Colors.grey,
-                    ),
-                    Text(
-                      ctrl.post.replyCount.toString(),
-                      style: TextStyle(fontSize: 10.sp, color: Colors.black54),
-                    )
-                  ],
-                ), () {
-              if (firstChildCtx == null || firstChildCtx == headerCtx) {
-                debugPrint('当前是 - headerCtx');
-                jumpToIndexItem(index: 0);
-              } else {
-                debugPrint('当前是 - listCtx');
-                ctrl.setShowFixedTitle(false);
-                ctrl._scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                firstChildCtx = headerCtx;
-              }
-            }),
-          ],
-        ));
-  }
-
-  Widget _buildDivider() {
-    return Divider(color: Color(0xfff1f1f1), height: 1);
-  }
-
-  Widget _buildListHeader(String left, [bool right = true]) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.all(8.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              left,
-              style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-            ),
-            if (right)
-              Text(
-                '楼中楼',
-                style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-              ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -914,7 +605,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           builder: (_) {
             return Column(
               children: [
-                _buildNavbar(),
+                PostNavbar(id: id, onMenu: showPostMenuModal),
                 // _buildEditor(),
                 Expanded(
                     child: RefreshIndicator(
@@ -942,142 +633,48 @@ class PostDetailPageState extends State<PostDetailPage> {
                           },
                           child: CustomScrollView(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            controller: ctrl._scrollController,
+                            controller: ctrl.scrollController,
                             slivers: [
                               //标题和内容
                               SliverLayoutBuilder(
                                 builder: (context, _) {
                                   if (headerCtx != context) headerCtx = context;
-                                  return SliverToBoxAdapter(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8.w),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                  child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                verticalDirection: VerticalDirection.down,
-                                                children: [
-                                                  BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
-                                                  Expanded(
-                                                      child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      //用户名
-                                                      Padding(
-                                                        padding: EdgeInsets.only(left: 10.w),
-                                                        child: SelectableText(
-                                                          ctrl.post.member.username == 'default' ? '' : ctrl.post.member.username,
-                                                          style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
-                                                        ),
-                                                      ),
-                                                      //时间、点击量
-                                                      Padding(
-                                                        padding: EdgeInsets.only(left: 10.w),
-                                                        child: Text(
-                                                          ctrl.post.createDateAgo + '   ' + ctrl.post.clickCount.toString() + '次点击',
-                                                          style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ))
-                                                ],
-                                              )),
-                                              if (ctrl.post.node.cnName.isNotEmpty)
-                                                InkWell(
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black12,
-                                                      borderRadius: BorderRadius.circular(3.0), //3像素圆角
-                                                    ),
-                                                    child: Padding(
-                                                      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                                      child: Text(
-                                                        ctrl.post.node.cnName,
-                                                        style: TextStyle(color: Colors.black, fontSize: bc.fontSize * 0.8),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  onTap: () {
-                                                    Get.toNamed('/node', arguments: ctrl.post.node);
-                                                  },
-                                                )
-                                            ],
-                                          ),
-                                          _buildPostTitle(),
-                                          (ctrl.loading && ctrl.post.contentRendered.isEmpty)
-                                              ? Skeletonizer.zone(
-                                                  child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
-                                                )
-                                              : BaseHtmlWidget(html: ctrl.post.contentRendered),
-                                        ],
-                                      ),
-                                    ),
-                                  );
+                                  return PostHeader(id: id);
                                 },
                               ),
-                              _buildSpace(),
-
+                              PostSpace(),
                               if (ctrl.loading) ...[
                                 //普通回复
                                 //header
-                                _buildListHeader(ctrl.post.replyCount.toString() + '条回复'),
-                                SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    return Column(
-                                      children: [
-                                        Skeletonizer.zone(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(8),
-                                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                              Row(children: [
-                                                Bone.circle(size: 28),
-                                                SizedBox(width: 10.w),
-                                                Bone.text(width: 80.w),
-                                              ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-                                              Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(style: TextStyle(height: 1.6))),
-                                            ]),
-                                          ),
-                                        ),
-                                        _buildDivider()
-                                      ],
-                                    );
-                                  },
-                                  childCount: 7,
-                                )),
+                                PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: '楼中楼'),
+                                PostListLoading()
                               ] else ...[
                                 //高赞回复
                                 if (ctrl.config.showTopReply && ctrl.post.topReplyList.length != 0) ...[
                                   //header
-                                  _buildListHeader(ctrl.post.topReplyList.length.toString() + '条高赞回复', false),
+                                  PostListHeader(left: ctrl.post.topReplyList.length.toString() + '条高赞回复'),
                                   //list
                                   SliverList(
                                       delegate: SliverChildBuilderDelegate(
                                     (context, index) {
                                       if (topListCtx != context) topListCtx = context;
-                                      return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, 0), _buildDivider()]);
+                                      return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, 0), Const.lineWidget]);
                                     },
                                     childCount: ctrl.post.topReplyList.length,
                                   )),
-                                  _buildSpace(),
+                                  PostSpace(),
                                 ],
 
                                 //普通回复
                                 //header
-                                _buildListHeader(ctrl.post.replyCount.toString() + '条回复'),
+                                PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: '楼中楼'),
                                 //list
                                 SliverList(
                                     delegate: SliverChildBuilderDelegate(
                                   (context, index) {
                                     if (normalListCtx != context) normalListCtx = context;
                                     // return ListTile(title: Text('1111$index'));
-                                    return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 1), _buildDivider()]);
+                                    return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 1), Const.lineWidget]);
                                   },
                                   childCount: ctrl.getReplyList().length,
                                 )),
@@ -1087,7 +684,22 @@ class PostDetailPageState extends State<PostDetailPage> {
                           ),
                         ),
                         onRefresh: onRefresh)),
-                _buildToolbar()
+                PostToolbar(
+                    onCollect: onCollect,
+                    onThank: onThankPostClick,
+                    onCommit: () {
+                      if (firstChildCtx == null || firstChildCtx == headerCtx) {
+                        debugPrint('当前是 - headerCtx');
+                        jumpToIndexItem(index: 0);
+                      } else {
+                        debugPrint('当前是 - listCtx');
+                        ctrl.setShowFixedTitle(false);
+                        ctrl.scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+                        firstChildCtx = headerCtx;
+                      }
+                    },
+                    onEdit: onShowReplyModalClick,
+                    id: id)
               ],
             );
           }),

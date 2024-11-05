@@ -16,11 +16,12 @@ import 'package:v2ex/components/member_list.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/login/login.dart';
-import 'package:v2ex/pages/post_detail.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
+
+import '../controller.dart';
 
 enum Status { input, emoji, call, image }
 

@@ -32,6 +32,7 @@ class Const {
   static String issues = 'https://github.com/zyronon/V2Next/issues';
   static Color primaryColor = Color(0xff48a24a);
   static Color line = Color(0xfff1f1f1);
+  static Widget lineWidget = Divider(color: Const.line, height: 1);
   static double padding = 10.w;
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
