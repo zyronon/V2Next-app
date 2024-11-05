@@ -7,7 +7,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/ConstVal.dart';
 
-import 'BaseAvatar.dart';
+import '../../../components/BaseAvatar.dart';
 
 class ReplyItem extends StatelessWidget {
   final Reply item;
@@ -31,11 +31,19 @@ class ReplyItem extends StatelessWidget {
 
   getPadding() {
     BaseController bc = BaseController.to;
-
     if (item.level == 0) {
-      return EdgeInsets.fromLTRB(10.w, bc.fontSize - 8, 0.w, bc.fontSize - 8);
+      return EdgeInsets.fromLTRB(10.w, (bc.fontSize - 10) * bc.layout.lineHeight, 0, (bc.fontSize - 10) * bc.layout.lineHeight);
     }
-    return EdgeInsets.only(top: index > 0 ? 8.w : 0.w);
+    return EdgeInsets.only(top: index > 0 ? 8.w : 0);
+  }
+
+  getContent() {
+    BaseController bc = BaseController.to;
+    if (bc.currentConfig.commentDisplayType == CommentDisplayType.Nest) {
+      return (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent;
+    } else {
+      return item.replyContent;
+    }
   }
 
   @override
@@ -135,7 +143,8 @@ class ReplyItem extends StatelessWidget {
               width: double.infinity,
               child: BaseHtmlWidget(
                 //高赞回复，有可能是子回复，那么这种就需要显示出@信息
-                html: (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent,
+                // html: (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent,
+                html: getContent(),
                 onTap: () => onTap?.call(item),
               ),
             ),

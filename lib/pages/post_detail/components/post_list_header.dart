@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PostListHeader extends StatelessWidget {
   final String left;
-  final String? right;
+  final Widget? right;
 
   PostListHeader({required this.left, this.right});
 
@@ -12,20 +12,15 @@ class PostListHeader extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.all(8.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              left,
-              style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-            ),
-            if (right != null)
-              Text(
-                right!,
-                style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
-              ),
-          ],
-        ),
+        child: DefaultTextStyle(
+            style: TextStyle(fontSize: 14.sp, height: 1.2, color: Colors.grey),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(left),
+                if (right != null) right!,
+              ],
+            )),
       ),
     );
   }

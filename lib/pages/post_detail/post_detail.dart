@@ -8,7 +8,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/footer.dart';
-import 'package:v2ex/components/reply_item.dart';
+import 'package:v2ex/pages/post_detail/components/reply_item.dart';
 import 'package:v2ex/pages/post_detail/components/reply_new.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
@@ -76,22 +76,30 @@ class PostDetailPageState extends State<PostDetailPage> {
   }
 
   //回复菜单操作项
-  Widget _buildReplyMenuOption(String text, IconData icon, GestureTapCallback onTap) {
+  Widget _buildReplyMenuOption({required String text, required GestureTapCallback onTap, IconData? icon, bool? active, Widget? right}) {
     return InkWell(
       child: Padding(
           padding: EdgeInsets.all(14.w),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 20.sp,
-                color: Colors.black,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 12.w),
-                child: Text(text),
-              )
+              Row(children: [
+                if (icon != null)
+                  Icon(
+                    icon,
+                    size: 20.sp,
+                    color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black,
+                  ),
+                Padding(
+                  padding: EdgeInsets.only(left: 12.w),
+                  child: Text(
+                    text,
+                    style: TextStyle(color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black),
+                  ),
+                )
+              ]),
+              if (right != null) right
             ],
           )),
       onTap: onTap,
@@ -211,54 +219,135 @@ class PostDetailPageState extends State<PostDetailPage> {
         content: Column(children: [
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('回复', TDIcons.chat, () {
-          if (!bc.isLogin) {
-            Get.toNamed('/login');
-            return;
-          }
-          Get.back();
-          onShowReplyModalClick(val);
-        }),
+        _buildReplyMenuOption(
+            text: '回复',
+            icon: TDIcons.chat,
+            onTap: () {
+              if (!bc.isLogin) {
+                Get.toNamed('/login');
+                return;
+              }
+              Get.back();
+              onShowReplyModalClick(val);
+            }),
         _buildLine(),
-        _buildReplyMenuOption('感谢', TDIcons.heart, () {
-          if (!bc.isLogin) {
-            Get.toNamed('/login');
-            return;
-          }
-          if (val.isThanked) {
-            Utils.toast(msg: '这个回复已经被感谢过了');
-            return;
-          }
-          if (val.username == bc.member.username) {
-            Utils.toast(msg: '不能感谢自己');
-            return;
-          }
-          Get.back();
-          onThankReplyClick(val);
-        }),
+        _buildReplyMenuOption(
+            text: '感谢',
+            icon: TDIcons.heart,
+            onTap: () {
+              if (!bc.isLogin) {
+                Get.toNamed('/login');
+                return;
+              }
+              if (val.isThanked) {
+                Utils.toast(msg: '这个回复已经被感谢过了');
+                return;
+              }
+              if (val.username == bc.member.username) {
+                Utils.toast(msg: '不能感谢自己');
+                return;
+              }
+              Get.back();
+              onThankReplyClick(val);
+            }),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-            _buildReplyMenuOption('上下文', Icons.content_paste_search, () {
-              print('val.replyUsers${val.replyUsers}');
-              if (val.replyUsers.length != 0) {
-                showRelationReplyListModal(val);
-              }
-            }),
+            _buildReplyMenuOption(
+                text: '上下文',
+                icon: Icons.content_paste_search,
+                onTap: () {
+                  print('val.replyUsers${val.replyUsers}');
+                  if (val.replyUsers.length != 0) {
+                    showRelationReplyListModal(val);
+                  }
+                }),
           ]),
           disabled: val.replyUsers.length == 0),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-        _buildReplyMenuOption('复制', TDIcons.file_copy, () {
-          Utils.copy(val.replyText);
-        }),
+        _buildReplyMenuOption(
+            text: '复制',
+            icon: TDIcons.file_copy,
+            onTap: () {
+              Utils.copy(val.replyText);
+            }),
         _buildLine(),
-        _buildReplyMenuOption('忽略', TDIcons.browse_off, () {
-          //TODO
-          Utils.toast(msg: '未实现');
-        }),
+        _buildReplyMenuOption(
+            text: '忽略',
+            icon: TDIcons.browse_off,
+            onTap: () {
+              //TODO
+              Utils.toast(msg: '未实现');
+            }),
       ])),
     ]));
+  }
+
+  changeCommentDisplayType(CommentDisplayType val) {
+    bc.currentConfig.commentDisplayType = val;
+    bc.update();
+    ctrl.update();
+    Get.back();
+    jumpToIndexItem(index: 0);
+  }
+
+  showSortModal() {
+    return modalWrap(
+        content: Column(
+      children: [
+        _buildReplyMenuOptionWrapper(
+            child: Column(children: [
+          _buildReplyMenuOption(
+              text: '最新',
+              icon: Icons.new_releases_outlined,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.New,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.New);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '最热',
+              icon: Icons.local_fire_department,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Hot,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.Hot);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '楼中楼',
+              icon: Icons.list_alt,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Nest,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.Nest);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '楼中楼(@)',
+              icon: Icons.alternate_email,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.NestAndCall,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.NestAndCall);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: 'V2原版',
+              icon: Icons.notes,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Origin,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.Origin);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '只看楼主',
+              icon: Icons.person_outline,
+              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Op,
+              onTap: () {
+                changeCommentDisplayType(CommentDisplayType.Op);
+              }),
+        ])),
+      ],
+    ));
   }
 
   //TODO
@@ -269,38 +358,73 @@ class PostDetailPageState extends State<PostDetailPage> {
       children: [
         _buildReplyMenuOptionWrapper(
             child: Column(children: [
-          _buildReplyMenuOption('复制内容', TDIcons.file_copy, () {
-            Utils.copy(ctrl.post.contentText);
-          }),
+          _buildReplyMenuOption(
+              text: '复制内容',
+              icon: TDIcons.file_copy,
+              onTap: () {
+                Utils.copy(ctrl.post.contentText);
+              }),
           _buildLine(),
-          _buildReplyMenuOption('复制链接', TDIcons.link, () {
-            Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
-          }),
+          _buildReplyMenuOption(
+              text: '复制链接',
+              icon: TDIcons.link,
+              onTap: () {
+                Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '分享',
+              icon: TDIcons.share,
+              onTap: () {
+                //TODO
+                Utils.toast(msg: '未实现');
+              }),
         ])),
         _buildReplyMenuOptionWrapper(
             child: Column(children: [
-          _buildReplyMenuOption('忽略', TDIcons.browse_off, () {
-            //TODO
-            Utils.toast(msg: '未实现');
-          }),
+          _buildReplyMenuOption(
+              text: '忽略',
+              icon: TDIcons.browse_off,
+              onTap: () {
+                //TODO
+                Utils.toast(msg: '未实现');
+              }),
           _buildLine(),
-          _buildReplyMenuOption('报告', TDIcons.info_circle, () {
-            //TODO
-            Utils.toast(msg: '未实现');
-          }),
+          _buildReplyMenuOption(
+              text: '报告',
+              icon: TDIcons.info_circle,
+              onTap: () {
+                //TODO
+                Utils.toast(msg: '未实现');
+              }),
         ])),
         _buildReplyMenuOptionWrapper(
             child: Column(children: [
-          _buildReplyMenuOption('浏览器打开', TDIcons.logo_chrome, () {
-            Get.back();
-            Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
-          }),
+          _buildReplyMenuOption(
+              text: '调整排序',
+              icon: TDIcons.order_ascending,
+              right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
+              onTap: () async {
+                Get.back();
+                showSortModal();
+              }),
           _buildLine(),
-          _buildReplyMenuOption('调整排版', TDIcons.view_module, () async {
-            Get.back();
-            await Get.toNamed('/layout');
-            ctrl.update();
-          }),
+          _buildReplyMenuOption(
+              text: '调整排版',
+              icon: TDIcons.view_module,
+              onTap: () async {
+                Get.back();
+                await Get.toNamed('/layout');
+                ctrl.update();
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
+              text: '浏览器打开',
+              icon: TDIcons.logo_chrome,
+              onTap: () {
+                Get.back();
+                Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
+              }),
         ])),
       ],
     ));
@@ -331,33 +455,37 @@ class PostDetailPageState extends State<PostDetailPage> {
       backgroundColor: Colors.transparent,
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.r),
-                topRight: Radius.circular(10.r),
-              ),
-            ),
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
-            width: double.infinity,
-            child: Column(
-              children: [
-                Center(
-                  child: Container(
-                    width: 40.w,
-                    height: 4.w,
-                    margin: EdgeInsets.only(bottom: 10.w, top: 10.w),
-                    decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
+        return GetBuilder<PostDetailController>(
+            tag: id,
+            builder: (_) {
+              return SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.r),
+                      topRight: Radius.circular(10.r),
+                    ),
+                  ),
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40.w,
+                          height: 4.w,
+                          margin: EdgeInsets.only(bottom: 10.w, top: 10.w),
+                          decoration: BoxDecoration(color: Color(0xffcacaca), borderRadius: BorderRadius.all(Radius.circular(2.r))),
+                        ),
+                      ),
+                      content,
+                      SizedBox(height: 20.w)
+                    ],
                   ),
                 ),
-                content,
-                SizedBox(height: 20.w)
-              ],
-            ),
-          ),
-        );
+              );
+            });
       },
     );
   }
@@ -583,13 +711,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     ctrl.setShowFixedTitle(true);
     firstChildCtx = normalListCtx;
     // _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-    ctrl.observerController.animateTo(
-      sliverContext: normalListCtx,
-      index: index,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
-      // offset: (v)=>24.w
-    );
+    ctrl.observerController.animateTo(sliverContext: normalListCtx, index: index, duration: Duration(milliseconds: 300), curve: Curves.ease, offset: (v) => 46.w);
   }
 
   @override
@@ -646,7 +768,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                               if (ctrl.loading) ...[
                                 //普通回复
                                 //header
-                                PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: '楼中楼'),
+                                PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType))),
                                 PostListLoading()
                               ] else ...[
                                 //高赞回复
@@ -667,7 +789,22 @@ class PostDetailPageState extends State<PostDetailPage> {
 
                                 //普通回复
                                 //header
-                                PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: '楼中楼'),
+                                PostListHeader(
+                                    left: ctrl.post.replyCount.toString() + '条回复',
+                                    right: InkWell(
+                                      onTap: showSortModal,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(top: 5.w, bottom: 5.w),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(TDIcons.order_ascending, size: 16),
+                                            SizedBox(width: 5),
+                                            Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
+                                          ],
+                                        ),
+                                      ),
+                                    )),
                                 //list
                                 SliverList(
                                     delegate: SliverChildBuilderDelegate(

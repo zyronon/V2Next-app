@@ -253,12 +253,20 @@ class Utils {
   static Post2 buildList(Post2 post, List<Reply> replyList) {
     post.replyList = clone(replyList);
     post.replyCount = post.replyList.length;
+    post.allReplyUsers = post.replyList.map((v) => v.username).toList().toSet().toList();
+
+    post.hotReplyList = clone(replyList);
+    post.hotReplyList.sort((a, b) => b.thankCount.compareTo(a.thankCount));
+
+    post.newReplyList = clone(replyList);
+    post.newReplyList.sort((a, b) => b.floor.compareTo(a.floor));
+
     post.topReplyList = clone(post.replyList).where((v) {
       return v.thankCount >= 3;
     }).toList();
     post.topReplyList.sort((a, b) => b.thankCount.compareTo(a.thankCount));
     post.topReplyList = post.topReplyList.sublist(0, post.topReplyList.length > 5 ? 5 : post.topReplyList.length);
-    post.allReplyUsers = post.replyList.map((v) => v.username).toList().toSet().toList();
+
     post.nestedReplies = createNestedList(list: clone(replyList), topReplyList: post.topReplyList);
     return post;
   }
@@ -660,5 +668,24 @@ class Utils {
         );
       },
     );
+  }
+
+  static formatCommentDisplayType(CommentDisplayType val) {
+    switch (val) {
+      case CommentDisplayType.Nest:
+        return '楼中楼';
+      case CommentDisplayType.NestAndCall:
+        return '楼中楼(@)';
+      case CommentDisplayType.Hot:
+        return '最热';
+      case CommentDisplayType.Origin:
+        return 'V2原版';
+      case CommentDisplayType.Op:
+        return '只看楼主';
+      case CommentDisplayType.New:
+        return '最新';
+      default:
+        return '楼中楼';
+    }
   }
 }

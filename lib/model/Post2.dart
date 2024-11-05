@@ -88,8 +88,11 @@ class Post2 {
   String lastReplyUsername;
   String fr;
   List<Reply> replyList;
+  List<Reply> hotReplyList;
+  List<Reply> newReplyList;
   List<Reply> topReplyList;
   List<Reply> nestedReplies;
+  //TODO 疑似未使用
   String username;
   String url;
   String href;
@@ -125,6 +128,8 @@ class Post2 {
     this.lastReplyUsername = '',
     this.fr = '',
     this.replyList = const [],
+    this.hotReplyList = const [],
+    this.newReplyList = const [],
     this.topReplyList = const [],
     this.nestedReplies = const [],
     this.username = '',
@@ -168,8 +173,10 @@ class Post2 {
         lastReplyUsername = json['lastReplyUsername'] ?? '',
         fr = json['fr'] ?? '',
         replyList = (json['replyList'] as List?)?.map((item) => Reply.fromJson(item)).toList() ?? [],
-        topReplyList = (json['topReplyList'] as List?)?.map((item) => Reply.fromJson(item)).toList() ?? [],
-        nestedReplies = (json['nestedReplies'] as List?)?.map((item) => Reply.fromJson(item)).toList() ?? [],
+        topReplyList = [],
+        hotReplyList = [],
+        newReplyList = [],
+        nestedReplies = [],
         username = json['username'] ?? '',
         url = json['url'] ?? '',
         href = json['href'] ?? '',
@@ -208,8 +215,10 @@ class Post2 {
       'lastReplyUsername': lastReplyUsername,
       'fr': fr,
       'replyList': replyList.map((item) => item.toJson()).toList(),
-      'topReplyList': topReplyList.map((item) => item.toJson()).toList(),
-      'nestedReplies': nestedReplies.map((item) => item.toJson()).toList(),
+      'topReplyList': [],
+      'hotReplyList': [],
+      'newReplyList': [],
+      'nestedReplies': [],
       'username': username,
       'url': url,
       'href': href,
@@ -333,12 +342,22 @@ class Layout {
   }
 }
 
+enum CommentDisplayType {
+  Nest, //楼中楼（隐藏第一个@用户，双击内容可显示原文）
+  NestAndCall, //楼中楼（@）
+  Hot, //感谢，最热
+  Origin, //V2原版
+  Op, //只看楼主
+  New, //最新
+}
+
 class UserConfig {
   bool showTopReply;
   double version;
   String configPrefix;
   String configNoteId;
   Layout layout;
+  CommentDisplayType commentDisplayType;
 
   // 构造函数，带默认值
   UserConfig({
@@ -347,7 +366,9 @@ class UserConfig {
     this.configPrefix = '--mob-config--',
     this.configNoteId = '',
     Layout? layout,
-  }) : layout = layout ?? Layout();
+    CommentDisplayType? commentDisplayType,
+  })  : layout = layout ?? Layout(),
+        commentDisplayType = commentDisplayType ?? CommentDisplayType.Nest;
 
   // fromJson 方法
   UserConfig.fromJson(Map<String, dynamic> json)
@@ -356,7 +377,11 @@ class UserConfig {
         // 防止类型不匹配时出错
         configPrefix = json['configPrefix'] ?? '--mob-config--',
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
-        configNoteId = json['configNoteId'] ?? '';
+        configNoteId = json['configNoteId'] ?? '',
+        commentDisplayType = CommentDisplayType.values.firstWhere(
+          (e) => e.toString() == 'CommentDisplayType.${json['commentDisplayType'] ?? ''}',
+          orElse: () => CommentDisplayType.Nest,
+        );
 
   // toJson 方法
   Map<String, dynamic> toJson() {
@@ -366,6 +391,7 @@ class UserConfig {
       'configPrefix': configPrefix,
       'configNoteId': configNoteId,
       'layout': layout.toJson(),
+      'commentDisplayType': commentDisplayType.toString(),
     };
   }
 }

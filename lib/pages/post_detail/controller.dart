@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -12,6 +13,7 @@ class PostDetailController extends GetxController {
   int scrollIndex = 0;
   bool loading = false;
   UserConfig config = UserConfig();
+  BaseController bc = BaseController.to;
   ScrollController scrollController = ScrollController();
   late SliverObserverController observerController = SliverObserverController(controller: scrollController);
 
@@ -36,7 +38,21 @@ class PostDetailController extends GetxController {
   }
 
   List<Reply> getReplyList() {
-    return post.nestedReplies;
+    switch (bc.currentConfig.commentDisplayType) {
+      case CommentDisplayType.Nest:
+      case CommentDisplayType.NestAndCall:
+        return post.nestedReplies;
+      case CommentDisplayType.Hot:
+        return post.hotReplyList;
+      case CommentDisplayType.Origin:
+        return post.replyList;
+      case CommentDisplayType.Op:
+        return post.replyList.where((v) => v.username == post.member.username).toList();
+      case CommentDisplayType.New:
+        return post.newReplyList;
+      default:
+        return post.nestedReplies;
+    }
   }
 
   getListLength() {
