@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/user_tag.dart';
 import 'package:v2ex/model/BaseController.dart';
@@ -14,7 +15,7 @@ class ReplyItem extends StatelessWidget {
   final Function? onThank;
   final Function? onMenu;
   final Function? onTap;
-  final int type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
+  final ReplyListType type; //0为高赞回复，1为普通回复；高赞回复需要显示出@用户和楼层
   final int index;
   final bool isSub; //判断是否子回复
 
@@ -40,7 +41,7 @@ class ReplyItem extends StatelessWidget {
   getContent() {
     BaseController bc = BaseController.to;
     if (bc.currentConfig.commentDisplayType == CommentDisplayType.Nest) {
-      return (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent;
+      return (type == ReplyListType.Hot && !isSub) ? item.replyContent : item.hideCallUserReplyContent;
     } else {
       return item.replyContent;
     }
@@ -136,6 +137,24 @@ class ReplyItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 8.w),
+            child: Wrap(
+              direction: Axis.horizontal,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+                TDTag('标签文字', isOutline: true),
+              ],
+            ),
           ),
           Padding(
             padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),

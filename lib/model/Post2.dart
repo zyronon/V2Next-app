@@ -1,5 +1,10 @@
 import 'dart:developer';
 
+enum ReplyListType {
+  Hot, //高赞回复
+  Normal, //正常回复
+}
+
 class Reply {
   int level = 0;
   int thankCount = 0;
@@ -92,6 +97,7 @@ class Post2 {
   List<Reply> newReplyList;
   List<Reply> topReplyList;
   List<Reply> nestedReplies;
+
   //TODO 疑似未使用
   String username;
   String url;
@@ -353,18 +359,22 @@ enum CommentDisplayType {
 
 class UserConfig {
   bool showTopReply;
+  bool openTag;
   double version;
   String configPrefix;
   String configNoteId;
+  String tagNoteId;
   Layout layout;
   CommentDisplayType commentDisplayType;
 
   // 构造函数，带默认值
   UserConfig({
     this.showTopReply = true,
+    this.openTag = true,
     this.version = 0.1,
     this.configPrefix = '--mob-config--',
     this.configNoteId = '',
+    this.tagNoteId = '',
     Layout? layout,
     CommentDisplayType? commentDisplayType,
   })  : layout = layout ?? Layout(),
@@ -373,11 +383,13 @@ class UserConfig {
   // fromJson 方法
   UserConfig.fromJson(Map<String, dynamic> json)
       : showTopReply = json['showTopReply'] ?? true,
+        openTag = json['openTag'] ?? true,
         version = json['version']?.toDouble() ?? 0.1,
         // 防止类型不匹配时出错
         configPrefix = json['configPrefix'] ?? '--mob-config--',
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
         configNoteId = json['configNoteId'] ?? '',
+        tagNoteId = json['configNoteId'] ?? '',
         commentDisplayType = CommentDisplayType.values.firstWhere(
           (e) => e.toString() == 'CommentDisplayType.${json['commentDisplayType'] ?? ''}',
           orElse: () => CommentDisplayType.Nest,
@@ -387,9 +399,11 @@ class UserConfig {
   Map<String, dynamic> toJson() {
     return {
       'showTopReply': showTopReply,
+      'openTag': openTag,
       'version': version,
       'configPrefix': configPrefix,
       'configNoteId': configNoteId,
+      'tagNoteId': configNoteId,
       'layout': layout.toJson(),
       'commentDisplayType': commentDisplayType.toString(),
     };

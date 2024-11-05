@@ -758,6 +758,7 @@ class Api {
   }
 
   static Future<Result> createNoteItem(String itemName) async {
+    debugger();
     FormData formData = FormData.fromMap({'content': itemName, 'parent_id': 0, 'syntax': 0});
     Response res = await Http().post('/notes/new', data: formData);
 
@@ -786,18 +787,18 @@ class Api {
       if (editorEl != null) {
         String text = editorEl.innerHtml;
         if (text == prefix) {
-          return Result(success: false);
+          return Result(success: false, data: 1);
         } else {
           String json = text.substring(prefix.length);
           try {
             return Result(success: true, data: jsonDecode(json));
           } catch (e) {
-            return Result(success: false);
+            return Result(success: false, data: 2);
           }
         }
       }
     }
-    return Result(success: false);
+    return Result(success: false, data: 0);
   }
 
   // 所有节点 topic

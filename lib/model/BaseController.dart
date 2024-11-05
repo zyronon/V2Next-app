@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
@@ -60,23 +61,24 @@ class BaseController extends GetxController {
   double get fontSize => currentConfig.layout.fontSize;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     initStorage();
-    initData();
   }
 
   initData() async {
-    LoginApi.getUserInfo().then((res) {
+    LoginApi.getUserInfo(uc: currentConfig).then((res) {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);
         }
+      } else {
+        setUserinfo({'member': Member(), 'uc': config['default']});
       }
     });
   }
 
-  initStorage() {
+  Future initStorage() async {
     var r = _box.read(StoreKeys.currentMember.toString());
     if (r != null) {
       member = Member.fromJson(r);
@@ -87,7 +89,7 @@ class BaseController extends GetxController {
         if (config[key] == null) {
           config[key] = new UserConfig();
         } else {
-          config[key] = UserConfig.fromJson(value);
+          config[key] = value is Map ? UserConfig.fromJson(value as dynamic) : value;
         }
       });
     }
@@ -101,6 +103,7 @@ class BaseController extends GetxController {
       setTabMap(Const.defaultTabList);
     }
     update();
+    initData();
   }
 
   setUserinfo(Map val) {
@@ -108,7 +111,7 @@ class BaseController extends GetxController {
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
-    _box.write(StoreKeys.currentMember.toString(), member);
+    _box.write(StoreKeys.currentMember.toString(), member.toJson());
 
     UserConfig uc = val['uc'];
     config[member.username] = uc;
@@ -122,7 +125,7 @@ class BaseController extends GetxController {
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
-    _box.write(StoreKeys.currentMember.toString(), member);
+    _box.write(StoreKeys.currentMember.toString(), member.toJson());
     _box.write(StoreKeys.config.toString(), config);
     update();
   }

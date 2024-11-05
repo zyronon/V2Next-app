@@ -132,14 +132,14 @@ class LoginApi {
   }
 
   // 获取当前用户信息
-  static Future<Result> getUserInfo() async {
+  static Future<Result> getUserInfo({UserConfig? uc}) async {
     //有可能是刚登录，需要同步一下cookie
     await Http().setCookie();
-    debugger();
     Result result = Result(data: []);
     print('getUserInfo');
     Member member = new Member();
-    UserConfig uc = UserConfig();
+    if (uc == null) uc = UserConfig();
+    //移动端的有头像
     Response res = await Http().get('/notes', isMobile: true);
     if (res.data.contains('两步验证登录')) {
       print('需要两步验证登录');
@@ -158,11 +158,13 @@ class LoginApi {
       if (!(res.data as String).contains('其他登录方式')) {
         print('已登录');
         Document document = parse(res.data);
+        //获取用户信息
         Element? avatarEl = document.querySelector('#menu-entry .avatar');
         if (avatarEl != null) {
           member.username = avatarEl.attributes['alt']!;
           member.avatar = avatarEl.attributes['src']!;
           print('当前用户${member.username}');
+          //获取、节点收藏、主题收藏、特别关注
           var res2 = await Http().get('/?tab=all', isMobile: false);
           Document document2 = parse(res2.data);
           var rightBarNode = document2.querySelector('#Rightbar > div.box');
@@ -189,27 +191,114 @@ class LoginApi {
             }
           }
         }
+
         List<Element> nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
-        if (nodeListEl.isNotEmpty) {
-          List<Element> tagItems = nodeListEl.where((v) => v.text.contains(uc.configPrefix)).toList();
-          if (tagItems.isNotEmpty) {
-            var configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
-            Result res = await Api.getNoteItemContent(configNoteId, uc.configPrefix);
-            //可能为空
-            if (res.success) {
-              print('获取配置${res.data.toString()}');
-              uc = UserConfig.fromJson(res.data);
-            }
-            uc.configNoteId = configNoteId;
+        debugger();
+
+        //配置逻辑
+        bool needInitConfig = false;
+        if (uc.configNoteId.isEmpty) {
+          needInitConfig = true;
+        } else {
+          Result res = await Api.getNoteItemContent(uc.configNoteId, uc.configPrefix);
+          if (res.success) {
+            print('获取配置${res.data.toString()}');
+            uc = UserConfig.fromJson(res.data);
           } else {
-            print('初始化配置');
-            Result r = await Api.createNoteItem(uc.configPrefix);
-            if (r.success) {
-              uc.configNoteId = r.data;
+            //没有这个id的数据
+            if (res.data == 0) {
+              needInitConfig = true;
+            } else {
               await Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
             }
           }
         }
+        if (needInitConfig) {
+          //先查一下列表，有没有重复创建的
+          if (nodeListEl.isNotEmpty) {
+            //获取配置
+            List<Element> tagItems = nodeListEl.where((v) => v.text.contains(uc!.configPrefix)).toList();
+            if (tagItems.isNotEmpty) {
+              var configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
+              Result res = await Api.getNoteItemContent(configNoteId, uc.configPrefix);
+              //可能为空
+              if (res.success) {
+                print('获取配置${res.data.toString()}');
+                uc = UserConfig.fromJson(res.data);
+              } else {
+                await Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), configNoteId);
+              }
+              uc.configNoteId = configNoteId;
+              needInitConfig = false;
+            } else {
+              needInitConfig = true;
+            }
+          }
+
+          if(needInitConfig){
+            //创建配置
+            print('初始化配置');
+            Result r = await Api.createNoteItem(uc.configPrefix + jsonEncode(uc.toJson()));
+            if (r.success) {
+              uc.configNoteId = r.data;
+            }
+          }
+        }
+
+        if (uc.showTopReply) {
+          String tagPrefix = '--用户标签--';
+          Map tagMap = {};
+          //标签逻辑
+          bool needInitTag = false;
+          if (uc.tagNoteId.isEmpty) {
+            needInitTag = true;
+          } else {
+            Result res = await Api.getNoteItemContent(uc.tagNoteId, tagPrefix);
+            if (res.success) {
+              print('获取配置${res.data.toString()}');
+              tagMap = res.data;
+            } else {
+              //没有这个id的数据
+              if (res.data == 0) {
+                needInitTag = true;
+              } else {
+                await Api.editNoteItem(tagPrefix + jsonEncode(tagMap), uc.tagNoteId);
+              }
+            }
+          }
+          if (needInitTag) {
+
+            //先查一下列表，有没有重复创建的
+            if (nodeListEl.isNotEmpty) {
+              //获取配置
+              List<Element> tagItems = nodeListEl.where((v) => v.text.contains(tagPrefix)).toList();
+              if (tagItems.isNotEmpty) {
+                var tagNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
+                Result res = await Api.getNoteItemContent(tagNoteId, tagPrefix);
+                //可能为空
+                if (res.success) {
+                  print('获取配置${res.data.toString()}');
+                  tagMap = res.data;
+                } else {
+                  await Api.editNoteItem(tagPrefix + jsonEncode(tagMap), tagNoteId);
+                }
+                uc.tagNoteId = tagNoteId;
+                needInitTag = false;
+              } else {
+                needInitTag = true;
+              }
+            }
+            if(needInitTag){
+              //创建标签
+              print('初始化标签');
+              Result r = await Api.createNoteItem(tagPrefix + jsonEncode(tagMap));
+              if (r.success) {
+                uc.tagNoteId = r.data;
+              }
+            }
+          }
+        }
+
         result.success = true;
         result.data = {'type': 'ok', 'member': member, 'uc': uc};
       } else {

@@ -23,6 +23,7 @@ import 'package:v2ex/utils/utils.dart';
 import 'components/post_header.dart';
 import 'components/post_list_header.dart';
 import 'components/post_list_loading.dart';
+import 'components/tag_manager_modal.dart';
 import 'controller.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -62,47 +63,47 @@ class PostDetailPageState extends State<PostDetailPage> {
     // Navigator.pushNamed(context, 'Home');
   }
 
-  Widget _buildReplyMenuOptionWrapper({required Widget child, bool disabled = false}) {
-    return Opacity(
-        opacity: disabled ? 0.4 : 1,
-        child: Container(
-          margin: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 12.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: child,
-        ));
+  Widget _buildReplyMenuOptionWrapper({required Widget child}) {
+    return Container(
+      margin: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: child,
+    );
   }
 
   //回复菜单操作项
-  Widget _buildReplyMenuOption({required String text, required GestureTapCallback onTap, IconData? icon, bool? active, Widget? right}) {
+  Widget _buildReplyMenuOption({required String text, required GestureTapCallback onTap, IconData? icon, bool? active, Widget? right, bool disabled = false}) {
     return InkWell(
-      child: Padding(
-          padding: EdgeInsets.all(14.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(children: [
-                if (icon != null)
-                  Icon(
-                    icon,
-                    size: 20.sp,
-                    color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black,
-                  ),
-                Padding(
-                  padding: EdgeInsets.only(left: 12.w),
-                  child: Text(
-                    text,
-                    style: TextStyle(color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black),
-                  ),
-                )
-              ]),
-              if (right != null) right
-            ],
-          )),
-      onTap: onTap,
+      child: Opacity(
+          opacity: disabled ? 0.2 : 1,
+          child: Padding(
+              padding: EdgeInsets.all(14.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(children: [
+                    if (icon != null)
+                      Icon(
+                        icon,
+                        size: 20.sp,
+                        color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black,
+                      ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 12.w),
+                      child: Text(
+                        text,
+                        style: TextStyle(color: active != null ? (active ? Colors.lightBlue : Colors.black) : Colors.black),
+                      ),
+                    )
+                  ]),
+                  if (right != null) right
+                ],
+              ))),
+      onTap: disabled ? null : onTap,
     );
   }
 
@@ -175,7 +176,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                     item: list[index],
                     onThank: null,
                     onMenu: null,
-                    type: 0,
+                    type: ReplyListType.Hot,
                     index: index,
                     isSub: false,
                     // onTap: (i) {
@@ -197,7 +198,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                     item: v,
                     onThank: null,
                     onMenu: null,
-                    type: 1,
+                    type: ReplyListType.Hot,
                     index: 0,
                     onTap: (i) {
                       int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
@@ -213,7 +214,17 @@ class PostDetailPageState extends State<PostDetailPage> {
   }
 
   //显示回复菜单弹窗
-  onShowItemMenuModalClick(Reply val) {
+  onShowItemMenuModalClick({required Reply val, required ReplyListType type}) {
+    showDialog(
+      context: context,
+      builder: (context) => TagManagerModal(
+        tags: [],
+        onSave: (e) {
+          print(e);
+        },
+      ),
+    );
+    return;
     ctrl.setReply(val);
     modalWrap(
         content: Column(children: [
@@ -250,22 +261,32 @@ class PostDetailPageState extends State<PostDetailPage> {
               Get.back();
               onThankReplyClick(val);
             }),
+        _buildLine(),
+        _buildReplyMenuOption(text: '标签管理', icon: Icons.tag, onTap: () {}),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [
-            _buildReplyMenuOption(
-                text: '上下文',
-                icon: Icons.content_paste_search,
-                onTap: () {
-                  print('val.replyUsers${val.replyUsers}');
-                  if (val.replyUsers.length != 0) {
-                    showRelationReplyListModal(val);
-                  }
-                }),
-          ]),
-          disabled: val.replyUsers.length == 0),
-      _buildReplyMenuOptionWrapper(
-          child: Column(children: [
+        _buildReplyMenuOption(
+            text: '上下文',
+            icon: Icons.content_paste_search,
+            onTap: () {
+              if (val.replyUsers.length != 0) {
+                showRelationReplyListModal(val);
+              }
+            },
+            disabled: val.replyUsers.length == 0),
+        // _buildLine(),
+        // _buildReplyMenuOption(
+        //     text: '跳转',
+        //     icon: Icons.content_paste_search,
+        //     onTap: () {
+        //         int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == val.id);
+        //         if (rIndex > -1) {
+        //           jumpToIndexItem(index: rIndex);
+        //         }
+        //     },
+        //     disabled: type == ReplyListType.Normal),
+        _buildLine(),
         _buildReplyMenuOption(
             text: '复制',
             icon: TDIcons.file_copy,
@@ -518,13 +539,13 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Widget _buildReplyItem(Reply item, int index, int type) {
+  Widget _buildReplyItem(Reply item, int index, ReplyListType type) {
     return ReplyItem(
       index: index,
       type: type,
       item: item,
       onThank: (e) => onThankReplyClick(e),
-      onMenu: (e) => onShowItemMenuModalClick(e),
+      onMenu: (e) => onShowItemMenuModalClick(val: e, type: type),
       onTap: (e) => onShowReplyModalClick(e),
     );
   }
@@ -780,7 +801,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                                       delegate: SliverChildBuilderDelegate(
                                     (context, index) {
                                       if (topListCtx != context) topListCtx = context;
-                                      return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, 0), Const.lineWidget]);
+                                      return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, ReplyListType.Hot), Const.lineWidget]);
                                     },
                                     childCount: ctrl.post.topReplyList.length,
                                   )),
@@ -811,7 +832,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                                   (context, index) {
                                     if (normalListCtx != context) normalListCtx = context;
                                     // return ListTile(title: Text('1111$index'));
-                                    return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, 1), Const.lineWidget]);
+                                    return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, ReplyListType.Normal), Const.lineWidget]);
                                   },
                                   childCount: ctrl.getReplyList().length,
                                 )),
