@@ -193,7 +193,6 @@ class LoginApi {
         }
 
         List<Element> nodeListEl = document.querySelectorAll('#Wrapper .box .cell a');
-        debugger();
 
         //配置逻辑
         bool needInitConfig = false;
@@ -234,7 +233,6 @@ class LoginApi {
               needInitConfig = true;
             }
           }
-
           if(needInitConfig){
             //创建配置
             print('初始化配置');
@@ -244,6 +242,8 @@ class LoginApi {
             }
           }
         }
+
+        debugger();
 
         if (uc.showTopReply) {
           String tagPrefix = '--用户标签--';

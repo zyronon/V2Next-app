@@ -389,7 +389,7 @@ class UserConfig {
         configPrefix = json['configPrefix'] ?? '--mob-config--',
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
         configNoteId = json['configNoteId'] ?? '',
-        tagNoteId = json['configNoteId'] ?? '',
+        tagNoteId = json['tagNoteId'] ?? '',
         commentDisplayType = CommentDisplayType.values.firstWhere(
           (e) => e.toString() == 'CommentDisplayType.${json['commentDisplayType'] ?? ''}',
           orElse: () => CommentDisplayType.Nest,
@@ -403,7 +403,7 @@ class UserConfig {
       'version': version,
       'configPrefix': configPrefix,
       'configNoteId': configNoteId,
-      'tagNoteId': configNoteId,
+      'tagNoteId': tagNoteId,
       'layout': layout.toJson(),
       'commentDisplayType': commentDisplayType.toString(),
     };

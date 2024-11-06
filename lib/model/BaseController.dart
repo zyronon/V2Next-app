@@ -117,7 +117,9 @@ class BaseController extends GetxController {
     config[member.username] = uc;
     _box.write(StoreKeys.config.toString(), config);
     update();
-    Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
+    if (isLogin) {
+      Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
+    }
   }
 
   setMember(Member val) {

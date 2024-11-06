@@ -786,15 +786,19 @@ class Api {
       var editorEl = document.querySelector('.note_editor');
       if (editorEl != null) {
         String text = editorEl.innerHtml;
-        if (text == prefix) {
-          return Result(success: false, data: 1);
-        } else {
-          String json = text.substring(prefix.length);
-          try {
-            return Result(success: true, data: jsonDecode(json));
-          } catch (e) {
-            return Result(success: false, data: 2);
+        if (text.contains(prefix)) {
+          if (text == prefix) {
+            return Result(success: false, data: 1);
+          } else {
+            String json = text.substring(prefix.length);
+            try {
+              return Result(success: true, data: jsonDecode(json));
+            } catch (e) {
+              return Result(success: false, data: 2);
+            }
           }
+        } else {
+          return Result(success: false, data: 0);
         }
       }
     }
