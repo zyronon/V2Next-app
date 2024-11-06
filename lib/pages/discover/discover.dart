@@ -5,7 +5,7 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/pages/discover/tab_page.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 class DiscoverController extends GetxController {
 

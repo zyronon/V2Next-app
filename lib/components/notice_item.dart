@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 // TODO 样式
 class NoticeItem extends StatefulWidget {

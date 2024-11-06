@@ -13,7 +13,7 @@ import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/api.dart';
 
 class TabPageController extends GetxController {

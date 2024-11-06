@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class Controller extends GetxController {

@@ -4,7 +4,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/discover/discover.dart';
 import 'package:v2ex/pages/notifications.dart';
 import 'package:v2ex/pages/me.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 import 'home.dart';
 

@@ -8,7 +8,7 @@ import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/login/login_api.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/utils.dart';
 

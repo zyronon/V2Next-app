@@ -259,6 +259,7 @@ class Member {
   String avatarLarge;
   String balance;
   bool needAuth2fa;
+  Map tagMap;
 
   //依次是节点、主题、特别关注
   List<int> actionCounts;
@@ -271,7 +272,8 @@ class Member {
     this.balance = '',
     this.actionCounts = const [0, 0, 0],
     this.needAuth2fa = false,
-  });
+    Map? tagMap,
+  }) : tagMap = tagMap ?? {};
 
   // fromJson 方法
   Member.fromJson(Map<String, dynamic> json)
@@ -280,6 +282,7 @@ class Member {
         avatarLarge = json['avatarLarge'] ?? '',
         balance = json['balance'] ?? '',
         needAuth2fa = json['needAuth2fa'] ?? false,
+        tagMap = json['tagMap'] ?? {},
         actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0];
 
   // toJson 方法
@@ -291,6 +294,7 @@ class Member {
       'balance': balance,
       'actionCounts': actionCounts,
       'needAuth2fa': needAuth2fa,
+      'tagMap': tagMap,
     };
   }
 }

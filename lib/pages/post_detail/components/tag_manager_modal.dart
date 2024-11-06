@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 
 class TagManagerModal extends StatefulWidget {
-  List<String> tags = [];
+  List tags = [];
   var onSave;
 
   TagManagerModal({required this.tags, required this.onSave});

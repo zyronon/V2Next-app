@@ -15,7 +15,7 @@ import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/post_detail/components/post_navbar.dart';
 import 'package:v2ex/pages/post_detail/components/post_space.dart';
 import 'package:v2ex/pages/post_detail/components/post_toolbar.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -215,16 +215,6 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   //显示回复菜单弹窗
   onShowItemMenuModalClick({required Reply val, required ReplyListType type}) {
-    showDialog(
-      context: context,
-      builder: (context) => TagManagerModal(
-        tags: [],
-        onSave: (e) {
-          print(e);
-        },
-      ),
-    );
-    return;
     ctrl.setReply(val);
     modalWrap(
         content: Column(children: [
@@ -262,7 +252,25 @@ class PostDetailPageState extends State<PostDetailPage> {
               onThankReplyClick(val);
             }),
         _buildLine(),
-        _buildReplyMenuOption(text: '标签管理', icon: Icons.tag, onTap: () {}),
+        _buildReplyMenuOption(
+            text: '标签管理',
+            icon: Icons.tag,
+            onTap: () {
+              Get.back();
+              Future.delayed(Duration(milliseconds: 300), () {
+                showDialog(
+                  context: context,
+                  builder: (context) => TagManagerModal(
+                    tags: bc.getTags(val.username),
+                    onSave: (e) {
+                      print(e);
+                      bc.setTags(val.username, e);
+                      ctrl.update();
+                    },
+                  ),
+                );
+              });
+            }),
       ])),
       _buildReplyMenuOptionWrapper(
           child: Column(children: [

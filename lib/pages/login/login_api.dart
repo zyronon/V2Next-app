@@ -12,7 +12,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/pages/login/login_dio.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -199,7 +199,7 @@ class LoginApi {
         if (uc.configNoteId.isEmpty) {
           needInitConfig = true;
         } else {
-          Result res = await Api.getNoteItemContent(uc.configNoteId, uc.configPrefix);
+          Result res = await Api.getNoteItemContent(uc.configNoteId, Const.configPrefix);
           if (res.success) {
             print('获取配置${res.data.toString()}');
             uc = UserConfig.fromJson(res.data);
@@ -208,7 +208,7 @@ class LoginApi {
             if (res.data == 0) {
               needInitConfig = true;
             } else {
-              await Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
+              await Api.editNoteItem(Const.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
             }
           }
         }
@@ -219,13 +219,13 @@ class LoginApi {
             List<Element> tagItems = nodeListEl.where((v) => v.text.contains(uc!.configPrefix)).toList();
             if (tagItems.isNotEmpty) {
               var configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
-              Result res = await Api.getNoteItemContent(configNoteId, uc.configPrefix);
+              Result res = await Api.getNoteItemContent(configNoteId, Const.configPrefix);
               //可能为空
               if (res.success) {
                 print('获取配置${res.data.toString()}');
                 uc = UserConfig.fromJson(res.data);
               } else {
-                await Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), configNoteId);
+                await Api.editNoteItem(Const.configPrefix + jsonEncode(uc.toJson()), configNoteId);
               }
               uc.configNoteId = configNoteId;
               needInitConfig = false;
@@ -236,7 +236,7 @@ class LoginApi {
           if(needInitConfig){
             //创建配置
             print('初始化配置');
-            Result r = await Api.createNoteItem(uc.configPrefix + jsonEncode(uc.toJson()));
+            Result r = await Api.createNoteItem(Const.configPrefix + jsonEncode(uc.toJson()));
             if (r.success) {
               uc.configNoteId = r.data;
             }
@@ -245,42 +245,39 @@ class LoginApi {
 
         debugger();
 
-        if (uc.showTopReply) {
-          String tagPrefix = '--用户标签--';
-          Map tagMap = {};
+        if (uc.openTag) {
           //标签逻辑
           bool needInitTag = false;
           if (uc.tagNoteId.isEmpty) {
             needInitTag = true;
           } else {
-            Result res = await Api.getNoteItemContent(uc.tagNoteId, tagPrefix);
+            Result res = await Api.getNoteItemContent(uc.tagNoteId, Const.tagPrefix);
             if (res.success) {
               print('获取配置${res.data.toString()}');
-              tagMap = res.data;
+              member.tagMap = res.data;
             } else {
               //没有这个id的数据
               if (res.data == 0) {
                 needInitTag = true;
               } else {
-                await Api.editNoteItem(tagPrefix + jsonEncode(tagMap), uc.tagNoteId);
+                await Api.editNoteItem(Const.tagPrefix + jsonEncode(member.tagMap), uc.tagNoteId);
               }
             }
           }
           if (needInitTag) {
-
             //先查一下列表，有没有重复创建的
             if (nodeListEl.isNotEmpty) {
               //获取配置
-              List<Element> tagItems = nodeListEl.where((v) => v.text.contains(tagPrefix)).toList();
+              List<Element> tagItems = nodeListEl.where((v) => v.text.contains(Const.tagPrefix)).toList();
               if (tagItems.isNotEmpty) {
                 var tagNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
-                Result res = await Api.getNoteItemContent(tagNoteId, tagPrefix);
+                Result res = await Api.getNoteItemContent(tagNoteId, Const.tagPrefix);
                 //可能为空
                 if (res.success) {
-                  print('获取配置${res.data.toString()}');
-                  tagMap = res.data;
+                  print('获取标签${res.data.toString()}');
+                  member.tagMap = res.data;
                 } else {
-                  await Api.editNoteItem(tagPrefix + jsonEncode(tagMap), tagNoteId);
+                  await Api.editNoteItem(Const.tagPrefix + jsonEncode(member.tagMap), tagNoteId);
                 }
                 uc.tagNoteId = tagNoteId;
                 needInitTag = false;
@@ -291,7 +288,7 @@ class LoginApi {
             if(needInitTag){
               //创建标签
               print('初始化标签');
-              Result r = await Api.createNoteItem(tagPrefix + jsonEncode(tagMap));
+              Result r = await Api.createNoteItem(Const.tagPrefix + jsonEncode(member.tagMap));
               if (r.success) {
                 uc.tagNoteId = r.data;
               }

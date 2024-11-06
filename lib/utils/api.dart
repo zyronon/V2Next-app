@@ -14,7 +14,7 @@ import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -799,7 +799,6 @@ class Api {
   }
 
   static Future<Result> createNoteItem(String itemName) async {
-    debugger();
     FormData formData = FormData.fromMap({'content': itemName, 'parent_id': 0, 'syntax': 0});
     Response res = await Http().post('/notes/new', data: formData);
 

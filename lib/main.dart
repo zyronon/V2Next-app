@@ -18,7 +18,7 @@ import 'package:v2ex/pages/post_collect.dart';
 import 'package:v2ex/pages/post_detail/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
 import 'package:v2ex/pages/edit_tab.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/request.dart';
 
 import 'pages/index.dart';

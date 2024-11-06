@@ -30,6 +30,8 @@ class Const {
   static String v2exHost = 'https://www.v2ex.com';
   static String git = 'https://github.com/zyronon/V2Next';
   static String issues = 'https://github.com/zyronon/V2Next/issues';
+  static String configPrefix = '--mob-config--';
+  static String tagPrefix = '--用户标签--';
   static Color primaryColor = Color(0xff48a24a);
   static Color line = Color(0xfff1f1f1);
   static Widget lineWidget = Divider(color: Const.line, height: 1);

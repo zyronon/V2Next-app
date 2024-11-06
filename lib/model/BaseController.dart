@@ -9,7 +9,7 @@ import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/pages/login/login_api.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/request.dart';
 
@@ -136,5 +136,17 @@ class BaseController extends GetxController {
     tabList.assignAll(val);
     _box.write(StoreKeys.tabMap.toString(), jsonEncode(tabList));
     update();
+  }
+
+  List getTags(String username) {
+    List? r = member.tagMap[username];
+    if (r == null) return [];
+    return r;
+  }
+
+  setTags(String username, List<String> val) {
+    member.tagMap[username] = val;
+    update();
+    Api.editNoteItem(Const.tagPrefix + jsonEncode(member.tagMap), currentConfig.tagNoteId);
   }
 }

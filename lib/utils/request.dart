@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/interceptor.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -20,7 +20,7 @@ class Http {
   Http._internal() {
     //BaseOptions、Options、RequestOptions 都可以配置参数，优先级别依次递增，且可以根据优先级别覆盖参数
     BaseOptions options = BaseOptions(
-        // validateStatus: (_) => true,
+        validateStatus: (_) => true,
         //请求基地址,可以包含子路径
         baseUrl: Const.v2exHost,
         // followRedirects: true,
@@ -48,10 +48,6 @@ class Http {
         requestHeader: false,
         responseHeader: false,
       ));
-
-    dio.options.validateStatus = (status) {
-      return status! >= 200 && status < 400;
-    };
   }
 
   /// 设置cookie

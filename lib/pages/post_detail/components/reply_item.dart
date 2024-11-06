@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/user_tag.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/ConstVal.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 import '../../../components/BaseAvatar.dart';
 
@@ -45,6 +44,23 @@ class ReplyItem extends StatelessWidget {
     } else {
       return item.replyContent;
     }
+  }
+
+Widget  _buildTagList() {
+    BaseController bc = BaseController.to;
+    List list = bc.getTags(item.username);
+    if (list.length != 0) {
+      return Padding(
+        padding: EdgeInsets.only(top: 8.w),
+        child: Wrap(
+          direction: Axis.horizontal,
+          spacing: 8,
+          runSpacing: 8,
+          children: list.map((v) => TDTag(v, isOutline: true)).toList(),
+        ),
+      );
+    }
+    return Container();
   }
 
   @override
@@ -138,24 +154,7 @@ class ReplyItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 8.w),
-            child: Wrap(
-              direction: Axis.horizontal,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-                TDTag('标签文字', isOutline: true),
-              ],
-            ),
-          ),
+          _buildTagList(),
           Padding(
             padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),
             child: SizedBox(
