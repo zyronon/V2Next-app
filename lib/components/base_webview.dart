@@ -55,55 +55,55 @@ class _BaseWebViewState extends State<BaseWebView> {
         ),
         body: SafeArea(
             child: Column(children: <Widget>[
-              TDNavBar(
-                height: 48,
-                screenAdaptation: false,
-                useDefaultBack: true,
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    InAppWebView(
-                      initialSettings: settings,
-                      pullToRefreshController: pullToRefreshController,
-                      onWebViewCreated: (controller) {
-                        webViewController = controller;
-                        Utils.dioSyncCookie2InApp(widget.url);
-                        controller.loadUrl(urlRequest: URLRequest(url: WebUri(widget.url)));
-                      },
-                      onPermissionRequest: (controller, request) async {
-                        return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);
-                      },
-                      shouldOverrideUrlLoading: (controller, navigationAction) async {
-                        var uri = navigationAction.request.url!;
-                        print('在 webview 中点击的url：${uri}');
-                        if (uri.toString().contains('v2ex.com/t/')) {
-                          var match = RegExp(r'(\d+)').allMatches(uri.toString().replaceAll('v2ex.com/t/', ''));
-                          var result = match.map((m) => m.group(0)).toList();
-                          Get.toNamed('/post-detail', arguments: Post2(id: result[0]!));
-                          return NavigationActionPolicy.CANCEL;
-                        }
-                        return NavigationActionPolicy.ALLOW;
-                      },
-                      onLoadStop: (controller, url) async {
-                        pullToRefreshController?.endRefreshing();
-                      },
-                      onReceivedError: (controller, request, error) {
-                        pullToRefreshController?.endRefreshing();
-                      },
-                      onProgressChanged: (controller, progress) {
-                        if (progress == 100) {
-                          pullToRefreshController?.endRefreshing();
-                        }
-                        setState(() {
-                          this.progress = progress / 100;
-                        });
-                      },
-                    ),
-                    progress < 1.0 ? LinearProgressIndicator(value: progress) : Container(),
-                  ],
+          TDNavBar(
+            height: 48,
+            screenAdaptation: false,
+            useDefaultBack: true,
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                InAppWebView(
+                  initialSettings: settings,
+                  pullToRefreshController: pullToRefreshController,
+                  onWebViewCreated: (controller) async {
+                    await Utils.dioSyncCookie2InApp(widget.url);
+                    webViewController = controller;
+                    controller.loadUrl(urlRequest: URLRequest(url: WebUri(widget.url)));
+                  },
+                  onPermissionRequest: (controller, request) async {
+                    return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading: (controller, navigationAction) async {
+                    var uri = navigationAction.request.url!;
+                    print('在 webview 中点击的url：${uri}');
+                    if (uri.toString().contains('v2ex.com/t/')) {
+                      var match = RegExp(r'(\d+)').allMatches(uri.toString().replaceAll('v2ex.com/t/', ''));
+                      var result = match.map((m) => m.group(0)).toList();
+                      Get.toNamed('/post-detail', arguments: Post2(id: result[0]!));
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController?.endRefreshing();
+                  },
+                  onReceivedError: (controller, request, error) {
+                    pullToRefreshController?.endRefreshing();
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController?.endRefreshing();
+                    }
+                    setState(() {
+                      this.progress = progress / 100;
+                    });
+                  },
                 ),
-              ),
-            ])));
+                progress < 1.0 ? LinearProgressIndicator(value: progress) : Container(),
+              ],
+            ),
+          ),
+        ])));
   }
 }
