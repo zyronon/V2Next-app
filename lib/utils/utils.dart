@@ -567,41 +567,6 @@ class Utils {
     return true;
   }
 
-  static resolveNode(response, type) {
-    List<Map<dynamic, dynamic>> nodesList = [];
-    var document = parse(response.data);
-    var nodesBox;
-    // 【设置】中可能关闭【首页显示节点导航】
-    if (document.querySelector('#Main')!.children.length >= 4) {
-      nodesBox = document.querySelector('#Main')!.children.last;
-    } else {
-      document = parse(Const.groupNodes);
-      nodesBox = document.querySelector('.box');
-    }
-    if (nodesBox != null) {
-      nodesBox.children.removeAt(0);
-      var nodeTd = nodesBox.children;
-      for (var i in nodeTd) {
-        Map nodeItem = {};
-        String fName = i.querySelector('span')!.text;
-        nodeItem['name'] = fName;
-        List<Map> childs = [];
-        var cEl = i.querySelectorAll('a');
-        for (var j in cEl) {
-          Map item = {};
-          item['nodeId'] = j.attributes['href']!.split('/').last;
-          item['nodeName'] = j.text;
-          childs.add(item);
-        }
-        nodeItem['childs'] = childs;
-
-        nodesList.add(nodeItem);
-      }
-      nodesList.insert(0, {'name': '已收藏', 'childs': []});
-      GStorage().setNodes(nodesList);
-      return nodesList;
-    }
-  }
 
   static PreferredSizeWidget appBar() {
     return AppBar(elevation: 0, toolbarHeight: 0);

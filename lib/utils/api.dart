@@ -680,14 +680,55 @@ class Api {
     }
   }
 
-  // 获取所有节点 pc
-  static Future getNodes() async {
-    Response response;
-    response = await Http().get('/');
-    return Utils.resolveNode(response, 'pc');
+  // 获取节点地图
+  static Future getNodeMap() async {
+    Response response = await Http().get('/');
+    List<Map<dynamic, dynamic>> nodesList = [];
+    var document = parse(response.data);
+    var nodesBox;
+    // 【设置】中可能关闭【首页显示节点导航】
+    if (document.querySelector('#Main')!.children.length >= 4) {
+      nodesBox = document.querySelector('#Main')!.children.last;
+    }
+    if (nodesBox != null) {
+      List<NodeItem> allList = await getAllNodes();
+      nodesBox.children.removeAt(0);
+      var nodeTd = nodesBox.children;
+      for (var i in nodeTd) {
+        Map nodeItem = {};
+        String fName = i.querySelector('span')!.text;
+        nodeItem['name'] = fName;
+        List<Map> children = [];
+        var cEl = i.querySelectorAll('a');
+        for (var j in cEl) {
+          Map item = {};
+          item['name'] = j.attributes['href']!.split('/').last;
+          item['title'] = j.text;
+
+          NodeItem? r;
+          try {
+            r = allList.firstWhere((v) => v.name == item['name']);
+          } catch (e) {
+            r = null;
+          }
+          if (r != null) {
+            String? avatar = r.avatarLarge ?? r.avatarNormal ?? r.avatarMini;
+            if (avatar != '/static/img/node_default_large.png' && avatar != '') {
+              item['avatar'] = avatar;
+            }
+          }
+          children.add(item);
+        }
+        nodeItem['children'] = children;
+        nodesList.add(nodeItem);
+      }
+    }
+    nodesList.insert(0, {'name': '已收藏', 'children': []});
+    return nodesList;
   }
 
   // 所有节点
+  //todo 如果其他地方未使用，可以直接合并
   static Future<List<NodeItem>> getAllNodes() async {
     Response response = await Http().get(Const.allNodes);
     List<dynamic> list = response.data;

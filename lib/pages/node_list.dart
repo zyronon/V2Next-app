@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,6 +11,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/storage.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class NodeListPage extends StatefulWidget {
   const NodeListPage({super.key});
@@ -25,7 +27,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
   BaseController bc = BaseController.to;
   late final Axis scrollDirection;
   late TabController tabController;
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _isLoadingFav = false;
 
   @override
@@ -34,49 +36,29 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
     this.getData();
   }
 
-  //TODO 这里的加载有问题，没用到缓存
   Future getData() async {
-    if (nodesList.isEmpty) {
-      _isLoading = false;
-      tabController = TabController(length: nodesList.toList().length, vsync: this);
-      setState(() {
-
-      });
-      await getAllNodes(nodesList);
+    //如果没数据，先用默认数据
+    if (nodesList.isNotEmpty) {
+      final String response = await rootBundle.loadString('assets/data/node_map.json');
+      final data = json.decode(response);
+      nodesList = data;
+      tabController = TabController(length: data.length, vsync: this);
     } else {
-      nodesList = await Api.getNodes();
-      await getAllNodes(nodesList);
+      //有就用缓存的
       tabController = TabController(length: nodesList.toList().length, vsync: this);
     }
+    setState(() {});
+
+    //显示出来后，再请求最新数据
+    nodesList = await Api.getNodeMap();
+    tabController = TabController(length: nodesList.toList().length, vsync: this);
+    setState(() {
+      _isLoading = false;
+    });
     if (bc.isLogin) {
       getFavNodes();
     }
-  }
-
-  Future getAllNodes(res) async {
-    var result = await Api.getAllNodes();
-    for (var j in res) {
-      for (var z in j['childs']) {
-        await nodeInfo(z, result);
-      }
-    }
-    setState(() {
-      _isLoading = false;
-      nodesList = res;
-    });
-    return result;
-  }
-
-  Future<Map> nodeInfo(nodeItem, result) async {
-    for (var i in result) {
-      String avatar = i.avatarLarge ?? i.avatar_normal ?? i.avatar_mini;
-      if (i.name == nodeItem['nodeId']) {
-        if (avatar != '/static/img/node_default_large.png' && avatar != '') {
-          nodeItem['nodeCover'] = avatar;
-        }
-      }
-    }
-    return nodeItem;
+    GStorage().setNodes(nodesList);
   }
 
   Future getFavNodes() async {
@@ -90,11 +72,11 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
     var list = [];
     if (res.isNotEmpty) {
       for (var i in res) {
-        list.add({'nodeId': i.nodeId, 'nodeName': i.nodeName, 'nodeCover': i.nodeCover});
+        list.add({'name': i.nodeId, 'title': i.nodeName, 'avatar': i.nodeCover});
       }
     }
     setState(() {
-      nodesList[0]['childs'] = list;
+      nodesList[0]['children'] = list;
     });
   }
 
@@ -185,7 +167,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
                           : GridView.count(
                               padding: EdgeInsets.zero,
                               // 禁止滚动
-                              physics: e.length < 5 ? const NeverScrollableClampingScrollPhysics() : const ScrollPhysics(),
+                              physics: e['children'].length < 5 ? const NeverScrollableClampingScrollPhysics() : const ScrollPhysics(),
                               crossAxisCount: Breakpoints.large.isActive(context)
                                   ? 8
                                   : Breakpoints.medium.isActive(context)
@@ -193,11 +175,11 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
                                       : 3,
                               mainAxisSpacing: 6,
                               children: [
-                                ...nodesChildList(e['childs']),
-                                if (Breakpoints.small.isActive(context) && e['childs'].length > 19)
+                                ...nodesChildList(e['children']),
+                                if (Breakpoints.small.isActive(context) && e['children'].length > 19)
                                   IconButton(
                                     onPressed: () {
-                                      allNodes(e['childs']);
+                                      allNodes(e['children']);
                                     },
                                     icon: Icon(Icons.more_horiz, color: Theme.of(context).colorScheme.primary),
                                   ),
@@ -211,11 +193,11 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
     );
   }
 
-  List<Widget> nodesChildList(child) {
+  List<Widget> nodesChildList(children) {
     List<Widget>? list = [];
-    int maxCount = Breakpoints.mediumAndUp.isActive(context) ? child.length : 18;
-    for (var i = 0; i < child.length; i++) {
-      var item = child[i];
+    int maxCount = Breakpoints.mediumAndUp.isActive(context) ? children.length : 18;
+    for (var i = 0; i < children.length; i++) {
+      var item = children[i];
       if (i <= maxCount) {
         list.add(
           InkWell(
@@ -229,21 +211,21 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                if (item['nodeCover'] != null && item['nodeCover'] != '') ...[
+                if (item['avatar'] != null && item['avatar'] != '') ...[
                   CachedNetworkImage(
-                    imageUrl: item['nodeCover'],
+                    imageUrl: item['avatar'],
                     width: 38,
                     height: 38,
                   )
                 ] else ...[
                   Image.asset(
-                    'assets/images/avatar.png',
+                    'assets/images/logo.png',
                     width: 38,
                     height: 38,
                   )
                 ],
                 const SizedBox(height: 8),
-                Text(item['nodeName'], overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelMedium, textAlign: TextAlign.center, maxLines: 1),
+                Text(item['title'], overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelMedium, textAlign: TextAlign.center, maxLines: 1),
               ],
             ),
           ),
@@ -272,7 +254,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
         ? showLoading()
         : nodes.isEmpty
             ? const Text('没数据')
-            : nodes['childs'].length == 0
+            : nodes['children'].length == 0
                 ? const Center(
                     child: Center(
                     child: Text('还没有收藏节点'),
@@ -288,11 +270,11 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
                             : 3,
                     mainAxisSpacing: 6,
                     children: [
-                      ...nodesChildList(nodes['childs']),
-                      if (Breakpoints.small.isActive(context) && nodes['childs'].length > 19)
+                      ...nodesChildList(nodes['children']),
+                      if (Breakpoints.small.isActive(context) && nodes['children'].length > 19)
                         IconButton(
                             onPressed: () {
-                              allNodes(nodes['childs']);
+                              allNodes(nodes['children']);
                             },
                             icon: Icon(Icons.more_horiz, color: Theme.of(context).colorScheme.primary)),
                     ],

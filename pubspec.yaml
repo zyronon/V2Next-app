@@ -157,3 +157,4 @@ flutter:
   assets:
     #    - assets/sound/
     - assets/images/
+    - assets/data/

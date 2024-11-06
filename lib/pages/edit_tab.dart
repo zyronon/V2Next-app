@@ -186,7 +186,7 @@ class EditTabPage extends StatelessWidget {
                                       if (_.tabList.any((val) => val.enName == r['nodeId'])) {
                                         Utils.toast(msg: '已存在，请勿重复添加');
                                       } else {
-                                        _.tabList.add(TabItem(cnName: r['nodeName'], enName: r['nodeId'], type: TabType.node));
+                                        _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
                                         Future.delayed(Duration(milliseconds: 300),(){
                                           scrollController.jumpTo(scrollController.position.maxScrollExtent);
                                         });
