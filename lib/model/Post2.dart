@@ -80,6 +80,12 @@ class Reply {
     s.children = json["children"] == null ? [] : List.from(json["children"]!.map((x) => Reply.fromJson(x)));
     return s;
   }
+
+  @override
+  bool operator ==(Object other) => other is Reply && other.username == username;
+
+  @override
+  int get hashCode => username.hashCode;
 }
 
 class Post2 {

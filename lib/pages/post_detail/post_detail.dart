@@ -540,7 +540,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       builder: (BuildContext context) {
         return ReplyNew(
           replyMemberList: replyMemberList,
-          topicId: ctrl.post.id,
+          postId: ctrl.post.id,
           replyList: ctrl.post.replyList,
         );
       },

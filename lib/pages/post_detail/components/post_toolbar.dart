@@ -41,16 +41,9 @@ class PostToolbar extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(14.w, 0.w, 6.w, 4.w),
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Const.line)),
                 color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2), // 阴影颜色
-                    spreadRadius: 1, // 扩散半径
-                    blurRadius: 10, // 模糊半径
-                    offset: Offset(0, -2), // 阴影偏移量 (x, y)
-                  ),
-                ],
+                border: Border(top: BorderSide(color: Const.line)),
+                boxShadow: [Const.boxShadow],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

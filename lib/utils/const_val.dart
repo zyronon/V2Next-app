@@ -21,7 +21,7 @@ class Agent {
   String pc = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
   String ios = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
   String android = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36';
-  // String android = 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.114 Mobile Safari/537.36';
+// String android = 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.114 Mobile Safari/537.36';
 }
 
 class Const {
@@ -38,8 +38,17 @@ class Const {
   static double padding = 10.w;
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
+  static BorderRadiusGeometry cardRadius = BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  static BoxShadow boxShadow = BoxShadow(
+    color: Colors.grey.withOpacity(0.2), // 阴影颜色
+    spreadRadius: 1, // 扩散半径
+    blurRadius: 10, // 模糊半径
+    offset: Offset(0, -2), // 阴影偏移量 (x, y)
+  );
+
   // 所有节点
   static String allNodes = '/api/nodes/all.json';
+
   // 所有节点 topic
   static String allNodesT = '/api/nodes/list.json';
 

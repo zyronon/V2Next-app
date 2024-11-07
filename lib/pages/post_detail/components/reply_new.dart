@@ -17,6 +17,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -41,12 +42,12 @@ class EditorController extends GetxController {
 
 class ReplyNew extends StatefulWidget {
   final List<Reply>? replyMemberList;
-  final String topicId;
+  final String postId;
   final List<Reply>? replyList;
 
   const ReplyNew({
     this.replyMemberList,
-    required this.topicId,
+    required this.postId,
     this.replyList,
     super.key,
   });
@@ -77,7 +78,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    pdc = PostDetailController.to(widget.topicId);
+    pdc = PostDetailController.to(widget.postId);
     // 监听输入框聚焦
     focusNode.addListener(() {
       print(focusNode.hasFocus);
@@ -120,7 +121,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       }
       // print(_replyContent);
       // return;
-      var res = await Api.onSubmitReplyTopic(widget.topicId, replyUser + _replyContent);
+      var res = await Api.onSubmitReplyTopic(widget.postId, replyUser + _replyContent);
       if (res == 'true') {
         if (context.mounted) {
           Navigator.pop(context, {'replyStatus': 'success'});
@@ -154,75 +155,30 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   void onShowMember(context, {type = 'input'}) {
     ec.setStatus(Status.call);
     focusNode.unfocus();
-    List<Reply> atReplyList = List.from(widget.replyList!);
-
     Future.delayed(const Duration(milliseconds: 300), () {
-      for (var i = 0; i < atReplyList.length; i++) {
-        atReplyList[i].isChoose = false;
-      }
-      setState(() {
-        atReplyList = atReplyList;
-      });
       showMaterialModalBottomSheet<Map>(
         context: context,
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
-          return ReplyMemberList(
-            replyList: atReplyList,
-          );
+          return ReplyMemberList(postId: widget.postId);
         },
       ).then((value) {
         if (value != null) {
-          if (value.containsKey('checkStatus')) {
-            // 全选 去重去本人 不显示楼层
-            List<Reply> atMemberList = value['atMemberList'];
-            Set<String> set = {}; // 定义一个空集合
-            for (var i = 0; i < atMemberList.length; i++) {
-              if (atMemberList[i].username != bc.member.username) {
-                set.add(atMemberList[i].username);
-              }
+          List<Reply> atList = value['atList'];
+          for (int i = 0; i < atList.length; i++) {
+            var v = atList[i];
+            String str = '';
+            if (i == 0) {
+              str = '${type == 'input' ? '' : '@'}${v.username} #${v.floor} ';
+            } else {
+              str = '@${v.username} #${v.floor} ';
             }
-            List newAtMemberList = set.toList();
-            for (int i = 0; i < newAtMemberList.length; i++) {
-              String atUserName = '';
-              if (i == 0) {
-                atUserName = type == 'input' ? newAtMemberList[i] : '@${newAtMemberList[i]}';
-              } else {
-                atUserName = '@${newAtMemberList[i]}';
-              }
-              editorController.text = '${editorController.text}$atUserName ';
-            }
-          } else {
-            // @单用户
-            setState(() {
-              atMemberList = value['atMemberList'];
-              String atUserName = atMemberList[0].username;
-              int atFloor = atMemberList[0].floor;
-              editorController.text = '${editorController.text} ${type == "input" ? atUserName : "@$atUserName"} #$atFloor ';
-            });
-          }
-        }
-        if (value == null) {
-          // @多用户 / 没有@用户
-          var atMemberList = atReplyList.where((i) => i.isChoose).toList();
-          if (atMemberList.isNotEmpty) {
-            setState(() {
-              atMemberList = atMemberList;
-            });
-            for (int i = 0; i < atMemberList.length; i++) {
-              String atUserName = '';
-              int atFloor = atMemberList[i].floor;
-              if (i == 0) {
-                atUserName = atMemberList[i].username;
-              } else {
-                atUserName = '@${atMemberList[i].username}';
-              }
-              editorController.text = '${editorController.text}$atUserName #$atFloor ';
-            }
+            editorController.text = '${editorController.text} $str ';
           }
         }
         // 移动光标
         editorController.selection = TextSelection.fromPosition(TextPosition(offset: editorController.text.length));
+        setState(() {});
         // 聚焦
         FocusScope.of(context).requestFocus(focusNode);
       });
@@ -263,13 +219,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
     return GetBuilder<EditorController>(builder: (_) {
       return SingleChildScrollView(
           child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-          ),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: Const.cardRadius),
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20, left: 12, right: 12, top: 18),
         child: Column(
           children: [
@@ -401,18 +351,17 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                             Get.to(LoginPage());
                           },
                         )
-                      ] else
-                        ...[
-                          TDButton(
-                            text: '回复',
-                            size: TDButtonSize.small,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            disabled: ec.disabled,
-                            onTap: onSubmit,
-                          ),
-                        ]
+                      ] else ...[
+                        TDButton(
+                          text: '回复',
+                          size: TDButtonSize.small,
+                          type: TDButtonType.fill,
+                          shape: TDButtonShape.rectangle,
+                          theme: TDButtonTheme.primary,
+                          disabled: ec.disabled,
+                          onTap: onSubmit,
+                        ),
+                      ]
                     ],
                   ),
                   SizedBox(height: 8),

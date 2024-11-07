@@ -6,49 +6,53 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/pages/post_detail/controller.dart';
+import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class ReplyMemberList extends StatefulWidget {
-  final List<Reply>? replyList;
+  final String postId;
 
-  const ReplyMemberList({required this.replyList, Key? key}) : super(key: key);
+  const ReplyMemberList({required this.postId, Key? key}) : super(key: key);
 
   @override
   State<ReplyMemberList> createState() => _ReplyMemberListState();
 }
 
 class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderStateMixin {
-  // final statusBarHeight = GStorage().getStatusBarHeight();
-  BaseController bc = Get.find<BaseController>();
-  final statusBarHeight = 0;
-  int _currentIndex = 0;
-  bool checkStatus = false; // 是否全选
+  late PostDetailController pdc;
+  bool isCheckAll = false; // 是否全选
   IconData iconData = Icons.done;
-  String myUserName = '';
+  late List<Reply> list;
+  String searchKey = '';
 
   @override
   void initState() {
     super.initState();
-    myUserName = bc.member.username;
+    pdc = PostDetailController.to(widget.postId);
+    List<Reply> atReplyList = Utils.clone(pdc.post.replyList);
+    for (var i = 0; i < atReplyList.length; i++) {
+      atReplyList[i].isChoose = false;
+    }
+    setState(() {
+      list = atReplyList;
+    });
+  }
+
+  List<Reply> get searchList {
+    if (searchKey.isEmpty) return list;
+    return list.where((v) {
+      return v.username.toLowerCase().contains(searchKey.toLowerCase()) || v.floor.toString().contains(searchKey);
+    }).toList();
   }
 
   void _checkAll() {
-    Timer.periodic(const Duration(milliseconds: 20), (timer) {
-      if (_currentIndex >= widget.replyList!.length) {
-        return;
-      }
-
-      /// TODO 频繁 setState
-      setState(() {
-        widget.replyList![_currentIndex].isChoose = !checkStatus;
-        _currentIndex++;
-        if (_currentIndex >= widget.replyList!.length) {
-          checkStatus = !checkStatus;
-          _currentIndex = 0;
-          timer.cancel();
-          Navigator.pop(context, {'atMemberList': widget.replyList, 'checkStatus': true});
-        }
-        iconData = !checkStatus ? Icons.done : Icons.done_all;
+    setState(() {
+      searchList.forEach((v) {
+        v.isChoose = !isCheckAll;
       });
+      iconData = !isCheckAll ? Icons.done : Icons.done_all;
+      isCheckAll = !isCheckAll;
     });
   }
 
@@ -56,34 +60,41 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
   Widget build(BuildContext context) {
     return Container(
       // clipBehavior: Clip.hardEdge,
-      height: MediaQuery.of(context).size.height - statusBarHeight - 115,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
+      height: MediaQuery.of(context).size.height - 115.h,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: Const.cardRadius),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            padding: EdgeInsets.only(left: 15.w, right: 15.w, top: 10.w, bottom: 0.w),
             child: sheetHead(),
+          ),
+          TDSearchBar(
+            placeHolder: '输入楼层号或用户名',
+            needCancel: true,
+            onTextChanged: (String text) {
+              searchKey = text;
+              setState(() {});
+            },
           ),
           Expanded(
               child: ListView.builder(
             padding: EdgeInsets.zero,
-            itemCount: widget.replyList!.length,
+            itemCount: searchList.length,
             itemBuilder: (BuildContext context, int index) {
-              if (index == widget.replyList!.length) {
+              if (index == searchList.length) {
                 return SizedBox(height: MediaQuery.of(context).padding.bottom);
               } else {
-                return memberItem(widget.replyList![index]);
+                return memberItem(searchList[index]);
               }
             },
           )),
           Container(
-            padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            padding: EdgeInsets.only(left: 15.w, right: 15.w, top: 10.w, bottom: 10.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: Const.line)),
+              boxShadow: [Const.boxShadow],
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -92,7 +103,10 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
                   type: TDButtonType.fill,
                   shape: TDButtonShape.rectangle,
                   theme: TDButtonTheme.primary,
-                  onTap:_checkAll,
+                  onTap: () {
+                    List atList = list.where((v) => v.isChoose).toSet().toList();
+                    Navigator.pop(context, {'atList': atList});
+                  },
                 ),
               ],
             ),
@@ -119,8 +133,8 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
         InkWell(
           onTap: _checkAll,
           child: Icon(
-            !checkStatus ? Icons.done : Icons.done_all,
-            size: 28.0,
+            !isCheckAll ? Icons.done : Icons.done_all,
+            size: 28.sp,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -131,8 +145,8 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
   Widget memberItem(Reply replyItem) {
     return InkWell(
       child: Container(
-        padding: EdgeInsets.only(left: 15, right: 5),
-        margin: EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.only(left: 15.w, right: 5.w),
+        margin: EdgeInsets.only(bottom: 10.w),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -152,7 +166,6 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
               child: Checkbox(
                 value: replyItem.isChoose,
                 onChanged: (bool? checkValue) {
-                  // 多选
                   setState(() {
                     replyItem.isChoose = checkValue!;
                   });
@@ -163,7 +176,9 @@ class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderSt
         ),
       ),
       onTap: () {
-        Navigator.pop(context, {'atMemberList': List.filled(1, replyItem)});
+        Navigator.pop(context, {
+          'atList': [replyItem]
+        });
       },
     );
   }
