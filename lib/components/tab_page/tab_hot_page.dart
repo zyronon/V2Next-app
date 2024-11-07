@@ -186,7 +186,6 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
             tag: widget.tab.enName,
             builder: (_) {
               if (_.loading && _.mapPostList.length == 0) return LoadingListPage();
-              if (_.needAuth) return NotAllow();
               return CustomScrollView(
                 controller: ctrl,
                 physics: new AlwaysScrollableScrollPhysics(),

@@ -38,7 +38,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
 
   Future getData() async {
     //如果没数据，先用默认数据
-    if (nodesList.isNotEmpty) {
+    if (nodesList.isEmpty) {
       final String response = await rootBundle.loadString('assets/data/node_map.json');
       final data = json.decode(response);
       nodesList = data;

@@ -14,6 +14,8 @@ import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model_login_detail.dart';
+import 'package:v2ex/pages/login/login_api.dart';
+import 'package:v2ex/pages/login/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -649,7 +651,7 @@ class Api {
   }
 
   // 回复主题
-  static Future<String> onSubmitReplyTopic(String id, String replyContent) async {
+  static Future<Result> onSubmitReplyTopic(String id, String replyContent) async {
     SmartDialog.showLoading(msg: '回复中...');
     int once = GStorage().getOnce();
     Options options = Options();
@@ -660,24 +662,32 @@ class Api {
       'origin': Const.v2exHost
     };
     FormData formData = FormData.fromMap({'once': once, 'content': replyContent});
-    Response response = await Http().post('/t/$id', data: formData, isMobile: true, options: options);
+    Response response = await LoginDio().post('/t/$id', data: formData, options: options);
     SmartDialog.dismiss();
-    var bodyDom = parse(response.data).body;
+    debugger();
+
+    String ret = '回复失败了';
+    var document = parse(response.data);
+    Utils.getOnce(document);
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
-      //TODO  获取最后一页最近一条
-      return 'true';
-    } else if (response.statusCode == 200) {
-      String responseText = '回复失败了';
-      var contentDom = bodyDom!.querySelector('#Wrapper');
-      if (contentDom!.querySelector('div.problem') != null) {
-        responseText = contentDom.querySelector('div.problem')!.text;
-      }
-      return responseText;
+      return Result(success: true);
     } else {
-      SmartDialog.dismiss();
-      return 'false';
+      String html = response.data;
+      if (html.contains('你上一条回复的内容和这条相同'))
+        ret = '你上一条回复的内容和这条相同';
+      else if (html.contains('请不要在每一个回复中都包括外链，这看起来像是在 spamming'))
+        ret = '请不要在每一个回复中都包括外链，这看起来像是在 spamming';
+      else if (html.contains('创建新回复'))
+        ret = '回复出现了问题，请使用原版进行回复';
+      else {
+        var contentDom = document.querySelector('#Wrapper');
+        if (contentDom!.querySelector('.problem') != null) {
+          ret = contentDom.querySelector('.problem')!.text;
+        }
+      }
     }
+    return Result(success: false, msg: ret);
   }
 
   // 获取节点地图

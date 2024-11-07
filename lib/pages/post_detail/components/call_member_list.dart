@@ -10,16 +10,16 @@ import 'package:v2ex/pages/post_detail/controller.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/utils.dart';
 
-class ReplyMemberList extends StatefulWidget {
+class CallMemberList extends StatefulWidget {
   final String postId;
 
-  const ReplyMemberList({required this.postId, Key? key}) : super(key: key);
+  const CallMemberList({required this.postId, Key? key}) : super(key: key);
 
   @override
-  State<ReplyMemberList> createState() => _ReplyMemberListState();
+  State<CallMemberList> createState() => _CallMemberListState();
 }
 
-class _ReplyMemberListState extends State<ReplyMemberList> with TickerProviderStateMixin {
+class _CallMemberListState extends State<CallMemberList> with TickerProviderStateMixin {
   late PostDetailController pdc;
   bool isCheckAll = false; // 是否全选
   IconData iconData = Icons.done;

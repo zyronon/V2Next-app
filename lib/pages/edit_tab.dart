@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
@@ -80,6 +81,9 @@ class EditTabPage extends StatelessWidget {
                                       height: 45,
                                       child: Text('长按进行拖动排序'),
                                     ),
+                                    footer: Container(
+                                      height: 145,
+                                    ),
                                     onReorder: (int oldIndex, int newIndex) {
                                       if (newIndex > oldIndex) newIndex -= 1;
                                       final item = _.tabList.removeAt(oldIndex);
@@ -111,7 +115,7 @@ class EditTabPage extends StatelessWidget {
                                               )
                                             ],
                                           ),
-                                        )
+                                        ),
                                     ],
                                   ),
                                 )
@@ -150,13 +154,28 @@ class EditTabPage extends StatelessWidget {
                           children: [
                             if (!_.isEdit.value) ...[
                               _buildIconButton(
+                                  text: '添加',
+                                  onTap: () async {
+                                    var r = await Get.toNamed('/node_list');
+                                    if (r != null) {
+                                      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
+                                        Utils.toast(msg: '已存在，请勿重复添加');
+                                      } else {
+                                        _.isEdit.value = true;
+                                        _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
+                                        Future.delayed(Duration(milliseconds: 300), () {
+                                          scrollController.jumpTo(scrollController.position.maxScrollExtent);
+                                        });
+                                      }
+                                    }
+                                  }),
+                              SizedBox(width: 5),
+                              _buildIconButton(
                                   text: '编辑',
                                   onTap: () async {
                                     _.isEdit.value = true;
                                   }),
-                              SizedBox(width: 5),
                             ],
-                            SizedBox(width: 5),
                             if (_.isEdit.value) ...[
                               _buildIconButton(
                                   text: '取消',
@@ -187,7 +206,7 @@ class EditTabPage extends StatelessWidget {
                                         Utils.toast(msg: '已存在，请勿重复添加');
                                       } else {
                                         _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
-                                        Future.delayed(Duration(milliseconds: 300),(){
+                                        Future.delayed(Duration(milliseconds: 300), () {
                                           scrollController.jumpTo(scrollController.position.maxScrollExtent);
                                         });
                                       }

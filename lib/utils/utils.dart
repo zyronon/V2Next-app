@@ -2,10 +2,8 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
-import 'package:html/parser.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
@@ -14,12 +12,12 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' hide Text;
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/login/login_api.dart';
 import 'package:v2ex/pages/login/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/api.dart';
 import 'package:v2ex/utils/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/upload.dart';
@@ -486,7 +484,7 @@ class Utils {
     if (assets != null && assets.isNotEmpty) {
       SmartDialog.showLoading(msg: '上传中...');
       AssetEntity? file = assets[0];
-      var res = await Upload.uploadImage('1', file);
+      var res = await Upload.uploadImage(file);
       SmartDialog.dismiss();
       return res;
     }
@@ -566,7 +564,6 @@ class Utils {
     }
     return true;
   }
-
 
   static PreferredSizeWidget appBar() {
     return AppBar(elevation: 0, toolbarHeight: 0);
@@ -652,5 +649,19 @@ class Utils {
       default:
         return '楼中楼';
     }
+  }
+
+  static getOnce(Document document) {
+    var menuBodyNode = document.querySelector("#Top .tools");
+    var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+    var loginOutHref = loginOutNode.attributes['onclick']!;
+    RegExp regExp = RegExp(r'\d{3,}');
+    Iterable<Match> matches = regExp.allMatches(loginOutHref);
+    for (Match m in matches) {
+      var once = int.parse(m.group(0)!);
+      print('getOnce${once}');
+      GStorage().setOnce(once);
+    }
+    //pull_once
   }
 }

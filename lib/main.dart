@@ -13,7 +13,7 @@ import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/pages/login/login_dio.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/node_list.dart';
-import 'package:v2ex/pages/page_nodes_topic.dart';
+import 'package:v2ex/pages/nodes_topic.dart';
 import 'package:v2ex/pages/post_collect.dart';
 import 'package:v2ex/pages/post_detail/post_detail.dart';
 import 'package:v2ex/pages/search.dart';

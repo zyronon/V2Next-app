@@ -229,7 +229,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                 return;
               }
               Get.back();
-              onShowReplyModalClick(val);
+              showReplyModal(val);
             }),
         _buildLine(),
         _buildReplyMenuOption(
@@ -522,7 +522,7 @@ class PostDetailPageState extends State<PostDetailPage> {
   List<Reply> replyMemberList = [];
 
   //TODO 需要处理未登录逻辑
-  onShowReplyModalClick([Reply? val]) async {
+  showReplyModal([Reply? val]) async {
     if (val != null) {
       ctrl.setReply(val);
     } else {
@@ -544,7 +544,21 @@ class PostDetailPageState extends State<PostDetailPage> {
           replyList: ctrl.post.replyList,
         );
       },
-    );
+    ).then((r){
+      print('r$r');
+      // setState(() {
+      //   var s = new Reply();
+      //   s.replyContent = _replyCtrl.text;
+      //   s.username = GStorage().getUserInfo()['userName'];
+      //   s.avatar = GStorage().getUserInfo()['avatar'];
+      //   s.date = '刚刚';
+      //   s.floor = ctrl.post.replyCount + 1;
+      //   ctrl.post.replyList.add(s);
+      //   ctrl.rebuildList();
+      // });
+      // _replyCtrl.text = '';
+      // Get.back();
+    });
   }
 
   Widget _buildReplyItem(Reply item, int index, ReplyListType type) {
@@ -554,7 +568,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       item: item,
       onThank: (e) => onThankReplyClick(e),
       onMenu: (e) => onShowItemMenuModalClick(val: e, type: type),
-      onTap: (e) => onShowReplyModalClick(e),
+      onTap: (e) => showReplyModal(e),
     );
   }
 
@@ -566,53 +580,6 @@ class PostDetailPageState extends State<PostDetailPage> {
       ),
       onTap: onTap,
     );
-  }
-
-  onReply() async {
-    var res = await Api.onSubmitReplyTopic(ctrl.post.id, _replyCtrl.text);
-    if (res == 'true') {
-      if (context.mounted) {
-        setState(() {
-          var s = new Reply();
-          s.replyContent = _replyCtrl.text;
-          s.username = GStorage().getUserInfo()['userName'];
-          s.avatar = GStorage().getUserInfo()['avatar'];
-          s.date = '刚刚';
-          s.floor = ctrl.post.replyCount + 1;
-          ctrl.post.replyList.add(s);
-          ctrl.rebuildList();
-        });
-        _replyCtrl.text = '';
-        Get.back();
-      }
-    } else if (res == 'success') {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('回复失败'),
-            showCloseIcon: true,
-          ),
-        );
-      }
-    } else {
-      SmartDialog.show(
-        useSystem: true,
-        animationType: SmartAnimationType.centerFade_otherSlide,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('系统提示'),
-            content: Text(res),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('确定'))
-            ],
-          );
-        },
-      );
-    }
   }
 
   //收藏帖子
@@ -646,10 +613,10 @@ class PostDetailPageState extends State<PostDetailPage> {
     if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
-    // if (ctrl.post.member.username == bc.member.username) {
-    //   Utils.toast('不能感谢自己');
-    //   return;
-    // }
+    if (ctrl.post.member.username == bc.member.username) {
+      Utils.toast(msg: '不能感谢自己发布的主题');
+      return;
+    }
     if (ctrl.post.isThanked) {
       Utils.toast(msg: '这个主题已经被感谢过了');
       return;
@@ -864,7 +831,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                         firstChildCtx = headerCtx;
                       }
                     },
-                    onEdit: onShowReplyModalClick,
+                    onEdit: showReplyModal,
                     id: id)
               ],
             );

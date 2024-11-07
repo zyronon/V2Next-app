@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/extended_text/selection_controls.dart';
 import 'package:v2ex/components/extended_text/text_span_builder.dart';
 import 'package:v2ex/components/image_loading.dart';
-import 'package:v2ex/components/member_list.dart';
+import 'package:v2ex/pages/post_detail/components/call_member_list.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/login/login.dart';
@@ -112,42 +113,24 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             return matched;
           },
           onNonMatch: (String str) => str);
-      String replyUser = '';
-      // 有且只有一个
-      if (widget.replyMemberList!.isNotEmpty) {
-        for (var i in widget.replyMemberList!) {
-          replyUser += '@${i.username} #${i.floor}  ';
-        }
-      }
-      // print(_replyContent);
-      // return;
-      var res = await Api.onSubmitReplyTopic(widget.postId, replyUser + _replyContent);
-      if (res == 'true') {
-        if (context.mounted) {
-          Navigator.pop(context, {'replyStatus': 'success'});
-        }
-      } else if (res == 'success') {
-        if (context.mounted) {
-          Navigator.pop(context, {'replyStatus': 'fail'});
-        }
+
+      print(_replyContent);
+      var res = await Api.onSubmitReplyTopic(widget.postId, _replyContent);
+      if (res.success) {
+        var s = new Reply();
+        s.replyContent = _replyContent;
+        s.replyText = _replyContent;
+        s.hideCallUserReplyContent = _replyContent;
+        s.username = bc.member.username;
+        s.avatar = bc.member.avatar;
+        s.date = '刚刚';
+        s.floor = pdc.post.replyCount + 1;
+        s.isOp = bc.member.username == pdc.post.username;
+        pdc.post.replyList.add(s);
+        pdc.rebuildList();
+        Get.back();
       } else {
-        SmartDialog.show(
-          useSystem: true,
-          animationType: SmartAnimationType.centerFade_otherSlide,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('系统提示'),
-              content: Text(res),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('确定'))
-              ],
-            );
-          },
-        );
+        Utils.toast(msg: res.msg);
       }
     }
   }
@@ -160,7 +143,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
-          return ReplyMemberList(postId: widget.postId);
+          return CallMemberList(postId: widget.postId);
         },
       ).then((value) {
         if (value != null) {
@@ -169,11 +152,11 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
             var v = atList[i];
             String str = '';
             if (i == 0) {
-              str = '${type == 'input' ? '' : '@'}${v.username} #${v.floor} ';
+              str = '${type == 'input' ? '' : ' @'}${v.username} #${v.floor}';
             } else {
-              str = '@${v.username} #${v.floor} ';
+              str = ' @${v.username} #${v.floor}';
             }
-            editorController.text = '${editorController.text} $str ';
+            editorController.text = '${editorController.text}$str ';
           }
         }
         // 移动光标
@@ -186,6 +169,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
   }
 
   void insertText(String text) {
+    print('inserText${text}');
+    debugger();
     final TextEditingValue value = editorController.value;
     final int start = value.selection.baseOffset;
     int end = value.selection.extentOffset;
@@ -277,6 +262,7 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                           print('TextFormField 唤起');
                           onShowMember(context);
                         }
+                        setState(() {});
                       },
                       // onSaved: (val) {
                       //   _replyContent = val!;
@@ -307,11 +293,16 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                       const Spacer(),
                       InkWell(
                         onTap: () {
-                          ec.setStatus(Status.emoji);
-                          focusNode.unfocus();
+                          if (ec.status == Status.emoji) {
+                            ec.setStatus(Status.input);
+                            focusNode.requestFocus();
+                          } else {
+                            ec.setStatus(Status.emoji);
+                            focusNode.unfocus();
+                          }
                         },
                         child: Icon(
-                          ec.status == Status.emoji ? Icons.keyboard : Icons.emoji_emotions,
+                          ec.status == Status.emoji ? Icons.keyboard : Icons.mood,
                           size: 22,
                           color: Colors.grey,
                         ),
@@ -330,16 +321,17 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                         onTap: () async {
                           ec.setStatus(Status.image);
                           var res = await Utils().uploadImage();
-                          editorController.text = '${editorController.text}${res['link']}';
+                          editorController.text = '${editorController.text} ${res['link']}';
                           editorController.selection = TextSelection.fromPosition(TextPosition(offset: editorController.text.length));
+                          setState(() {});
                         },
                         child: Icon(
-                          Icons.image,
+                          Icons.crop_original,
                           size: 22,
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 15),
                       if (!bc.isLogin) ...[
                         TDButton(
                           text: '登录后回复',
@@ -347,8 +339,9 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
                           type: TDButtonType.fill,
                           shape: TDButtonShape.rectangle,
                           theme: TDButtonTheme.primary,
-                          onTap: () {
-                            Get.to(LoginPage());
+                          onTap: () async {
+                            await Get.to(LoginPage());
+                            pdc.update();
                           },
                         )
                       ] else ...[

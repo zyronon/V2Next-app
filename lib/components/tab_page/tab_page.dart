@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -118,7 +119,13 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
             tag: widget.tab.enName,
             builder: (_) {
               if (_.loading && _.postList.length == 0) return LoadingListPage();
-              if (_.needAuth) return NotAllow();
+              if (_.needAuth)
+                return NotAllow(cb: () {
+                  debugger();
+                  if (BaseController.to.isLogin) {
+                    onRefresh();
+                  }
+                });
               return ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
                 controller: ctrl,

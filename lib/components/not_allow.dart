@@ -5,6 +5,10 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 class NotAllow extends StatelessWidget {
+  Function? cb;
+
+  NotAllow({this.cb});
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BaseController>(builder: (_) {
@@ -28,8 +32,9 @@ class NotAllow extends StatelessWidget {
                       type: TDButtonType.fill,
                       shape: TDButtonShape.rectangle,
                       theme: TDButtonTheme.primary,
-                      onTap: () {
-                        Get.toNamed('/login');
+                      onTap: () async {
+                        await Get.toNamed('/login');
+                        cb?.call();
                       },
                     )
                 ],
