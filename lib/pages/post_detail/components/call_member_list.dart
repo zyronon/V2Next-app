@@ -1,10 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/post_detail/controller.dart';
 import 'package:v2ex/utils/const_val.dart';
@@ -35,7 +31,11 @@ class _CallMemberListState extends State<CallMemberList> with TickerProviderStat
       atReplyList[i].isChoose = false;
     }
     setState(() {
+      var s = Reply();
+      s.username = '管理员';
+      s.replyText = '一键@所有管理员 @Livid @Kai @Olivia @GordianZ @sparanoid @drymonfidelia';
       list = atReplyList;
+      list.insert(0, s);
     });
   }
 
@@ -156,7 +156,7 @@ class _CallMemberListState extends State<CallMemberList> with TickerProviderStat
               children: [
                 Text.rich(TextSpan(children: [
                   TextSpan(text: '${replyItem.username} ', style: TextStyle(fontSize: 16.sp)),
-                  TextSpan(text: ' ${replyItem.floor}楼', style: TextStyle(color: Colors.grey, fontSize: 11.sp))
+                  if (replyItem.floor != -1) TextSpan(text: ' ${replyItem.floor}楼', style: TextStyle(color: Colors.grey, fontSize: 11.sp))
                 ])),
                 Text(replyItem.replyText, maxLines: 2, style: TextStyle(color: Colors.grey, fontSize: 12.sp))
               ],

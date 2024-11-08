@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/http/request.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -19,9 +21,9 @@ class Upload {
     'c4a4a563f698595',
     '81be04b9e4a08ce',
   ];
-  static const String uploadBaseUrl = 'https://api.imgur.com/3/image';
+  static const String uploadBaseUrl = 'https://api.imgur.com/3/upload';
 
-  static Future uploadImage(AssetEntity file) async {
+  static Future<Result> uploadImage(AssetEntity file) async {
     FormData formData = FormData.fromMap(
       {
         'image': await Upload().multipartFileFromAssetEntity(file),
@@ -36,7 +38,10 @@ class Upload {
     options.method = 'POST';
     options.contentType = 'multipart/form-data';
     var result = await Http().upload(uploadBaseUrl, data: formData, options: options);
-    return result.data['data'];
+    if (result.statusCode == 200) {
+      return Result(success: result.data['success'], data: result.data['data']);
+    }
+    return Result(success: false);
   }
 
   Future<MultipartFile> multipartFileFromAssetEntity(AssetEntity entity) async {

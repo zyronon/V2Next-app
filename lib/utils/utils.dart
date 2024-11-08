@@ -276,19 +276,20 @@ class Utils {
 
   static checkPhotoLink2Img(Element dom) {
     // bool replaceImgur = window.config['replaceImgur'];
-    bool replaceImgur = true;
+    bool replaceImgur = BaseController.to.currentConfig.replaceImgur;
+    ;
     String prefixImg = replaceImgur ? "https://img.noobzone.ru/getimg.php?url=" : '';
 
     List<Element> imgList = dom.querySelectorAll('img');
-    imgList.forEach((Element a) {
-      String href = a.attributes['src']!;
+    imgList.forEach((Element img) {
+      String href = img.attributes['src']!;
       if (href.contains('imgur.com')) {
-        a.attributes['originUrl'] = a.attributes['src']!;
-        a.attributes['notice'] = '此img标签由V2Next脚本解析';
+        img.attributes['originUrl'] = img.attributes['src']!;
+        img.attributes['notice'] = '此img标签由V2Next脚本解析';
         if (!['.png', '.jpg', '.jpeg', '.gif', '.PNG', '.JPG', '.JPEG', '.GIF'].any((ext) => href.contains(ext))) {
           href += '.png';
         }
-        a.attributes['src'] = prefixImg + href;
+        img.attributes['src'] = prefixImg + href;
       }
     });
 
@@ -474,22 +475,17 @@ class Utils {
     }
   }
 
-  Future uploadImage() async {
+  Future<Result?> uploadImage() async {
     final List<AssetEntity>? assets = await AssetPicker.pickAssets(
       Get.context!,
-      pickerConfig: const AssetPickerConfig(
-        maxAssets: 1,
-        requestType: RequestType.image,
-      ),
+      pickerConfig: const AssetPickerConfig(maxAssets: 1, requestType: RequestType.image),
     );
     if (assets != null && assets.isNotEmpty) {
-      SmartDialog.showLoading(msg: '上传中...');
       AssetEntity? file = assets[0];
-      var res = await Upload.uploadImage(file);
-      SmartDialog.dismiss();
+      Result res = await Upload.uploadImage(file);
       return res;
     }
-    return ('no image selected');
+    return null;
   }
 
   // 从 Dio 的 CookieJar 获取 Cookie 并设置到 InAppWebView 中

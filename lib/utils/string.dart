@@ -1,4 +1,3 @@
-
 enum ThemeType { light, dark, system } // 主题切换
 
 const int baseFontSize = 14;
@@ -9,8 +8,7 @@ class Strings {
   static int maxAge = 7; // 最多记录7天已读
 
   // 酷安表情
-  static String emoji_baseurl =
-      'https://raw.githubusercontent.com/guozhigq/emoji_storage/main';
+  static String emoji_baseurl = 'https://raw.githubusercontent.com/guozhigq/emoji_storage/main';
   static Map<String, String> coolapkEmoticon = {
     "k_doge": "$emoji_baseurl/coolapk/coolapk_emotion_37_doge.png",
     "k_\u4e8c\u54c8": "$emoji_baseurl/coolapk/coolapk_emotion_59_erha.png",
@@ -18,13 +16,11 @@ class Strings {
     "k_\u5047\u54ed": "$emoji_baseurl/coolapk/coolapk_emotion_1019.png",
     "k_\u5047\u7b11": "$emoji_baseurl/coolapk/coolapk_emotion_1020.png",
     "k_\u518d\u89c1": "$emoji_baseurl/coolapk/coolapk_emotion_25_zaijian.png",
-    "k_\u53d8\u6001\u6ed1\u7a3d":
-        "$emoji_baseurl/coolapk/coolapk_emotion_65_coshuaji.png",
+    "k_\u53d8\u6001\u6ed1\u7a3d": "$emoji_baseurl/coolapk/coolapk_emotion_65_coshuaji.png",
     "k_\u53ef\u601c": "$emoji_baseurl/coolapk/coolapk_emotion_26_kelian.png",
     "k_\u5403\u74dc": "$emoji_baseurl/coolapk/d_1.png",
     "k_\u5410\u8840": "$emoji_baseurl/coolapk/coolapk_emotion_21_penxue.png",
-    "k_\u5428\u5428\u5428":
-        "$emoji_baseurl/coolapk/coolapk_emotion_52_hejiu.png",
+    "k_\u5428\u5428\u5428": "$emoji_baseurl/coolapk/coolapk_emotion_52_hejiu.png",
     "k_\u5472\u7259": "$emoji_baseurl/coolapk/coolapk_emotion_3_ciya.png",
     "k_\u54c8\u54c8": "$emoji_baseurl/coolapk/coolapk_emotion_1_hahaha.png",
     "k_\u54ed\u4e86": "$emoji_baseurl/coolapk/coolapk_emotion_33_wulian.png",
@@ -65,4 +61,5 @@ class Strings {
     "k_\u9634\u9669": "https://i.imgur.com/UdCZ5hH.png",
     "k_\u9999\u8549": "https://i.imgur.com/fy7FxE8.png"
   };
+
 }

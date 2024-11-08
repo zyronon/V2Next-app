@@ -1,18 +1,19 @@
 import 'package:extended_text_library/extended_text_library.dart';
 import 'package:flutter/material.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/string.dart';
 
 ///emoji/image text
 class EmojiText extends SpecialText {
-  EmojiText(TextStyle? textStyle, {this.start})
-      : super(EmojiText.flag, ']', textStyle);
+  EmojiText(TextStyle? textStyle, {this.start}) : super(EmojiText.flag, ']', textStyle);
   static const String flag = '[';
   final int? start;
+
   @override
   InlineSpan finishText() {
     final String key = toString();
 
-    if (EmojiUitl.instance.emojiMap.containsKey(key)) {
+    if (EmojiUtil.instance.highEmojiMap.containsKey(key)) {
       double size = 22;
 
       // final TextStyle ts = textStyle!;
@@ -21,9 +22,8 @@ class EmojiText extends SpecialText {
       // }
 
       return ImageSpan(
-          NetworkImage(
-            EmojiUitl.instance.emojiMap[key]!,
-          ),
+          // NetworkImage(EmojiUtil.instance.highEmojiMap[key]!),
+          AssetImage(EmojiUtil.instance.highEmojiMap[key]!),
           actualText: key,
           imageWidth: size,
           imageHeight: size,
@@ -36,21 +36,22 @@ class EmojiText extends SpecialText {
   }
 }
 
-class EmojiUitl {
-  final coolapkEmoticon = Strings.coolapkEmoticon;
-  EmojiUitl._() {
-    for (int i = 0; i < coolapkEmoticon.values.toList().length; i++) {
-      _emojiMap['[${coolapkEmoticon.keys.toList()[i]}]'] =
-          coolapkEmoticon.values.toList()[i];
-    }
+class EmojiUtil {
+  EmojiUtil._() {
+    Const.classicsEmoticons.forEach((v) {
+      _highEmojiMap['[${v['name']!}]'] = 'assets/emoji/${v['name']!}.png';
+      _lowEmojiMap['[${v['name']!}]'] = v['low']!;
+    });
   }
 
-  final Map<String, String> _emojiMap = <String, String>{};
+  final Map<String, String> _highEmojiMap = <String, String>{};
+  final Map<String, String> _lowEmojiMap = <String, String>{};
 
-  Map<String, String> get emojiMap => _emojiMap;
+  Map<String, String> get highEmojiMap => _highEmojiMap;
 
-  // final String _emojiFilePath = 'https://i.imgur.com/';
+  Map<String, String> get lowEmojiMap => _lowEmojiMap;
 
-  static EmojiUitl? _instance;
-  static EmojiUitl get instance => _instance ??= EmojiUitl._();
+  static EmojiUtil? _instance;
+
+  static EmojiUtil get instance => _instance ??= EmojiUtil._();
 }

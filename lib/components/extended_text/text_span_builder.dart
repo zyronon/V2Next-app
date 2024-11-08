@@ -15,42 +15,26 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   final TextEditingController? controller;
 
   @override
-  SpecialText? createSpecialText(String flag,
-      {TextStyle? textStyle,
-      SpecialTextGestureTapCallback? onTap,
-      int? index}) {
+  SpecialText? createSpecialText(String flag, {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap, int? index}) {
     if (flag == '') {
       return null;
     }
 
     ///index is end index of start flag, so text start index should be index-(flag.length-1)
     if (isStart(flag, AtText.flag)) {
-      return AtText(textStyle, onTap,
-          start: index! - (AtText.flag.length - 1),
-          showAtBackground: showAtBackground,
-          controller: controller);
-    }
-
-    if (isStart(flag, EmojiText.flag)) {
-      return EmojiText(textStyle, start: index! - (EmojiText.flag.length - 1));
-    } else if (isStart(flag, ImageText.flag)) {
-      return ImageText(textStyle,
-          start: index! - (ImageText.flag.length - 1), onTap: onTap);
-    } else if (isStart(flag, AtText.flag)) {
       return AtText(
         textStyle,
         onTap,
         start: index! - (AtText.flag.length - 1),
         showAtBackground: showAtBackground,
+        controller: controller,
       );
     } else if (isStart(flag, EmojiText.flag)) {
       return EmojiText(textStyle, start: index! - (EmojiText.flag.length - 1));
+    } else if (isStart(flag, ImageText.flag)) {
+      return ImageText(textStyle, start: index! - (ImageText.flag.length - 1), onTap: onTap);
+    } else{
+      return null;
     }
-    // else if (isStart(flag, DollarText.flag)) {
-    //   return DollarText(textStyle, onTap,
-    //       start: index! - (DollarText.flag.length - 1));
-    // }
-
-    return null;
   }
 }

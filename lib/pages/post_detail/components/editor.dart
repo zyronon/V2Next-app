@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
 import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/extended_text/emoji_text.dart';
 import 'package:v2ex/components/extended_text/selection_controls.dart';
 import 'package:v2ex/components/extended_text/text_span_builder.dart';
 import 'package:v2ex/components/image_loading.dart';
@@ -32,6 +34,7 @@ class EditorController extends GetxController {
   var text = ''.obs;
   var _keyboardHeight = 0.0.obs;
   var atReplyList = [].obs;
+  var uploading = false.obs;
 
   bool get disabled => text.value == '';
 
@@ -42,14 +45,10 @@ class EditorController extends GetxController {
 }
 
 class Editor extends StatefulWidget {
-  final List<Reply>? replyMemberList;
   final String postId;
-  final List<Reply>? replyList;
 
   const Editor({
-    this.replyMemberList,
     required this.postId,
-    this.replyList,
     super.key,
   });
 
@@ -63,7 +62,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   late PostDetailController pdc;
 
   final TextEditingController editorController = TextEditingController();
-  final MyTextSelectionControls _myExtendedMaterialTextSelectionControls = MyTextSelectionControls();
   final GlobalKey<ExtendedTextFieldState> _key = GlobalKey<ExtendedTextFieldState>();
 
   final GlobalKey _formKey = GlobalKey<FormState>();
@@ -104,30 +102,64 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
       (_formKey.currentState as FormState).save();
 
       String replyContent = editorController.text;
-      replyContent = replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
+      String submit_content = replyContent.splitMapJoin(RegExp(r"\[.*?\]"),
           onMatch: (match) {
-            String matched = match[0]!.substring(1, match[0]!.length - 1);
-            if (Strings.coolapkEmoticon.keys.contains(matched)) {
-              return '${Strings.coolapkEmoticon[matched]!} ';
+            if (EmojiUtil.instance.lowEmojiMap.containsKey(match[0])) {
+              return '${EmojiUtil.instance.lowEmojiMap[match[0]]!} ';
             }
-            return matched;
+            return match[0]!;
           },
           onNonMatch: (String str) => str);
 
-      print(replyContent);
-      var res = await Api.onSubmitReplyTopic(id: widget.postId, val: replyContent);
+      //转换上传的图片
+      String show_content = replyContent.splitMapJoin(RegExp(r"https?:\/\/(i\.)?imgur\.com\/((?!http).)+\.(gif|png|jpg|jpeg|GIF|PNG|JPG|JPEG)"),
+          onMatch: (match) {
+            return '<img src="${match[0]!}" style="max-width: 100%">';
+          },
+          onNonMatch: (String str) => str);
+
+      //转换表情
+      show_content = show_content.splitMapJoin(RegExp(r"\[.*?\]"),
+          onMatch: (match) {
+            if (EmojiUtil.instance.lowEmojiMap.containsKey(match[0])) {
+              var val = EmojiUtil.instance.lowEmojiMap[match[0]];
+              return '<img src="${val}" style="max-width: 100%">';
+            }
+            return match[0]!;
+          },
+          onNonMatch: (String str) => str);
+
+      //转换表情
+      show_content = show_content.splitMapJoin(RegExp(r"@([\w]+?[\s])"),
+          onMatch: (match) {
+            var val = match[0]!.replaceAll('@', '').trim();
+            return '@<a href="/member/${val}">${val}</a> ';
+          },
+          onNonMatch: (String str) => str);
+
+      show_content = show_content.replaceAll('\n', '<br/>');
+
+      print('submit_content：${submit_content}');
+      print("show_content：${show_content}");
+      var res = await Api.onSubmitReplyTopic(id: widget.postId, val: submit_content);
       if (res.success) {
         //TODO 需要预处理
-        var s = new Reply();
-        s.replyContent = replyContent;
-        s.replyText = replyContent;
-        s.hideCallUserReplyContent = replyContent;
-        s.username = bc.member.username;
-        s.avatar = bc.member.avatar;
-        s.date = '刚刚';
-        s.floor = pdc.post.replyCount + 1;
-        s.isOp = bc.member.username == pdc.post.username;
-        pdc.post.replyList.add(s);
+        var item = new Reply();
+        item.replyContent = show_content;
+        item.replyText = show_content;
+        item.hideCallUserReplyContent = show_content;
+        item.username = bc.member.username;
+        item.avatar = bc.member.avatar;
+        item.date = '刚刚';
+        item.floor = pdc.post.replyCount + 1;
+        item.isOp = bc.member.username == pdc.post.username;
+        var parsedContent = Utils.parseReplyContent(item.replyContent);
+        item.replyUsers = parsedContent['users'];
+        item.replyFloor = parsedContent['floor'];
+        if (item.replyUsers.length == 1) {
+          item.hideCallUserReplyContent = item.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
+        }
+        pdc.post.replyList.add(item);
         pdc.rebuildList();
         Get.back();
       } else {
@@ -151,11 +183,15 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
           List<Reply> atList = value['atList'];
           for (int i = 0; i < atList.length; i++) {
             var v = atList[i];
+            if(v.username == '管理员'){
+              v.username = 'Livid @Kai @Olivia @GordianZ @sparanoid @drymonfidelia';
+            }
+            String floor = v.floor==-1?'':' #${v.floor}';
             String str = '';
             if (i == 0) {
-              str = '${type == 'input' ? '' : ' @'}${v.username} #${v.floor}';
+              str = '${type == 'input' ? '' : ' @'}${v.username}${floor}';
             } else {
-              str = ' @${v.username} #${v.floor}';
+              str = ' @${v.username}${floor}';
             }
             editorController.text = '${editorController.text}$str ';
           }
@@ -171,7 +207,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
   void insertText(String text) {
     print('inserText${text}');
-    debugger();
     final TextEditingValue value = editorController.value;
     final int start = value.selection.baseOffset;
     int end = value.selection.extentOffset;
@@ -195,14 +230,46 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
       editorController.value = TextEditingValue(text: text, selection: TextSelection.fromPosition(TextPosition(offset: text.length)));
     }
 
+    setState(() {});
+
     SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
       _key.currentState?.bringIntoView(editorController.selection.base);
     });
   }
 
+  Widget _buildEmojiTitle(String title) {
+    return SliverToBoxAdapter(
+      child: Container(
+        padding: EdgeInsets.only(bottom: 10.w, top: 10.w),
+        child: Text(title),
+      ),
+    );
+  }
+
+  Widget _buildEmojiList(List val) {
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8, crossAxisSpacing: 4, mainAxisSpacing: 4, childAspectRatio: 1),
+      delegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          return InkWell(
+            onTap: () {
+              val[index] is Map ? insertText('[${val[index]['name']}]') : insertText(val[index]);
+            },
+            borderRadius: BorderRadius.circular(6),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: val[index] is Map ? Image.asset('assets/emoji/${val[index]['name']!}.png', width: 25.w, height: 25.w) : Text(val[index], style: TextStyle(fontSize: 26.sp)),
+            ),
+          );
+        },
+        childCount: val.length,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EditorController>(builder: (_) {
+    return GetX<EditorController>(builder: (_) {
       return SingleChildScrollView(
           child: Container(
         decoration: BoxDecoration(color: Colors.white, borderRadius: Const.cardRadius),
@@ -246,7 +313,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: ExtendedTextField(
                       key: _key,
-                      selectionControls: _myExtendedMaterialTextSelectionControls,
                       specialTextSpanBuilder: MySpecialTextSpanBuilder(controller: editorController),
                       controller: editorController,
                       minLines: 2,
@@ -255,9 +321,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                       focusNode: focusNode,
                       decoration: const InputDecoration(hintText: "请尽量让自己的回复能够对别人有帮助", border: InputBorder.none),
                       style: TextStyle(fontSize: 14),
-                      // validator: (v) {
-                      //   return v!.trim().isNotEmpty ? null : "请输入回复内容";
-                      // },
                       onChanged: (value) {
                         if (value.endsWith('@')) {
                           print('TextFormField 唤起');
@@ -265,97 +328,101 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                         }
                         setState(() {});
                       },
-                      // onSaved: (val) {
-                      //   _replyContent = val!;
-                      // },
-                      // textSelectionGestureDetectorBuilder: ({
-                      //   required ExtendedTextSelectionGestureDetectorBuilderDelegate
-                      //       delegate,
-                      //   required Function showToolbar,
-                      //   required Function hideToolbar,
-                      //   required Function? onTap,
-                      //   required BuildContext context,
-                      //   required Function? requestKeyboard,
-                      // }) {
-                      //   return MyCommonTextSelectionGestureDetectorBuilder(
-                      //     delegate: delegate,
-                      //     showToolbar: showToolbar,
-                      //     hideToolbar: hideToolbar,
-                      //     onTap: () {},
-                      //     context: context,
-                      //     requestKeyboard: requestKeyboard,
-                      //   );
-                      // },
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Spacer(),
-                      InkWell(
-                        onTap: () {
-                          if (ec.status == Status.emoji) {
-                            ec.setStatus(Status.input);
-                            focusNode.requestFocus();
-                          } else {
-                            ec.setStatus(Status.emoji);
-                            focusNode.unfocus();
-                          }
-                        },
-                        child: Icon(
-                          ec.status == Status.emoji ? Icons.keyboard : Icons.mood,
-                          size: 22,
-                          color: Colors.grey,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (ec.uploading.value) ...[
+                            TDLoading(
+                              size: TDLoadingSize.small,
+                              icon: TDLoadingIcon.circle,
+                              iconColor: TDTheme.of(context).grayColor8,
+                            ),
+                            SizedBox(width: 10.w),
+                            Text('上传中...')
+                          ]
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () => onShowMember(context, type: 'click'),
-                        child: Icon(
-                          Icons.alternate_email_rounded,
-                          size: 22,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () async {
-                          ec.setStatus(Status.image);
-                          var res = await Utils().uploadImage();
-                          editorController.text = '${editorController.text} ${res['link']}';
-                          editorController.selection = TextSelection.fromPosition(TextPosition(offset: editorController.text.length));
-                          setState(() {});
-                        },
-                        child: Icon(
-                          Icons.crop_original,
-                          size: 22,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      if (!bc.isLogin) ...[
-                        TDButton(
-                          text: '登录后回复',
-                          size: TDButtonSize.small,
-                          type: TDButtonType.fill,
-                          shape: TDButtonShape.rectangle,
-                          theme: TDButtonTheme.primary,
-                          onTap: () async {
-                            await Get.to(LoginPage());
-                            pdc.update();
-                          },
-                        )
-                      ] else ...[
-                        TDButton(
-                          text: '回复',
-                          size: TDButtonSize.small,
-                          type: TDButtonType.fill,
-                          shape: TDButtonShape.rectangle,
-                          theme: TDButtonTheme.primary,
-                          disabled: ec.disabled,
-                          onTap: onSubmit,
-                        ),
-                      ]
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (ec.status == Status.emoji) {
+                                ec.setStatus(Status.input);
+                                focusNode.requestFocus();
+                              } else {
+                                ec.setStatus(Status.emoji);
+                                focusNode.unfocus();
+                              }
+                            },
+                            child: Icon(
+                              ec.status == Status.emoji ? Icons.keyboard : Icons.mood,
+                              size: 22,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                            onTap: () => onShowMember(context, type: 'click'),
+                            child: Icon(
+                              Icons.alternate_email_rounded,
+                              size: 22,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                            onTap: () async {
+                              ec.setStatus(Status.image);
+                              ec.uploading.value = true;
+                              Result? res = await Utils().uploadImage();
+                              ec.uploading.value = false;
+                              if (res != null) {
+                                if (res.success) {
+                                  editorController.text = '${editorController.text} ${res.data['link']} ';
+                                  editorController.selection = TextSelection.fromPosition(TextPosition(offset: editorController.text.length));
+                                  setState(() {});
+                                } else {
+                                  Utils.toast(msg: '上传失败');
+                                }
+                              }
+                            },
+                            child: Icon(
+                              Icons.crop_original,
+                              size: 22,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          if (!bc.isLogin) ...[
+                            TDButton(
+                              text: '登录后回复',
+                              size: TDButtonSize.small,
+                              type: TDButtonType.fill,
+                              shape: TDButtonShape.rectangle,
+                              theme: TDButtonTheme.primary,
+                              onTap: () async {
+                                await Get.to(LoginPage());
+                                pdc.update();
+                              },
+                            )
+                          ] else ...[
+                            TDButton(
+                              text: '回复',
+                              size: TDButtonSize.small,
+                              type: TDButtonType.fill,
+                              shape: TDButtonShape.rectangle,
+                              theme: TDButtonTheme.primary,
+                              disabled: ec.disabled,
+                              onTap: onSubmit,
+                            ),
+                          ]
+                        ],
+                      )
                     ],
                   ),
                   SizedBox(height: 8),
@@ -370,25 +437,19 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                 height: ec.status == Status.emoji ? ec._keyboardHeight.value : 0,
                 padding: const EdgeInsets.only(left: 4, right: 4),
                 // decoration: BoxDecoration(border: Border.all()),
-                child: GridView.builder(
-                  padding: EdgeInsets.only(top: 4, bottom: MediaQuery.of(context).padding.bottom),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8, crossAxisSpacing: 4, mainAxisSpacing: 4, childAspectRatio: 1),
-                  itemCount: Strings.coolapkEmoticon.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        insertText('[${Strings.coolapkEmoticon.keys.toList()[index]}]');
-                      },
-                      borderRadius: BorderRadius.circular(6),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: ImageLoading(
-                          imgUrl: Strings.coolapkEmoticon.values.toList()[index],
-                        ),
-                      ),
-                    );
-                    // return CustomLoading();
-                  },
+                child: CustomScrollView(
+                  slivers: [
+                    _buildEmojiTitle('经典表情'),
+                    _buildEmojiList(Const.classicsEmoticons),
+                    _buildEmojiTitle(Const.emojiEmoticons[0]['title']),
+                    _buildEmojiList(Const.emojiEmoticons[0]['list']),
+                    _buildEmojiTitle(Const.emojiEmoticons[1]['title']),
+                    _buildEmojiList(Const.emojiEmoticons[1]['list']),
+                    _buildEmojiTitle(Const.emojiEmoticons[2]['title']),
+                    _buildEmojiList(Const.emojiEmoticons[2]['list']),
+                    _buildEmojiTitle(Const.emojiEmoticons[3]['title']),
+                    _buildEmojiList(Const.emojiEmoticons[3]['list']),
+                  ],
                 ),
               ),
             ),

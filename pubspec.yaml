@@ -157,4 +157,5 @@ flutter:
   assets:
     #    - assets/sound/
     - assets/images/
+    - assets/emoji/
     - assets/data/

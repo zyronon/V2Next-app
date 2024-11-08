@@ -349,13 +349,13 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                           onTap: () => onTap(type),
                           onLongPress: () async {
                             final res = await Utils().uploadImage();
-                            if (res is Map) {
-                              onTap(
-                                type,
-                                link: res['link'],
-                                selectedText: res['link'],
-                              );
-                            }
+                            // if (res is Map) {
+                            //   onTap(
+                            //     type,
+                            //     link: res['link'],
+                            //     selectedText: res['link'],
+                            //   );
+                            // }
                           },
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),

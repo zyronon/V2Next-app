@@ -519,8 +519,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  List<Reply> replyMemberList = [];
-
   //TODO 需要处理未登录逻辑
   showReplyModal([Reply? val]) async {
     if (val != null) {
@@ -528,23 +526,15 @@ class PostDetailPageState extends State<PostDetailPage> {
     } else {
       ctrl.setReply(new Reply());
     }
-    List<Reply> replyList = List.from(ctrl.post.replyList);
-    replyList.retainWhere((i) => i.isChoose);
-    setState(() {
-      replyMemberList = replyList;
-    });
+
     showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Editor(
-          replyMemberList: replyMemberList,
-          postId: ctrl.post.id,
-          replyList: ctrl.post.replyList,
-        );
+        return Editor(postId: ctrl.post.id);
       },
-    ).then((r){
+    ).then((r) {
       print('r$r');
       // setState(() {
       //   var s = new Reply();

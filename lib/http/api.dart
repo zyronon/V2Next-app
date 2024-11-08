@@ -524,18 +524,17 @@ class Api {
       Utils.checkPhotoLink2Img(replyContentElement!);
       item.replyContent = replyContentElement.innerHtml;
       item.replyText = replyContentElement.text;
+      item.hideCallUserReplyContent = item.replyContent;
 
       var noElement = node.querySelector('.no');
       item.floor = int.parse(noElement!.text);
 
       var parsedContent = Utils.parseReplyContent(item.replyContent);
-      item.hideCallUserReplyContent = item.replyContent;
-
-      if (parsedContent['users'].length == 1) {
-        item.hideCallUserReplyContent = item.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
-      }
       item.replyUsers = parsedContent['users'];
       item.replyFloor = parsedContent['floor'];
+      if (item.replyUsers.length == 1) {
+        item.hideCallUserReplyContent = item.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
+      }
 
       var agoElement = node.querySelector('.ago');
       item.date = agoElement!.text;
@@ -663,7 +662,6 @@ class Api {
     };
     FormData formData = FormData.fromMap({'once': once, 'content': val});
     Response response = await LoginDio().post('/t/$id', data: formData, options: options);
-    debugger();
 
     String ret = '回复失败了';
     if (response.statusCode == 302) {

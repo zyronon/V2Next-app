@@ -26,7 +26,7 @@ class Reply {
   String platform = '';
   String username = '';
   String avatar = '';
-  int floor = 0;
+  int floor = -1;
   List<Reply> children = [];
 
   Map<String, dynamic> toJson() => {
@@ -370,6 +370,7 @@ enum CommentDisplayType {
 class UserConfig {
   bool showTopReply;
   bool openTag;
+  bool replaceImgur;
   double version;
   String configPrefix;
   String configNoteId;
@@ -381,6 +382,7 @@ class UserConfig {
   UserConfig({
     this.showTopReply = true,
     this.openTag = true,
+    this.replaceImgur = false,
     this.version = 0.1,
     this.configPrefix = '--mob-config--',
     this.configNoteId = '',
@@ -394,6 +396,7 @@ class UserConfig {
   UserConfig.fromJson(Map<String, dynamic> json)
       : showTopReply = json['showTopReply'] ?? true,
         openTag = json['openTag'] ?? true,
+        replaceImgur = json['replaceImgur'] ?? false,
         version = json['version']?.toDouble() ?? 0.1,
         // 防止类型不匹配时出错
         configPrefix = json['configPrefix'] ?? '--mob-config--',
@@ -410,6 +413,7 @@ class UserConfig {
     return {
       'showTopReply': showTopReply,
       'openTag': openTag,
+      'replaceImgur': replaceImgur,
       'version': version,
       'configPrefix': configPrefix,
       'configNoteId': configNoteId,

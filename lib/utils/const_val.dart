@@ -70,5 +70,187 @@ class Const {
     new TabItem(cnName: '节点', enName: 'nodes', type: TabType.tab),
     new TabItem(cnName: '关注', enName: 'members', type: TabType.tab),
   ];
+
 // static Color primaryColor = Color(0xff07c160);
+
+  /** 表情数据 */
+  static List<Map<String, String>> classicsEmoticons = [
+    {"name": '狗头', "low": 'https://i.imgur.com/io2SM1h.png', "high": 'https://i.imgur.com/0icl60r.png'},
+    {"name": 'doge', "low": 'https://i.imgur.com/duWRpIu.png', "high": 'https://i.imgur.com/HyphI6d.png'},
+    {"name": '受虐滑稽', "low": 'https://i.imgur.com/Iy0taMy.png', "high": 'https://i.imgur.com/PS1pxd9.png'},
+    {"name": '马', "low": 'https://i.imgur.com/8EKZv7I.png', "high": 'https://i.imgur.com/ANFUX52.png'},
+    {"name": '二哈', "low": 'https://i.imgur.com/XKj1Tkx.png', "high": 'https://i.imgur.com/dOeP4XD.png'},
+    {"name": '舔屏', "low": 'https://i.imgur.com/Cvl7dyN.png', "high": 'https://i.imgur.com/LmETy9N.png'},
+    {"name": '辣眼睛', "low": 'https://i.imgur.com/cPNPYD5.png', "high": 'https://i.imgur.com/3fSUmi8.png'},
+    {"name": '吃瓜', "low": 'https://i.imgur.com/ee8Lq7H.png', "high": 'https://i.imgur.com/0L26og9.png'},
+    {"name": '不高兴', "low": 'https://i.imgur.com/huX6coX.png', "high": 'https://i.imgur.com/N7JEuvc.png'},
+    // {
+    //   "name": '呵呵',
+    //   "low": 'https://i.imgur.com/RvoLAbX.png',
+    //   "high": 'https://i.imgur.com/xSzIqrK.png'
+    // },
+    {"name": '真棒', "low": 'https://i.imgur.com/xr1UOz1.png', "high": 'https://i.imgur.com/w8YEw9Q.png'},
+    {"name": '鄙视', "low": 'https://i.imgur.com/u6jlqVq.png', "high": 'https://i.imgur.com/8JFNANq.png'},
+    {"name": '疑问', "low": 'https://i.imgur.com/F29pmQ6.png', "high": 'https://i.imgur.com/EbbTQAR.png'},
+    {"name": '吐舌', "low": 'https://i.imgur.com/InmIzl9.png', "high": 'https://i.imgur.com/Ovj56Cd.png'},
+    // {
+    //   "name": '嘲笑',
+    //   "low": 'https://i.imgur.com/BaWcsMR.png',
+    //   "high": 'https://i.imgur.com/0OGfJw4.png'
+    // },
+    // {
+    //   "name": '滑稽',
+    //   "low": 'https://i.imgur.com/lmbN0yI.png',
+    //   "high": 'https://i.imgur.com/Pc0wH85.png'
+    // },
+    {"name": '笑眼', "low": 'https://i.imgur.com/ZveiiGy.png', "high": 'https://i.imgur.com/PI1CfEr.png'},
+    // {
+    //   "name": '狂汗',
+    //   "low": 'https://i.imgur.com/veWihk6.png',
+    //   "high": 'https://i.imgur.com/3LtHdQv.png'
+    // },
+    {"name": '大哭', "low": 'https://i.imgur.com/hu4oR6C.png', "high": 'https://i.imgur.com/b4X9XLE.png'},
+    {"name": '喷', "low": 'https://i.imgur.com/bkw3VRr.png', "high": 'https://i.imgur.com/wnZL13L.png'},
+    {"name": '苦笑', "low": 'https://i.imgur.com/VUWFktU.png', "high": 'https://i.imgur.com/NAfspZ1.png'},
+    {"name": '喝酒', "low": 'https://i.imgur.com/2ZZSapE.png', "high": 'https://i.imgur.com/rVbSVak.png'},
+
+    {"name": '捂脸', "low": 'https://i.imgur.com/krir4IG.png', "high": 'https://i.imgur.com/qqBqgVm.png'},
+    // {
+    //   "name": '呕',
+    //   "low": 'https://i.imgur.com/6CUiUxv.png',
+    //   "high": 'https://i.imgur.com/kgdxRsG.png'
+    // },
+    {"name": '阴险', "low": 'https://i.imgur.com/MA8YqTP.png', "high": 'https://i.imgur.com/e94jbaT.png'},
+    {"name": '怒', "low": 'https://i.imgur.com/n4kWfGB.png', "high": 'https://i.imgur.com/iMXxNxh.png'},
+    // {
+    //   "name": '衰',
+    //   "low": 'https://i.imgur.com/voHFDyQ.png',
+    //   "high": 'https://i.imgur.com/XffE6gu.png'
+    // },
+    // {
+    //   "name": '合十',
+    //   "low": 'https://i.imgur.com/I8x3ang.png',
+    //   "high": 'https://i.imgur.com/T4rJVee.png'
+    // },
+    // {
+    //   "name": '赞',
+    //   "low": 'https://i.imgur.com/lG44yUl.png',
+    //   "high": 'https://i.imgur.com/AoF5PLp.png'
+    // },
+    // {
+    //   "name": '踩',
+    //   "low": 'https://i.imgur.com/cJp0uKZ.png',
+    //   "high": 'https://i.imgur.com/1XYGfXj.png'
+    // },
+    // {
+    //   "name": '爱心',
+    //   "low": 'https://i.imgur.com/sLENaF5.png',
+    //   "high": 'https://i.imgur.com/dND56oX.png'
+    // },
+    //
+    // {
+    //   "name": '心碎',
+    //   "low": 'https://i.imgur.com/AZxJzve.png',
+    //   "high": 'https://i.imgur.com/RiUsPci.png'
+    // },
+  ];
+
+  /** emoji表情数据 */
+  static List emojiEmoticons = [
+    {
+      "title": '常用',
+      "list": [
+        '😅',
+        '😭',
+        '😂',
+        '🥰',
+        '😰',
+        '🤡',
+        '👀',
+        '🐴',
+        '🐶',
+        '❓',
+        '❤️',
+        '💔',
+        '⭐',
+        '🔥',
+        '💩',
+        '🔞',
+        '⚠️',
+        '🎁',
+        '🎉',
+      ]
+    },
+    {
+      "title": '小黄脸',
+      "list": [
+        '😀',
+        '😁',
+        '😂',
+        '🤣',
+        '😅',
+        '😊',
+        '😋',
+        '😘',
+        '🥰',
+        '😗',
+        '🤩',
+        '🤔',
+        '🤨',
+        '😐',
+        '😑',
+        '🙄',
+        '😏',
+        '😪',
+        '😫',
+        '🥱',
+        '😜',
+        '😒',
+        '😔',
+        '😨',
+        '😰',
+        '😱',
+        '🥵',
+        '😡',
+        '🥳',
+        '🥺',
+        '🤭',
+        '🧐',
+        '😎',
+        '🤓',
+        '😭',
+        '🤑',
+        '🤮',
+      ],
+    },
+    {
+      "title": '手势',
+      "list": [
+        '🤏',
+        '👉',
+        '✌️',
+        '👌',
+        '👍',
+        '👎',
+        '🤝',
+        '🙏',
+        '👏',
+      ],
+    },
+    {
+      "title": '其他',
+      "list": [
+        '🔞',
+        '👻',
+        '🤡',
+        '🐔',
+        '👀',
+        '💩',
+        '🐴',
+        '🦄',
+        '🐧',
+        '🐶',
+      ],
+    },
+  ];
 }
