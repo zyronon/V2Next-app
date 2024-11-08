@@ -1,23 +1,31 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/BaseHtmlWidget.dart';
 import 'package:v2ex/components/footer.dart';
-import 'package:v2ex/pages/post_detail/components/reply_item.dart';
-import 'package:v2ex/pages/post_detail/components/editor.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/pages/post_detail/components/editor.dart';
 import 'package:v2ex/pages/post_detail/components/post_navbar.dart';
 import 'package:v2ex/pages/post_detail/components/post_space.dart';
 import 'package:v2ex/pages/post_detail/components/post_toolbar.dart';
+import 'package:v2ex/pages/post_detail/components/reply_item.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 
 import 'components/post_header.dart';
@@ -38,7 +46,6 @@ class PostDetailPageState extends State<PostDetailPage> {
   late PostDetailController ctrl;
 
   BaseController bc = BaseController.to;
-  TextEditingController _replyCtrl = new TextEditingController();
   BuildContext? headerCtx;
   BuildContext? normalListCtx; //正常回复
   BuildContext? topListCtx; //高赞回复
@@ -169,44 +176,45 @@ class PostDetailPageState extends State<PostDetailPage> {
               ),
               Expanded(
                   child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: list.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ReplyItem(
-                    item: list[index],
-                    onThank: null,
-                    onMenu: null,
-                    type: ReplyListType.Hot,
-                    index: index,
-                    isSub: false,
-                    // onTap: (i) {
-                    //   int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
-                    //   if (rIndex > -1) {
-                    //     jumpToIndexItem(index: rIndex);
-                    //   }
-                    // },
-                  );
-                },
-              )),
+                    padding: EdgeInsets.zero,
+                    itemCount: list.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ReplyItem(
+                        item: list[index],
+                        onThank: null,
+                        onMenu: null,
+                        type: ReplyListType.Hot,
+                        index: index,
+                        isSub: false,
+                        // onTap: (i) {
+                        //   int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
+                        //   if (rIndex > -1) {
+                        //     jumpToIndexItem(index: rIndex);
+                        //   }
+                        // },
+                      );
+                    },
+                  )),
               SizedBox(height: 20.w)
             ],
           ),
         );
         return Column(
           children: list
-              .map((v) => ReplyItem(
-                    item: v,
-                    onThank: null,
-                    onMenu: null,
-                    type: ReplyListType.Hot,
-                    index: 0,
-                    onTap: (i) {
-                      int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
-                      if (rIndex > -1) {
-                        jumpToIndexItem(index: rIndex);
-                      }
-                    },
-                  ))
+              .map((v) =>
+              ReplyItem(
+                item: v,
+                onThank: null,
+                onMenu: null,
+                type: ReplyListType.Hot,
+                index: 0,
+                onTap: (i) {
+                  int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
+                  if (rIndex > -1) {
+                    jumpToIndexItem(index: rIndex);
+                  }
+                },
+              ))
               .toList(),
         );
       },
@@ -218,99 +226,100 @@ class PostDetailPageState extends State<PostDetailPage> {
     ctrl.setReply(val);
     modalWrap(
         content: Column(children: [
-      _buildReplyMenuOptionWrapper(
-          child: Column(children: [
-        _buildReplyMenuOption(
-            text: '回复',
-            icon: TDIcons.chat,
-            onTap: () {
-              if (!bc.isLogin) {
-                Get.toNamed('/login');
-                return;
-              }
-              Get.back();
-              showReplyModal(val);
-            }),
-        _buildLine(),
-        _buildReplyMenuOption(
-            text: '感谢',
-            icon: TDIcons.heart,
-            onTap: () {
-              if (!bc.isLogin) {
-                Get.toNamed('/login');
-                return;
-              }
-              if (val.isThanked) {
-                Utils.toast(msg: '这个回复已经被感谢过了');
-                return;
-              }
-              if (val.username == bc.member.username) {
-                Utils.toast(msg: '不能感谢自己');
-                return;
-              }
-              Get.back();
-              onThankReplyClick(val);
-            }),
-        _buildLine(),
-        _buildReplyMenuOption(
-            text: '标签管理',
-            icon: Icons.tag,
-            onTap: () {
-              Get.back();
-              Future.delayed(Duration(milliseconds: 300), () {
-                showDialog(
-                  context: context,
-                  builder: (context) => TagManagerModal(
-                    tags: bc.getTags(val.username),
-                    onSave: (e) {
-                      print(e);
-                      bc.setTags(val.username, e);
-                      ctrl.update();
+          _buildReplyMenuOptionWrapper(
+              child: Column(children: [
+                _buildReplyMenuOption(
+                    text: '回复',
+                    icon: TDIcons.chat,
+                    onTap: () {
+                      if (!bc.isLogin) {
+                        Get.toNamed('/login');
+                        return;
+                      }
+                      Get.back();
+                      showEditor(val);
+                    }),
+                _buildLine(),
+                _buildReplyMenuOption(
+                    text: '感谢',
+                    icon: TDIcons.heart,
+                    onTap: () {
+                      if (!bc.isLogin) {
+                        Get.toNamed('/login');
+                        return;
+                      }
+                      if (val.isThanked) {
+                        Utils.toast(msg: '这个回复已经被感谢过了');
+                        return;
+                      }
+                      if (val.username == bc.member.username) {
+                        Utils.toast(msg: '不能感谢自己');
+                        return;
+                      }
+                      Get.back();
+                      onThankReplyClick(val);
+                    }),
+                _buildLine(),
+                _buildReplyMenuOption(
+                    text: '标签管理',
+                    icon: Icons.tag,
+                    onTap: () {
+                      Get.back();
+                      Future.delayed(Duration(milliseconds: 300), () {
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              TagManagerModal(
+                                tags: bc.getTags(val.username),
+                                onSave: (e) {
+                                  print(e);
+                                  bc.setTags(val.username, e);
+                                  ctrl.update();
+                                },
+                              ),
+                        );
+                      });
+                    }),
+              ])),
+          _buildReplyMenuOptionWrapper(
+              child: Column(children: [
+                _buildReplyMenuOption(
+                    text: '上下文',
+                    icon: Icons.content_paste_search,
+                    onTap: () {
+                      if (val.replyUsers.length != 0) {
+                        showRelationReplyListModal(val);
+                      }
                     },
-                  ),
-                );
-              });
-            }),
-      ])),
-      _buildReplyMenuOptionWrapper(
-          child: Column(children: [
-        _buildReplyMenuOption(
-            text: '上下文',
-            icon: Icons.content_paste_search,
-            onTap: () {
-              if (val.replyUsers.length != 0) {
-                showRelationReplyListModal(val);
-              }
-            },
-            disabled: val.replyUsers.length == 0),
-        // _buildLine(),
-        // _buildReplyMenuOption(
-        //     text: '跳转',
-        //     icon: Icons.content_paste_search,
-        //     onTap: () {
-        //         int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == val.id);
-        //         if (rIndex > -1) {
-        //           jumpToIndexItem(index: rIndex);
-        //         }
-        //     },
-        //     disabled: type == ReplyListType.Normal),
-        _buildLine(),
-        _buildReplyMenuOption(
-            text: '复制',
-            icon: TDIcons.file_copy,
-            onTap: () {
-              Utils.copy(val.replyText);
-            }),
-        _buildLine(),
-        _buildReplyMenuOption(
-            text: '忽略',
-            icon: TDIcons.browse_off,
-            onTap: () {
-              //TODO
-              Utils.toast(msg: '未实现');
-            }),
-      ])),
-    ]));
+                    disabled: val.replyUsers.length == 0),
+                // _buildLine(),
+                // _buildReplyMenuOption(
+                //     text: '跳转',
+                //     icon: Icons.content_paste_search,
+                //     onTap: () {
+                //         int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == val.id);
+                //         if (rIndex > -1) {
+                //           jumpToIndexItem(index: rIndex);
+                //         }
+                //     },
+                //     disabled: type == ReplyListType.Normal),
+                _buildLine(),
+                _buildReplyMenuOption(
+                    text: '复制',
+                    icon: TDIcons.file_copy,
+                    onTap: () {
+                      Utils.copy(val.replyText);
+                    }),
+                _buildLine(),
+                _buildReplyMenuOption(
+                    text: '忽略',
+                    icon: TDIcons.browse_off,
+                    onTap: () {
+                      //TODO
+                      Utils.toast(msg: '未实现');
+                    }),
+              ])),
+        ]));
   }
 
   changeCommentDisplayType(CommentDisplayType val) {
@@ -324,59 +333,203 @@ class PostDetailPageState extends State<PostDetailPage> {
   showSortModal() {
     return modalWrap(
         content: Column(
-      children: [
-        _buildReplyMenuOptionWrapper(
-            child: Column(children: [
-          _buildReplyMenuOption(
-              text: '最新',
-              icon: Icons.new_releases_outlined,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.New,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.New);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '最热',
-              icon: Icons.local_fire_department,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Hot,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.Hot);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '楼中楼',
-              icon: Icons.list_alt,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Nest,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.Nest);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '楼中楼(@)',
-              icon: Icons.alternate_email,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.NestAndCall,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.NestAndCall);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: 'V2原版',
-              icon: Icons.notes,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Origin,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.Origin);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '只看楼主',
-              icon: Icons.person_outline,
-              active: bc.currentConfig.commentDisplayType == CommentDisplayType.Op,
-              onTap: () {
-                changeCommentDisplayType(CommentDisplayType.Op);
-              }),
-        ])),
-      ],
-    ));
+          children: [
+            _buildReplyMenuOptionWrapper(
+                child: Column(children: [
+                  _buildReplyMenuOption(
+                      text: '最新',
+                      icon: Icons.new_releases_outlined,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.New,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.New);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '最热',
+                      icon: Icons.local_fire_department,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.Hot,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.Hot);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '楼中楼',
+                      icon: Icons.list_alt,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.Nest,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.Nest);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '楼中楼(@)',
+                      icon: Icons.alternate_email,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.NestAndCall,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.NestAndCall);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: 'V2原版',
+                      icon: Icons.notes,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.Origin,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.Origin);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '只看楼主',
+                      icon: Icons.person_outline,
+                      active: bc.currentConfig.commentDisplayType == CommentDisplayType.Op,
+                      onTap: () {
+                        changeCommentDisplayType(CommentDisplayType.Op);
+                      }),
+                ])),
+          ],
+        ));
+  }
+
+  final GlobalKey _globalKey = GlobalKey();
+
+  _requestPermission() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+
+    final info = statuses[Permission.storage].toString();
+    // final photosInfo = statuses[Permission.photos].toString();
+
+    print('授权状态：$info');
+  }
+
+  Future<void> _capturePng() async {
+    try {
+      RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData != null) {
+        Uint8List pngBytes = byteData.buffer.asUint8List();
+        print(pngBytes.length);
+        // 将 pngBytes 保存或使用（例如，存储到文件或上传）
+        _requestPermission();
+        // final Uri imgUrl = Uri.parse(imgList[initialPage]) ;
+        final temp = await getTemporaryDirectory();
+        String imgName = "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
+        var path = '${temp.path}/$imgName';
+        File(path).writeAsBytesSync(pngBytes);
+        Share.shareXFiles([XFile(path)], subject: '');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  int _counter = 0;
+  ScreenshotController screenshotController = ScreenshotController();
+
+  showShareModal() {
+    var randomItemCount = Random().nextInt(100);
+
+    var myLongWidget = Builder(builder: (context) {
+      return Container(
+        width: .8.sw,
+        height: .6.sh,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: Const.borderRadiusWidget),
+        // padding: Const.paddingWidget,
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              ctrl.post.title,
+              textAlign: TextAlign.left,
+              style: TextStyle(fontSize: bc.layout.fontSize * 1.2, height: bc.layout.lineHeight, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5.w),
+            Row(
+              children: [
+                Text(
+                  ctrl.post.member.username == 'default' ? '' : ctrl.post.member.username,
+                  style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2, fontWeight: FontWeight.bold, color: Colors.black54),
+                ),
+                //时间、点击量
+                Padding(
+                  padding: EdgeInsets.only(left: 10.w),
+                  child: Text(
+                    ctrl.post.createDateAgo + '   ' + ctrl.post.clickCount.toString() + '次点击',
+                    style: TextStyle(fontSize: bc.fontSize * 0.7, height: 1.2, color: Colors.grey),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.w),
+            BaseHtmlWidget(ellipsis: true, html: ctrl.post.contentRendered),
+            SizedBox(height: 100.w),
+          ],
+        ),
+      );
+    });
+    screenshotController
+        .captureFromLongWidget(
+        InheritedTheme.captureAll(
+          context,
+          Material(
+            child: myLongWidget,
+          ),
+        ),
+        delay: Duration(milliseconds: 100),
+        context: context,
+
+
+        ///
+        /// Additionally you can define constraint for your image.
+        ///
+        constraints: BoxConstraints(
+          maxHeight: 1000,
+          maxWidth: 1000,
+        )
+    )
+        .then((Uint8List capturedImage) async {
+      // 将 pngBytes 保存或使用（例如，存储到文件或上传）
+      _requestPermission();
+      // final Uri imgUrl = Uri.parse(imgList[initialPage]) ;
+      final temp = await getTemporaryDirectory();
+      String imgName = "pic_vvex${DateTime.now().toString().split('-').join()}.jpg";
+      var path = '${temp.path}/$imgName';
+      File(path).writeAsBytesSync(capturedImage);
+      Share.shareXFiles([XFile(path)], subject: '');
+
+      // Handle captured image
+    });
+
+    showMaterialModalBottomSheet<Map>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return GetBuilder<PostDetailController>(
+            tag: id,
+            builder: (_) {
+              return SizedBox(
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height - 115.h,
+                child: Column(
+                  children: [
+                  ElevatedButton(onPressed: _capturePng, child: Text('data'))
+                  // SizedBox(height: 20.w)
+                  ],
+                ),
+              );
+            });
+      },
+    );
+    // showModalBottomSheet(
+    //   isScrollControlled: true,
+    //   backgroundColor: Colors.transparent,
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //   },
+    // );
   }
 
   //TODO
@@ -384,79 +537,79 @@ class PostDetailPageState extends State<PostDetailPage> {
   showPostMenuModal() {
     modalWrap(
         content: Column(
-      children: [
-        _buildReplyMenuOptionWrapper(
-            child: Column(children: [
-          _buildReplyMenuOption(
-              text: '复制内容',
-              icon: TDIcons.file_copy,
-              onTap: () {
-                Utils.copy(ctrl.post.contentText);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '复制链接',
-              icon: TDIcons.link,
-              onTap: () {
-                Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '分享',
-              icon: TDIcons.share,
-              onTap: () {
-                //TODO
-                Utils.toast(msg: '未实现');
-              }),
-        ])),
-        _buildReplyMenuOptionWrapper(
-            child: Column(children: [
-          _buildReplyMenuOption(
-              text: '忽略',
-              icon: TDIcons.browse_off,
-              onTap: () {
-                //TODO
-                Utils.toast(msg: '未实现');
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '报告',
-              icon: TDIcons.info_circle,
-              onTap: () {
-                //TODO
-                Utils.toast(msg: '未实现');
-              }),
-        ])),
-        _buildReplyMenuOptionWrapper(
-            child: Column(children: [
-          _buildReplyMenuOption(
-              text: '调整排序',
-              icon: TDIcons.order_ascending,
-              right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
-              onTap: () async {
-                Get.back();
-                showSortModal();
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '调整排版',
-              icon: TDIcons.view_module,
-              onTap: () async {
-                Get.back();
-                await Get.toNamed('/layout');
-                ctrl.update();
-              }),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '浏览器打开',
-              icon: TDIcons.logo_chrome,
-              onTap: () {
-                Get.back();
-                Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
-              }),
-        ])),
-      ],
-    ));
+          children: [
+            _buildReplyMenuOptionWrapper(
+                child: Column(children: [
+                  _buildReplyMenuOption(
+                      text: '复制内容',
+                      icon: TDIcons.file_copy,
+                      onTap: () {
+                        Utils.copy(ctrl.post.contentText);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '复制链接',
+                      icon: TDIcons.link,
+                      onTap: () {
+                        Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '分享',
+                      icon: TDIcons.share,
+                      onTap: () {
+                        Get.back();
+                        showShareModal();
+                      }),
+                ])),
+            _buildReplyMenuOptionWrapper(
+                child: Column(children: [
+                  _buildReplyMenuOption(
+                      text: '忽略',
+                      icon: TDIcons.browse_off,
+                      onTap: () {
+                        //TODO
+                        Utils.toast(msg: '未实现');
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '报告',
+                      icon: TDIcons.info_circle,
+                      onTap: () {
+                        //TODO
+                        Utils.toast(msg: '未实现');
+                      }),
+                ])),
+            _buildReplyMenuOptionWrapper(
+                child: Column(children: [
+                  _buildReplyMenuOption(
+                      text: '调整排序',
+                      icon: TDIcons.order_ascending,
+                      right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
+                      onTap: () async {
+                        Get.back();
+                        showSortModal();
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '调整排版',
+                      icon: TDIcons.view_module,
+                      onTap: () async {
+                        Get.back();
+                        await Get.toNamed('/layout');
+                        ctrl.update();
+                      }),
+                  _buildLine(),
+                  _buildReplyMenuOption(
+                      text: '浏览器打开',
+                      icon: TDIcons.logo_chrome,
+                      onTap: () {
+                        Get.back();
+                        Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
+                      }),
+                ])),
+          ],
+        ));
   }
 
   Widget getTextSizeOptionItem(Widget text) {
@@ -465,17 +618,17 @@ class PostDetailPageState extends State<PostDetailPage> {
             height: 40.w,
             child: Center(
                 child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                text,
-                SizedBox(height: 5.w),
-                Container(
-                  width: 5.w,
-                  height: 5.w,
-                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
-                )
-              ],
-            ))));
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    text,
+                    SizedBox(height: 5.w),
+                    Container(
+                      width: 5.w,
+                      height: 5.w,
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
+                    )
+                  ],
+                ))));
   }
 
   modalWrap({required Widget content, Color? color = const Color(0xfff1f1f1)}) async {
@@ -496,7 +649,10 @@ class PostDetailPageState extends State<PostDetailPage> {
                       topRight: Radius.circular(10.r),
                     ),
                   ),
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 0.w),
+                  padding: EdgeInsets.only(bottom: MediaQuery
+                      .of(context)
+                      .viewInsets
+                      .bottom + 0.w),
                   width: double.infinity,
                   child: Column(
                     children: [
@@ -519,14 +675,14 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  //TODO 需要处理未登录逻辑
-  showReplyModal([Reply? val]) async {
+  showEditor([Reply? val]) async {
     if (val != null) {
       ctrl.setReply(val);
     } else {
       ctrl.setReply(new Reply());
     }
-
+    showShareModal();
+    return;
     showModalBottomSheet<Map>(
       context: context,
       isScrollControlled: true,
@@ -534,21 +690,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       builder: (BuildContext context) {
         return Editor(postId: ctrl.post.id);
       },
-    ).then((r) {
-      print('r$r');
-      // setState(() {
-      //   var s = new Reply();
-      //   s.replyContent = _replyCtrl.text;
-      //   s.username = GStorage().getUserInfo()['userName'];
-      //   s.avatar = GStorage().getUserInfo()['avatar'];
-      //   s.date = '刚刚';
-      //   s.floor = ctrl.post.replyCount + 1;
-      //   ctrl.post.replyList.add(s);
-      //   ctrl.rebuildList();
-      // });
-      // _replyCtrl.text = '';
-      // Get.back();
-    });
+    );
   }
 
   Widget _buildReplyItem(Reply item, int index, ReplyListType type) {
@@ -558,7 +700,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       item: item,
       onThank: (e) => onThankReplyClick(e),
       onMenu: (e) => onShowItemMenuModalClick(val: e, type: type),
-      onTap: (e) => showReplyModal(e),
+      onTap: (e) => showEditor(e),
     );
   }
 
@@ -613,29 +755,30 @@ class PostDetailPageState extends State<PostDetailPage> {
     }
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('提示'),
-        content: const Text('确认向本主题创建者表示感谢吗？'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('取消'),
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: const Text('提示'),
+            content: const Text('确认向本主题创建者表示感谢吗？'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: (() async {
+                  var res = await Api.thankTopic(ctrl.post.id);
+                  if (res) {
+                    ctrl.post.isThanked = true;
+                    ctrl.post.thankCount += 1;
+                    ctrl.update();
+                    Utils.toast(msg: '感谢成功');
+                    Get.back();
+                  }
+                }),
+                child: const Text('确定'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: (() async {
-              var res = await Api.thankTopic(ctrl.post.id);
-              if (res) {
-                ctrl.post.isThanked = true;
-                ctrl.post.thankCount += 1;
-                ctrl.update();
-                Utils.toast(msg: '感谢成功');
-                Get.back();
-              }
-            }),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -657,29 +800,30 @@ class PostDetailPageState extends State<PostDetailPage> {
     }
     await showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('提示'),
-        content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: Get.back,
-            child: const Text('取消'),
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: const Text('提示'),
+            content: const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: Get.back,
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  var res = await Api.thankReply(val.id, ctrl.post.id);
+                  if (res) {
+                    var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
+                    ctrl.post.replyList[index].isThanked = true;
+                    ctrl.post.replyList[index].thankCount += 1;
+                    ctrl.rebuildList();
+                    Get.back();
+                  }
+                },
+                child: const Text('确认'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              var res = await Api.thankReply(val.id, ctrl.post.id);
-              if (res) {
-                var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
-                ctrl.post.replyList[index].isThanked = true;
-                ctrl.post.replyList[index].thankCount += 1;
-                ctrl.rebuildList();
-                Get.back();
-              }
-            },
-            child: const Text('确认'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -697,7 +841,11 @@ class PostDetailPageState extends State<PostDetailPage> {
     ctrl.setShowFixedTitle(true);
     firstChildCtx = normalListCtx;
     // _scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.ease);
-    ctrl.observerController.animateTo(sliverContext: normalListCtx, index: index, duration: Duration(milliseconds: 300), curve: Curves.ease, offset: (v) => 46.w);
+    ctrl.observerController.animateTo(sliverContext: normalListCtx,
+        index: index,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.ease,
+        offset: (v) => 46.w);
   }
 
   @override
@@ -756,53 +904,56 @@ class PostDetailPageState extends State<PostDetailPage> {
                                 //header
                                 PostListHeader(left: ctrl.post.replyCount.toString() + '条回复', right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType))),
                                 PostListLoading()
-                              ] else ...[
-                                //高赞回复
-                                if (ctrl.config.showTopReply && ctrl.post.topReplyList.length != 0) ...[
+                              ] else
+                                ...[
+                                  //高赞回复
+                                  if (ctrl.config.showTopReply && ctrl.post.topReplyList.length != 0) ...[
+                                    //header
+                                    PostListHeader(left: ctrl.post.topReplyList.length.toString() + '条高赞回复'),
+                                    //list
+                                    SliverList(
+                                        delegate: SliverChildBuilderDelegate(
+                                              (context, index) {
+                                            if (topListCtx != context) topListCtx = context;
+                                            return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, ReplyListType.Hot), Const.lineWidget]);
+                                          },
+                                          childCount: ctrl.post.topReplyList.length,
+                                        )),
+                                    PostSpace(),
+                                  ],
+
+                                  //普通回复
                                   //header
-                                  PostListHeader(left: ctrl.post.topReplyList.length.toString() + '条高赞回复'),
+                                  PostListHeader(
+                                      left: ctrl.post.replyCount.toString() + '条回复',
+                                      right: InkWell(
+                                        onTap: showSortModal,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 5.w, bottom: 5.w),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(TDIcons.order_ascending, size: 16),
+                                              SizedBox(width: 5),
+                                              Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
+                                            ],
+                                          ),
+                                        ),
+                                      )),
                                   //list
                                   SliverList(
                                       delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                                      if (topListCtx != context) topListCtx = context;
-                                      return Column(children: [_buildReplyItem(ctrl.post.topReplyList[index], index, ReplyListType.Hot), Const.lineWidget]);
-                                    },
-                                    childCount: ctrl.post.topReplyList.length,
-                                  )),
-                                  PostSpace(),
-                                ],
-
-                                //普通回复
-                                //header
-                                PostListHeader(
-                                    left: ctrl.post.replyCount.toString() + '条回复',
-                                    right: InkWell(
-                                      onTap: showSortModal,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 5.w, bottom: 5.w),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Icon(TDIcons.order_ascending, size: 16),
-                                            SizedBox(width: 5),
-                                            Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
-                                          ],
-                                        ),
-                                      ),
-                                    )),
-                                //list
-                                SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    if (normalListCtx != context) normalListCtx = context;
-                                    // return ListTile(title: Text('1111$index'));
-                                    return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, ReplyListType.Normal), Const.lineWidget]);
-                                  },
-                                  childCount: ctrl.getReplyList().length,
-                                )),
-                                SliverToBoxAdapter(child: FooterTips()),
-                              ]
+                                            (context, index) {
+                                          if (normalListCtx != context) normalListCtx = context;
+                                          // return ListTile(title: Text('1111$index'));
+                                          return Column(children: [_buildReplyItem(ctrl.getReplyList()[index], index, ReplyListType.Normal), Const.lineWidget]);
+                                        },
+                                        childCount: ctrl
+                                            .getReplyList()
+                                            .length,
+                                      )),
+                                  SliverToBoxAdapter(child: FooterTips()),
+                                ]
                             ],
                           ),
                         ),
@@ -821,7 +972,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                         firstChildCtx = headerCtx;
                       }
                     },
-                    onEdit: showReplyModal,
+                    onEdit: showEditor,
                     id: id)
               ],
             );

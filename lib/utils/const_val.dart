@@ -38,7 +38,7 @@ class Const {
   static double padding = 10.w;
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
-  static BorderRadiusGeometry cardRadius = BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  static BorderRadiusGeometry cardRadius = BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r));
   static BoxShadow boxShadow = BoxShadow(
     color: Colors.grey.withOpacity(0.2), // 阴影颜色
     spreadRadius: 1, // 扩散半径

@@ -103,6 +103,8 @@ dependencies:
   # 重启app，删除了cookie后重启才会生效
   restart_app: ^1.3.2
 
+  screenshot: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
@@ -275,9 +276,7 @@ class Utils {
   }
 
   static checkPhotoLink2Img(Element dom) {
-    // bool replaceImgur = window.config['replaceImgur'];
     bool replaceImgur = BaseController.to.currentConfig.replaceImgur;
-    ;
     String prefixImg = replaceImgur ? "https://img.noobzone.ru/getimg.php?url=" : '';
 
     List<Element> imgList = dom.querySelectorAll('img');
