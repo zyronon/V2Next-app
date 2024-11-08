@@ -11,10 +11,10 @@ import 'package:html/parser.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/pages/login/login_dio.dart';
+import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/api.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/api.dart';
+import 'package:v2ex/http/request.dart';
 import 'package:v2ex/utils/storage.dart';
 
 class LoginApi {
@@ -242,8 +242,6 @@ class LoginApi {
             }
           }
         }
-
-        debugger();
 
         if (uc.openTag) {
           //标签逻辑

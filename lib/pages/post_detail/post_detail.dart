@@ -9,14 +9,14 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/pages/post_detail/components/reply_item.dart';
-import 'package:v2ex/pages/post_detail/components/reply_new.dart';
+import 'package:v2ex/pages/post_detail/components/editor.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/post_detail/components/post_navbar.dart';
 import 'package:v2ex/pages/post_detail/components/post_space.dart';
 import 'package:v2ex/pages/post_detail/components/post_toolbar.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 
@@ -538,7 +538,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return ReplyNew(
+        return Editor(
           replyMemberList: replyMemberList,
           postId: ctrl.post.id,
           replyList: ctrl.post.replyList,

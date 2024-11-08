@@ -9,7 +9,7 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -26,7 +26,6 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
   // List nodesList = [];
   BaseController bc = BaseController.to;
   late final Axis scrollDirection;
-  late TabController tabController;
   bool _isLoading = false;
   bool _isLoadingFav = false;
 
@@ -42,19 +41,17 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
       final String response = await rootBundle.loadString('assets/data/node_map.json');
       final data = json.decode(response);
       nodesList = data;
-      tabController = TabController(length: data.length, vsync: this);
+      setState(() {});
+    }
+    //显示出来后，再请求最新数据
+    var list = await Api.getNodeMap();
+    if (nodesList[0]['name'] == '已收藏') {
+      nodesList.removeRange(1, nodesList.length);
+      nodesList.addAll(list);
     } else {
-      //有就用缓存的
-      tabController = TabController(length: nodesList.toList().length, vsync: this);
+      nodesList = list;
     }
     setState(() {});
-
-    //显示出来后，再请求最新数据
-    nodesList = await Api.getNodeMap();
-    tabController = TabController(length: nodesList.toList().length, vsync: this);
-    setState(() {
-      _isLoading = false;
-    });
     if (bc.isLogin) {
       getFavNodes();
     }
@@ -62,9 +59,11 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
   }
 
   Future getFavNodes() async {
-    setState(() {
-      _isLoadingFav = true;
-    });
+    if (nodesList[0]['children'].length == 0) {
+      setState(() {
+        _isLoadingFav = true;
+      });
+    }
     var res = await Api.getFavNodes();
     setState(() {
       _isLoadingFav = false;
@@ -126,70 +125,70 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
       ),
       body: _isLoading
           ? showLoading()
-          : Row(
-              children: <Widget>[
-                Card(
-                  elevation: 2,
-                  clipBehavior: Clip.hardEdge,
-                  child: ExtendedTabBar(
-                    controller: tabController,
-                    indicator: BoxDecoration(
-                      color: Theme.of(context).appBarTheme.backgroundColor,
-                      border: Border(
-                          left: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 4.0,
-                        style: BorderStyle.solid,
-                      )),
+          : DefaultTabController(
+              length: nodesList.length,
+              child: Row(
+                children: <Widget>[
+                  Card(
+                    elevation: 2,
+                    clipBehavior: Clip.hardEdge,
+                    child: ExtendedTabBar(
+                      indicator: BoxDecoration(
+                        color: Theme.of(context).appBarTheme.backgroundColor,
+                        border: Border(
+                            left: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 4.0,
+                          style: BorderStyle.solid,
+                        )),
+                      ),
+                      unselectedLabelColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                      labelColor: Theme.of(context).colorScheme.primary,
+                      scrollDirection: Axis.vertical,
+                      labelStyle: Theme.of(context).textTheme.titleSmall,
+                      tabs: nodesList.map((e) {
+                        return ExtendedTab(
+                          size: 75,
+                          iconMargin: const EdgeInsets.only(bottom: 0),
+                          text: e['name'],
+                        );
+                      }).toList(),
                     ),
-                    unselectedLabelColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
-                    labelColor: Theme.of(context).colorScheme.primary,
-                    scrollDirection: Axis.vertical,
-                    labelStyle: Theme.of(context).textTheme.titleSmall,
-                    tabs: nodesList.map((e) {
-                      return ExtendedTab(
-                        size: 75,
-                        iconMargin: const EdgeInsets.only(bottom: 0),
-                        text: e['name'],
-                      );
-                    }).toList(),
                   ),
-                ),
-                // const SizedBox(width: 4),
-                Expanded(
-                  child: ExtendedTabBarView(
-                    cacheExtent: 0,
-                    controller: tabController,
-                    scrollDirection: Axis.vertical,
-                    children: nodesList.map((e) {
-                      return e['name'] == '已收藏'
-                          ? FavNodes(_isLoadingFav, e)
-                          : GridView.count(
-                              padding: EdgeInsets.zero,
-                              // 禁止滚动
-                              physics: e['children'].length < 5 ? const NeverScrollableClampingScrollPhysics() : const ScrollPhysics(),
-                              crossAxisCount: Breakpoints.large.isActive(context)
-                                  ? 8
-                                  : Breakpoints.medium.isActive(context)
-                                      ? 6
-                                      : 3,
-                              mainAxisSpacing: 6,
-                              children: [
-                                ...nodesChildList(e['children']),
-                                if (Breakpoints.small.isActive(context) && e['children'].length > 19)
-                                  IconButton(
-                                    onPressed: () {
-                                      allNodes(e['children']);
-                                    },
-                                    icon: Icon(Icons.more_horiz, color: Theme.of(context).colorScheme.primary),
-                                  ),
-                              ],
-                            );
-                    }).toList(),
-                  ),
-                )
-              ],
-            ),
+                  // const SizedBox(width: 4),
+                  Expanded(
+                    child: ExtendedTabBarView(
+                      cacheExtent: 0,
+                      scrollDirection: Axis.vertical,
+                      children: nodesList.map((e) {
+                        return e['name'] == '已收藏'
+                            ? FavNodes(_isLoadingFav, e)
+                            : GridView.count(
+                                padding: EdgeInsets.zero,
+                                // 禁止滚动
+                                physics: e['children'].length < 5 ? const NeverScrollableClampingScrollPhysics() : const ScrollPhysics(),
+                                crossAxisCount: Breakpoints.large.isActive(context)
+                                    ? 8
+                                    : Breakpoints.medium.isActive(context)
+                                        ? 6
+                                        : 3,
+                                mainAxisSpacing: 6,
+                                children: [
+                                  ...nodesChildList(e['children']),
+                                  if (Breakpoints.small.isActive(context) && e['children'].length > 19)
+                                    IconButton(
+                                      onPressed: () {
+                                        allNodes(e['children']);
+                                      },
+                                      icon: Icon(Icons.more_horiz, color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                ],
+                              );
+                      }).toList(),
+                    ),
+                  )
+                ],
+              )),
     );
   }
 

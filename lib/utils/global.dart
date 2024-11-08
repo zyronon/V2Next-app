@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/request.dart';
 // import 'package:v2ex/service/local_notice.dart';
 // import 'package:v2ex/utils/hive.dart';
 // import 'package:v2ex/utils/proxy.dart';

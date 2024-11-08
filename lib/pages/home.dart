@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/tab_page/tab_hot_page.dart';
 import 'package:v2ex/components/tab_page/tab_page.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/request.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,9 +38,18 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     });
   }
 
+  InAppWebViewController? webViewController;
+  InAppWebViewSettings settings = InAppWebViewSettings(
+    mediaPlaybackRequiresUserGesture: false,
+    allowsInlineMediaPlayback: true,
+    iframeAllow: "camera; microphone",
+    iframeAllowFullscreen: true,
+  );
+
   submit() async {
     BaseController c = Get.find();
-    c.initStorage();
+    // c.initStorage();
+    // Api.pullOnce();
     // c.initStorage();
     // Http().setCookie();
   }

@@ -11,7 +11,7 @@ import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;
@@ -121,7 +121,6 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
               if (_.loading && _.postList.length == 0) return LoadingListPage();
               if (_.needAuth)
                 return NotAllow(cb: () {
-                  debugger();
                   if (BaseController.to.isLogin) {
                     onRefresh();
                   }

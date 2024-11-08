@@ -3,7 +3,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 
 class TopicNodesPage extends StatefulWidget {
   const TopicNodesPage({Key? key}) : super(key: key);

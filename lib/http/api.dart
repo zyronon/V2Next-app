@@ -14,10 +14,10 @@ import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/pages/login/login_api.dart';
-import 'package:v2ex/pages/login/login_dio.dart';
+import 'package:v2ex/http/login_api.dart';
+import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
@@ -651,7 +651,7 @@ class Api {
   }
 
   // 回复主题
-  static Future<Result> onSubmitReplyTopic(String id, String replyContent) async {
+  static Future<Result> onSubmitReplyTopic({required String id, required String val, bool isRetry = false}) async {
     SmartDialog.showLoading(msg: '回复中...');
     int once = GStorage().getOnce();
     Options options = Options();
@@ -661,32 +661,37 @@ class Api {
       'refer': '${Const.v2exHost}/t/$id',
       'origin': Const.v2exHost
     };
-    FormData formData = FormData.fromMap({'once': once, 'content': replyContent});
+    FormData formData = FormData.fromMap({'once': once, 'content': val});
     Response response = await LoginDio().post('/t/$id', data: formData, options: options);
-    SmartDialog.dismiss();
     debugger();
 
     String ret = '回复失败了';
-    var document = parse(response.data);
-    Utils.getOnce(document);
     if (response.statusCode == 302) {
       SmartDialog.showToast('回复成功');
+      await Api.pullOnce();
       return Result(success: true);
     } else {
+      var document = parse(response.data);
+      Utils.getOnce(document);
       String html = response.data;
       if (html.contains('你上一条回复的内容和这条相同'))
         ret = '你上一条回复的内容和这条相同';
       else if (html.contains('请不要在每一个回复中都包括外链，这看起来像是在 spamming'))
         ret = '请不要在每一个回复中都包括外链，这看起来像是在 spamming';
-      else if (html.contains('创建新回复'))
-        ret = '回复出现了问题，请使用原版进行回复';
-      else {
+      else if (html.contains('创建新回复')) {
+        ret = '回复出现了问题，请使用重试';
+        if (!isRetry) {
+          print('第二次重试中');
+          return onSubmitReplyTopic(id: id, val: val, isRetry: true);
+        }
+      } else {
         var contentDom = document.querySelector('#Wrapper');
         if (contentDom!.querySelector('.problem') != null) {
           ret = contentDom.querySelector('.problem')!.text;
         }
       }
     }
+    SmartDialog.dismiss();
     return Result(success: false, msg: ret);
   }
 
@@ -733,7 +738,6 @@ class Api {
         nodesList.add(nodeItem);
       }
     }
-    nodesList.insert(0, {'name': '已收藏', 'children': []});
     return nodesList;
   }
 
@@ -892,5 +896,18 @@ class Api {
     } else {
       return true;
     }
+  }
+
+  static pullOnce() async {
+    Response response = await Http().get('/poll_once');
+    try {
+      if (response.statusCode == 200) {
+        GStorage().setOnce(int.parse(response.data));
+        return Result(success: true);
+      }
+    } catch (e) {
+      return Result(success: false);
+    }
+    return Result(success: true);
   }
 }

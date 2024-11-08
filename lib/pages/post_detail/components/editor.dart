@@ -17,7 +17,7 @@ import 'package:v2ex/pages/post_detail/components/call_member_list.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/pages/login/login.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/string.dart';
@@ -41,12 +41,12 @@ class EditorController extends GetxController {
   }
 }
 
-class ReplyNew extends StatefulWidget {
+class Editor extends StatefulWidget {
   final List<Reply>? replyMemberList;
   final String postId;
   final List<Reply>? replyList;
 
-  const ReplyNew({
+  const Editor({
     this.replyMemberList,
     required this.postId,
     this.replyList,
@@ -54,10 +54,10 @@ class ReplyNew extends StatefulWidget {
   });
 
   @override
-  State<ReplyNew> createState() => _ReplyNewState();
+  State<Editor> createState() => _EditorState();
 }
 
-class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
+class _EditorState extends State<Editor> with WidgetsBindingObserver {
   EditorController ec = Get.put(EditorController());
   BaseController bc = Get.find<BaseController>();
   late PostDetailController pdc;
@@ -103,8 +103,8 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
       //验证通过提交数据
       (_formKey.currentState as FormState).save();
 
-      String _replyContent = editorController.text;
-      _replyContent = _replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
+      String replyContent = editorController.text;
+      replyContent = replyContent.splitMapJoin(RegExp(r"\[k_.*?\]"),
           onMatch: (match) {
             String matched = match[0]!.substring(1, match[0]!.length - 1);
             if (Strings.coolapkEmoticon.keys.contains(matched)) {
@@ -114,13 +114,14 @@ class _ReplyNewState extends State<ReplyNew> with WidgetsBindingObserver {
           },
           onNonMatch: (String str) => str);
 
-      print(_replyContent);
-      var res = await Api.onSubmitReplyTopic(widget.postId, _replyContent);
+      print(replyContent);
+      var res = await Api.onSubmitReplyTopic(id: widget.postId, val: replyContent);
       if (res.success) {
+        //TODO 需要预处理
         var s = new Reply();
-        s.replyContent = _replyContent;
-        s.replyText = _replyContent;
-        s.hideCallUserReplyContent = _replyContent;
+        s.replyContent = replyContent;
+        s.replyText = replyContent;
+        s.hideCallUserReplyContent = replyContent;
         s.username = bc.member.username;
         s.avatar = bc.member.avatar;
         s.date = '刚刚';

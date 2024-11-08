@@ -14,7 +14,7 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class TabHotPageController extends GetxController {

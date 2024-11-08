@@ -14,7 +14,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;

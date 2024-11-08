@@ -4,12 +4,6 @@ import 'package:v2ex/utils/utils.dart';
 
 class ApiInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    loginAuth(options.path, options.method);
-    handler.next(options);
-  }
-
-  @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     // print("响应之前");
     loginAuth(
@@ -28,7 +22,7 @@ class ApiInterceptor extends Interceptor {
       await dioError(err),
       displayType: SmartToastType.onlyRefresh,
     );
-    super.onError(err, handler);
+    handler.next(err);
   }
 
   static Future<String> dioError(DioException error) async {

@@ -9,7 +9,7 @@ import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 
 class NodeController extends GetxController {
   int pageNo = 1;

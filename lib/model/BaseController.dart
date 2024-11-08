@@ -8,10 +8,10 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/pages/login/login_api.dart';
+import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/api.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/api.dart';
+import 'package:v2ex/http/request.dart';
 
 enum StoreKeys {
   token,

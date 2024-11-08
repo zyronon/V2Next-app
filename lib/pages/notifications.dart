@@ -7,7 +7,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
 
 import '../model/Post2.dart';
-import '../utils/api.dart';
+import '../http/api.dart';
 
 class NotificationController extends GetxController {
   MemberNoticeModel data = MemberNoticeModel();

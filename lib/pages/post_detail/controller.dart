@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/utils/api.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class PostDetailController extends GetxController {

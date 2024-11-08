@@ -9,7 +9,7 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/pages/login/login_api.dart';
+import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';

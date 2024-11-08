@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/request.dart';
+import 'package:v2ex/http/request.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Upload {

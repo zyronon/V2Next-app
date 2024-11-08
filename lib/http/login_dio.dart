@@ -6,9 +6,14 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/interceptor.dart';
+import 'package:v2ex/http/interceptor.dart';
 import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
+
+
+//使用了原生平台adapter,无法登录，但不使用就太慢了...，
+// 所以复制了一份dio实例，专们用于登录
+//另外，回复时，也不能用原生adapter
 
 class LoginDio {
   static late final LoginDio _instance = LoginDio._internal();
@@ -17,7 +22,6 @@ class LoginDio {
 
   factory LoginDio() => _instance;
 
-  //使用了原生平台adapter,无法登录，但不使用就太慢了...，所以复制了一份dio实例，专们用于登录
   LoginDio._internal() {
     BaseOptions options = BaseOptions(
       baseUrl: Const.v2exHost,
