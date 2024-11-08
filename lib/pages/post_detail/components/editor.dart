@@ -408,6 +408,9 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                               onTap: () async {
                                 await Get.to(LoginPage());
                                 pdc.update();
+                                bc.update();
+                                ec.update();
+                                await Api.pullOnce();
                               },
                             )
                           ] else ...[
