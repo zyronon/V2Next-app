@@ -13,10 +13,10 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/pages/post_detail/controller.dart';
 import 'package:v2ex/utils/const_val.dart';
 

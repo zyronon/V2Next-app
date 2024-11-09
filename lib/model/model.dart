@@ -88,7 +88,7 @@ class Reply {
   int get hashCode => username.hashCode;
 }
 
-class Post2 {
+class Post {
   List<dynamic> allReplyUsers;
   String contentRendered;
   String contentText;
@@ -131,7 +131,7 @@ class Post2 {
   bool isMove;
 
   // 构造函数
-  Post2({
+  Post({
     this.allReplyUsers = const [],
     this.createDate = '',
     this.createDateAgo = '',
@@ -172,10 +172,10 @@ class Post2 {
     this.isMove = false,
   })  : member = member ?? Member(),
         // 如果传入为 null，则赋默认值
-        node = node ?? V2Node(); // 如果传入为 null，则赋默认值
+        node = node ?? V2Node();
 
-  // fromJson 方法
-  Post2.fromJson(Map<String, dynamic> json)
+
+  Post.fromJson(Map<String, dynamic> json)
       : allReplyUsers = json['allReplyUsers'] ?? [],
         contentRendered = json['contentRendered'] ?? '',
         createDate = json['createDate'] ?? '',
@@ -434,7 +434,7 @@ class NodeListModel {
   int favoriteCount = 0; // 收藏人数
   int totalPage = 1; // 总页数
   String nodeCover = ''; // 封面
-  List<Post2> topicList = [];
+  List<Post> topicList = [];
 }
 
 class Result {

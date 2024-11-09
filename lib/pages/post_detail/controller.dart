@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/database.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class PostDetailController extends GetxController {
   bool isShowFixedTitle = false;
-  Post2 post = new Post2();
+  Post post = new Post();
   Reply reply = new Reply();
   int scrollIndex = 0;
   bool loading = false;
@@ -23,8 +24,6 @@ class PostDetailController extends GetxController {
   }
 
   static to(id) => Get.find<PostDetailController>(tag: id);
-
-  static PostDetailController get to2 => Get.find<PostDetailController>();
 
   setReply(Reply val) {
     reply = val;
@@ -71,6 +70,12 @@ class PostDetailController extends GetxController {
 
   getData() async {
     post = Get.arguments;
+    // var s = await bc.database.managers.todoItems.filter((f) => f.id(1)).getSingle();
+    // if (s != null) {
+    //   print(s.title);
+    //   print(s.content);
+    // }
+
     isShowFixedTitle = false;
     loading = true;
     update();
@@ -83,6 +88,13 @@ class PostDetailController extends GetxController {
     loading = false;
     update();
     observerController.reattach();
+    // await bc.database.into(bc.database.todoItems).insert(
+    //       TodoItemsCompanion.insert(
+    //         // postId: post.id,
+    //         title: post.title,
+    //         content: post.contentRendered,
+    //       ),
+    //     );
   }
 
   @override

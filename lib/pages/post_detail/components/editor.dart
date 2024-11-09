@@ -1,31 +1,26 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/components/extended_text/emoji_text.dart';
-import 'package:v2ex/components/extended_text/selection_controls.dart';
-import 'package:v2ex/components/extended_text/text_span_builder.dart';
-import 'package:v2ex/components/image_loading.dart';
-import 'package:v2ex/pages/post_detail/components/call_member_list.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
-import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/model.dart';
+import 'package:v2ex/pages/login/login.dart';
+import 'package:v2ex/pages/post_detail/components/call_member_list.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/string.dart';
 import 'package:v2ex/utils/utils.dart';
 
 import '../controller.dart';
+import 'extended_text/emoji_text.dart';
+import 'extended_text/text_span_builder.dart';
 
 enum Status { input, emoji, call, image }
 

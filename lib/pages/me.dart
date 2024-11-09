@@ -3,13 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/base_webview.dart';
-import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/http/login_api.dart';
+import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class MePage extends StatelessWidget {
@@ -158,6 +157,7 @@ class MePage extends StatelessWidget {
                       icon: Icons.create_outlined,
                       onTap: () {
                         if (!Utils.checkIsLogin()) return;
+                        // Get.toNamed('/create');
                         Get.to(BaseWebView(url: 'https://www.v2ex.com/write'), transition: Transition.cupertino);
                       }),
                   EdgeInsets.only(left: 12.w, right: 12.w)),

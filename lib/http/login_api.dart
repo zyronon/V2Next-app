@@ -9,7 +9,7 @@ import 'package:get/get.dart' hide Response, FormData;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/model_login_detail.dart';
 import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';

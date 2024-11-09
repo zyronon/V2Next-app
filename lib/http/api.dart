@@ -1,23 +1,17 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Element;
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response, FormData;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/http/login_dio.dart';
+import 'package:v2ex/http/request.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
-import 'package:v2ex/model/model_login_detail.dart';
-import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/http/request.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
@@ -27,7 +21,7 @@ class Api {
   static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 1, String? date}) async {
     Result res = new Result();
     Response response;
-    List<Post2> postList = [];
+    List<Post> postList = [];
     List<V2Node> nodeList = [];
     switch (tab.type) {
       case TabType.tab:
@@ -91,9 +85,9 @@ class Api {
       res.data = Utils().parsePagePostList(aRootNode);
     } else {
       response = await Http().get(Const.v2Hot + '/hot/${date}.json');
-      List<Post2> list = [];
+      List<Post> list = [];
       (response.data as List).forEach((v) {
-        Post2 item = Post2.fromJson(v);
+        Post item = Post.fromJson(v);
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
         item.node.cnName = v['nodeTitle'];
@@ -175,7 +169,7 @@ class Api {
       List<dynamic> list = response.data;
       res.success = true;
       res.data = list
-          .map((e) => Post2(
+          .map((e) => Post(
                 id: e['id'].toString(),
                 title: e['title'],
                 member: Member(
@@ -195,9 +189,9 @@ class Api {
           .toList();
     } else {
       response = await Http().get(Const.v2Hot + '/hot/${date}.json');
-      List<Post2> list = [];
+      List<Post> list = [];
       (response.data as List).forEach((v) {
-        Post2 item = Post2.fromJson(v);
+        Post item = Post.fromJson(v);
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
         item.node.cnName = v['nodeTitle'];
@@ -275,8 +269,8 @@ class Api {
   }
 
   //获取最新帖子(特殊处理)
-  static Future<List<Post2>> getLatestPostList({required String nodeId, int pageNo = 0}) async {
-    List<Post2> list = [];
+  static Future<List<Post>> getLatestPostList({required String nodeId, int pageNo = 0}) async {
+    List<Post> list = [];
     Response response = await Http().get('/index.xml');
     final myTransformer = Xml2Json();
     myTransformer.parse(response.data);
@@ -286,7 +280,7 @@ class Api {
     List xmlList = jsonDecode(json)['feed']['entry'];
 
     xmlList.forEach((item) {
-      Post2 p = new Post2();
+      Post p = new Post();
       // print(item);
       p.title = item['title'].replaceAll(RegExp(r'^\[.*?\]'), '');
       p.title = p.title.trim();
@@ -309,8 +303,8 @@ class Api {
     return list;
   }
 
-  static Future<Post2> getPostDetail(String id) async {
-    Post2 post = Post2();
+  static Future<Post> getPostDetail(String id) async {
+    Post post = Post();
     var tt = DateTime.now();
     print('请求开始$tt');
     var response = await Http().get("/t/$id?p=1", isMobile: false);
@@ -907,5 +901,169 @@ class Api {
       return Result(success: false);
     }
     return Result(success: true);
+  }
+
+  // 发布主题
+  static postTopic(args) async {
+    SmartDialog.showLoading(msg: '发布中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/write?node=qna
+      'Referer': '${Const.v2exHost}/write?node=${args['node_name']}',
+      'Origin': Const.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'title': args['title'], // 标题
+      'syntax': args['syntax'], // 语法 default markdown
+      'content': args['content'], // 内容
+      'node_name': args['node_name'], // 节点名称 en
+      'once': GStorage().getOnce()
+    });
+
+    Response response =
+    await Http().post('/write', data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    print('1830：${response.headers["location"]}');
+    if (document.querySelector('div.problem') != null) {
+      SmartDialog.show(
+        useSystem: true,
+        animationType: SmartAnimationType.centerFade_otherSlide,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('提示'),
+            content: Text(document.querySelector('div.problem')!.text),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('确定'))
+            ],
+          );
+        },
+      );
+      return false;
+    } else {
+      return response.headers["location"];
+    }
+  }
+
+  // 编辑主题 不可更改节点
+  static eidtTopic(args) async {
+    SmartDialog.showLoading(msg: '发布中...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/edit/write/topic/918603
+      'Referer': '${Const.v2exHost}/edit/topic/${args['topicId']}',
+      'Origin': Const.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+    FormData formData = FormData.fromMap({
+      'title': args['title'], // 标题
+      'syntax': args['syntax'], // 语法 0: default 1: markdown
+      'content': args['content'], // 内容
+    });
+
+    Response response = await Http().post('/edit/topic/${args['topicId']}',
+        data: formData, options: options);
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    var mainNode = document.querySelector('#Main');
+    if (mainNode != null &&
+        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  // 查询主题状态 pc
+  static Future queryTopicStatus(topicId) async {
+    SmartDialog.showLoading();
+    Map result = {};
+    Response response =
+    await Http().get('/edit/topic/$topicId');
+    SmartDialog.dismiss();
+    var document = parse(response.data);
+    var mainNode = document.querySelector('#Main');
+    if (mainNode!.querySelector('div.inner') != null &&
+        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+      // 不可编辑
+      result['status'] = false;
+    } else {
+      Map topicDetail = {};
+      var topicTitle = mainNode.querySelector('#topic_title');
+      topicDetail['topicTitle'] = topicTitle!.text;
+      var topicContent = mainNode.querySelector('#topic_content');
+      topicDetail['topicContent'] = topicContent!.text;
+      var select = mainNode.querySelector('#select_syntax');
+      var syntaxs = select!.querySelectorAll('option');
+      var selectSyntax = '';
+      for (var i in syntaxs) {
+        if (i.attributes['selected'] != null) {
+          selectSyntax = i.attributes['value']!;
+        }
+      }
+      topicDetail['syntax'] = selectSyntax;
+      result['topicDetail'] = topicDetail;
+      result['status'] = true;
+    }
+    return result;
+  }
+
+  // 查询是否可以增加附言
+  static Future appendStatus(topicId) async {
+    SmartDialog.showLoading();
+    Response response =
+    await Http().get('/append/topic/$topicId',isMobile: true);
+    SmartDialog.dismiss();
+    print(response);
+    var document = parse(response.data);
+    if (document.querySelectorAll('input').length > 2) {
+      var onceNode = document.querySelectorAll('input')[1];
+      GStorage().setOnce(int.parse(onceNode.attributes['value']!));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 增加附言
+  static Future appendContent(args) async {
+    SmartDialog.showLoading(msg: '正在提交...');
+    Options options = Options();
+    options.contentType = Headers.formUrlEncodedContentType;
+    options.headers = {
+      // 必须字段
+      // Referer :  https://www.v2ex.com/append/topic/918603
+      'Referer': '${Const.v2exHost}/append/topic/${args['topicId']}',
+      'Origin': Const.v2exHost,
+      'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+    };
+
+    FormData formData = FormData.fromMap({
+      'content': args['content'], // 内容
+      'syntax': args['syntax'],
+      'once': GStorage().getOnce()
+    });
+    Response? response;
+    try {
+      response = await Http().post('/append/topic/${args['topicId']}',
+          data: formData, options: options);
+      SmartDialog.dismiss();
+      var document = parse(response.data);
+      print(document);
+      return true;
+    } catch (err) {
+      SmartDialog.dismiss();
+    }
   }
 }

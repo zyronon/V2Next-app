@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:flutter/services.dart' show rootBundle;

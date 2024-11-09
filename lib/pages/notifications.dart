@@ -6,7 +6,7 @@ import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
 
-import '../model/Post2.dart';
+import '../model/model.dart';
 import '../http/api.dart';
 
 class NotificationController extends GetxController {

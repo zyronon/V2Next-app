@@ -6,7 +6,7 @@ import 'package:v2ex/pages/notifications.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/const_val.dart';
 
-import 'home.dart';
+import 'home/home.dart';
 
 class Index extends StatefulWidget {
   const Index({super.key});

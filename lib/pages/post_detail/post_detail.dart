@@ -19,12 +19,12 @@ import 'package:screenshot/screenshot.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/pages/post_detail/components/editor.dart';
 import 'package:v2ex/pages/post_detail/components/post_navbar.dart';
 import 'package:v2ex/pages/post_detail/components/post_space.dart';
@@ -68,12 +68,6 @@ class PostDetailPageState extends State<PostDetailPage> {
   void dispose() {
     super.dispose();
     Get.delete<PostDetailController>(tag: id);
-  }
-
-  submit() {
-    print("test");
-    // controller.loadRequest(Uri.parse('https://v2ex.com'));
-    // Navigator.pushNamed(context, 'Home');
   }
 
   Widget _buildReplyMenuOptionWrapper({required Widget child}) {

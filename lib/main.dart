@@ -7,19 +7,18 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:v2ex/pages/login/google_login.dart';
-import 'package:v2ex/pages/layout.dart';
-import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/http/login_dio.dart';
+import 'package:v2ex/http/request.dart';
+import 'package:v2ex/pages/edit_tab.dart';
+import 'package:v2ex/pages/layout.dart';
+import 'package:v2ex/pages/login/google_login.dart';
+import 'package:v2ex/pages/login/login.dart';
 import 'package:v2ex/pages/node.dart';
 import 'package:v2ex/pages/node_list.dart';
 import 'package:v2ex/pages/nodes_topic.dart';
-import 'package:v2ex/pages/post_collect.dart';
 import 'package:v2ex/pages/post_detail/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
-import 'package:v2ex/pages/edit_tab.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/http/request.dart';
 
 import 'pages/index.dart';
 
@@ -107,7 +106,6 @@ class MyApp extends StatelessWidget {
             routes: {
               '/': (context) => const Index(),
               '/post-detail': (context) => const PostDetailPage(),
-              '/post-collect': (context) => const PostCollectPage(),
               // '/test': (context) => const PostTest(),
               '/login': (context) => const LoginPage(),
               '/node': (context) => NodePage(),
@@ -117,6 +115,7 @@ class MyApp extends StatelessWidget {
               '/layout': (context) => LayoutPage(),
               '/topicNodes': (context) => TopicNodesPage(),
               '/google_login': (context) => GoogleLogin(),
+              // '/create': (context) => Create(),
             },
           );
         });

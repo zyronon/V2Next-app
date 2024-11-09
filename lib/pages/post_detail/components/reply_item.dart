@@ -4,10 +4,10 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/user_tag.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 
-import '../../../components/BaseAvatar.dart';
+import '../../../components/base_avatar.dart';
 
 class ReplyItem extends StatelessWidget {
   final Reply item;

@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/image_preview.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class CommonHtml extends StatelessWidget {
@@ -55,7 +55,7 @@ class CommonHtml extends StatelessWidget {
             url = url.replaceAll('/t/', '');
             var match = RegExp(r'(\d+)').allMatches(url);
             var result = match.map((m) => m.group(0)).toList();
-            Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
+            Get.toNamed('/post-detail', arguments: Post(id: result[0]!), preventDuplicates: false);
             return true;
           }
           Utils.openBrowser(url);

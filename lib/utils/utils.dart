@@ -18,7 +18,7 @@ import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/upload.dart';
@@ -249,7 +249,7 @@ class Utils {
     return item;
   }
 
-  static Post2 buildList(Post2 post, List<Reply> replyList) {
+  static Post buildList(Post post, List<Reply> replyList) {
     post.replyList = clone(replyList);
     post.replyCount = post.replyList.length;
     post.allReplyUsers = post.replyList.map((v) => v.username).toList().toSet().toList();
@@ -339,11 +339,11 @@ class Utils {
     return headerUa;
   }
 
-  List<Post2> parsePagePostList(List<Element> list) {
-    List<Post2> topicList = [];
+  List<Post> parsePagePostList(List<Element> list) {
+    List<Post> topicList = [];
     if (list.isNotEmpty) {
       for (Element aNode in list) {
-        Post2 item = Post2();
+        Post item = Post();
         Element? titleInfo = aNode.querySelector(".topic-link");
         if (titleInfo != null) {
           item.title = titleInfo.text;

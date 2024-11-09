@@ -14,8 +14,9 @@ Color line = const Color(0xfff1f1f1);
 TextStyle titleStyle = TextStyle(fontSize: 16.sp, color: Colors.black);
 TextStyle descStyle = TextStyle(fontSize: 12.sp, color: Colors.grey);
 TextStyle timeStyle = TextStyle(fontSize: 10.sp, color: Colors.grey);
-
 EdgeInsets pagePadding = EdgeInsets.only(left: 8.w, right: 8.w, bottom: 8.w);
+
+enum ThemeType { light, dark, system } // 主题切换
 
 class Agent {
   String pc = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
@@ -37,6 +38,7 @@ class Const {
   static Color line2 = Color(0xffe1e1e1);
   static Widget lineWidget = Divider(color: Const.line, height: 1);
   static double padding = 10.w;
+  static PreferredSizeWidget baseAppbar = AppBar(elevation: 0, toolbarHeight: 0);
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
   static BorderRadiusGeometry cardRadius = BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r));

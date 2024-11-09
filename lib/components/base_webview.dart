@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class BaseWebView extends StatefulWidget {
@@ -80,7 +80,7 @@ class _BaseWebViewState extends State<BaseWebView> {
                     if (uri.toString().contains('v2ex.com/t/')) {
                       var match = RegExp(r'(\d+)').allMatches(uri.toString().replaceAll('v2ex.com/t/', ''));
                       var result = match.map((m) => m.group(0)).toList();
-                      Get.toNamed('/post-detail', arguments: Post2(id: result[0]!));
+                      Get.toNamed('/post-detail', arguments: Post(id: result[0]!));
                       return NavigationActionPolicy.CANCEL;
                     }
                     return NavigationActionPolicy.ALLOW;

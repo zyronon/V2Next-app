@@ -19,7 +19,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+#  sdk: '>=2.19.2 <3.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -85,8 +86,6 @@ dependencies:
 
   intl: ^0.18.0
 
-  # markdown 输入
-  expandable: ^5.0.1
   extended_text_field: ^16.0.0
   extended_text_library: ^12.0.0
   # 图片选择&上传
@@ -108,13 +107,22 @@ dependencies:
   # 生成帖子链接二维码
   qr_flutter: ^4.1.0
 
+  # markdown 输入
+  expandable: ^5.0.1
+  # translator: ^0.1.7
+  flutter_markdown: ^0.6.14
+  drift: ^2.21.0
+  drift_flutter: ^0.2.1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^2.3.3
+  build_runner: ^2.4.13
   json_serializable: ^6.6.1
-  analyzer: '5.4.0'
+  analyzer: '6.7.0'
+  drift_dev: ^2.21.2
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

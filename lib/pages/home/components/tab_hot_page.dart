@@ -12,14 +12,14 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class TabHotPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
-  List<Post2> postList = [];
+  List<Post> postList = [];
   List<Map> mapPostList = [];
   final BaseController home = Get.find();
   TabItem tab;

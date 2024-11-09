@@ -2,12 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/http/api.dart';
 

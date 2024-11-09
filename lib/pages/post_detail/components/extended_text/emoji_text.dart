@@ -1,7 +1,6 @@
 import 'package:extended_text_library/extended_text_library.dart';
 import 'package:flutter/material.dart';
 import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/string.dart';
 
 ///emoji/image text
 class EmojiText extends SpecialText {

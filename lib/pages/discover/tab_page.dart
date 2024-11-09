@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_divider.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
@@ -11,7 +11,7 @@ import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/http/api.dart';
@@ -19,7 +19,7 @@ import 'package:v2ex/http/api.dart';
 class TabPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
-  List<Post2> postList = [];
+  List<Post> postList = [];
   final BaseController home = Get.find();
   TabItem tab;
   bool isLoadingMore = false;
@@ -41,7 +41,7 @@ class TabPageController extends GetxController {
     Result res = await Api.getDiscoverInfo(date: tab.enName);
     if (res.success) {
       if (isRefresh) postList = [];
-      postList.addAll(res.data.cast<Post2>());
+      postList.addAll(res.data.cast<Post>());
     }
     if (isRefresh) loading = false;
     update();
@@ -83,7 +83,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                 physics: new AlwaysScrollableScrollPhysics(),
                 itemCount: _.postList.length,
                 itemBuilder: (BuildContext context, int index) {
-                  Post2 v = _.postList[index];
+                  Post v = _.postList[index];
                   return InkWell(
                       child: Container(
                         padding: EdgeInsets.only(top: Const.padding, left: Const.padding, right: Const.padding, bottom: Const.padding),

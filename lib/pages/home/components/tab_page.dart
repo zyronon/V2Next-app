@@ -9,14 +9,14 @@ import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/http/api.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
-  List<Post2> postList = [];
+  List<Post> postList = [];
   List<V2Node> nodeList = [];
   final BaseController home = Get.find();
   TabItem tab;
@@ -42,7 +42,7 @@ class TabPageController extends GetxController {
     if (res.success) {
       if (isRefresh) postList = [];
       needAuth = false;
-      postList.addAll(res.data['list'].cast<Post2>());
+      postList.addAll(res.data['list'].cast<Post>());
       nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
       totalPage = res.data['totalPage'];
       print(nodeList);

@@ -1,9 +1,6 @@
-// import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:v2ex/utils/string.dart';
-// import 'package:v2ex/models/tabs.dart';
-// import 'package:v2ex/models/web/item_topic_reply.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 enum StoreKeys {
   token,
@@ -52,11 +49,9 @@ class GStorage {
   Map getUserInfo() => _box.read<Map>(StoreKeys.userInfo.toString()) ?? {};
 
   // 登陆状态
-  setLoginStatus(bool status) =>
-      _box.write(StoreKeys.loginStatus.toString(), status);
+  setLoginStatus(bool status) => _box.write(StoreKeys.loginStatus.toString(), status);
 
-  bool getLoginStatus() =>
-      _box.read<bool>(StoreKeys.loginStatus.toString()) ?? false;
+  bool getLoginStatus() => _box.read<bool>(StoreKeys.loginStatus.toString()) ?? false;
 
   // once
   setOnce(int once) => _box.write(StoreKeys.once.toString(), once);
@@ -64,27 +59,20 @@ class GStorage {
   int getOnce() => _box.read<int>(StoreKeys.once.toString()) ?? 0;
 
   // 回复内容
-  setReplyContent(String content) =>
-      _box.write(StoreKeys.replyContent.toString(), content);
+  setReplyContent(String content) => _box.write(StoreKeys.replyContent.toString(), content);
 
-  String getReplyContent() =>
-      _box.read<String>(StoreKeys.replyContent.toString()) ?? '';
+  String getReplyContent() => _box.read<String>(StoreKeys.replyContent.toString()) ?? '';
 
-  setReplyItem(Reply item) =>
-      _box.write(StoreKeys.replyItem.toString(), item);
+  setReplyItem(Reply item) => _box.write(StoreKeys.replyItem.toString(), item);
 
-  Reply getReplyItem() =>
-      _box.read<Reply>(StoreKeys.replyItem.toString()) ?? Reply();
+  Reply getReplyItem() => _box.read<Reply>(StoreKeys.replyItem.toString()) ?? Reply();
 
-  setStatusBarHeight(num height) =>
-      _box.write(StoreKeys.statusBarHeight.toString(), height);
+  setStatusBarHeight(num height) => _box.write(StoreKeys.statusBarHeight.toString(), height);
 
-  num getStatusBarHeight() =>
-      _box.read<num>(StoreKeys.statusBarHeight.toString()) ?? 0;
+  num getStatusBarHeight() => _box.read<num>(StoreKeys.statusBarHeight.toString()) ?? 0;
 
   // 主题风格 默认跟随系统
-  setSystemType(ThemeType type) =>
-      _box.write(StoreKeys.themeType.toString(), type.name.toString());
+  setSystemType(ThemeType type) => _box.write(StoreKeys.themeType.toString(), type.name.toString());
 
   clearSystemType() => _box.remove(StoreKeys.themeType.toString());
 
@@ -98,11 +86,9 @@ class GStorage {
   }
 
   // 签到状态
-  setSignStatus(String date) =>
-      _box.write(StoreKeys.signStatus.toString(), date);
+  setSignStatus(String date) => _box.write(StoreKeys.signStatus.toString(), date);
 
-  String getSignStatus() =>
-      _box.read<String>(StoreKeys.signStatus.toString()) ?? '';
+  String getSignStatus() => _box.read<String>(StoreKeys.signStatus.toString()) ?? '';
 
   // 节点信息
   setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
@@ -110,18 +96,14 @@ class GStorage {
   List getNodes() => _box.read<List>(StoreKeys.nodes.toString()) ?? [];
 
   // 链接打开方式 默认应用内打开
-  setLinkOpenInApp(bool value) =>
-      _box.write(StoreKeys.linkOpenInApp.toString(), value);
+  setLinkOpenInApp(bool value) => _box.write(StoreKeys.linkOpenInApp.toString(), value);
 
-  bool getLinkOpenInApp() =>
-      _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
+  bool getLinkOpenInApp() => _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
 
   // 拓展 appBar
-  setExpendAppBar(bool value) =>
-      _box.write(StoreKeys.expendAppBar.toString(), value);
+  setExpendAppBar(bool value) => _box.write(StoreKeys.expendAppBar.toString(), value);
 
-  bool getExpendAppBar() =>
-      _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
+  bool getExpendAppBar() => _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
 
   // 消息通知
   setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
@@ -133,17 +115,14 @@ class GStorage {
 
   bool getAutoSign() => _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
 
-  setEightQuery(bool value) =>
-      _box.write(StoreKeys.eightQuery.toString(), value);
+  setEightQuery(bool value) => _box.write(StoreKeys.eightQuery.toString(), value);
 
-  bool getEightQuery() =>
-      _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
+  bool getEightQuery() => _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
 
   // 全局字体大小
   setGlobalFs(double value) => _box.write(StoreKeys.globalFs.toString(), value);
 
-  double getGlobalFs() =>
-      _box.read<double>(StoreKeys.globalFs.toString()) ?? 14;
+  double getGlobalFs() => _box.read<double>(StoreKeys.globalFs.toString()) ?? 14;
 
   // html字体大小
   setHtmlFs(double value) => _box.write(StoreKeys.htmlFs.toString(), value);
@@ -191,22 +170,21 @@ class GStorage {
 
   double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
 
-  // 屏幕帧率
-  // setDisplayModeType() => _box.write(key, value)
+// 屏幕帧率
+// setDisplayModeType() => _box.write(key, value)
 
-  // setDisplayModeType(DisplayMode type) {
-  //   return _box.write(StoreKeys.displayModeType.toString(), type.toString());
-  // }
-  //
-  //
-  // Future<DisplayMode> getDisplayModeType() async{
-  //   var value = _box.read(StoreKeys.displayModeType.toString());
-  //   DisplayMode f = DisplayMode.auto;
-  //   if (value != null) {
-  //     List<DisplayMode> modes = await FlutterDisplayMode.supported;
-  //     f = modes.firstWhere((e) => e.toString() == value);
-  //   }
-  //   return f;
-  // }
-
+// setDisplayModeType(DisplayMode type) {
+//   return _box.write(StoreKeys.displayModeType.toString(), type.toString());
+// }
+//
+//
+// Future<DisplayMode> getDisplayModeType() async{
+//   var value = _box.read(StoreKeys.displayModeType.toString());
+//   DisplayMode f = DisplayMode.auto;
+//   if (value != null) {
+//     List<DisplayMode> modes = await FlutterDisplayMode.supported;
+//     f = modes.firstWhere((e) => e.toString() == value);
+//   }
+//   return f;
+// }
 }

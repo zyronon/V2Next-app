@@ -1,4 +1,4 @@
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 
 enum TabType { tab, node, recent, latest, hot, xna }
 

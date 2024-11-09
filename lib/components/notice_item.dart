@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/BaseAvatar.dart';
+import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 
 // TODO 样式
@@ -62,7 +62,7 @@ class _NoticeItemState extends State<NoticeItem> {
               //   回复 or 感谢回复
               // parameters = {'source': 'notice', 'floor': floor};
               // }
-              Get.toNamed('/post-detail', arguments: Post2(id: widget.noticeItem.topicId));
+              Get.toNamed('/post-detail', arguments: Post(id: widget.noticeItem.topicId));
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),

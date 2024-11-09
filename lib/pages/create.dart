@@ -1,0 +1,534 @@
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/model.dart';
+import 'package:v2ex/package/markdown_editable_textinput/format_markdown.dart';
+import 'package:v2ex/package/markdown_editable_textinput/markdown_text_input.dart';
+
+enum SampleItem { draft, cancel, tips }
+
+class Create extends StatefulWidget {
+  const Create({Key? key}) : super(key: key);
+
+  @override
+  State<Create> createState() => _CreateState();
+}
+
+class _CreateState extends State<Create> {
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
+  TextEditingController mdEditController = TextEditingController();
+  final GlobalKey _formKey = GlobalKey<FormState>();
+
+  final FocusNode titleTextFieldNode = FocusNode();
+  final FocusNode contentTextFieldNode = FocusNode();
+
+  String title = '';
+  String content = '';
+  String syntax = 'default'; // 语法 default markdown
+  TopicNodeItem? currentNode;
+
+  // 接收到的参数
+  String source = '';
+  String topicId = '';
+
+  String description = '';
+  String contentMode = 'default';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (Get.parameters.isNotEmpty) {
+      source = Get.parameters['source']!;
+      topicId = Get.parameters['topicId']!;
+    }
+    print('source: $source');
+    if (source == 'edit') {
+      // 查询编辑状态及内容
+      queryTopicStatus();
+    }
+    if (source == 'append') {
+      // 查询附言状态
+      queryAppendStatus();
+    }
+  }
+
+  // 是否可编辑
+  void queryTopicStatus() async {
+    var res = await Api.queryTopicStatus(topicId);
+    if (res['status']) {
+      // 可以编辑，渲染内容
+      Map topicDetail = res['topicDetail'];
+      print("😊topicDetail: ${topicDetail['topicTitle']}");
+      String topicTitle = topicDetail['topicTitle'];
+      String topicContent = topicDetail['topicContent'];
+      String syntax = topicDetail['syntax'];
+      titleController.text = topicTitle;
+      contentController.text = topicContent;
+      setState(() {
+        syntax = syntax;
+      });
+    } else {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('提示'),
+              content: const Text('你不能编辑这个主题。'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      // 关闭 dialog
+                      Navigator.pop(context);
+                      // 关闭 page
+                      Navigator.pop(context, {'refresh': true});
+                    },
+                    child: const Text('返回'))
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  // 是否可以增加附言
+  void queryAppendStatus() async {
+    var res = await Api.appendStatus(topicId);
+    if (!res) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('提示'),
+              content: const Text('不可为该主题增加附言'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      // 关闭 dialog
+                      Navigator.pop(context);
+                      // 关闭 page
+                      Navigator.pop(context);
+                    },
+                    child: const Text('返回'))
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  void appendDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('关于为主题创建附言'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('- 请在确有必要的情况下再使用此功能为原主题补充信息'),
+                Text('- 每个主题至多可以附加 3 条附言'),
+                Text('- 创建附言价格为每千字 20 铜币'),
+                // Text('- 每个主题至多可以附加 3 条附言'),
+                // Text('- 创建附言价格为每千字 20 铜币'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('了解了'))
+            ],
+          );
+        });
+  }
+
+  void onSubmit() {
+    switch (source) {
+      case '':
+        onPost();
+        break;
+      case 'edit':
+        onEdit();
+        break;
+      case 'append':
+        onAppend();
+        break;
+      default:
+        onPost();
+    }
+  }
+
+  Future onPost() async {
+    if (currentNode == null) {
+      SmartDialog.showToast('请选择节点', alignment: Alignment.center);
+      return;
+    }
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'title': title,
+        'syntax': syntax,
+        'content': content,
+        'node_name': currentNode!.name,
+      };
+      var result = await Api.postTopic(args);
+      if (result != false) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('发布成功'),
+                content: const Text('主题发布成功，是否前往查看'),
+                actions: [
+                  // TextButton(
+                  //     onPressed: () {
+                  //       Navigator.pop(context);
+                  //       Get.back();
+                  //     },
+                  //     child: const Text('返回上一页')),
+                  TextButton(
+                      onPressed: () {
+                        try {
+                          Get.offAndToNamed(result[0]);
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                      child: const Text('去查看'))
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
+  }
+
+  // 编辑主题
+  Future onEdit() async {
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'title': title,
+        'syntax': syntax == 'default' ? 0 : 1,
+        'content': content,
+        'topicId': topicId
+      };
+      var result = await Api.eidtTopic(args);
+      if (result) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('编辑成功'),
+                content: const Text('主题编辑成功，是否前往查看'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        // 返回主题详情页并刷新
+                        Navigator.pop(context, {'refresh', true});
+                      },
+                      child: const Text('去查看'))
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        SmartDialog.show(
+          useSystem: true,
+          animationType: SmartAnimationType.centerFade_otherSlide,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('提示'),
+              content: const Text('你不能编辑这个主题。'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Get.back();
+                    },
+                    child: const Text('确定'))
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  // 添加附言
+  Future onAppend() async {
+    if ((_formKey.currentState as FormState).validate()) {
+      //验证通过提交数据
+      (_formKey.currentState as FormState).save();
+      // 键盘收起
+      contentTextFieldNode.unfocus();
+      var args = {
+        'syntax': syntax == 'default' ? 0 : 1,
+        'content': content,
+        'topicId': topicId
+      };
+      var result = await Api.appendContent(args);
+      if (result) {
+        if (context.mounted) {
+          SmartDialog.showToast('发布成功',
+              displayTime: const Duration(milliseconds: 800))
+              .then((value) {
+            Get.back(result: {'refresh': true});
+          });
+        }
+      } else {}
+    }
+  }
+
+  // 正文格式
+  modeChange() {
+    if (syntax == 'default') {
+      syntax = 'markdown';
+    } else {
+      syntax = 'default';
+    }
+    setState(() {});
+    SmartDialog.showToast(
+      '当前正文格式：$syntax',
+      alignment: Alignment.center,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(source == 'edit'
+            ? '编辑主题内容'
+            : source == 'append'
+            ? '增加附言'
+            : '创作新主题'),
+        actions: [
+          IconButton(
+              onPressed: () => modeChange(),
+              icon: const Icon(Icons.sync_alt),
+              tooltip: '正文格式'),
+          IconButton(
+              onPressed: () => onSubmit(),
+              icon: const Icon(Icons.send),
+              tooltip: '发布'),
+          if (source == 'append')
+            IconButton(
+                onPressed: () => appendDialog(),
+                icon: const Icon(Icons.info_outline_rounded)),
+          const SizedBox(width: 10),
+          // if(source != 'append')
+          // PopupMenuButton<SampleItem>(
+          //   icon: const Icon(Icons.more_vert),
+          //   tooltip: 'action',
+          //   itemBuilder: (BuildContext context) =>
+          //   <PopupMenuEntry<SampleItem>>[
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.draft,
+          //       onTap: () {},
+          //       child: const Text('保存草稿'),
+          //     ),
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.cancel,
+          //       onTap: () {},
+          //       child: const Text('舍弃'),
+          //     ),
+          //     PopupMenuItem<SampleItem>(
+          //       value: SampleItem.tips,
+          //       onTap: () {},
+          //       child: const Text('发帖提示'),
+          //     ),
+          //   ],
+          // ),
+        ],
+      ),
+      body: Form(
+        key: _formKey, //设置globalKey，用于后面获取FormState
+        autovalidateMode: AutovalidateMode.disabled,
+        child: Column(
+          children: [
+            if (source == '') ...[
+              InkWell(
+                onTap: () async {
+                  var result = await Get.toNamed('/topicNodes');
+                  setState(() {
+                    currentNode = result['node'];
+                  });
+                },
+                child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 20),
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                color: Theme.of(context)
+                                    .dividerColor
+                                    .withOpacity(0.2)))),
+                    child: Row(
+                      children: [
+                        Text(
+                          '主题节点:',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(width: 20),
+                        Text(
+                          currentNode != null ? currentNode!.title! : '选择节点',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ],
+                    )),
+              ),
+            ],
+            if (source != 'append')
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            color: Theme.of(context)
+                                .dividerColor
+                                .withOpacity(0.2)))),
+                child: TextFormField(
+                  autofocus: true,
+                  controller: titleController,
+                  focusNode: titleTextFieldNode,
+                  decoration: const InputDecoration(
+                    hintText: "主题标题",
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  // 校验标题
+                  validator: (v) {
+                    return v!.trim().isNotEmpty ? null : "请输入主题标题";
+                  },
+                  onSaved: (val) {
+                    title = val!;
+                  },
+                ),
+              ),
+            Expanded(
+              child: Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                child: syntax == 'default'
+                    ? TextFormField(
+                  controller: contentController,
+                  minLines: 1,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                      hintText:
+                      source == 'append' ? '输入附言内容' : '输入正文内容（原生格式）',
+                      border: InputBorder.none),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  validator: (v) {
+                    return v!.trim().isNotEmpty ? null : "请输入正文内容";
+                  },
+                  onSaved: (val) {
+                    content = val!;
+                  },
+                )
+                    : MarkdownTextInput(
+                      (String value) => setState(() => content = value),
+                  description,
+                  label: '请输入正文内容（markdown格式）',
+                  actions: const [
+                    MarkdownType.image,
+                    MarkdownType.bold,
+                    MarkdownType.italic,
+                    MarkdownType.link,
+                    MarkdownType.title,
+                    MarkdownType.list,
+                    MarkdownType.code,
+                    MarkdownType.blockquote,
+                    MarkdownType.separator,
+                  ],
+                  controller: mdEditController,
+                  textStyle: const TextStyle(fontSize: 16),
+                  customActions: [
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (BuildContext context) {
+                            // return
+                            // SafeArea(
+                            //     child: Scaffold(
+                            //   appBar: AppBar(),
+                            //   body: MarkdownBody(
+                            //     data: description,
+                            //   ),
+                            // ));
+                            return Container(
+                              clipBehavior: Clip.hardEdge,
+                              height: MediaQuery.of(context).size.height -
+                                  kTextTabBarHeight,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(25),
+                                  topRight: Radius.circular(25),
+                                ),
+                              ),
+                              child: SafeArea(
+                                  child: Scaffold(
+                                    appBar: AppBar(
+                                      automaticallyImplyLeading: false,
+                                      title: const Text('Markdown内容预览'),
+                                      centerTitle: false,
+                                      toolbarHeight: 80,
+                                      actions: [
+                                        IconButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            icon: const Icon(Icons.close))
+                                      ],
+                                    ),
+                                    body: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 12, right: 12),
+                                      child: MarkdownBody(
+                                        data: content,
+                                      ),
+                                    ),
+                                  )),
+                            );
+                          },
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.fromLTRB(16, 10, 12, 10),
+                        child: Icon(Icons.remove_red_eye),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
