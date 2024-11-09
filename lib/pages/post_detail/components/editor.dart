@@ -147,7 +147,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
         item.avatar = bc.member.avatar;
         item.date = '刚刚';
         item.floor = pdc.post.replyCount + 1;
-        item.isOp = bc.member.username == pdc.post.username;
+        item.isOp = bc.member.username == pdc.post.member.username;
         var parsedContent = Utils.parseReplyContent(item.replyContent);
         item.replyUsers = parsedContent['users'];
         item.replyFloor = parsedContent['floor'];

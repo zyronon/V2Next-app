@@ -105,27 +105,19 @@ class Post {
   List<Reply> nestedReplies;
 
   //TODO 疑似未使用
-  String username;
-  String url;
-  String href;
   Member member;
   V2Node node;
   String title;
   String id;
-  String type;
-  String once;
   int replyCount;
   int clickCount;
   int thankCount;
   int collectCount;
-  int lastReadFloor;
-  int totalPage;
   bool isTop;
   bool isFavorite;
   bool isIgnore;
   bool isThanked;
   bool isReport;
-  bool inList;
   bool isAppend;
   bool isEdit;
   bool isMove;
@@ -144,29 +136,21 @@ class Post {
     this.newReplyList = const [],
     this.topReplyList = const [],
     this.nestedReplies = const [],
-    this.username = '',
-    this.url = '',
-    this.href = '',
     Member? member, // 使用可选参数
     V2Node? node, // 使用可选参数
     this.title = '',
     this.id = '',
-    this.type = '',
-    this.once = '',
     this.contentRendered = '',
     this.contentText = '',
     this.replyCount = 0,
     this.clickCount = 0,
     this.thankCount = 0,
     this.collectCount = 0,
-    this.lastReadFloor = 0,
-    this.totalPage = 0,
     this.isTop = false,
     this.isFavorite = false,
     this.isIgnore = false,
     this.isThanked = false,
     this.isReport = false,
-    this.inList = false,
     this.isAppend = false,
     this.isEdit = false,
     this.isMove = false,
@@ -189,28 +173,20 @@ class Post {
         hotReplyList = [],
         newReplyList = [],
         nestedReplies = [],
-        username = json['username'] ?? '',
-        url = json['url'] ?? '',
-        href = json['href'] ?? '',
         member = json['member'] != null ? Member.fromJson(json['member']) : Member(),
         node = json['node'] != null ? V2Node.fromJson(json['node']) : V2Node(),
         title = json['title'] ?? '',
         id = json['id'].toString() ?? '',
-        type = json['type'] ?? '',
-        once = json['once'] ?? '',
         contentText = json['contentText'] ?? '',
         replyCount = json['replyCount'] ?? 0,
         clickCount = json['clickCount'] ?? 0,
         thankCount = json['thankCount'] ?? 0,
         collectCount = json['collectCount'] ?? 0,
-        lastReadFloor = json['lastReadFloor'] ?? 0,
-        totalPage = json['totalPage'] ?? 0,
         isTop = json['isTop'] ?? false,
         isFavorite = json['isFavorite'] ?? false,
         isIgnore = json['isIgnore'] ?? false,
         isThanked = json['isThanked'] ?? false,
         isReport = json['isReport'] ?? false,
-        inList = json['inList'] ?? false,
         isAppend = json['isAppend'] ?? false,
         isEdit = json['isEdit'] ?? false,
         isMove = json['isMove'] ?? false;
@@ -231,27 +207,19 @@ class Post {
       'hotReplyList': [],
       'newReplyList': [],
       'nestedReplies': [],
-      'username': username,
-      'url': url,
-      'href': href,
       'member': member.toJson(),
       'node': node.toJson(),
       'title': title,
       'id': id,
-      'type': type,
-      'once': once,
       'replyCount': replyCount,
       'clickCount': clickCount,
       'thankCount': thankCount,
       'collectCount': collectCount,
-      'lastReadFloor': lastReadFloor,
-      'totalPage': totalPage,
       'isTop': isTop,
       'isFavorite': isFavorite,
       'isIgnore': isIgnore,
       'isThanked': isThanked,
       'isReport': isReport,
-      'inList': inList,
       'isAppend': isAppend,
       'isEdit': isEdit,
       'isMove': isMove,

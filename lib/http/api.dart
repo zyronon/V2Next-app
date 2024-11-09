@@ -306,10 +306,10 @@ class Api {
   static Future<Post> getPostDetail(String id) async {
     Post post = Post();
     var tt = DateTime.now();
-    print('请求开始$tt');
+    // print('请求开始$tt');
     var response = await Http().get("/t/$id?p=1", isMobile: false);
     var ss = DateTime.now();
-    print('请求结束$ss');
+    // print('请求结束$ss');
     var hours = tt.difference(ss);
     print('请求花费时间$hours');
 
@@ -359,8 +359,7 @@ class Api {
     RegExp regExp = RegExp(r'var once = "([\d]+)";');
     Match? once = regExp.firstMatch(htmlText);
     if (once != null && once.group(1) != null) {
-      post.once = once.group(1)!;
-      GStorage().setOnce(int.parse(post.once));
+      GStorage().setOnce(int.parse(once.group(1)!));
     }
     post.isReport = htmlText.contains('你已对本主题进行了报告');
 
@@ -502,7 +501,7 @@ class Api {
       }
     }
     ss = DateTime.now();
-    print('处理结束$ss');
+    // print('处理结束$ss');
     hours = tt.difference(ss);
     print('总花费时间$hours');
     return post;

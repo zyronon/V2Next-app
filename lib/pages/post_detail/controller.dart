@@ -1,5 +1,6 @@
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Value;
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/database.dart';
@@ -70,14 +71,18 @@ class PostDetailController extends GetxController {
 
   getData() async {
     post = Get.arguments;
-    // var s = await bc.database.managers.todoItems.filter((f) => f.id(1)).getSingle();
-    // if (s != null) {
-    //   print(s.title);
-    //   print(s.content);
-    // }
-
     isShowFixedTitle = false;
-    loading = true;
+
+    var s = await bc.database.managers.todoItems.filter((f) => f.postId(post.id)).getSingleOrNull();
+    if (s != null) {
+      print(s.title);
+      print(s.contentRendered);
+      print(s.createDate);
+      post = Post.fromJson(s.toJson());
+    }else{
+      loading = true;
+    }
+
     update();
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
     // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
@@ -88,13 +93,32 @@ class PostDetailController extends GetxController {
     loading = false;
     update();
     observerController.reattach();
-    // await bc.database.into(bc.database.todoItems).insert(
-    //       TodoItemsCompanion.insert(
-    //         // postId: post.id,
-    //         title: post.title,
-    //         content: post.contentRendered,
-    //       ),
-    //     );
+    if (s == null) {
+      await bc.database.into(bc.database.todoItems).insert(
+            TodoItemsCompanion.insert(
+              postId: post.id,
+              title: post.title,
+              contentRendered: post.contentRendered,
+              contentText: post.contentText,
+              createDate: post.createDate,
+              createDateAgo: post.createDateAgo,
+              lastReplyDate: post.lastReplyDate,
+              lastReplyDateAgo: post.lastReplyDateAgo,
+              lastReplyUsername: post.lastReplyUsername,
+              replyCount: Value(post.replyCount),
+              thankCount: Value(post.thankCount),
+              collectCount: Value(post.collectCount),
+              isTop: Value(post.isTop),
+              isFavorite: Value(post.isFavorite),
+              isIgnore: Value(post.isIgnore),
+              isThanked: Value(post.isThanked),
+              isReport: Value(post.isReport),
+              isAppend: Value(post.isAppend),
+              isEdit: Value(post.isEdit),
+              isMove: Value(post.isMove),
+            ),
+          );
+    }
   }
 
   @override

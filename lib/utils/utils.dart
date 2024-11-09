@@ -125,9 +125,6 @@ class Utils {
 
   static List<Reply> createNestedList({List<Reply> list = const [], List<Reply> topReplyList = const []}) {
     if (list.isEmpty) return [];
-
-    var s = list.map((v) => 'floor:${v.floor} | isUse:${v.isUse}').toString();
-    print('ss:${s}');
     List<Reply> nestedList = [];
     for (int index = 0; index < list.length; index++) {
       var item = list[index];

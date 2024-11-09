@@ -106,7 +106,7 @@ class BaseController extends GetxController {
       setTabMap(Const.defaultTabList);
     }
     update();
-    initData();
+    // initData();
   }
 
   setUserinfo(Map val) {
