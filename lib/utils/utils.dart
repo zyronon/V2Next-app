@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
@@ -15,12 +14,12 @@ import 'package:html/dom.dart' hide Text;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/http/login_dio.dart';
-import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/http/request.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/Post2.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/upload.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';

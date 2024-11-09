@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/extended_text/emoji_text.dart';
 import 'package:v2ex/components/extended_text/selection_controls.dart';
 import 'package:v2ex/components/extended_text/text_span_builder.dart';
@@ -258,7 +258,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
             borderRadius: BorderRadius.circular(6),
             child: Padding(
               padding: const EdgeInsets.all(5),
-              child: val[index] is Map ? Image.asset('assets/emoji/${val[index]['name']!}.png', width: 25.w, height: 25.w) : Text(val[index], style: TextStyle(fontSize: 26.sp)),
+              child: val[index] is Map ? Image.asset('assets/emoji/${val[index]['name']!}.png', width: 25.w, height: 25.w) : Text(val[index], style: TextStyle(fontSize: 22.sp)),
             ),
           );
         },
@@ -293,7 +293,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                         ],
                       ),
                       SizedBox(height: 4),
-                      BaseHtmlWidget(
+                      BaseHtml(
                         ellipsis: true,
                         html: pdc.reply.replyContent,
                       )

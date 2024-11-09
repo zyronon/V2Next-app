@@ -371,8 +371,8 @@ class UserConfig {
   bool showTopReply;
   bool openTag;
   bool replaceImgur;
+  bool ignoreThankConfirm;
   double version;
-  String configPrefix;
   String configNoteId;
   String tagNoteId;
   Layout layout;
@@ -383,8 +383,8 @@ class UserConfig {
     this.showTopReply = true,
     this.openTag = true,
     this.replaceImgur = false,
+    this.ignoreThankConfirm = false,
     this.version = 0.1,
-    this.configPrefix = '--mob-config--',
     this.configNoteId = '',
     this.tagNoteId = '',
     Layout? layout,
@@ -397,9 +397,9 @@ class UserConfig {
       : showTopReply = json['showTopReply'] ?? true,
         openTag = json['openTag'] ?? true,
         replaceImgur = json['replaceImgur'] ?? false,
+        ignoreThankConfirm = json['ignoreThankConfirm'] ?? false,
         version = json['version']?.toDouble() ?? 0.1,
         // 防止类型不匹配时出错
-        configPrefix = json['configPrefix'] ?? '--mob-config--',
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
         configNoteId = json['configNoteId'] ?? '',
         tagNoteId = json['tagNoteId'] ?? '',
@@ -414,8 +414,8 @@ class UserConfig {
       'showTopReply': showTopReply,
       'openTag': openTag,
       'replaceImgur': replaceImgur,
+      'ignoreThankConfirm': ignoreThankConfirm,
       'version': version,
-      'configPrefix': configPrefix,
       'configNoteId': configNoteId,
       'tagNoteId': tagNoteId,
       'layout': layout.toJson(),

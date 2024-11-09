@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/const_val.dart';
 
@@ -128,7 +128,7 @@ class _NoticeItemState extends State<NoticeItem> {
                 width: double.infinity,
                 child: Container(
                   padding: EdgeInsets.only(top: Const.padding, bottom: Const.padding, right: Const.padding),
-                  child: BaseHtmlWidget(html: widget.noticeItem.replyContentHtml),
+                  child: BaseHtml(html: widget.noticeItem.replyContentHtml),
                   margin: EdgeInsets.only(left: 10.w),
                 ),
               )

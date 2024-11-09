@@ -115,11 +115,8 @@ class BaseController extends GetxController {
 
     UserConfig uc = val['uc'];
     config[member.username] = uc;
-    _box.write(StoreKeys.config.toString(), config);
     update();
-    if (isLogin) {
-      Api.editNoteItem(uc.configPrefix + jsonEncode(uc.toJson()), uc.configNoteId);
-    }
+    saveConfig();
   }
 
   setMember(Member val) {
@@ -130,6 +127,13 @@ class BaseController extends GetxController {
     _box.write(StoreKeys.currentMember.toString(), member.toJson());
     _box.write(StoreKeys.config.toString(), config);
     update();
+  }
+
+  saveConfig(){
+    _box.write(StoreKeys.config.toString(), config);
+    if (isLogin) {
+      Api.editNoteItem(Const.configPrefix + jsonEncode(currentConfig.toJson()), currentConfig.configNoteId);
+    }
   }
 
   setTabMap(val) {

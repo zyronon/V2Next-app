@@ -216,7 +216,7 @@ class LoginApi {
           //先查一下列表，有没有重复创建的
           if (nodeListEl.isNotEmpty) {
             //获取配置
-            List<Element> tagItems = nodeListEl.where((v) => v.text.contains(uc!.configPrefix)).toList();
+            List<Element> tagItems = nodeListEl.where((v) => v.text.contains(Const.configPrefix)).toList();
             if (tagItems.isNotEmpty) {
               var configNoteId = tagItems[0].attributes['href']!.replaceAll('/notes/', '');
               Result res = await Api.getNoteItemContent(configNoteId, Const.configPrefix);

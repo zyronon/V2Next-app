@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import '../controller.dart';
@@ -93,7 +93,7 @@ class PostHeader extends StatelessWidget {
                       ? Skeletonizer.zone(
                           child: Padding(padding: EdgeInsets.only(top: 6.w), child: Bone.multiText(lines: 7, style: TextStyle(height: 1.6))),
                         )
-                      : BaseHtmlWidget(html: ctrl.post.contentRendered),
+                      : BaseHtml(html: ctrl.post.contentRendered),
                 ],
               ),
             ),

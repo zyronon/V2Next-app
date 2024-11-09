@@ -12,17 +12,71 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
 import 'package:v2ex/utils/utils.dart';
 
-class BaseHtmlWidget extends StatelessWidget {
+class CommonHtml extends StatelessWidget {
+  final String html;
+  final bool ellipsis;
+
+  const CommonHtml({super.key, required this.html, this.ellipsis = false});
+
+  @override
+  Widget build(BuildContext context) {
+    BaseController bc = BaseController.to;
+
+    return HtmlWidget(ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
+        renderMode: RenderMode.column,
+        textStyle: TextStyle(fontSize: bc.layout.fontSize, height: bc.layout.lineHeight),
+        factoryBuilder: () => MyHtmlFactory(),
+        customStylesBuilder: (element) {
+          if (element.classes.contains('subtle')) {
+            return {
+              'background-color': '#ecfdf5e6',
+              'border-left': '4px solid #a7f3d0',
+              'padding': '5px',
+            };
+          }
+          if (element.classes.contains('fade')) {
+            return {'color': '#6b6b6b'};
+          }
+          if (element.classes.contains('outdated')) {
+            return {
+              'color': 'gray',
+              'font-size': '14px',
+              'background-color': '#f9f9f9',
+              'border-left': '5px solid #f0f0f0',
+              'padding': '10px',
+            };
+          }
+          return null;
+        },
+        onTapUrl: (url) {
+          print('url--------------------${url.toString()}');
+          if (url.contains('v2ex.com/t/') || url.contains('/t/')) {
+            url = url.replaceAll('v2ex.com/t/', '');
+            url = url.replaceAll('/t/', '');
+            var match = RegExp(r'(\d+)').allMatches(url);
+            var result = match.map((m) => m.group(0)).toList();
+            Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
+            return true;
+          }
+          Utils.openBrowser(url);
+          return true;
+        },
+        onTapImage: (ImageMetadata imageMetadata) {
+          Get.to(ImagePreview(), arguments: {'imgList': imageMetadata.sources.map((v) => v.url).toList(), 'initialPage': 0});
+        });
+  }
+}
+
+class BaseHtml extends StatelessWidget {
   final String html;
   final bool ellipsis;
   final GestureTapCallback? onTap;
 
-  const BaseHtmlWidget({super.key, required this.html, this.onTap, this.ellipsis = false});
+  const BaseHtml({super.key, required this.html, this.onTap, this.ellipsis = false});
 
   @override
   Widget build(BuildContext context) {
     var selectedText = '';
-    BaseController bc = BaseController.to;
 
     return SelectionArea(
         onSelectionChanged: (SelectedContent? selectContent) => selectedText = selectContent?.plainText ?? "",
@@ -87,54 +141,13 @@ class BaseHtmlWidget extends StatelessWidget {
           );
         },
         child: InkWell(
-          child: HtmlWidget(ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
-              renderMode: RenderMode.column,
-              textStyle: TextStyle(fontSize: bc.layout.fontSize, height: bc.layout.lineHeight),
-              factoryBuilder: () => MyWidgetFactory(),
-              customStylesBuilder: (element) {
-                if (element.classes.contains('subtle')) {
-                  return {
-                    'background-color': '#ecfdf5e6',
-                    'border-left': '4px solid #a7f3d0',
-                    'padding': '5px',
-                  };
-                }
-                if (element.classes.contains('fade')) {
-                  return {'color': '#6b6b6b'};
-                }
-                if (element.classes.contains('outdated')) {
-                  return {
-                    'color': 'gray',
-                    'font-size': '14px',
-                    'background-color': '#f9f9f9',
-                    'border-left': '5px solid #f0f0f0',
-                    'padding': '10px',
-                  };
-                }
-                return null;
-              },
-              onTapUrl: (url) {
-                print('url--------------------${url.toString()}');
-                if (url.contains('v2ex.com/t/') || url.contains('/t/')) {
-                  url = url.replaceAll('v2ex.com/t/', '');
-                  url = url.replaceAll('/t/', '');
-                  var match = RegExp(r'(\d+)').allMatches(url);
-                  var result = match.map((m) => m.group(0)).toList();
-                  Get.toNamed('/post-detail', arguments: Post2(id: result[0]!), preventDuplicates: false);
-                  return true;
-                }
-                Utils.openBrowser(url);
-                return true;
-              },
-              onTapImage: (ImageMetadata imageMetadata) {
-                Get.to(ImagePreview(), arguments: {'imgList': imageMetadata.sources.map((v) => v.url).toList(), 'initialPage': 0});
-              }),
+          child: CommonHtml(html: html, ellipsis: ellipsis),
           onTap: onTap,
         ));
   }
 }
 
-class MyWidgetFactory extends WidgetFactory with CachedNetworkImageFactory {}
+class MyHtmlFactory extends WidgetFactory with CachedNetworkImageFactory {}
 
 /// A mixin that can render IMG with `cached_network_image` plugin.
 mixin CachedNetworkImageFactory on WidgetFactory {

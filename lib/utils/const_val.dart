@@ -34,6 +34,7 @@ class Const {
   static String tagPrefix = '--用户标签--';
   static Color primaryColor = Color(0xff48a24a);
   static Color line = Color(0xfff1f1f1);
+  static Color line2 = Color(0xffe1e1e1);
   static Widget lineWidget = Divider(color: Const.line, height: 1);
   static double padding = 10.w;
   static EdgeInsetsGeometry paddingWidget = EdgeInsets.all(padding);

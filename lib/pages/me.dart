@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/BaseAvatar.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/base_webview.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/http/login_api.dart';
@@ -139,7 +139,7 @@ class MePage extends StatelessWidget {
                                 Text('余额', style: TextStyle(fontSize: 15.sp)),
                               ]),
                               Row(children: [
-                                BaseHtmlWidget(html: _.member.balance),
+                                BaseHtml(html: _.member.balance),
                                 Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                               ])
                             ],

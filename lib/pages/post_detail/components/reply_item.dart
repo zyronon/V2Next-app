@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/BaseHtmlWidget.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/user_tag.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/Post2.dart';
@@ -159,7 +159,7 @@ Widget  _buildTagList() {
             padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),
             child: SizedBox(
               width: double.infinity,
-              child: BaseHtmlWidget(
+              child: BaseHtml(
                 //高赞回复，有可能是子回复，那么这种就需要显示出@信息
                 // html: (type == 0 && !isSub) ? item.replyContent : item.hideCallUserReplyContent,
                 html: getContent(),
