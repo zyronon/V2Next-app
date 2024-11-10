@@ -7,9 +7,9 @@ import '../controller.dart';
 
 class PostNavbar extends StatelessWidget {
   final GestureTapCallback onMenu;
-  final String id;
+  final String postId;
 
-  PostNavbar({required this.onMenu,required this.id});
+  PostNavbar({required this.onMenu,required this.postId});
 
   Widget _buildIcon(IconData icon) {
     return Icon(
@@ -32,7 +32,7 @@ class PostNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<PostDetailController>(
-        tag: id,
+        tag: postId,
         builder: (ctrl) {
       return Container(
           width: double.infinity,

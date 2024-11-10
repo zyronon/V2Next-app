@@ -48,7 +48,7 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class PostDetailPageState extends State<PostDetailPage> {
-  late String id = Get.arguments.id;
+  late String postId = Get.arguments.postId.toString();
   late PostDetailController ctrl;
 
   BaseController bc = BaseController.to;
@@ -61,13 +61,13 @@ class PostDetailPageState extends State<PostDetailPage> {
   @override
   void initState() {
     super.initState();
-    ctrl = Get.put(PostDetailController(), tag: id);
+    ctrl = Get.put(PostDetailController(), tag: postId);
   }
 
   @override
   void dispose() {
     super.dispose();
-    Get.delete<PostDetailController>(tag: id);
+    Get.delete<PostDetailController>(tag: postId);
   }
 
   Widget _buildReplyMenuOptionWrapper({required Widget child}) {
@@ -208,7 +208,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                     type: ReplyListType.Hot,
                     index: 0,
                     onTap: (i) {
-                      int rIndex = ctrl.post.replyList.indexWhere((j) => j.id == i.id);
+                      int rIndex = ctrl.post.replyList.indexWhere((j) => j.replyId == i.postId);
                       if (rIndex > -1) {
                         jumpToIndexItem(index: rIndex);
                       }
@@ -391,7 +391,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return PostShare(id: id, reply: val);
+        return PostShare(postId: postId, reply: val);
       },
     );
   }
@@ -415,7 +415,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               text: '复制链接',
               icon: TDIcons.link,
               onTap: () {
-                Utils.copy(Const.v2exHost + '/t/' + ctrl.post.id);
+                Utils.copy(Const.v2exHost + '/t/' + ctrl.post.postId.toString());
               }),
           _buildLine(),
           _buildReplyMenuOption(
@@ -469,7 +469,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: TDIcons.logo_chrome,
               onTap: () {
                 Get.back();
-                Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.id);
+                Utils.openBrowser(Const.v2exHost + '/t/' + ctrl.post.postId.toString());
               }),
         ])),
       ],
@@ -502,7 +502,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       context: context,
       builder: (BuildContext context) {
         return GetBuilder<PostDetailController>(
-            tag: id,
+            tag: postId,
             builder: (_) {
               return SingleChildScrollView(
                 child: Container(
@@ -547,7 +547,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Editor(postId: ctrl.post.id);
+        return Editor(postId: ctrl.post.postId.toString());
       },
     );
   }
@@ -583,7 +583,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
     ctrl.update();
 
-    var res = await Api.favoriteTopic(isFavorite, ctrl.post.id);
+    var res = await Api.favoriteTopic(isFavorite, ctrl.post.postId);
     if (!res) {
       ctrl.post.isFavorite = !ctrl.post.isFavorite;
       ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
@@ -624,7 +624,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           ),
           TextButton(
             onPressed: (() async {
-              var res = await Api.thankTopic(ctrl.post.id);
+              var res = await Api.thankTopic(ctrl.post.postId);
               if (res) {
                 ctrl.post.isThanked = true;
                 ctrl.post.thankCount += 1;
@@ -642,9 +642,9 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   // 感谢回复 request
   void thankReply(Reply val) async {
-    var res = await Api.thankReply(val.id, ctrl.post.id);
+    var res = await Api.thankReply(val.replyId, ctrl.post.postId);
     if (res) {
-      var index = ctrl.post.replyList.indexWhere((v) => v.id == val.id);
+      var index = ctrl.post.replyList.indexWhere((v) => v.replyId == val.replyId);
       ctrl.post.replyList[index].isThanked = true;
       ctrl.post.replyList[index].thankCount += 1;
       ctrl.rebuildList();
@@ -756,11 +756,11 @@ class PostDetailPageState extends State<PostDetailPage> {
         toolbarHeight: 0,
       ),
       body: GetBuilder<PostDetailController>(
-          tag: id,
+          tag: postId,
           builder: (_) {
             return Column(
               children: [
-                PostNavbar(id: id, onMenu: showPostMenuModal),
+                PostNavbar(postId: postId, onMenu: showPostMenuModal),
                 // _buildEditor(),
                 Expanded(
                     child: RefreshIndicator(
@@ -794,7 +794,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                               SliverLayoutBuilder(
                                 builder: (context, _) {
                                   if (headerCtx != context) headerCtx = context;
-                                  return PostHeader(id: id);
+                                  return PostHeader(postId: postId);
                                 },
                               ),
                               PostSpace(),
@@ -869,7 +869,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                       }
                     },
                     onEdit: showEditor,
-                    id: id)
+                    postId: postId)
               ],
             );
           }),

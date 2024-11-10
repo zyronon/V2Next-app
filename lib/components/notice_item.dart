@@ -62,7 +62,7 @@ class _NoticeItemState extends State<NoticeItem> {
               //   回复 or 感谢回复
               // parameters = {'source': 'notice', 'floor': floor};
               // }
-              Get.toNamed('/post-detail', arguments: Post(id: widget.noticeItem.topicId));
+              Get.toNamed('/post-detail', arguments: Post(postId: widget.noticeItem.topicId));
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),

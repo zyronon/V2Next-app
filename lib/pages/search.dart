@@ -94,7 +94,7 @@ class _SearchPageState extends State<SearchPage> {
                     if (uri.toString().contains('v2ex.com/t/')) {
                       var match = RegExp(r'(\d+)').allMatches(uri.toString().replaceAll('v2ex.com/t/', ''));
                       var result = match.map((m) => m.group(0)).toList();
-                      Get.toNamed('/post-detail', arguments: Post(id: result[0]!));
+                      Get.toNamed('/post-detail', arguments: Post(postId: int.parse(result[0]!)));
                       return NavigationActionPolicy.CANCEL;
                     }
                     return NavigationActionPolicy.ALLOW;

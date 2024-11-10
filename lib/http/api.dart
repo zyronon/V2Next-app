@@ -170,7 +170,7 @@ class Api {
       res.success = true;
       res.data = list
           .map((e) => Post(
-                id: e['id'].toString(),
+                postId: e['id'],
                 title: e['title'],
                 member: Member(
                   avatar: e['member']['avatar_normal'],
@@ -232,7 +232,7 @@ class Api {
 
       var td2Node = aNode.querySelectorAll('tr>td')[1];
 
-      noticeItem.topicId = td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0];
+      noticeItem.topicId = int.parse(td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0]);
       noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
 
@@ -293,7 +293,7 @@ class Api {
       String? href = item['link']['href'];
       var match1 = RegExp(r'(\d+)').allMatches(href!);
       var result = match1.map((m) => m.group(0)).toList();
-      p.id = result[1]!;
+      p.postId = int.parse(result[1]!);
       p.createDateAgo = Utils().timeAgo(item['published']);
       // p.contentHtml = item['content'];
       // print(item['content']);
@@ -303,7 +303,7 @@ class Api {
     return list;
   }
 
-  static Future<Post> getPostDetail(String id) async {
+  static Future<Post> getPostDetail(int id) async {
     Post post = Post();
     var tt = DateTime.now();
     // print('请求开始$tt');
@@ -354,7 +354,7 @@ class Api {
       }
     }
 
-    post.id = id;
+    post.postId = id;
 
     RegExp regExp = RegExp(r'var once = "([\d]+)";');
     Match? once = regExp.firstMatch(htmlText);
@@ -472,7 +472,7 @@ class Api {
     if (document.querySelector('#no-comments-yet') == null) {
       List<Element> cells = boxListEl[1].querySelectorAll('.cell');
       if (cells.isNotEmpty) {
-        post.fr = cells[0].querySelector('.cell .fr')!.innerHtml;
+        // post.fr = cells[0].querySelector('.cell .fr')!.innerHtml;
         //获取最后一次回复时间
         var snow = cells[0].querySelector('.snow');
         if (snow != null) {
@@ -488,7 +488,7 @@ class Api {
           repliesMap.add({'i': 1, 'replyList': parsePageReplies(cells.sublist(2))});
 
           var pages = cells[1].querySelectorAll('a.page_normal');
-          var url = '/t/' + post.id;
+          var url = '/t/' + post.postId.toString();
 
           for (var i in pages) {
             promiseList.add(fetchPostOtherPageReplies(url + '?p=' + i.text, int.parse(i.text)));
@@ -512,7 +512,7 @@ class Api {
     for (var node in nodes) {
       if (node.attributes['id'] == null) continue;
       Reply item = Reply();
-      item.id = node.attributes['id']!.replaceAll('r_', '');
+      item.replyId = int.parse(node.attributes['id']!.replaceAll('r_', ''));
       var replyContentElement = node.querySelector('.reply_content');
       Utils.checkPhotoLink2Img(replyContentElement!);
       item.replyContent = replyContentElement.innerHtml;
@@ -593,11 +593,11 @@ class Api {
   collect(String id, int type) {}
 
   // 感谢主题
-  static Future thankTopic(String topicId) async {
+  static Future thankTopic(int postId) async {
     int once = GStorage().getOnce();
     SmartDialog.showLoading(msg: '表示感谢ing');
     try {
-      var response = await Http().post("/thank/topic/$topicId?once=$once");
+      var response = await Http().post("/thank/topic/$postId?once=$once");
       // ua mob
       var data = jsonDecode(response.toString());
       SmartDialog.dismiss();
@@ -620,9 +620,9 @@ class Api {
   }
 
   // 收藏主题
-  static Future<bool> favoriteTopic(bool isCollect, String topicId) async {
+  static Future<bool> favoriteTopic(bool isCollect, int postId) async {
     int once = GStorage().getOnce();
-    String url = isCollect ? ("/unfavorite/topic/$topicId?once=$once") : ("/favorite/topic/$topicId?once=$once");
+    String url = isCollect ? ("/unfavorite/topic/$postId?once=$once") : ("/favorite/topic/$postId?once=$once");
     var response = await Http().get(url);
     if (response.statusCode == 200 || response.statusCode == 302) {
       if (response.statusCode == 200) {
@@ -777,7 +777,7 @@ class Api {
   }
 
   // 感谢回复
-  static Future thankReply(String replyId, String topicId) async {
+  static Future thankReply(int replyId, int postId) async {
     int once = GStorage().getOnce();
     SmartDialog.showLoading();
     try {

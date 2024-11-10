@@ -3,12 +3,11 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $TodoItemsTable extends TodoItems
-    with TableInfo<$TodoItemsTable, TodoItem> {
+class $DbPostTable extends DbPost with TableInfo<$DbPostTable, DbPostData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TodoItemsTable(this.attachedDatabase, [this._alias]);
+  $DbPostTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -20,18 +19,16 @@ class $TodoItemsTable extends TodoItems
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _postIdMeta = const VerificationMeta('postId');
   @override
-  late final GeneratedColumn<String> postId = GeneratedColumn<String>(
+  late final GeneratedColumn<int> postId = GeneratedColumn<int>(
       'post_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 8),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 32),
+      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 142),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
   static const VerificationMeta _contentRenderedMeta =
@@ -195,6 +192,14 @@ class $TodoItemsTable extends TodoItems
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_move" IN (0, 1))'),
       defaultValue: Constant(false));
+  static const VerificationMeta _createdTimeMeta =
+      const VerificationMeta('createdTime');
+  @override
+  late final GeneratedColumn<DateTime> createdTime = GeneratedColumn<DateTime>(
+      'created_time', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -218,15 +223,16 @@ class $TodoItemsTable extends TodoItems
         isReport,
         isAppend,
         isEdit,
-        isMove
+        isMove,
+        createdTime
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'todo_items';
+  static const String $name = 'db_post';
   @override
-  VerificationContext validateIntegrity(Insertable<TodoItem> instance,
+  VerificationContext validateIntegrity(Insertable<DbPostData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -236,8 +242,6 @@ class $TodoItemsTable extends TodoItems
     if (data.containsKey('post_id')) {
       context.handle(_postIdMeta,
           postId.isAcceptableOrUnknown(data['post_id']!, _postIdMeta));
-    } else if (isInserting) {
-      context.missing(_postIdMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -359,19 +363,25 @@ class $TodoItemsTable extends TodoItems
       context.handle(_isMoveMeta,
           isMove.isAcceptableOrUnknown(data['is_move']!, _isMoveMeta));
     }
+    if (data.containsKey('created_time')) {
+      context.handle(
+          _createdTimeMeta,
+          createdTime.isAcceptableOrUnknown(
+              data['created_time']!, _createdTimeMeta));
+    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TodoItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbPostData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TodoItem(
+    return DbPostData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       postId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}post_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}post_id'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       contentRendered: attachedDatabase.typeMapping.read(
@@ -412,18 +422,20 @@ class $TodoItemsTable extends TodoItems
           .read(DriftSqlType.bool, data['${effectivePrefix}is_edit'])!,
       isMove: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_move'])!,
+      createdTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_time'])!,
     );
   }
 
   @override
-  $TodoItemsTable createAlias(String alias) {
-    return $TodoItemsTable(attachedDatabase, alias);
+  $DbPostTable createAlias(String alias) {
+    return $DbPostTable(attachedDatabase, alias);
   }
 }
 
-class TodoItem extends DataClass implements Insertable<TodoItem> {
+class DbPostData extends DataClass implements Insertable<DbPostData> {
   final int id;
-  final String postId;
+  final int postId;
   final String title;
   final String contentRendered;
   final String contentText;
@@ -444,7 +456,8 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
   final bool isAppend;
   final bool isEdit;
   final bool isMove;
-  const TodoItem(
+  final DateTime createdTime;
+  const DbPostData(
       {required this.id,
       required this.postId,
       required this.title,
@@ -466,12 +479,13 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
       required this.isReport,
       required this.isAppend,
       required this.isEdit,
-      required this.isMove});
+      required this.isMove,
+      required this.createdTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['post_id'] = Variable<String>(postId);
+    map['post_id'] = Variable<int>(postId);
     map['title'] = Variable<String>(title);
     map['content_rendered'] = Variable<String>(contentRendered);
     map['content_text'] = Variable<String>(contentText);
@@ -492,11 +506,12 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
     map['is_append'] = Variable<bool>(isAppend);
     map['is_edit'] = Variable<bool>(isEdit);
     map['is_move'] = Variable<bool>(isMove);
+    map['created_time'] = Variable<DateTime>(createdTime);
     return map;
   }
 
-  TodoItemsCompanion toCompanion(bool nullToAbsent) {
-    return TodoItemsCompanion(
+  DbPostCompanion toCompanion(bool nullToAbsent) {
+    return DbPostCompanion(
       id: Value(id),
       postId: Value(postId),
       title: Value(title),
@@ -519,15 +534,16 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
       isAppend: Value(isAppend),
       isEdit: Value(isEdit),
       isMove: Value(isMove),
+      createdTime: Value(createdTime),
     );
   }
 
-  factory TodoItem.fromJson(Map<String, dynamic> json,
+  factory DbPostData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TodoItem(
+    return DbPostData(
       id: serializer.fromJson<int>(json['id']),
-      postId: serializer.fromJson<String>(json['postId']),
+      postId: serializer.fromJson<int>(json['postId']),
       title: serializer.fromJson<String>(json['title']),
       contentRendered: serializer.fromJson<String>(json['contentRendered']),
       contentText: serializer.fromJson<String>(json['contentText']),
@@ -548,6 +564,7 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
       isAppend: serializer.fromJson<bool>(json['isAppend']),
       isEdit: serializer.fromJson<bool>(json['isEdit']),
       isMove: serializer.fromJson<bool>(json['isMove']),
+      createdTime: serializer.fromJson<DateTime>(json['createdTime']),
     );
   }
   @override
@@ -555,7 +572,7 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'postId': serializer.toJson<String>(postId),
+      'postId': serializer.toJson<int>(postId),
       'title': serializer.toJson<String>(title),
       'contentRendered': serializer.toJson<String>(contentRendered),
       'contentText': serializer.toJson<String>(contentText),
@@ -576,12 +593,13 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
       'isAppend': serializer.toJson<bool>(isAppend),
       'isEdit': serializer.toJson<bool>(isEdit),
       'isMove': serializer.toJson<bool>(isMove),
+      'createdTime': serializer.toJson<DateTime>(createdTime),
     };
   }
 
-  TodoItem copyWith(
+  DbPostData copyWith(
           {int? id,
-          String? postId,
+          int? postId,
           String? title,
           String? contentRendered,
           String? contentText,
@@ -601,8 +619,9 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
           bool? isReport,
           bool? isAppend,
           bool? isEdit,
-          bool? isMove}) =>
-      TodoItem(
+          bool? isMove,
+          DateTime? createdTime}) =>
+      DbPostData(
         id: id ?? this.id,
         postId: postId ?? this.postId,
         title: title ?? this.title,
@@ -625,9 +644,10 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
         isAppend: isAppend ?? this.isAppend,
         isEdit: isEdit ?? this.isEdit,
         isMove: isMove ?? this.isMove,
+        createdTime: createdTime ?? this.createdTime,
       );
-  TodoItem copyWithCompanion(TodoItemsCompanion data) {
-    return TodoItem(
+  DbPostData copyWithCompanion(DbPostCompanion data) {
+    return DbPostData(
       id: data.id.present ? data.id.value : this.id,
       postId: data.postId.present ? data.postId.value : this.postId,
       title: data.title.present ? data.title.value : this.title,
@@ -668,12 +688,14 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
       isAppend: data.isAppend.present ? data.isAppend.value : this.isAppend,
       isEdit: data.isEdit.present ? data.isEdit.value : this.isEdit,
       isMove: data.isMove.present ? data.isMove.value : this.isMove,
+      createdTime:
+          data.createdTime.present ? data.createdTime.value : this.createdTime,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('TodoItem(')
+    return (StringBuffer('DbPostData(')
           ..write('id: $id, ')
           ..write('postId: $postId, ')
           ..write('title: $title, ')
@@ -695,7 +717,8 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
           ..write('isReport: $isReport, ')
           ..write('isAppend: $isAppend, ')
           ..write('isEdit: $isEdit, ')
-          ..write('isMove: $isMove')
+          ..write('isMove: $isMove, ')
+          ..write('createdTime: $createdTime')
           ..write(')'))
         .toString();
   }
@@ -723,12 +746,13 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
         isReport,
         isAppend,
         isEdit,
-        isMove
+        isMove,
+        createdTime
       ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TodoItem &&
+      (other is DbPostData &&
           other.id == this.id &&
           other.postId == this.postId &&
           other.title == this.title &&
@@ -750,12 +774,13 @@ class TodoItem extends DataClass implements Insertable<TodoItem> {
           other.isReport == this.isReport &&
           other.isAppend == this.isAppend &&
           other.isEdit == this.isEdit &&
-          other.isMove == this.isMove);
+          other.isMove == this.isMove &&
+          other.createdTime == this.createdTime);
 }
 
-class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
+class DbPostCompanion extends UpdateCompanion<DbPostData> {
   final Value<int> id;
-  final Value<String> postId;
+  final Value<int> postId;
   final Value<String> title;
   final Value<String> contentRendered;
   final Value<String> contentText;
@@ -776,7 +801,8 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
   final Value<bool> isAppend;
   final Value<bool> isEdit;
   final Value<bool> isMove;
-  const TodoItemsCompanion({
+  final Value<DateTime> createdTime;
+  const DbPostCompanion({
     this.id = const Value.absent(),
     this.postId = const Value.absent(),
     this.title = const Value.absent(),
@@ -799,10 +825,11 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
     this.isAppend = const Value.absent(),
     this.isEdit = const Value.absent(),
     this.isMove = const Value.absent(),
+    this.createdTime = const Value.absent(),
   });
-  TodoItemsCompanion.insert({
+  DbPostCompanion.insert({
     this.id = const Value.absent(),
-    required String postId,
+    this.postId = const Value.absent(),
     required String title,
     required String contentRendered,
     required String contentText,
@@ -823,8 +850,8 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
     this.isAppend = const Value.absent(),
     this.isEdit = const Value.absent(),
     this.isMove = const Value.absent(),
-  })  : postId = Value(postId),
-        title = Value(title),
+    this.createdTime = const Value.absent(),
+  })  : title = Value(title),
         contentRendered = Value(contentRendered),
         contentText = Value(contentText),
         createDate = Value(createDate),
@@ -832,9 +859,9 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
         lastReplyDate = Value(lastReplyDate),
         lastReplyDateAgo = Value(lastReplyDateAgo),
         lastReplyUsername = Value(lastReplyUsername);
-  static Insertable<TodoItem> custom({
+  static Insertable<DbPostData> custom({
     Expression<int>? id,
-    Expression<String>? postId,
+    Expression<int>? postId,
     Expression<String>? title,
     Expression<String>? contentRendered,
     Expression<String>? contentText,
@@ -855,6 +882,7 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
     Expression<bool>? isAppend,
     Expression<bool>? isEdit,
     Expression<bool>? isMove,
+    Expression<DateTime>? createdTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -879,12 +907,13 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
       if (isAppend != null) 'is_append': isAppend,
       if (isEdit != null) 'is_edit': isEdit,
       if (isMove != null) 'is_move': isMove,
+      if (createdTime != null) 'created_time': createdTime,
     });
   }
 
-  TodoItemsCompanion copyWith(
+  DbPostCompanion copyWith(
       {Value<int>? id,
-      Value<String>? postId,
+      Value<int>? postId,
       Value<String>? title,
       Value<String>? contentRendered,
       Value<String>? contentText,
@@ -904,8 +933,9 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
       Value<bool>? isReport,
       Value<bool>? isAppend,
       Value<bool>? isEdit,
-      Value<bool>? isMove}) {
-    return TodoItemsCompanion(
+      Value<bool>? isMove,
+      Value<DateTime>? createdTime}) {
+    return DbPostCompanion(
       id: id ?? this.id,
       postId: postId ?? this.postId,
       title: title ?? this.title,
@@ -928,6 +958,7 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
       isAppend: isAppend ?? this.isAppend,
       isEdit: isEdit ?? this.isEdit,
       isMove: isMove ?? this.isMove,
+      createdTime: createdTime ?? this.createdTime,
     );
   }
 
@@ -938,7 +969,7 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
       map['id'] = Variable<int>(id.value);
     }
     if (postId.present) {
-      map['post_id'] = Variable<String>(postId.value);
+      map['post_id'] = Variable<int>(postId.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -1000,12 +1031,15 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
     if (isMove.present) {
       map['is_move'] = Variable<bool>(isMove.value);
     }
+    if (createdTime.present) {
+      map['created_time'] = Variable<DateTime>(createdTime.value);
+    }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('TodoItemsCompanion(')
+    return (StringBuffer('DbPostCompanion(')
           ..write('id: $id, ')
           ..write('postId: $postId, ')
           ..write('title: $title, ')
@@ -1027,18 +1061,18 @@ class TodoItemsCompanion extends UpdateCompanion<TodoItem> {
           ..write('isReport: $isReport, ')
           ..write('isAppend: $isAppend, ')
           ..write('isEdit: $isEdit, ')
-          ..write('isMove: $isMove')
+          ..write('isMove: $isMove, ')
+          ..write('createdTime: $createdTime')
           ..write(')'))
         .toString();
   }
 }
 
-class $TodoCategoryTable extends TodoCategory
-    with TableInfo<$TodoCategoryTable, TodoCategoryData> {
+class $DbReplyTable extends DbReply with TableInfo<$DbReplyTable, DbReplyData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TodoCategoryTable(this.attachedDatabase, [this._alias]);
+  $DbReplyTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1048,34 +1082,317 @@ class $TodoCategoryTable extends TodoCategory
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
+  static const VerificationMeta _postAutoIdMeta =
+      const VerificationMeta('postAutoId');
   @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, false,
+  late final GeneratedColumn<int> postAutoId = GeneratedColumn<int>(
+      'post_auto_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES dbPost(id)');
+  static const VerificationMeta _replyIdMeta =
+      const VerificationMeta('replyId');
+  @override
+  late final GeneratedColumn<int> replyId = GeneratedColumn<int>(
+      'reply_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _replyContentMeta =
+      const VerificationMeta('replyContent');
+  @override
+  late final GeneratedColumn<String> replyContent = GeneratedColumn<String>(
+      'reply_content', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _replyUsersMeta =
+      const VerificationMeta('replyUsers');
   @override
-  List<GeneratedColumn> get $columns => [id, description];
+  late final GeneratedColumn<String> replyUsers = GeneratedColumn<String>(
+      'reply_users', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _replyTextMeta =
+      const VerificationMeta('replyText');
+  @override
+  late final GeneratedColumn<String> replyText = GeneratedColumn<String>(
+      'reply_text', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+      'date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _platformMeta =
+      const VerificationMeta('platform');
+  @override
+  late final GeneratedColumn<String> platform = GeneratedColumn<String>(
+      'platform', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
+  @override
+  late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
+      'avatar', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _usernameMeta =
+      const VerificationMeta('username');
+  @override
+  late final GeneratedColumn<String> username = GeneratedColumn<String>(
+      'username', aliasedName, false,
+      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+      'level', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _floorMeta = const VerificationMeta('floor');
+  @override
+  late final GeneratedColumn<int> floor = GeneratedColumn<int>(
+      'floor', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _thankCountMeta =
+      const VerificationMeta('thankCount');
+  @override
+  late final GeneratedColumn<int> thankCount = GeneratedColumn<int>(
+      'thank_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _replyCountMeta =
+      const VerificationMeta('replyCount');
+  @override
+  late final GeneratedColumn<int> replyCount = GeneratedColumn<int>(
+      'reply_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _replyFloorMeta =
+      const VerificationMeta('replyFloor');
+  @override
+  late final GeneratedColumn<int> replyFloor = GeneratedColumn<int>(
+      'reply_floor', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
+  static const VerificationMeta _isThankedMeta =
+      const VerificationMeta('isThanked');
+  @override
+  late final GeneratedColumn<bool> isThanked = GeneratedColumn<bool>(
+      'is_thanked', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_thanked" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isOpMeta = const VerificationMeta('isOp');
+  @override
+  late final GeneratedColumn<bool> isOp = GeneratedColumn<bool>(
+      'is_op', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_op" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isDupMeta = const VerificationMeta('isDup');
+  @override
+  late final GeneratedColumn<bool> isDup = GeneratedColumn<bool>(
+      'is_dup', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_dup" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isModMeta = const VerificationMeta('isMod');
+  @override
+  late final GeneratedColumn<bool> isMod = GeneratedColumn<bool>(
+      'is_mod', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_mod" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isUseMeta = const VerificationMeta('isUse');
+  @override
+  late final GeneratedColumn<bool> isUse = GeneratedColumn<bool>(
+      'is_use', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_use" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isChooseMeta =
+      const VerificationMeta('isChoose');
+  @override
+  late final GeneratedColumn<bool> isChoose = GeneratedColumn<bool>(
+      'is_choose', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_choose" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _isWrongMeta =
+      const VerificationMeta('isWrong');
+  @override
+  late final GeneratedColumn<bool> isWrong = GeneratedColumn<bool>(
+      'is_wrong', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_wrong" IN (0, 1))'),
+      defaultValue: Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        postAutoId,
+        replyId,
+        replyContent,
+        replyUsers,
+        replyText,
+        date,
+        platform,
+        avatar,
+        username,
+        level,
+        floor,
+        thankCount,
+        replyCount,
+        replyFloor,
+        isThanked,
+        isOp,
+        isDup,
+        isMod,
+        isUse,
+        isChoose,
+        isWrong
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'todo_category';
+  static const String $name = 'db_reply';
   @override
-  VerificationContext validateIntegrity(Insertable<TodoCategoryData> instance,
+  VerificationContext validateIntegrity(Insertable<DbReplyData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('description')) {
+    if (data.containsKey('post_auto_id')) {
       context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
+          _postAutoIdMeta,
+          postAutoId.isAcceptableOrUnknown(
+              data['post_auto_id']!, _postAutoIdMeta));
     } else if (isInserting) {
-      context.missing(_descriptionMeta);
+      context.missing(_postAutoIdMeta);
+    }
+    if (data.containsKey('reply_id')) {
+      context.handle(_replyIdMeta,
+          replyId.isAcceptableOrUnknown(data['reply_id']!, _replyIdMeta));
+    }
+    if (data.containsKey('reply_content')) {
+      context.handle(
+          _replyContentMeta,
+          replyContent.isAcceptableOrUnknown(
+              data['reply_content']!, _replyContentMeta));
+    } else if (isInserting) {
+      context.missing(_replyContentMeta);
+    }
+    if (data.containsKey('reply_users')) {
+      context.handle(
+          _replyUsersMeta,
+          replyUsers.isAcceptableOrUnknown(
+              data['reply_users']!, _replyUsersMeta));
+    } else if (isInserting) {
+      context.missing(_replyUsersMeta);
+    }
+    if (data.containsKey('reply_text')) {
+      context.handle(_replyTextMeta,
+          replyText.isAcceptableOrUnknown(data['reply_text']!, _replyTextMeta));
+    } else if (isInserting) {
+      context.missing(_replyTextMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('platform')) {
+      context.handle(_platformMeta,
+          platform.isAcceptableOrUnknown(data['platform']!, _platformMeta));
+    } else if (isInserting) {
+      context.missing(_platformMeta);
+    }
+    if (data.containsKey('avatar')) {
+      context.handle(_avatarMeta,
+          avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
+    } else if (isInserting) {
+      context.missing(_avatarMeta);
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username']!, _usernameMeta));
+    } else if (isInserting) {
+      context.missing(_usernameMeta);
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+          _levelMeta, level.isAcceptableOrUnknown(data['level']!, _levelMeta));
+    }
+    if (data.containsKey('floor')) {
+      context.handle(
+          _floorMeta, floor.isAcceptableOrUnknown(data['floor']!, _floorMeta));
+    }
+    if (data.containsKey('thank_count')) {
+      context.handle(
+          _thankCountMeta,
+          thankCount.isAcceptableOrUnknown(
+              data['thank_count']!, _thankCountMeta));
+    }
+    if (data.containsKey('reply_count')) {
+      context.handle(
+          _replyCountMeta,
+          replyCount.isAcceptableOrUnknown(
+              data['reply_count']!, _replyCountMeta));
+    }
+    if (data.containsKey('reply_floor')) {
+      context.handle(
+          _replyFloorMeta,
+          replyFloor.isAcceptableOrUnknown(
+              data['reply_floor']!, _replyFloorMeta));
+    }
+    if (data.containsKey('is_thanked')) {
+      context.handle(_isThankedMeta,
+          isThanked.isAcceptableOrUnknown(data['is_thanked']!, _isThankedMeta));
+    }
+    if (data.containsKey('is_op')) {
+      context.handle(
+          _isOpMeta, isOp.isAcceptableOrUnknown(data['is_op']!, _isOpMeta));
+    }
+    if (data.containsKey('is_dup')) {
+      context.handle(
+          _isDupMeta, isDup.isAcceptableOrUnknown(data['is_dup']!, _isDupMeta));
+    }
+    if (data.containsKey('is_mod')) {
+      context.handle(
+          _isModMeta, isMod.isAcceptableOrUnknown(data['is_mod']!, _isModMeta));
+    }
+    if (data.containsKey('is_use')) {
+      context.handle(
+          _isUseMeta, isUse.isAcceptableOrUnknown(data['is_use']!, _isUseMeta));
+    }
+    if (data.containsKey('is_choose')) {
+      context.handle(_isChooseMeta,
+          isChoose.isAcceptableOrUnknown(data['is_choose']!, _isChooseMeta));
+    }
+    if (data.containsKey('is_wrong')) {
+      context.handle(_isWrongMeta,
+          isWrong.isAcceptableOrUnknown(data['is_wrong']!, _isWrongMeta));
     }
     return context;
   }
@@ -1083,48 +1400,189 @@ class $TodoCategoryTable extends TodoCategory
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TodoCategoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbReplyData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TodoCategoryData(
+    return DbReplyData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      description: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      postAutoId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}post_auto_id'])!,
+      replyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}reply_id'])!,
+      replyContent: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reply_content'])!,
+      replyUsers: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reply_users'])!,
+      replyText: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reply_text'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}date'])!,
+      platform: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}platform'])!,
+      avatar: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
+      username: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}username'])!,
+      level: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}level'])!,
+      floor: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}floor'])!,
+      thankCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}thank_count'])!,
+      replyCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}reply_count'])!,
+      replyFloor: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}reply_floor'])!,
+      isThanked: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_thanked'])!,
+      isOp: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_op'])!,
+      isDup: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_dup'])!,
+      isMod: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_mod'])!,
+      isUse: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_use'])!,
+      isChoose: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_choose'])!,
+      isWrong: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_wrong'])!,
     );
   }
 
   @override
-  $TodoCategoryTable createAlias(String alias) {
-    return $TodoCategoryTable(attachedDatabase, alias);
+  $DbReplyTable createAlias(String alias) {
+    return $DbReplyTable(attachedDatabase, alias);
   }
 }
 
-class TodoCategoryData extends DataClass
-    implements Insertable<TodoCategoryData> {
+class DbReplyData extends DataClass implements Insertable<DbReplyData> {
   final int id;
-  final String description;
-  const TodoCategoryData({required this.id, required this.description});
+  final int postAutoId;
+  final int replyId;
+  final String replyContent;
+  final String replyUsers;
+  final String replyText;
+  final String date;
+  final String platform;
+  final String avatar;
+  final String username;
+  final int level;
+  final int floor;
+  final int thankCount;
+  final int replyCount;
+  final int replyFloor;
+  final bool isThanked;
+  final bool isOp;
+  final bool isDup;
+  final bool isMod;
+  final bool isUse;
+  final bool isChoose;
+  final bool isWrong;
+  const DbReplyData(
+      {required this.id,
+      required this.postAutoId,
+      required this.replyId,
+      required this.replyContent,
+      required this.replyUsers,
+      required this.replyText,
+      required this.date,
+      required this.platform,
+      required this.avatar,
+      required this.username,
+      required this.level,
+      required this.floor,
+      required this.thankCount,
+      required this.replyCount,
+      required this.replyFloor,
+      required this.isThanked,
+      required this.isOp,
+      required this.isDup,
+      required this.isMod,
+      required this.isUse,
+      required this.isChoose,
+      required this.isWrong});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['description'] = Variable<String>(description);
+    map['post_auto_id'] = Variable<int>(postAutoId);
+    map['reply_id'] = Variable<int>(replyId);
+    map['reply_content'] = Variable<String>(replyContent);
+    map['reply_users'] = Variable<String>(replyUsers);
+    map['reply_text'] = Variable<String>(replyText);
+    map['date'] = Variable<String>(date);
+    map['platform'] = Variable<String>(platform);
+    map['avatar'] = Variable<String>(avatar);
+    map['username'] = Variable<String>(username);
+    map['level'] = Variable<int>(level);
+    map['floor'] = Variable<int>(floor);
+    map['thank_count'] = Variable<int>(thankCount);
+    map['reply_count'] = Variable<int>(replyCount);
+    map['reply_floor'] = Variable<int>(replyFloor);
+    map['is_thanked'] = Variable<bool>(isThanked);
+    map['is_op'] = Variable<bool>(isOp);
+    map['is_dup'] = Variable<bool>(isDup);
+    map['is_mod'] = Variable<bool>(isMod);
+    map['is_use'] = Variable<bool>(isUse);
+    map['is_choose'] = Variable<bool>(isChoose);
+    map['is_wrong'] = Variable<bool>(isWrong);
     return map;
   }
 
-  TodoCategoryCompanion toCompanion(bool nullToAbsent) {
-    return TodoCategoryCompanion(
+  DbReplyCompanion toCompanion(bool nullToAbsent) {
+    return DbReplyCompanion(
       id: Value(id),
-      description: Value(description),
+      postAutoId: Value(postAutoId),
+      replyId: Value(replyId),
+      replyContent: Value(replyContent),
+      replyUsers: Value(replyUsers),
+      replyText: Value(replyText),
+      date: Value(date),
+      platform: Value(platform),
+      avatar: Value(avatar),
+      username: Value(username),
+      level: Value(level),
+      floor: Value(floor),
+      thankCount: Value(thankCount),
+      replyCount: Value(replyCount),
+      replyFloor: Value(replyFloor),
+      isThanked: Value(isThanked),
+      isOp: Value(isOp),
+      isDup: Value(isDup),
+      isMod: Value(isMod),
+      isUse: Value(isUse),
+      isChoose: Value(isChoose),
+      isWrong: Value(isWrong),
     );
   }
 
-  factory TodoCategoryData.fromJson(Map<String, dynamic> json,
+  factory DbReplyData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TodoCategoryData(
+    return DbReplyData(
       id: serializer.fromJson<int>(json['id']),
-      description: serializer.fromJson<String>(json['description']),
+      postAutoId: serializer.fromJson<int>(json['postAutoId']),
+      replyId: serializer.fromJson<int>(json['replyId']),
+      replyContent: serializer.fromJson<String>(json['replyContent']),
+      replyUsers: serializer.fromJson<String>(json['replyUsers']),
+      replyText: serializer.fromJson<String>(json['replyText']),
+      date: serializer.fromJson<String>(json['date']),
+      platform: serializer.fromJson<String>(json['platform']),
+      avatar: serializer.fromJson<String>(json['avatar']),
+      username: serializer.fromJson<String>(json['username']),
+      level: serializer.fromJson<int>(json['level']),
+      floor: serializer.fromJson<int>(json['floor']),
+      thankCount: serializer.fromJson<int>(json['thankCount']),
+      replyCount: serializer.fromJson<int>(json['replyCount']),
+      replyFloor: serializer.fromJson<int>(json['replyFloor']),
+      isThanked: serializer.fromJson<bool>(json['isThanked']),
+      isOp: serializer.fromJson<bool>(json['isOp']),
+      isDup: serializer.fromJson<bool>(json['isDup']),
+      isMod: serializer.fromJson<bool>(json['isMod']),
+      isUse: serializer.fromJson<bool>(json['isUse']),
+      isChoose: serializer.fromJson<bool>(json['isChoose']),
+      isWrong: serializer.fromJson<bool>(json['isWrong']),
     );
   }
   @override
@@ -1132,66 +1590,367 @@ class TodoCategoryData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'description': serializer.toJson<String>(description),
+      'postAutoId': serializer.toJson<int>(postAutoId),
+      'replyId': serializer.toJson<int>(replyId),
+      'replyContent': serializer.toJson<String>(replyContent),
+      'replyUsers': serializer.toJson<String>(replyUsers),
+      'replyText': serializer.toJson<String>(replyText),
+      'date': serializer.toJson<String>(date),
+      'platform': serializer.toJson<String>(platform),
+      'avatar': serializer.toJson<String>(avatar),
+      'username': serializer.toJson<String>(username),
+      'level': serializer.toJson<int>(level),
+      'floor': serializer.toJson<int>(floor),
+      'thankCount': serializer.toJson<int>(thankCount),
+      'replyCount': serializer.toJson<int>(replyCount),
+      'replyFloor': serializer.toJson<int>(replyFloor),
+      'isThanked': serializer.toJson<bool>(isThanked),
+      'isOp': serializer.toJson<bool>(isOp),
+      'isDup': serializer.toJson<bool>(isDup),
+      'isMod': serializer.toJson<bool>(isMod),
+      'isUse': serializer.toJson<bool>(isUse),
+      'isChoose': serializer.toJson<bool>(isChoose),
+      'isWrong': serializer.toJson<bool>(isWrong),
     };
   }
 
-  TodoCategoryData copyWith({int? id, String? description}) => TodoCategoryData(
+  DbReplyData copyWith(
+          {int? id,
+          int? postAutoId,
+          int? replyId,
+          String? replyContent,
+          String? replyUsers,
+          String? replyText,
+          String? date,
+          String? platform,
+          String? avatar,
+          String? username,
+          int? level,
+          int? floor,
+          int? thankCount,
+          int? replyCount,
+          int? replyFloor,
+          bool? isThanked,
+          bool? isOp,
+          bool? isDup,
+          bool? isMod,
+          bool? isUse,
+          bool? isChoose,
+          bool? isWrong}) =>
+      DbReplyData(
         id: id ?? this.id,
-        description: description ?? this.description,
+        postAutoId: postAutoId ?? this.postAutoId,
+        replyId: replyId ?? this.replyId,
+        replyContent: replyContent ?? this.replyContent,
+        replyUsers: replyUsers ?? this.replyUsers,
+        replyText: replyText ?? this.replyText,
+        date: date ?? this.date,
+        platform: platform ?? this.platform,
+        avatar: avatar ?? this.avatar,
+        username: username ?? this.username,
+        level: level ?? this.level,
+        floor: floor ?? this.floor,
+        thankCount: thankCount ?? this.thankCount,
+        replyCount: replyCount ?? this.replyCount,
+        replyFloor: replyFloor ?? this.replyFloor,
+        isThanked: isThanked ?? this.isThanked,
+        isOp: isOp ?? this.isOp,
+        isDup: isDup ?? this.isDup,
+        isMod: isMod ?? this.isMod,
+        isUse: isUse ?? this.isUse,
+        isChoose: isChoose ?? this.isChoose,
+        isWrong: isWrong ?? this.isWrong,
       );
-  TodoCategoryData copyWithCompanion(TodoCategoryCompanion data) {
-    return TodoCategoryData(
+  DbReplyData copyWithCompanion(DbReplyCompanion data) {
+    return DbReplyData(
       id: data.id.present ? data.id.value : this.id,
-      description:
-          data.description.present ? data.description.value : this.description,
+      postAutoId:
+          data.postAutoId.present ? data.postAutoId.value : this.postAutoId,
+      replyId: data.replyId.present ? data.replyId.value : this.replyId,
+      replyContent: data.replyContent.present
+          ? data.replyContent.value
+          : this.replyContent,
+      replyUsers:
+          data.replyUsers.present ? data.replyUsers.value : this.replyUsers,
+      replyText: data.replyText.present ? data.replyText.value : this.replyText,
+      date: data.date.present ? data.date.value : this.date,
+      platform: data.platform.present ? data.platform.value : this.platform,
+      avatar: data.avatar.present ? data.avatar.value : this.avatar,
+      username: data.username.present ? data.username.value : this.username,
+      level: data.level.present ? data.level.value : this.level,
+      floor: data.floor.present ? data.floor.value : this.floor,
+      thankCount:
+          data.thankCount.present ? data.thankCount.value : this.thankCount,
+      replyCount:
+          data.replyCount.present ? data.replyCount.value : this.replyCount,
+      replyFloor:
+          data.replyFloor.present ? data.replyFloor.value : this.replyFloor,
+      isThanked: data.isThanked.present ? data.isThanked.value : this.isThanked,
+      isOp: data.isOp.present ? data.isOp.value : this.isOp,
+      isDup: data.isDup.present ? data.isDup.value : this.isDup,
+      isMod: data.isMod.present ? data.isMod.value : this.isMod,
+      isUse: data.isUse.present ? data.isUse.value : this.isUse,
+      isChoose: data.isChoose.present ? data.isChoose.value : this.isChoose,
+      isWrong: data.isWrong.present ? data.isWrong.value : this.isWrong,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('TodoCategoryData(')
+    return (StringBuffer('DbReplyData(')
           ..write('id: $id, ')
-          ..write('description: $description')
+          ..write('postAutoId: $postAutoId, ')
+          ..write('replyId: $replyId, ')
+          ..write('replyContent: $replyContent, ')
+          ..write('replyUsers: $replyUsers, ')
+          ..write('replyText: $replyText, ')
+          ..write('date: $date, ')
+          ..write('platform: $platform, ')
+          ..write('avatar: $avatar, ')
+          ..write('username: $username, ')
+          ..write('level: $level, ')
+          ..write('floor: $floor, ')
+          ..write('thankCount: $thankCount, ')
+          ..write('replyCount: $replyCount, ')
+          ..write('replyFloor: $replyFloor, ')
+          ..write('isThanked: $isThanked, ')
+          ..write('isOp: $isOp, ')
+          ..write('isDup: $isDup, ')
+          ..write('isMod: $isMod, ')
+          ..write('isUse: $isUse, ')
+          ..write('isChoose: $isChoose, ')
+          ..write('isWrong: $isWrong')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, description);
+  int get hashCode => Object.hashAll([
+        id,
+        postAutoId,
+        replyId,
+        replyContent,
+        replyUsers,
+        replyText,
+        date,
+        platform,
+        avatar,
+        username,
+        level,
+        floor,
+        thankCount,
+        replyCount,
+        replyFloor,
+        isThanked,
+        isOp,
+        isDup,
+        isMod,
+        isUse,
+        isChoose,
+        isWrong
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TodoCategoryData &&
+      (other is DbReplyData &&
           other.id == this.id &&
-          other.description == this.description);
+          other.postAutoId == this.postAutoId &&
+          other.replyId == this.replyId &&
+          other.replyContent == this.replyContent &&
+          other.replyUsers == this.replyUsers &&
+          other.replyText == this.replyText &&
+          other.date == this.date &&
+          other.platform == this.platform &&
+          other.avatar == this.avatar &&
+          other.username == this.username &&
+          other.level == this.level &&
+          other.floor == this.floor &&
+          other.thankCount == this.thankCount &&
+          other.replyCount == this.replyCount &&
+          other.replyFloor == this.replyFloor &&
+          other.isThanked == this.isThanked &&
+          other.isOp == this.isOp &&
+          other.isDup == this.isDup &&
+          other.isMod == this.isMod &&
+          other.isUse == this.isUse &&
+          other.isChoose == this.isChoose &&
+          other.isWrong == this.isWrong);
 }
 
-class TodoCategoryCompanion extends UpdateCompanion<TodoCategoryData> {
+class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
   final Value<int> id;
-  final Value<String> description;
-  const TodoCategoryCompanion({
+  final Value<int> postAutoId;
+  final Value<int> replyId;
+  final Value<String> replyContent;
+  final Value<String> replyUsers;
+  final Value<String> replyText;
+  final Value<String> date;
+  final Value<String> platform;
+  final Value<String> avatar;
+  final Value<String> username;
+  final Value<int> level;
+  final Value<int> floor;
+  final Value<int> thankCount;
+  final Value<int> replyCount;
+  final Value<int> replyFloor;
+  final Value<bool> isThanked;
+  final Value<bool> isOp;
+  final Value<bool> isDup;
+  final Value<bool> isMod;
+  final Value<bool> isUse;
+  final Value<bool> isChoose;
+  final Value<bool> isWrong;
+  const DbReplyCompanion({
     this.id = const Value.absent(),
-    this.description = const Value.absent(),
+    this.postAutoId = const Value.absent(),
+    this.replyId = const Value.absent(),
+    this.replyContent = const Value.absent(),
+    this.replyUsers = const Value.absent(),
+    this.replyText = const Value.absent(),
+    this.date = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.avatar = const Value.absent(),
+    this.username = const Value.absent(),
+    this.level = const Value.absent(),
+    this.floor = const Value.absent(),
+    this.thankCount = const Value.absent(),
+    this.replyCount = const Value.absent(),
+    this.replyFloor = const Value.absent(),
+    this.isThanked = const Value.absent(),
+    this.isOp = const Value.absent(),
+    this.isDup = const Value.absent(),
+    this.isMod = const Value.absent(),
+    this.isUse = const Value.absent(),
+    this.isChoose = const Value.absent(),
+    this.isWrong = const Value.absent(),
   });
-  TodoCategoryCompanion.insert({
+  DbReplyCompanion.insert({
     this.id = const Value.absent(),
-    required String description,
-  }) : description = Value(description);
-  static Insertable<TodoCategoryData> custom({
+    required int postAutoId,
+    this.replyId = const Value.absent(),
+    required String replyContent,
+    required String replyUsers,
+    required String replyText,
+    required String date,
+    required String platform,
+    required String avatar,
+    required String username,
+    this.level = const Value.absent(),
+    this.floor = const Value.absent(),
+    this.thankCount = const Value.absent(),
+    this.replyCount = const Value.absent(),
+    this.replyFloor = const Value.absent(),
+    this.isThanked = const Value.absent(),
+    this.isOp = const Value.absent(),
+    this.isDup = const Value.absent(),
+    this.isMod = const Value.absent(),
+    this.isUse = const Value.absent(),
+    this.isChoose = const Value.absent(),
+    this.isWrong = const Value.absent(),
+  })  : postAutoId = Value(postAutoId),
+        replyContent = Value(replyContent),
+        replyUsers = Value(replyUsers),
+        replyText = Value(replyText),
+        date = Value(date),
+        platform = Value(platform),
+        avatar = Value(avatar),
+        username = Value(username);
+  static Insertable<DbReplyData> custom({
     Expression<int>? id,
-    Expression<String>? description,
+    Expression<int>? postAutoId,
+    Expression<int>? replyId,
+    Expression<String>? replyContent,
+    Expression<String>? replyUsers,
+    Expression<String>? replyText,
+    Expression<String>? date,
+    Expression<String>? platform,
+    Expression<String>? avatar,
+    Expression<String>? username,
+    Expression<int>? level,
+    Expression<int>? floor,
+    Expression<int>? thankCount,
+    Expression<int>? replyCount,
+    Expression<int>? replyFloor,
+    Expression<bool>? isThanked,
+    Expression<bool>? isOp,
+    Expression<bool>? isDup,
+    Expression<bool>? isMod,
+    Expression<bool>? isUse,
+    Expression<bool>? isChoose,
+    Expression<bool>? isWrong,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (description != null) 'description': description,
+      if (postAutoId != null) 'post_auto_id': postAutoId,
+      if (replyId != null) 'reply_id': replyId,
+      if (replyContent != null) 'reply_content': replyContent,
+      if (replyUsers != null) 'reply_users': replyUsers,
+      if (replyText != null) 'reply_text': replyText,
+      if (date != null) 'date': date,
+      if (platform != null) 'platform': platform,
+      if (avatar != null) 'avatar': avatar,
+      if (username != null) 'username': username,
+      if (level != null) 'level': level,
+      if (floor != null) 'floor': floor,
+      if (thankCount != null) 'thank_count': thankCount,
+      if (replyCount != null) 'reply_count': replyCount,
+      if (replyFloor != null) 'reply_floor': replyFloor,
+      if (isThanked != null) 'is_thanked': isThanked,
+      if (isOp != null) 'is_op': isOp,
+      if (isDup != null) 'is_dup': isDup,
+      if (isMod != null) 'is_mod': isMod,
+      if (isUse != null) 'is_use': isUse,
+      if (isChoose != null) 'is_choose': isChoose,
+      if (isWrong != null) 'is_wrong': isWrong,
     });
   }
 
-  TodoCategoryCompanion copyWith({Value<int>? id, Value<String>? description}) {
-    return TodoCategoryCompanion(
+  DbReplyCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? postAutoId,
+      Value<int>? replyId,
+      Value<String>? replyContent,
+      Value<String>? replyUsers,
+      Value<String>? replyText,
+      Value<String>? date,
+      Value<String>? platform,
+      Value<String>? avatar,
+      Value<String>? username,
+      Value<int>? level,
+      Value<int>? floor,
+      Value<int>? thankCount,
+      Value<int>? replyCount,
+      Value<int>? replyFloor,
+      Value<bool>? isThanked,
+      Value<bool>? isOp,
+      Value<bool>? isDup,
+      Value<bool>? isMod,
+      Value<bool>? isUse,
+      Value<bool>? isChoose,
+      Value<bool>? isWrong}) {
+    return DbReplyCompanion(
       id: id ?? this.id,
-      description: description ?? this.description,
+      postAutoId: postAutoId ?? this.postAutoId,
+      replyId: replyId ?? this.replyId,
+      replyContent: replyContent ?? this.replyContent,
+      replyUsers: replyUsers ?? this.replyUsers,
+      replyText: replyText ?? this.replyText,
+      date: date ?? this.date,
+      platform: platform ?? this.platform,
+      avatar: avatar ?? this.avatar,
+      username: username ?? this.username,
+      level: level ?? this.level,
+      floor: floor ?? this.floor,
+      thankCount: thankCount ?? this.thankCount,
+      replyCount: replyCount ?? this.replyCount,
+      replyFloor: replyFloor ?? this.replyFloor,
+      isThanked: isThanked ?? this.isThanked,
+      isOp: isOp ?? this.isOp,
+      isDup: isDup ?? this.isDup,
+      isMod: isMod ?? this.isMod,
+      isUse: isUse ?? this.isUse,
+      isChoose: isChoose ?? this.isChoose,
+      isWrong: isWrong ?? this.isWrong,
     );
   }
 
@@ -1201,17 +1960,97 @@ class TodoCategoryCompanion extends UpdateCompanion<TodoCategoryData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (description.present) {
-      map['description'] = Variable<String>(description.value);
+    if (postAutoId.present) {
+      map['post_auto_id'] = Variable<int>(postAutoId.value);
+    }
+    if (replyId.present) {
+      map['reply_id'] = Variable<int>(replyId.value);
+    }
+    if (replyContent.present) {
+      map['reply_content'] = Variable<String>(replyContent.value);
+    }
+    if (replyUsers.present) {
+      map['reply_users'] = Variable<String>(replyUsers.value);
+    }
+    if (replyText.present) {
+      map['reply_text'] = Variable<String>(replyText.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (platform.present) {
+      map['platform'] = Variable<String>(platform.value);
+    }
+    if (avatar.present) {
+      map['avatar'] = Variable<String>(avatar.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (floor.present) {
+      map['floor'] = Variable<int>(floor.value);
+    }
+    if (thankCount.present) {
+      map['thank_count'] = Variable<int>(thankCount.value);
+    }
+    if (replyCount.present) {
+      map['reply_count'] = Variable<int>(replyCount.value);
+    }
+    if (replyFloor.present) {
+      map['reply_floor'] = Variable<int>(replyFloor.value);
+    }
+    if (isThanked.present) {
+      map['is_thanked'] = Variable<bool>(isThanked.value);
+    }
+    if (isOp.present) {
+      map['is_op'] = Variable<bool>(isOp.value);
+    }
+    if (isDup.present) {
+      map['is_dup'] = Variable<bool>(isDup.value);
+    }
+    if (isMod.present) {
+      map['is_mod'] = Variable<bool>(isMod.value);
+    }
+    if (isUse.present) {
+      map['is_use'] = Variable<bool>(isUse.value);
+    }
+    if (isChoose.present) {
+      map['is_choose'] = Variable<bool>(isChoose.value);
+    }
+    if (isWrong.present) {
+      map['is_wrong'] = Variable<bool>(isWrong.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('TodoCategoryCompanion(')
+    return (StringBuffer('DbReplyCompanion(')
           ..write('id: $id, ')
-          ..write('description: $description')
+          ..write('postAutoId: $postAutoId, ')
+          ..write('replyId: $replyId, ')
+          ..write('replyContent: $replyContent, ')
+          ..write('replyUsers: $replyUsers, ')
+          ..write('replyText: $replyText, ')
+          ..write('date: $date, ')
+          ..write('platform: $platform, ')
+          ..write('avatar: $avatar, ')
+          ..write('username: $username, ')
+          ..write('level: $level, ')
+          ..write('floor: $floor, ')
+          ..write('thankCount: $thankCount, ')
+          ..write('replyCount: $replyCount, ')
+          ..write('replyFloor: $replyFloor, ')
+          ..write('isThanked: $isThanked, ')
+          ..write('isOp: $isOp, ')
+          ..write('isDup: $isDup, ')
+          ..write('isMod: $isMod, ')
+          ..write('isUse: $isUse, ')
+          ..write('isChoose: $isChoose, ')
+          ..write('isWrong: $isWrong')
           ..write(')'))
         .toString();
   }
@@ -1220,18 +2059,19 @@ class TodoCategoryCompanion extends UpdateCompanion<TodoCategoryData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $TodoItemsTable todoItems = $TodoItemsTable(this);
-  late final $TodoCategoryTable todoCategory = $TodoCategoryTable(this);
+  late final $DbPostTable dbPost = $DbPostTable(this);
+  late final $DbReplyTable dbReply = $DbReplyTable(this);
+  late final PostDao postDao = PostDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [todoItems, todoCategory];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [dbPost, dbReply];
 }
 
-typedef $$TodoItemsTableCreateCompanionBuilder = TodoItemsCompanion Function({
+typedef $$DbPostTableCreateCompanionBuilder = DbPostCompanion Function({
   Value<int> id,
-  required String postId,
+  Value<int> postId,
   required String title,
   required String contentRendered,
   required String contentText,
@@ -1252,10 +2092,11 @@ typedef $$TodoItemsTableCreateCompanionBuilder = TodoItemsCompanion Function({
   Value<bool> isAppend,
   Value<bool> isEdit,
   Value<bool> isMove,
+  Value<DateTime> createdTime,
 });
-typedef $$TodoItemsTableUpdateCompanionBuilder = TodoItemsCompanion Function({
+typedef $$DbPostTableUpdateCompanionBuilder = DbPostCompanion Function({
   Value<int> id,
-  Value<String> postId,
+  Value<int> postId,
   Value<String> title,
   Value<String> contentRendered,
   Value<String> contentText,
@@ -1276,11 +2117,12 @@ typedef $$TodoItemsTableUpdateCompanionBuilder = TodoItemsCompanion Function({
   Value<bool> isAppend,
   Value<bool> isEdit,
   Value<bool> isMove,
+  Value<DateTime> createdTime,
 });
 
-class $$TodoItemsTableFilterComposer
-    extends Composer<_$AppDatabase, $TodoItemsTable> {
-  $$TodoItemsTableFilterComposer({
+class $$DbPostTableFilterComposer
+    extends Composer<_$AppDatabase, $DbPostTable> {
+  $$DbPostTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1290,7 +2132,7 @@ class $$TodoItemsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get postId => $composableBuilder(
+  ColumnFilters<int> get postId => $composableBuilder(
       column: $table.postId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get title => $composableBuilder(
@@ -1355,11 +2197,14 @@ class $$TodoItemsTableFilterComposer
 
   ColumnFilters<bool> get isMove => $composableBuilder(
       column: $table.isMove, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => ColumnFilters(column));
 }
 
-class $$TodoItemsTableOrderingComposer
-    extends Composer<_$AppDatabase, $TodoItemsTable> {
-  $$TodoItemsTableOrderingComposer({
+class $$DbPostTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbPostTable> {
+  $$DbPostTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1369,7 +2214,7 @@ class $$TodoItemsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get postId => $composableBuilder(
+  ColumnOrderings<int> get postId => $composableBuilder(
       column: $table.postId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get title => $composableBuilder(
@@ -1437,11 +2282,14 @@ class $$TodoItemsTableOrderingComposer
 
   ColumnOrderings<bool> get isMove => $composableBuilder(
       column: $table.isMove, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => ColumnOrderings(column));
 }
 
-class $$TodoItemsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TodoItemsTable> {
-  $$TodoItemsTableAnnotationComposer({
+class $$DbPostTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbPostTable> {
+  $$DbPostTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1451,7 +2299,7 @@ class $$TodoItemsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get postId =>
+  GeneratedColumn<int> get postId =>
       $composableBuilder(column: $table.postId, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
@@ -1513,33 +2361,36 @@ class $$TodoItemsTableAnnotationComposer
 
   GeneratedColumn<bool> get isMove =>
       $composableBuilder(column: $table.isMove, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => column);
 }
 
-class $$TodoItemsTableTableManager extends RootTableManager<
+class $$DbPostTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $TodoItemsTable,
-    TodoItem,
-    $$TodoItemsTableFilterComposer,
-    $$TodoItemsTableOrderingComposer,
-    $$TodoItemsTableAnnotationComposer,
-    $$TodoItemsTableCreateCompanionBuilder,
-    $$TodoItemsTableUpdateCompanionBuilder,
-    (TodoItem, BaseReferences<_$AppDatabase, $TodoItemsTable, TodoItem>),
-    TodoItem,
+    $DbPostTable,
+    DbPostData,
+    $$DbPostTableFilterComposer,
+    $$DbPostTableOrderingComposer,
+    $$DbPostTableAnnotationComposer,
+    $$DbPostTableCreateCompanionBuilder,
+    $$DbPostTableUpdateCompanionBuilder,
+    (DbPostData, BaseReferences<_$AppDatabase, $DbPostTable, DbPostData>),
+    DbPostData,
     PrefetchHooks Function()> {
-  $$TodoItemsTableTableManager(_$AppDatabase db, $TodoItemsTable table)
+  $$DbPostTableTableManager(_$AppDatabase db, $DbPostTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TodoItemsTableFilterComposer($db: db, $table: table),
+              $$DbPostTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$TodoItemsTableOrderingComposer($db: db, $table: table),
+              $$DbPostTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TodoItemsTableAnnotationComposer($db: db, $table: table),
+              $$DbPostTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String> postId = const Value.absent(),
+            Value<int> postId = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String> contentRendered = const Value.absent(),
             Value<String> contentText = const Value.absent(),
@@ -1560,8 +2411,9 @@ class $$TodoItemsTableTableManager extends RootTableManager<
             Value<bool> isAppend = const Value.absent(),
             Value<bool> isEdit = const Value.absent(),
             Value<bool> isMove = const Value.absent(),
+            Value<DateTime> createdTime = const Value.absent(),
           }) =>
-              TodoItemsCompanion(
+              DbPostCompanion(
             id: id,
             postId: postId,
             title: title,
@@ -1584,10 +2436,11 @@ class $$TodoItemsTableTableManager extends RootTableManager<
             isAppend: isAppend,
             isEdit: isEdit,
             isMove: isMove,
+            createdTime: createdTime,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String postId,
+            Value<int> postId = const Value.absent(),
             required String title,
             required String contentRendered,
             required String contentText,
@@ -1608,8 +2461,9 @@ class $$TodoItemsTableTableManager extends RootTableManager<
             Value<bool> isAppend = const Value.absent(),
             Value<bool> isEdit = const Value.absent(),
             Value<bool> isMove = const Value.absent(),
+            Value<DateTime> createdTime = const Value.absent(),
           }) =>
-              TodoItemsCompanion.insert(
+              DbPostCompanion.insert(
             id: id,
             postId: postId,
             title: title,
@@ -1632,6 +2486,7 @@ class $$TodoItemsTableTableManager extends RootTableManager<
             isAppend: isAppend,
             isEdit: isEdit,
             isMove: isMove,
+            createdTime: createdTime,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -1640,32 +2495,70 @@ class $$TodoItemsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$TodoItemsTableProcessedTableManager = ProcessedTableManager<
+typedef $$DbPostTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
-    $TodoItemsTable,
-    TodoItem,
-    $$TodoItemsTableFilterComposer,
-    $$TodoItemsTableOrderingComposer,
-    $$TodoItemsTableAnnotationComposer,
-    $$TodoItemsTableCreateCompanionBuilder,
-    $$TodoItemsTableUpdateCompanionBuilder,
-    (TodoItem, BaseReferences<_$AppDatabase, $TodoItemsTable, TodoItem>),
-    TodoItem,
+    $DbPostTable,
+    DbPostData,
+    $$DbPostTableFilterComposer,
+    $$DbPostTableOrderingComposer,
+    $$DbPostTableAnnotationComposer,
+    $$DbPostTableCreateCompanionBuilder,
+    $$DbPostTableUpdateCompanionBuilder,
+    (DbPostData, BaseReferences<_$AppDatabase, $DbPostTable, DbPostData>),
+    DbPostData,
     PrefetchHooks Function()>;
-typedef $$TodoCategoryTableCreateCompanionBuilder = TodoCategoryCompanion
-    Function({
+typedef $$DbReplyTableCreateCompanionBuilder = DbReplyCompanion Function({
   Value<int> id,
-  required String description,
+  required int postAutoId,
+  Value<int> replyId,
+  required String replyContent,
+  required String replyUsers,
+  required String replyText,
+  required String date,
+  required String platform,
+  required String avatar,
+  required String username,
+  Value<int> level,
+  Value<int> floor,
+  Value<int> thankCount,
+  Value<int> replyCount,
+  Value<int> replyFloor,
+  Value<bool> isThanked,
+  Value<bool> isOp,
+  Value<bool> isDup,
+  Value<bool> isMod,
+  Value<bool> isUse,
+  Value<bool> isChoose,
+  Value<bool> isWrong,
 });
-typedef $$TodoCategoryTableUpdateCompanionBuilder = TodoCategoryCompanion
-    Function({
+typedef $$DbReplyTableUpdateCompanionBuilder = DbReplyCompanion Function({
   Value<int> id,
-  Value<String> description,
+  Value<int> postAutoId,
+  Value<int> replyId,
+  Value<String> replyContent,
+  Value<String> replyUsers,
+  Value<String> replyText,
+  Value<String> date,
+  Value<String> platform,
+  Value<String> avatar,
+  Value<String> username,
+  Value<int> level,
+  Value<int> floor,
+  Value<int> thankCount,
+  Value<int> replyCount,
+  Value<int> replyFloor,
+  Value<bool> isThanked,
+  Value<bool> isOp,
+  Value<bool> isDup,
+  Value<bool> isMod,
+  Value<bool> isUse,
+  Value<bool> isChoose,
+  Value<bool> isWrong,
 });
 
-class $$TodoCategoryTableFilterComposer
-    extends Composer<_$AppDatabase, $TodoCategoryTable> {
-  $$TodoCategoryTableFilterComposer({
+class $$DbReplyTableFilterComposer
+    extends Composer<_$AppDatabase, $DbReplyTable> {
+  $$DbReplyTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1675,13 +2568,73 @@ class $$TodoCategoryTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get postAutoId => $composableBuilder(
+      column: $table.postAutoId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get replyId => $composableBuilder(
+      column: $table.replyId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get replyContent => $composableBuilder(
+      column: $table.replyContent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get replyUsers => $composableBuilder(
+      column: $table.replyUsers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get replyText => $composableBuilder(
+      column: $table.replyText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get platform => $composableBuilder(
+      column: $table.platform, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get username => $composableBuilder(
+      column: $table.username, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get floor => $composableBuilder(
+      column: $table.floor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get thankCount => $composableBuilder(
+      column: $table.thankCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get replyCount => $composableBuilder(
+      column: $table.replyCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get replyFloor => $composableBuilder(
+      column: $table.replyFloor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isThanked => $composableBuilder(
+      column: $table.isThanked, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isOp => $composableBuilder(
+      column: $table.isOp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDup => $composableBuilder(
+      column: $table.isDup, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isMod => $composableBuilder(
+      column: $table.isMod, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isUse => $composableBuilder(
+      column: $table.isUse, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isChoose => $composableBuilder(
+      column: $table.isChoose, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isWrong => $composableBuilder(
+      column: $table.isWrong, builder: (column) => ColumnFilters(column));
 }
 
-class $$TodoCategoryTableOrderingComposer
-    extends Composer<_$AppDatabase, $TodoCategoryTable> {
-  $$TodoCategoryTableOrderingComposer({
+class $$DbReplyTableOrderingComposer
+    extends Composer<_$AppDatabase, $DbReplyTable> {
+  $$DbReplyTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1691,13 +2644,74 @@ class $$TodoCategoryTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get postAutoId => $composableBuilder(
+      column: $table.postAutoId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get replyId => $composableBuilder(
+      column: $table.replyId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get replyContent => $composableBuilder(
+      column: $table.replyContent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get replyUsers => $composableBuilder(
+      column: $table.replyUsers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get replyText => $composableBuilder(
+      column: $table.replyText, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get platform => $composableBuilder(
+      column: $table.platform, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get username => $composableBuilder(
+      column: $table.username, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get floor => $composableBuilder(
+      column: $table.floor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get thankCount => $composableBuilder(
+      column: $table.thankCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get replyCount => $composableBuilder(
+      column: $table.replyCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get replyFloor => $composableBuilder(
+      column: $table.replyFloor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isThanked => $composableBuilder(
+      column: $table.isThanked, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isOp => $composableBuilder(
+      column: $table.isOp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDup => $composableBuilder(
+      column: $table.isDup, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isMod => $composableBuilder(
+      column: $table.isMod, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isUse => $composableBuilder(
+      column: $table.isUse, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isChoose => $composableBuilder(
+      column: $table.isChoose, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isWrong => $composableBuilder(
+      column: $table.isWrong, builder: (column) => ColumnOrderings(column));
 }
 
-class $$TodoCategoryTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TodoCategoryTable> {
-  $$TodoCategoryTableAnnotationComposer({
+class $$DbReplyTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DbReplyTable> {
+  $$DbReplyTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1707,50 +2721,187 @@ class $$TodoCategoryTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => column);
+  GeneratedColumn<int> get postAutoId => $composableBuilder(
+      column: $table.postAutoId, builder: (column) => column);
+
+  GeneratedColumn<int> get replyId =>
+      $composableBuilder(column: $table.replyId, builder: (column) => column);
+
+  GeneratedColumn<String> get replyContent => $composableBuilder(
+      column: $table.replyContent, builder: (column) => column);
+
+  GeneratedColumn<String> get replyUsers => $composableBuilder(
+      column: $table.replyUsers, builder: (column) => column);
+
+  GeneratedColumn<String> get replyText =>
+      $composableBuilder(column: $table.replyText, builder: (column) => column);
+
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get platform =>
+      $composableBuilder(column: $table.platform, builder: (column) => column);
+
+  GeneratedColumn<String> get avatar =>
+      $composableBuilder(column: $table.avatar, builder: (column) => column);
+
+  GeneratedColumn<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<int> get floor =>
+      $composableBuilder(column: $table.floor, builder: (column) => column);
+
+  GeneratedColumn<int> get thankCount => $composableBuilder(
+      column: $table.thankCount, builder: (column) => column);
+
+  GeneratedColumn<int> get replyCount => $composableBuilder(
+      column: $table.replyCount, builder: (column) => column);
+
+  GeneratedColumn<int> get replyFloor => $composableBuilder(
+      column: $table.replyFloor, builder: (column) => column);
+
+  GeneratedColumn<bool> get isThanked =>
+      $composableBuilder(column: $table.isThanked, builder: (column) => column);
+
+  GeneratedColumn<bool> get isOp =>
+      $composableBuilder(column: $table.isOp, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDup =>
+      $composableBuilder(column: $table.isDup, builder: (column) => column);
+
+  GeneratedColumn<bool> get isMod =>
+      $composableBuilder(column: $table.isMod, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUse =>
+      $composableBuilder(column: $table.isUse, builder: (column) => column);
+
+  GeneratedColumn<bool> get isChoose =>
+      $composableBuilder(column: $table.isChoose, builder: (column) => column);
+
+  GeneratedColumn<bool> get isWrong =>
+      $composableBuilder(column: $table.isWrong, builder: (column) => column);
 }
 
-class $$TodoCategoryTableTableManager extends RootTableManager<
+class $$DbReplyTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $TodoCategoryTable,
-    TodoCategoryData,
-    $$TodoCategoryTableFilterComposer,
-    $$TodoCategoryTableOrderingComposer,
-    $$TodoCategoryTableAnnotationComposer,
-    $$TodoCategoryTableCreateCompanionBuilder,
-    $$TodoCategoryTableUpdateCompanionBuilder,
-    (
-      TodoCategoryData,
-      BaseReferences<_$AppDatabase, $TodoCategoryTable, TodoCategoryData>
-    ),
-    TodoCategoryData,
+    $DbReplyTable,
+    DbReplyData,
+    $$DbReplyTableFilterComposer,
+    $$DbReplyTableOrderingComposer,
+    $$DbReplyTableAnnotationComposer,
+    $$DbReplyTableCreateCompanionBuilder,
+    $$DbReplyTableUpdateCompanionBuilder,
+    (DbReplyData, BaseReferences<_$AppDatabase, $DbReplyTable, DbReplyData>),
+    DbReplyData,
     PrefetchHooks Function()> {
-  $$TodoCategoryTableTableManager(_$AppDatabase db, $TodoCategoryTable table)
+  $$DbReplyTableTableManager(_$AppDatabase db, $DbReplyTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TodoCategoryTableFilterComposer($db: db, $table: table),
+              $$DbReplyTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$TodoCategoryTableOrderingComposer($db: db, $table: table),
+              $$DbReplyTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TodoCategoryTableAnnotationComposer($db: db, $table: table),
+              $$DbReplyTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String> description = const Value.absent(),
+            Value<int> postAutoId = const Value.absent(),
+            Value<int> replyId = const Value.absent(),
+            Value<String> replyContent = const Value.absent(),
+            Value<String> replyUsers = const Value.absent(),
+            Value<String> replyText = const Value.absent(),
+            Value<String> date = const Value.absent(),
+            Value<String> platform = const Value.absent(),
+            Value<String> avatar = const Value.absent(),
+            Value<String> username = const Value.absent(),
+            Value<int> level = const Value.absent(),
+            Value<int> floor = const Value.absent(),
+            Value<int> thankCount = const Value.absent(),
+            Value<int> replyCount = const Value.absent(),
+            Value<int> replyFloor = const Value.absent(),
+            Value<bool> isThanked = const Value.absent(),
+            Value<bool> isOp = const Value.absent(),
+            Value<bool> isDup = const Value.absent(),
+            Value<bool> isMod = const Value.absent(),
+            Value<bool> isUse = const Value.absent(),
+            Value<bool> isChoose = const Value.absent(),
+            Value<bool> isWrong = const Value.absent(),
           }) =>
-              TodoCategoryCompanion(
+              DbReplyCompanion(
             id: id,
-            description: description,
+            postAutoId: postAutoId,
+            replyId: replyId,
+            replyContent: replyContent,
+            replyUsers: replyUsers,
+            replyText: replyText,
+            date: date,
+            platform: platform,
+            avatar: avatar,
+            username: username,
+            level: level,
+            floor: floor,
+            thankCount: thankCount,
+            replyCount: replyCount,
+            replyFloor: replyFloor,
+            isThanked: isThanked,
+            isOp: isOp,
+            isDup: isDup,
+            isMod: isMod,
+            isUse: isUse,
+            isChoose: isChoose,
+            isWrong: isWrong,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String description,
+            required int postAutoId,
+            Value<int> replyId = const Value.absent(),
+            required String replyContent,
+            required String replyUsers,
+            required String replyText,
+            required String date,
+            required String platform,
+            required String avatar,
+            required String username,
+            Value<int> level = const Value.absent(),
+            Value<int> floor = const Value.absent(),
+            Value<int> thankCount = const Value.absent(),
+            Value<int> replyCount = const Value.absent(),
+            Value<int> replyFloor = const Value.absent(),
+            Value<bool> isThanked = const Value.absent(),
+            Value<bool> isOp = const Value.absent(),
+            Value<bool> isDup = const Value.absent(),
+            Value<bool> isMod = const Value.absent(),
+            Value<bool> isUse = const Value.absent(),
+            Value<bool> isChoose = const Value.absent(),
+            Value<bool> isWrong = const Value.absent(),
           }) =>
-              TodoCategoryCompanion.insert(
+              DbReplyCompanion.insert(
             id: id,
-            description: description,
+            postAutoId: postAutoId,
+            replyId: replyId,
+            replyContent: replyContent,
+            replyUsers: replyUsers,
+            replyText: replyText,
+            date: date,
+            platform: platform,
+            avatar: avatar,
+            username: username,
+            level: level,
+            floor: floor,
+            thankCount: thankCount,
+            replyCount: replyCount,
+            replyFloor: replyFloor,
+            isThanked: isThanked,
+            isOp: isOp,
+            isDup: isDup,
+            isMod: isMod,
+            isUse: isUse,
+            isChoose: isChoose,
+            isWrong: isWrong,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -1759,27 +2910,26 @@ class $$TodoCategoryTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$TodoCategoryTableProcessedTableManager = ProcessedTableManager<
+typedef $$DbReplyTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
-    $TodoCategoryTable,
-    TodoCategoryData,
-    $$TodoCategoryTableFilterComposer,
-    $$TodoCategoryTableOrderingComposer,
-    $$TodoCategoryTableAnnotationComposer,
-    $$TodoCategoryTableCreateCompanionBuilder,
-    $$TodoCategoryTableUpdateCompanionBuilder,
-    (
-      TodoCategoryData,
-      BaseReferences<_$AppDatabase, $TodoCategoryTable, TodoCategoryData>
-    ),
-    TodoCategoryData,
+    $DbReplyTable,
+    DbReplyData,
+    $$DbReplyTableFilterComposer,
+    $$DbReplyTableOrderingComposer,
+    $$DbReplyTableAnnotationComposer,
+    $$DbReplyTableCreateCompanionBuilder,
+    $$DbReplyTableUpdateCompanionBuilder,
+    (DbReplyData, BaseReferences<_$AppDatabase, $DbReplyTable, DbReplyData>),
+    DbReplyData,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$TodoItemsTableTableManager get todoItems =>
-      $$TodoItemsTableTableManager(_db, _db.todoItems);
-  $$TodoCategoryTableTableManager get todoCategory =>
-      $$TodoCategoryTableTableManager(_db, _db.todoCategory);
+  $$DbPostTableTableManager get dbPost =>
+      $$DbPostTableTableManager(_db, _db.dbPost);
+  $$DbReplyTableTableManager get dbReply =>
+      $$DbReplyTableTableManager(_db, _db.dbReply);
 }
+
+mixin _$PostDaoMixin on DatabaseAccessor<AppDatabase> {}

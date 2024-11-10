@@ -10,15 +10,15 @@ import '../controller.dart';
 
 //标题和内容
 class PostHeader extends StatelessWidget {
-  final String id;
+  final String postId;
 
-  PostHeader({required this.id});
+  PostHeader({required this.postId});
 
   @override
   Widget build(BuildContext context) {
     BaseController bc = BaseController.to;
     return GetBuilder<PostDetailController>(
-        tag: id,
+        tag: postId,
         builder: (ctrl) {
           return SliverToBoxAdapter(
             child: Padding(

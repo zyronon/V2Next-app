@@ -347,7 +347,7 @@ class Utils {
           String? href = titleInfo.attributes['href'];
           var match = RegExp(r'(\d+)').allMatches(href!);
           var result = match.map((m) => m.group(0)).toList();
-          item.id = result[0]!;
+          item.postId = int.parse(result[0]!);
         }
         Element? countEl = aNode.querySelector('.count_livid');
         if (countEl != null) {

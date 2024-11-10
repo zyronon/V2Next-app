@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Value;
@@ -72,52 +74,37 @@ class PostDetailController extends GetxController {
   getData() async {
     post = Get.arguments;
     isShowFixedTitle = false;
+    final postDao = bc.database.postDao;
 
-    var s = await bc.database.managers.todoItems.filter((f) => f.postId(post.id)).getSingleOrNull();
+    var s = await postDao.getPostWithReplies(post.postId);
     if (s != null) {
-      print(s.title);
-      print(s.contentRendered);
-      print(s.createDate);
-      post = Post.fromJson(s.toJson());
-    }else{
+      print('replies.lengt');
+      print(s.replies[0].replyContent);
+      // print(s.post.id);
+      // print(s.post.postId);
+      post = Post.fromJson(s.post.toJson());
+      post.replyList = s.replies.map((v) {
+        var r = Reply.fromJson(v.toJson());
+        r.replyUsers = jsonDecode(v.replyUsers);
+        return r;
+      }).toList();
+      rebuildList();
+    } else {
       loading = true;
     }
 
     update();
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('1058393' );
-    // Post2 topicDetailModel = await TopicWebApi.getTopicDetail('889129');
-    // post = await Api.getPostDetail('825072');
-    // post = await Api.getPostDetail('1026938');
-    post = await Api.getPostDetail(Get.arguments.id);
+    post = await Api.getPostDetail(Get.arguments.postId);
     // post = await Api.getPostDetail('825072');
     loading = false;
     update();
     observerController.reattach();
+
     if (s == null) {
-      await bc.database.into(bc.database.todoItems).insert(
-            TodoItemsCompanion.insert(
-              postId: post.id,
-              title: post.title,
-              contentRendered: post.contentRendered,
-              contentText: post.contentText,
-              createDate: post.createDate,
-              createDateAgo: post.createDateAgo,
-              lastReplyDate: post.lastReplyDate,
-              lastReplyDateAgo: post.lastReplyDateAgo,
-              lastReplyUsername: post.lastReplyUsername,
-              replyCount: Value(post.replyCount),
-              thankCount: Value(post.thankCount),
-              collectCount: Value(post.collectCount),
-              isTop: Value(post.isTop),
-              isFavorite: Value(post.isFavorite),
-              isIgnore: Value(post.isIgnore),
-              isThanked: Value(post.isThanked),
-              isReport: Value(post.isReport),
-              isAppend: Value(post.isAppend),
-              isEdit: Value(post.isEdit),
-              isMove: Value(post.isMove),
-            ),
-          );
+      int postAutoId = await postDao.insertPost(post, post.replyList);
+      // postDao.insertReply(postAutoId, post.replyList[0]);
+    } else {
+      // postDao.updatePost(post, post.replyList);
     }
   }
 

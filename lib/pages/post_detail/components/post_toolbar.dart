@@ -12,14 +12,14 @@ class PostToolbar extends StatelessWidget {
   final GestureTapCallback onThank;
   final GestureTapCallback onCommit;
   final GestureTapCallback onEdit;
-  final String id;
+  final String postId;
 
   PostToolbar({
     required this.onCollect,
     required this.onThank,
     required this.onCommit,
     required this.onEdit,
-    required this.id,
+    required this.postId,
   });
 
   Widget clickWidget(Widget widget, onTap) {
@@ -35,7 +35,7 @@ class PostToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<PostDetailController>(
-        tag: id,
+        tag: postId,
         builder: (ctrl) {
           return Container(
               width: double.infinity,

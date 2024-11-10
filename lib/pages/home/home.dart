@@ -48,20 +48,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   );
 
   submit() async {
-   //
-   //  // await bc.database.delete(bc.database.todoItems);
-   //  await bc.database.managers.todoItems.delete();
-   //  // return;
-   //  await bc.database.into(bc.database.todoItems).insert(TodoItemsCompanion.insert(
-   //    postId: '1234561',
-   //    title: 'todo: finish drift setup',
-   //    content: 'We can now write queries and define our own tables.',
-   //  ));
-   // // await bc.database.managers.todoItems.delete();
-   // //  var s =await bc.database.managers.todoItems.filter((f) => f.id(1)).getSingle();
-   // //  print(s.id);
-   //  List<TodoItem> allItems = await bc.database.select(bc.database.todoItems).get();
-   //  print('items in database: $allItems');
+    var allItems = await bc.database.select(bc.database.dbReply).get();
+    print('items in database: ${allItems.length}');
     // BaseController c = Get.find();
     // c.initStorage();
     // Api.pullOnce();

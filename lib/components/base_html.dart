@@ -55,7 +55,7 @@ class CommonHtml extends StatelessWidget {
             url = url.replaceAll('/t/', '');
             var match = RegExp(r'(\d+)').allMatches(url);
             var result = match.map((m) => m.group(0)).toList();
-            Get.toNamed('/post-detail', arguments: Post(id: result[0]!), preventDuplicates: false);
+            Get.toNamed('/post-detail', arguments: Post(postId: int.parse(result[0]!)), preventDuplicates: false);
             return true;
           }
           Utils.openBrowser(url);

@@ -21,11 +21,11 @@ import 'package:v2ex/pages/post_detail/controller.dart';
 import 'package:v2ex/utils/const_val.dart';
 
 class PostShare extends StatelessWidget {
-  String id;
+  String postId;
   Reply? reply;
   ScreenshotController screenshotController = ScreenshotController();
 
-  PostShare({required this.id, this.reply});
+  PostShare({required this.postId, this.reply});
 
   _requestPermission() async {
     Map<Permission, PermissionStatus> statuses = await [
@@ -37,7 +37,7 @@ class PostShare extends StatelessWidget {
   }
 
   Widget getShare({bool isShare = false}) {
-    PostDetailController ctrl = Get.find(tag: id);
+    PostDetailController ctrl = Get.find(tag: postId);
     BaseController bc = BaseController.to;
 
     return Builder(builder: (context) {
@@ -153,7 +153,7 @@ class PostShare extends StatelessWidget {
                         child: Text('扫码阅读此帖子完整内容'),
                       ),
                       QrImageView(
-                        data: Const.v2exHost + '/t/${ctrl.post.id}',
+                        data: Const.v2exHost + '/t/${ctrl.post.postId.toString()}',
                         version: QrVersions.auto,
                         size: 70.w,
                       ),

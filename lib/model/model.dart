@@ -12,11 +12,10 @@ class Reply {
   bool isThanked = false;
   bool isOp = false;
   bool isMod = false;
-  bool isDup = false;
   bool isUse = false;
   bool isChoose = false;
   bool isWrong = false;
-  String id = '';
+  int replyId = 0;
   String replyContent = '';
   String replyText = '';
   String hideCallUserReplyContent = '';
@@ -36,11 +35,10 @@ class Reply {
         "isThanked": isThanked,
         "isOp": isOp,
         "isMod": isMod,
-        "isDup": isDup,
         "isUse": isUse,
         "isChoose": isChoose,
         "isWrong": isWrong,
-        "id": id,
+        "replyId": replyId,
         "reply_content": replyContent,
         "reply_text": replyText,
         "hideCallUserReplyContent": hideCallUserReplyContent,
@@ -62,14 +60,13 @@ class Reply {
     s.isThanked = json["isThanked"];
     s.isOp = json["isOp"];
     s.isMod = json["isMod"];
-    s.isDup = json["isDup"];
     s.isUse = json["isUse"];
     s.isWrong = json["isWrong"];
     s.isChoose = json["isChoose"];
-    s.id = json["id"];
-    s.replyContent = json["reply_content"];
-    s.replyText = json["reply_text"];
-    s.hideCallUserReplyContent = json["hideCallUserReplyContent"];
+    s.replyId = json["replyId"];
+    s.replyContent = json["replyContent"] ?? '';
+    s.replyText = json["replyText"] ?? '';
+    s.hideCallUserReplyContent = json["hideCallUserReplyContent"] ?? '';
     s.replyUsers = json["replyUsers"] == null ? [] : List<String>.from(json["replyUsers"]!.map((x) => x));
     s.replyFloor = json["replyFloor"];
     s.date = json["date"];
@@ -97,18 +94,16 @@ class Post {
   String lastReplyDate;
   String lastReplyDateAgo;
   String lastReplyUsername;
-  String fr;
   List<Reply> replyList;
   List<Reply> hotReplyList;
   List<Reply> newReplyList;
   List<Reply> topReplyList;
   List<Reply> nestedReplies;
 
-  //TODO 疑似未使用
   Member member;
   V2Node node;
   String title;
-  String id;
+  int postId;
   int replyCount;
   int clickCount;
   int thankCount;
@@ -130,7 +125,6 @@ class Post {
     this.lastReplyDate = '',
     this.lastReplyDateAgo = '',
     this.lastReplyUsername = '',
-    this.fr = '',
     this.replyList = const [],
     this.hotReplyList = const [],
     this.newReplyList = const [],
@@ -139,7 +133,7 @@ class Post {
     Member? member, // 使用可选参数
     V2Node? node, // 使用可选参数
     this.title = '',
-    this.id = '',
+    this.postId = 0,
     this.contentRendered = '',
     this.contentText = '',
     this.replyCount = 0,
@@ -158,7 +152,6 @@ class Post {
         // 如果传入为 null，则赋默认值
         node = node ?? V2Node();
 
-
   Post.fromJson(Map<String, dynamic> json)
       : allReplyUsers = json['allReplyUsers'] ?? [],
         contentRendered = json['contentRendered'] ?? '',
@@ -167,7 +160,6 @@ class Post {
         lastReplyDate = json['lastReplyDate'] ?? '',
         lastReplyDateAgo = json['lastReplyDateAgo'] ?? '',
         lastReplyUsername = json['lastReplyUsername'] ?? '',
-        fr = json['fr'] ?? '',
         replyList = (json['replyList'] as List?)?.map((item) => Reply.fromJson(item)).toList() ?? [],
         topReplyList = [],
         hotReplyList = [],
@@ -176,7 +168,7 @@ class Post {
         member = json['member'] != null ? Member.fromJson(json['member']) : Member(),
         node = json['node'] != null ? V2Node.fromJson(json['node']) : V2Node(),
         title = json['title'] ?? '',
-        id = json['id'].toString() ?? '',
+        postId = json['postId'] ?? '',
         contentText = json['contentText'] ?? '',
         replyCount = json['replyCount'] ?? 0,
         clickCount = json['clickCount'] ?? 0,
@@ -201,7 +193,6 @@ class Post {
       'lastReplyDate': lastReplyDate,
       'lastReplyDateAgo': lastReplyDateAgo,
       'lastReplyUsername': lastReplyUsername,
-      'fr': fr,
       'replyList': replyList.map((item) => item.toJson()).toList(),
       'topReplyList': [],
       'hotReplyList': [],
@@ -210,7 +201,7 @@ class Post {
       'member': member.toJson(),
       'node': node.toJson(),
       'title': title,
-      'id': id,
+      'postId': postId,
       'replyCount': replyCount,
       'clickCount': clickCount,
       'thankCount': thankCount,
@@ -435,7 +426,7 @@ class MemberNoticeItem {
   String replyTime = ''; // 回复时间
   String topicTitle = ''; // 主题标题
   var topicTitleHtml; // 主题标题
-  String topicId = ''; // 主题id
+  int topicId = 0; // 主题id
   String delIdOne = ''; // 删除id
   String delIdTwo = ''; // 删除id
   NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举

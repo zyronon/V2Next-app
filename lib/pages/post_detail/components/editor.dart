@@ -83,7 +83,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
     editorController.addListener(() {
       ec.text.value = editorController.text;
     });
-    if (pdc.reply.id.isNotEmpty) {
+    if (pdc.reply.replyId != 0) {
       editorController.text = '@${pdc.reply.username} #${pdc.reply.floor} ';
     }
     // 界面观察者 必须
@@ -178,10 +178,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
           List<Reply> atList = value['atList'];
           for (int i = 0; i < atList.length; i++) {
             var v = atList[i];
-            if(v.username == '管理员'){
+            if (v.username == '管理员') {
               v.username = 'Livid @Kai @Olivia @GordianZ @sparanoid @drymonfidelia';
             }
-            String floor = v.floor==-1?'':' #${v.floor}';
+            String floor = v.floor == -1 ? '' : ' #${v.floor}';
             String str = '';
             if (i == 0) {
               str = '${type == 'input' ? '' : ' @'}${v.username}${floor}';
@@ -271,7 +271,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20, left: 12, right: 12, top: 18),
         child: Column(
           children: [
-            if (pdc.reply.id.isNotEmpty) ...[
+            if (pdc.reply.replyId != 0) ...[
               Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   alignment: Alignment.topLeft,
