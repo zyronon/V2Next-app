@@ -1,13 +1,14 @@
 class NodeItem {
   int? id = 0;
-  int? stars = 0;
+  int? stars = 0; //收藏数
   int? topics = 0; // 主题数
   String? url = '';
   String? name = ''; // 节点名
   String? title = ''; // 展示使用
-  bool? root = false; // 是否父节点
   String? header = ''; // 节点
   String? footer = '';
+  bool isFavorite = false; // 是否收藏节点
+  String? avatar = '';
   String? avatarMini = '';
   String? avatarLarge = '';
   String? avatarNormal = '';
@@ -21,9 +22,10 @@ class NodeItem {
     this.url,
     this.name,
     this.title,
-    this.root,
     this.header,
     this.footer,
+    this.isFavorite = false,
+    this.avatar,
     this.avatarMini,
     this.avatarLarge,
     this.avatarNormal,
@@ -38,9 +40,10 @@ class NodeItem {
     url = json['url'];
     name = json['name'];
     title = json['title'];
-    root = json['root'];
     header = json['header'];
     footer = json['footer'];
+    isFavorite = json['isFavorite'] ?? false;
+    avatar = json['avatar'];
     avatarMini = json['avatar_mini'];
     avatarLarge = json['avatar_large'];
     avatarNormal = json['avatar_normal'];
@@ -56,9 +59,10 @@ class NodeItem {
     data['url'] = url;
     data['name'] = name;
     data['title'] = title;
-    data['root'] = root;
     data['header'] = header;
     data['footer'] = footer;
+    data['isFavorite'] = isFavorite;
+    data['avatar'] = avatar;
     data['avatar_mini'] = avatarMini;
     data['avatar_large'] = avatarLarge;
     data['avatar_normal'] = avatarNormal;
@@ -66,5 +70,4 @@ class NodeItem {
     data['title_alternative'] = titleAlternative;
     return data;
   }
-
 }

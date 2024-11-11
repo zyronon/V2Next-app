@@ -7,9 +7,7 @@ import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/pages/discover/tab_page.dart';
 import 'package:v2ex/utils/const_val.dart';
 
-class DiscoverController extends GetxController {
-
-}
+class DiscoverController extends GetxController {}
 
 class DiscoverPage extends StatefulWidget {
   @override
@@ -80,6 +78,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                           ),
                         ),
                         onTap: () {
+                          Get.toNamed('/node_list');
+                          return;
                           Get.to(BaseWebView(url: 'https://www.v2ex.com/xna'), transition: Transition.cupertino);
                         },
                       ),

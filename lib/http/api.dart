@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Element;
@@ -46,7 +47,7 @@ class Api {
         NodeListModel? s = await getNodePageInfo(nodeEnName: tab.enName, pageNo: pageNo);
         if (s != null) {
           res.success = true;
-          res.data = {'list': s.topicList, 'nodeList': nodeList, 'totalPage': s.totalPage};
+          res.data = {'list': s.postList, 'nodeList': nodeList, 'totalPage': s.totalPage};
         } else {
           res.success = false;
           res.data = Auth.notAllow;
@@ -112,7 +113,7 @@ class Api {
 
   static Future<NodeListModel?> getNodePageInfo({required String nodeEnName, int pageNo = 1}) async {
     NodeListModel detailModel = NodeListModel();
-    detailModel.nodeEnName = nodeEnName;
+    detailModel.name = nodeEnName;
     //手机端 收藏人数获取不到
     Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo});
     var document = parse(response.data);
@@ -124,9 +125,9 @@ class Api {
       return null;
     }
 
-    detailModel.nodeCover = mainHeader.querySelector('img')!.attributes['src']!;
+    detailModel.avatar = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
-    detailModel.nodeCnName = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+    detailModel.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
     detailModel.topicCount = mainHeader.querySelector('strong')!.text;
     // 节点描述
@@ -155,7 +156,7 @@ class Api {
       // 主题
       var topicEle = document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
 
-      detailModel.topicList = Utils().parsePagePostList(topicEle);
+      detailModel.postList = Utils().parsePagePostList(topicEle);
     }
     return detailModel;
   }
@@ -526,7 +527,7 @@ class Api {
       item.replyUsers = parsedContent['users'];
       item.replyFloor = parsedContent['floor'];
       if (item.replyUsers.length == 1) {
-        item.hideCallUserReplyContent = item.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
+        item.hideCallUserReplyContent = item.hideCallUserReplyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
       }
 
       var agoElement = node.querySelector('.ago');

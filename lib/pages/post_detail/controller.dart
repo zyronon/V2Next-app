@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
@@ -78,14 +79,20 @@ class PostDetailController extends GetxController {
 
     var s = await postDao.getPostWithReplies(post.postId);
     if (s != null) {
-      print('replies.lengt');
-      print(s.replies[0].replyContent);
+      print('replies.length${s.replies.length}');
+      // print(s.replies[0].replyContent);
       // print(s.post.id);
       // print(s.post.postId);
       post = Post.fromJson(s.post.toJson());
       post.replyList = s.replies.map((v) {
-        var r = Reply.fromJson(v.toJson());
-        r.replyUsers = jsonDecode(v.replyUsers);
+        var json = v.toJson();
+        json['replyUsers'] = jsonDecode(json['replyUsers']);
+        var r = Reply.fromJson(json);
+        if (r.replyUsers.length == 1) {
+          r.hideCallUserReplyContent = r.replyContent.replaceAll(RegExp(r'@<a href="/member/[\s\S]+?</a>(\s#[\d]+)?\s(<br>)?'), '');
+        } else {
+          r.hideCallUserReplyContent = r.replyContent;
+        }
         return r;
       }).toList();
       rebuildList();
@@ -101,10 +108,9 @@ class PostDetailController extends GetxController {
     observerController.reattach();
 
     if (s == null) {
-      int postAutoId = await postDao.insertPost(post, post.replyList);
-      // postDao.insertReply(postAutoId, post.replyList[0]);
+      postDao.insertPost(post, post.replyList);
     } else {
-      // postDao.updatePost(post, post.replyList);
+      postDao.updatePost(post, post.replyList);
     }
   }
 

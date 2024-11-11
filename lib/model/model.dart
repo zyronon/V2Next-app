@@ -5,6 +5,15 @@ enum ReplyListType {
   Normal, //正常回复
 }
 
+enum CommentDisplayType {
+  Nest, //楼中楼（隐藏第一个@用户，双击内容可显示原文）
+  NestAndCall, //楼中楼（@）
+  Hot, //感谢，最热
+  Origin, //V2原版
+  Op, //只看楼主
+  New, //最新
+}
+
 class Reply {
   int level = 0;
   int thankCount = 0;
@@ -39,8 +48,8 @@ class Reply {
         "isChoose": isChoose,
         "isWrong": isWrong,
         "replyId": replyId,
-        "reply_content": replyContent,
-        "reply_text": replyText,
+        "replyContent": replyContent,
+        "replyText": replyText,
         "hideCallUserReplyContent": hideCallUserReplyContent,
         "replyUsers": replyUsers.isEmpty ? [] : List<String>.from(replyUsers.map((x) => x)),
         "replyFloor": replyFloor,
@@ -317,15 +326,6 @@ class Layout {
   }
 }
 
-enum CommentDisplayType {
-  Nest, //楼中楼（隐藏第一个@用户，双击内容可显示原文）
-  NestAndCall, //楼中楼（@）
-  Hot, //感谢，最热
-  Origin, //V2原版
-  Op, //只看楼主
-  New, //最新
-}
-
 class UserConfig {
   bool showTopReply;
   bool openTag;
@@ -385,15 +385,15 @@ class UserConfig {
 
 class NodeListModel {
   String nodeId = ''; // 节点id
-  String nodeEnName = ''; // 节点url
-  String nodeCnName = ''; // 节点名称
+  String name = ''; // 节点url
+  String title = ''; // 节点名称
   String nodeIntro = ''; // 节点描述
   String topicCount = ''; // 主题数量
   bool isFavorite = false; // 是否收藏节点
   int favoriteCount = 0; // 收藏人数
   int totalPage = 1; // 总页数
-  String nodeCover = ''; // 封面
-  List<Post> topicList = [];
+  String avatar = ''; // 封面
+  List<Post> postList = [];
 }
 
 class Result {

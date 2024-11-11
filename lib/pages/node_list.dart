@@ -21,13 +21,15 @@ class NodeListPage extends StatefulWidget {
 }
 
 class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMixin {
-  List nodesList = GStorage().getNodes().isNotEmpty ? GStorage().getNodes() : [];
+  // List nodesList = GStorage().getNodes().isNotEmpty ? GStorage().getNodes() : [];
+  List nodesList = [];
 
   // List nodesList = [];
   BaseController bc = BaseController.to;
   late final Axis scrollDirection;
   bool _isLoading = false;
   bool _isLoadingFav = false;
+  List<Widget> tabs = [];
 
   @override
   void initState() {
@@ -40,22 +42,30 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
     if (nodesList.isEmpty) {
       final String response = await rootBundle.loadString('assets/data/node_map.json');
       final data = json.decode(response);
-      nodesList = data;
-      setState(() {});
+      // setState(() {
+      //   nodesList = data;
+      //   tabs = nodesList.map((e) {
+      //     return ExtendedTab(
+      //       size: 75,
+      //       iconMargin: const EdgeInsets.only(bottom: 0),
+      //       text: e['name'],
+      //     );
+      //   }).toList();
+      // });
     }
-    //显示出来后，再请求最新数据
-    var list = await Api.getNodeMap();
-    if (nodesList[0]['name'] == '已收藏') {
-      nodesList.removeRange(1, nodesList.length);
-      nodesList.addAll(list);
-    } else {
-      nodesList = list;
-    }
-    setState(() {});
-    if (bc.isLogin) {
-      getFavNodes();
-    }
-    GStorage().setNodes(nodesList);
+    // //显示出来后，再请求最新数据
+    // var list = await Api.getNodeMap();
+    // if (nodesList[0]['name'] == '已收藏') {
+    //   nodesList.removeRange(1, nodesList.length);
+    //   nodesList.addAll(list);
+    // } else {
+    //   nodesList = list;
+    // }
+    // setState(() {});
+    // if (bc.isLogin) {
+    //   getFavNodes();
+    // }
+    // GStorage().setNodes(nodesList);
   }
 
   Future getFavNodes() async {
@@ -123,72 +133,7 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
           const SizedBox(width: 12)
         ],
       ),
-      body: _isLoading
-          ? showLoading()
-          : DefaultTabController(
-              length: nodesList.length,
-              child: Row(
-                children: <Widget>[
-                  Card(
-                    elevation: 2,
-                    clipBehavior: Clip.hardEdge,
-                    child: ExtendedTabBar(
-                      indicator: BoxDecoration(
-                        color: Theme.of(context).appBarTheme.backgroundColor,
-                        border: Border(
-                            left: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 4.0,
-                          style: BorderStyle.solid,
-                        )),
-                      ),
-                      unselectedLabelColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
-                      labelColor: Theme.of(context).colorScheme.primary,
-                      scrollDirection: Axis.vertical,
-                      labelStyle: Theme.of(context).textTheme.titleSmall,
-                      tabs: nodesList.map((e) {
-                        return ExtendedTab(
-                          size: 75,
-                          iconMargin: const EdgeInsets.only(bottom: 0),
-                          text: e['name'],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  // const SizedBox(width: 4),
-                  Expanded(
-                    child: ExtendedTabBarView(
-                      cacheExtent: 0,
-                      scrollDirection: Axis.vertical,
-                      children: nodesList.map((e) {
-                        return e['name'] == '已收藏'
-                            ? FavNodes(_isLoadingFav, e)
-                            : GridView.count(
-                                padding: EdgeInsets.zero,
-                                // 禁止滚动
-                                physics: e['children'].length < 5 ? const NeverScrollableClampingScrollPhysics() : const ScrollPhysics(),
-                                crossAxisCount: Breakpoints.large.isActive(context)
-                                    ? 8
-                                    : Breakpoints.medium.isActive(context)
-                                        ? 6
-                                        : 3,
-                                mainAxisSpacing: 6,
-                                children: [
-                                  ...nodesChildList(e['children']),
-                                  if (Breakpoints.small.isActive(context) && e['children'].length > 19)
-                                    IconButton(
-                                      onPressed: () {
-                                        allNodes(e['children']);
-                                      },
-                                      icon: Icon(Icons.more_horiz, color: Theme.of(context).colorScheme.primary),
-                                    ),
-                                ],
-                              );
-                      }).toList(),
-                    ),
-                  )
-                ],
-              )),
+      body: DE,
     );
   }
 

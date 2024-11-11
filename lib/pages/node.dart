@@ -25,8 +25,8 @@ class NodeController extends GetxController {
     super.onInit();
     ctrl.addListener(scrollListener);
     V2Node node = Get.arguments;
-    model.nodeEnName = node.enName;
-    model.nodeCnName = node.cnName;
+    model.name = node.enName;
+    model.title = node.cnName;
     update();
     getData(isRefresh: true);
   }
@@ -49,13 +49,13 @@ class NodeController extends GetxController {
       loading = true;
       update();
     }
-    NodeListModel? res = await Api.getNodePageInfo(nodeEnName: model.nodeEnName, pageNo: pageNo);
+    NodeListModel? res = await Api.getNodePageInfo(nodeEnName: model.name, pageNo: pageNo);
     if (res != null) {
-      if (isRefresh) model.topicList = [];
-      if (model.nodeCover.isEmpty && model.topicCount.isEmpty) {
+      if (isRefresh) model.postList = [];
+      if (model.avatar.isEmpty && model.topicCount.isEmpty) {
         model = res;
       } else {
-        model.topicList.addAll(res.topicList);
+        model.postList.addAll(res.postList);
       }
     } else {
       needAuth = true;
@@ -127,12 +127,12 @@ class NodePage extends StatelessWidget {
                           duration: const Duration(milliseconds: 500),
                           child: Row(
                             children: [
-                              BaseAvatar(src: _.model.nodeCover, diameter: 35, radius: 0),
+                              BaseAvatar(src: _.model.avatar, diameter: 35, radius: 0),
                               const SizedBox(width: 6),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(_.model.nodeCnName,
+                                  Text(_.model.title,
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
                                   Text(
                                     '   ${_.model.topicCount} 主题  ${_.model.favoriteCount} 收藏',
@@ -158,9 +158,9 @@ class NodePage extends StatelessWidget {
                         flexibleSpace: FlexibleSpaceBar(
                           background: Stack(
                             children: [
-                              _.model.nodeCover.isNotEmpty
+                              _.model.avatar.isNotEmpty
                                   ? Container(
-                                      decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_.model.nodeCover), fit: BoxFit.fitWidth)),
+                                      decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_.model.avatar), fit: BoxFit.fitWidth)),
                                     )
                                   : const Spacer(),
                               Positioned.fill(
@@ -180,14 +180,14 @@ class NodePage extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        BaseAvatar(src: _.model.nodeCover, diameter: 62, radius: 0),
+                                        BaseAvatar(src: _.model.avatar, diameter: 62, radius: 0),
                                         const SizedBox(width: 6),
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              _.model.nodeCnName,
+                                              _.model.title,
                                               style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.white),
                                             ),
                                             const SizedBox(height: 2),
@@ -214,20 +214,20 @@ class NodePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (_.loading && _.model.topicList.isEmpty) LoadingListPage(type: 1),
+                      if (_.loading && _.model.postList.isEmpty) LoadingListPage(type: 1),
                       if (_.needAuth) SliverToBoxAdapter(child: NotAllow()),
-                      if (_.model.topicList.isNotEmpty)
+                      if (_.model.postList.isNotEmpty)
                         SliverList(
                           delegate: SliverChildBuilderDelegate((context, index) {
-                            if (_.model.topicList.length - 1 == index) {
+                            if (_.model.postList.length - 1 == index) {
                               return Column(children: [
-                                PostItem(item: _.model.topicList[index], tab: TabItem(type: TabType.node)),
+                                PostItem(item: _.model.postList[index], tab: TabItem(type: TabType.node)),
                                 FooterTips(loading: _.isLoadingMore),
                               ]);
                             }
-                            return PostItem(item: _.model.topicList[index],  tab: TabItem(type: TabType.node));
+                            return PostItem(item: _.model.postList[index],  tab: TabItem(type: TabType.node));
 
-                          }, childCount: _.model.topicList.length),
+                          }, childCount: _.model.postList.length),
                         ),
                     ],
                   ),

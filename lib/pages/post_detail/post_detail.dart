@@ -275,6 +275,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: Icons.content_paste_search,
               onTap: () {
                 if (val.replyUsers.length != 0) {
+                  Get.back();
                   showRelationReplyListModal(val);
                 }
               },
