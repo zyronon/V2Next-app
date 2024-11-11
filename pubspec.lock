@@ -945,10 +945,10 @@ packages:
     dependency: transitive
     description:
       name: photo_manager
-      sha256: f5ef2618870e9a50d8bfeb81a02c242d580ae8614bd5ea9e1b80dbb7e49d4260
+      sha256: ebe91591ec4148ddb4864352b2612a9c9e70c02384d27c8672d8ab604c7021e6
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.1"
+    version: "3.6.2"
   photo_manager_image_provider:
     dependency: transitive
     description:

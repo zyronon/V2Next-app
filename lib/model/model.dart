@@ -177,7 +177,7 @@ class Post {
         member = json['member'] != null ? Member.fromJson(json['member']) : Member(),
         node = json['node'] != null ? V2Node.fromJson(json['node']) : V2Node(),
         title = json['title'] ?? '',
-        postId = json['postId'] ?? '',
+        postId = json['postId'] ?? 0,
         contentText = json['contentText'] ?? '',
         replyCount = json['replyCount'] ?? 0,
         clickCount = json['clickCount'] ?? 0,

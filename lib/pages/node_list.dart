@@ -1,17 +1,14 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:extended_tabs/extended_tabs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:get/get.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class NodeListPage extends StatefulWidget {
   const NodeListPage({super.key});
@@ -42,16 +39,25 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
     if (nodesList.isEmpty) {
       final String response = await rootBundle.loadString('assets/data/node_map.json');
       final data = json.decode(response);
-      // setState(() {
-      //   nodesList = data;
-      //   tabs = nodesList.map((e) {
-      //     return ExtendedTab(
-      //       size: 75,
-      //       iconMargin: const EdgeInsets.only(bottom: 0),
-      //       text: e['name'],
-      //     );
-      //   }).toList();
-      // });
+      setState(() {
+        nodesList = data.sublist(0, 2);
+      });
+
+      Future.delayed(Duration(seconds: 2), () {
+        setState(() {
+          nodesList = data.sublist(0, 3);
+        });
+      });
+      Future.delayed(Duration(seconds: 4), () {
+        setState(() {
+          nodesList = data.sublist(0, 4);
+        });
+      });
+      Future.delayed(Duration(seconds: 6), () {
+        setState(() {
+          nodesList = data.sublist(0, 6);
+        });
+      });
     }
     // //显示出来后，再请求最新数据
     // var list = await Api.getNodeMap();
@@ -133,7 +139,34 @@ class _NodeListPageState extends State<NodeListPage> with TickerProviderStateMix
           const SizedBox(width: 12)
         ],
       ),
-      body: DE,
+      body: nodesList.length != 0
+          ? DefaultTabController(
+              length: nodesList.length,
+              child: Row(
+                children: <Widget>[
+                  ExtendedTabBar(
+                    labelColor: Colors.black,
+                    scrollDirection: Axis.vertical,
+                    tabs: nodesList.map((e) {
+                      return ExtendedTab(
+                        size: 75,
+                        iconMargin: const EdgeInsets.only(bottom: 0),
+                        text: e['name'],
+                      );
+                    }).toList(),
+                  ),
+                  Expanded(
+                    child: ExtendedTabBarView(
+                      children: nodesList.map((e) {
+                        return Text(e['name']);
+                      }).toList(),
+                      // controller: tabController,
+                      scrollDirection: Axis.vertical,
+                    ),
+                  )
+                ],
+              ))
+          : Text('data'),
     );
   }
 

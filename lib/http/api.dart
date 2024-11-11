@@ -193,6 +193,7 @@ class Api {
       List<Post> list = [];
       (response.data as List).forEach((v) {
         Post item = Post.fromJson(v);
+        item.postId = v['id'];
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
         item.node.cnName = v['nodeTitle'];
