@@ -78,8 +78,8 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                           ),
                         ),
                         onTap: () {
-                          Get.toNamed('/node_list');
-                          return;
+                          // Get.toNamed('/node_group');
+                          // return;
                           Get.to(BaseWebView(url: 'https://www.v2ex.com/xna'), transition: Transition.cupertino);
                         },
                       ),

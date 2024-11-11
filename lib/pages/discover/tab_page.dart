@@ -97,7 +97,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                           Text(v.replyCount.toString(),style: TextStyle(color: Colors.grey,fontSize: 11)),
                         ]),
                       ),
-                      onTap: () => Get.toNamed('/post-detail', arguments: v));
+                      onTap: () => Get.toNamed('/post_detail', arguments: v));
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return Divider(color: Const.line, height: 1);

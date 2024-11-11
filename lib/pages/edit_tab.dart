@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/utils.dart';
 
@@ -51,6 +53,26 @@ class EditTabPage extends StatelessWidget {
       theme: theme,
       onTap: onTap,
     );
+  }
+
+  onAdd() async {
+    var _ = Get.find<Controller>();
+    var r = await Get.toNamed('/node_group', arguments: FromSource.editTab);
+    if (r != null) {
+      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
+        Utils.toast(msg: '已存在，请勿重复添加');
+      } else {
+        _.isEdit.value = true;
+        if (r is NodeItem) {
+          _.tabList.add(TabItem(cnName: r.title, enName: r.name, type: TabType.node));
+        } else {
+          _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
+        }
+        Future.delayed(Duration(milliseconds: 300), () {
+          scrollController.jumpTo(scrollController.position.maxScrollExtent);
+        });
+      }
+    }
   }
 
   @override
@@ -152,22 +174,7 @@ class EditTabPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             if (!_.isEdit.value) ...[
-                              _buildIconButton(
-                                  text: '添加',
-                                  onTap: () async {
-                                    var r = await Get.toNamed('/node_list');
-                                    if (r != null) {
-                                      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
-                                        Utils.toast(msg: '已存在，请勿重复添加');
-                                      } else {
-                                        _.isEdit.value = true;
-                                        _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
-                                        Future.delayed(Duration(milliseconds: 300), () {
-                                          scrollController.jumpTo(scrollController.position.maxScrollExtent);
-                                        });
-                                      }
-                                    }
-                                  }),
+                              _buildIconButton(text: '添加', onTap: onAdd),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '编辑',
@@ -196,21 +203,7 @@ class EditTabPage extends StatelessWidget {
                                 },
                               ),
                               SizedBox(width: 5),
-                              _buildIconButton(
-                                  text: '添加',
-                                  onTap: () async {
-                                    var r = await Get.toNamed('/node_list');
-                                    if (r != null) {
-                                      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
-                                        Utils.toast(msg: '已存在，请勿重复添加');
-                                      } else {
-                                        _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
-                                        Future.delayed(Duration(milliseconds: 300), () {
-                                          scrollController.jumpTo(scrollController.position.maxScrollExtent);
-                                        });
-                                      }
-                                    }
-                                  }),
+                              _buildIconButton(text: '添加', onTap: onAdd),
                               SizedBox(width: 5),
                               _buildIconButton(
                                   text: '重置',

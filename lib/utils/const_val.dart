@@ -52,8 +52,8 @@ class Const {
   // 所有节点
   static String allNodes = '/api/nodes/all.json';
 
-  // 所有节点 topic
-  static String allNodesT = '/api/nodes/list.json';
+  // 所有节点 ,可排序
+  static String allNodesBySort = '/api/nodes/list.json';
 
   static List<TabItem> defaultTabList = [
     new TabItem(cnName: '最热', enName: 'hot', type: TabType.hot),

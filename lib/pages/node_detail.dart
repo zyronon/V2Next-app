@@ -52,7 +52,7 @@ class NodeController extends GetxController {
     NodeListModel? res = await Api.getNodePageInfo(nodeEnName: model.name, pageNo: pageNo);
     if (res != null) {
       if (isRefresh) model.postList = [];
-      if (model.avatar.isEmpty && model.topicCount.isEmpty) {
+      if (model.avatar.isEmpty && model.topics.isEmpty) {
         model = res;
       } else {
         model.postList.addAll(res.postList);
@@ -81,8 +81,8 @@ class NodeController extends GetxController {
   }
 }
 
-class NodePage extends StatelessWidget {
-  NodePage();
+class NodeDetailPage extends StatelessWidget {
+  NodeDetailPage();
 
   // Expanded(
   //     child: ListView.builder(
@@ -135,7 +135,7 @@ class NodePage extends StatelessWidget {
                                   Text(_.model.title,
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
                                   Text(
-                                    '   ${_.model.topicCount} 主题  ${_.model.favoriteCount} 收藏',
+                                    '   ${_.model.topics} 主题  ${_.model.stars} 收藏',
                                     style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
                                   )
                                 ],
@@ -192,7 +192,7 @@ class NodePage extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '   ${_.model.topicCount} 主题  ${_.model.favoriteCount} 收藏',
+                                              '   ${_.model.topics} 主题  ${_.model.stars} 收藏',
                                               style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),
                                             ),
                                           ],
@@ -205,7 +205,7 @@ class NodePage extends StatelessWidget {
                                     const SizedBox(height: 15),
                                     Padding(
                                       padding: const EdgeInsets.only(right: 10),
-                                      child: Text(_.model.nodeIntro != '' ? _.model.nodeIntro : '还没有节点描述 😊', style: const TextStyle(color: Colors.white), maxLines: 2),
+                                      child: Text(_.model.header != '' ? _.model.header : '还没有节点描述 😊', style: const TextStyle(color: Colors.white), maxLines: 2),
                                     ),
                                   ],
                                 ),

@@ -15,7 +15,7 @@ class PostItem extends StatelessWidget {
 
   goPostDetail() {
     item.member.avatarLarge = item.member.avatar;
-    Get.toNamed('/post-detail', arguments: item);
+    Get.toNamed('/post_detail', arguments: item);
     // Get.toNamed('/test', arguments: post);
   }
 
@@ -96,7 +96,7 @@ class PostItem extends StatelessWidget {
                                   Get.snackbar('提示', '抱歉，由于源数据未提供节点url，所以无法跳转');
                                   return;
                                 }
-                                Get.toNamed('/node', arguments: item.node);
+                                Get.toNamed('/node_detail', arguments: item.node);
                               },
                             ),
                         ],

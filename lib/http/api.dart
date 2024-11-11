@@ -129,10 +129,10 @@ class Api {
     // 节点名称
     detailModel.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
-    detailModel.topicCount = mainHeader.querySelector('strong')!.text;
+    detailModel.topics = mainHeader.querySelector('strong')!.text;
     // 节点描述
     if (mainHeader.querySelector('div.intro') != null) {
-      detailModel.nodeIntro = mainHeader.querySelector('div.intro')!.text;
+      detailModel.header = mainHeader.querySelector('div.intro')!.text;
     }
     // 节点收藏状态
     if (mainHeader.querySelector('div.cell_ops') != null) {
@@ -149,7 +149,7 @@ class Api {
 
     if (mainBox.querySelector('div.box:not(.box-title)>div.cell.flex-one-row') != null) {
       var favNode = mainBox.querySelector('div.box:not(.box-title)>div.cell.flex-one-row>div');
-      detailModel.favoriteCount = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+      detailModel.stars = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), ''));
     }
 
     if (document.querySelector('#TopicsNode') != null) {
@@ -699,7 +699,9 @@ class Api {
       nodesBox = document.querySelector('#Main')!.children.last;
     }
     if (nodesBox != null) {
-      List<NodeItem> allList = await getAllNodes();
+      Response response = await Http().get(Const.allNodes);
+      List<dynamic> allList = response.data.map((e) => NodeItem.fromJson(e)).toList();
+      GStorage().setAllNodes(allList);
       nodesBox.children.removeAt(0);
       var nodeTd = nodesBox.children;
       for (var i in nodeTd) {
@@ -734,45 +736,26 @@ class Api {
     return nodesList;
   }
 
-  // 所有节点
-  //todo 如果其他地方未使用，可以直接合并
-  static Future<List<NodeItem>> getAllNodes() async {
-    Response response = await Http().get(Const.allNodes);
-    List<dynamic> list = response.data;
-    return list.map((e) => NodeItem.fromJson(e)).toList();
-  }
-
   // 获取收藏的节点
-  static Future<List<NodeFavModel>> getFavNodes() async {
-    List<NodeFavModel> favNodeList = [];
-    Response response;
-    response = await Http().get('/my/nodes');
-    var bodyDom = parse(response.data).body;
-    var nodeListWrap = bodyDom!.querySelector('div[id="my-nodes"]');
-    List<Element> nodeListDom = [];
+  static Future<List<NodeItem>> getFavNodes() async {
+    List<NodeItem> favNodeList = [];
+    Response response = await Http().get('/my/nodes');
+    var bodyDom = parse(response.data);
+    var nodeListWrap = bodyDom.querySelector('div[id="my-nodes"]');
     if (nodeListWrap != null) {
-      nodeListDom = nodeListWrap.querySelectorAll('a');
+      List<Element> nodeListDom = nodeListWrap.querySelectorAll('a');
       for (var i in nodeListDom) {
-        NodeFavModel item = NodeFavModel();
+        NodeItem item = NodeItem();
         if (i.querySelector('img') != null) {
-          item.nodeCover = i.querySelector('img')!.attributes['src']!;
-          if (item.nodeCover.contains('/static')) {
-            item.nodeCover = '';
+          item.avatar = i.querySelector('img')!.attributes['src']!;
+          if (item.avatar!.contains('/static')) {
+            item.avatar = '';
           }
-          item.nodeId = i.attributes['href']!.split('/')[2];
+          item.name = i.attributes['href']!.split('/')[2];
         }
-        item.nodeName = i.querySelector('span.fav-node-name')!.text;
-        item.topicCount = i.querySelector('span.f12.fade')!.text;
+        item.title = i.querySelector('span.fav-node-name')!.text;
+        item.topics = int.parse(i.querySelector('span.f12.fade')!.text);
         favNodeList.add(item);
-      }
-    }
-
-    var noticeNode = bodyDom.querySelector('#Rightbar>div.box>div.cell.flex-one-row');
-    if (noticeNode != null) {
-      // 未读消息
-      var unRead = noticeNode.querySelector('a')!.text.replaceAll(RegExp(r'\D'), '');
-      if (int.parse(unRead) > 0) {
-        // eventBus.emit('unRead', int.parse(unRead));
       }
     }
     return favNodeList;
@@ -852,15 +835,14 @@ class Api {
     return Result(success: false, data: 0);
   }
 
-  // 所有节点 topic
-  static Future<List<TopicNodeItem>> getAllNodesT() async {
+  // 所有节点
+  static Future<List<NodeItem>> getAllNodesBySort() async {
     Response response = await Http().get(
-      Const.allNodesT,
+      Const.allNodesBySort,
       data: {'fields': 'name,title,topics,aliases', 'sort_by': 'topics', 'reverse': 1},
-      // cacheOptions: DioRequestNet().cacheOptions,
     );
     List<dynamic> list = response.data;
-    return list.map((e) => TopicNodeItem.fromJson(e)).toList();
+    return list.map((e) => NodeItem.fromJson(e)).toList();
   }
 
   // 移动主题节点
@@ -914,8 +896,7 @@ class Api {
       // Referer :  https://www.v2ex.com/write?node=qna
       'Referer': '${Const.v2exHost}/write?node=${args['node_name']}',
       'Origin': Const.v2exHost,
-      'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -926,8 +907,7 @@ class Api {
       'once': GStorage().getOnce()
     });
 
-    Response response =
-    await Http().post('/write', data: formData, options: options);
+    Response response = await Http().post('/write', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
     print('1830：${response.headers["location"]}');
@@ -939,11 +919,7 @@ class Api {
           return AlertDialog(
             title: const Text('提示'),
             content: Text(document.querySelector('div.problem')!.text),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('确定'))
-            ],
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('确定'))],
           );
         },
       );
@@ -963,8 +939,7 @@ class Api {
       // Referer :  https://www.v2ex.com/edit/write/topic/918603
       'Referer': '${Const.v2exHost}/edit/topic/${args['topicId']}',
       'Origin': Const.v2exHost,
-      'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
     FormData formData = FormData.fromMap({
       'title': args['title'], // 标题
@@ -972,13 +947,11 @@ class Api {
       'content': args['content'], // 内容
     });
 
-    Response response = await Http().post('/edit/topic/${args['topicId']}',
-        data: formData, options: options);
+    Response response = await Http().post('/edit/topic/${args['topicId']}', data: formData, options: options);
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode != null &&
-        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode != null && mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       return false;
     } else {
       return true;
@@ -989,13 +962,11 @@ class Api {
   static Future queryTopicStatus(topicId) async {
     SmartDialog.showLoading();
     Map result = {};
-    Response response =
-    await Http().get('/edit/topic/$topicId');
+    Response response = await Http().get('/edit/topic/$topicId');
     SmartDialog.dismiss();
     var document = parse(response.data);
     var mainNode = document.querySelector('#Main');
-    if (mainNode!.querySelector('div.inner') != null &&
-        mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
+    if (mainNode!.querySelector('div.inner') != null && mainNode.querySelector('div.inner')!.text.contains('你不能编辑这个主题')) {
       // 不可编辑
       result['status'] = false;
     } else {
@@ -1022,8 +993,7 @@ class Api {
   // 查询是否可以增加附言
   static Future appendStatus(topicId) async {
     SmartDialog.showLoading();
-    Response response =
-    await Http().get('/append/topic/$topicId',isMobile: true);
+    Response response = await Http().get('/append/topic/$topicId', isMobile: true);
     SmartDialog.dismiss();
     print(response);
     var document = parse(response.data);
@@ -1046,8 +1016,7 @@ class Api {
       // Referer :  https://www.v2ex.com/append/topic/918603
       'Referer': '${Const.v2exHost}/append/topic/${args['topicId']}',
       'Origin': Const.v2exHost,
-      'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
+      'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1'
     };
 
     FormData formData = FormData.fromMap({
@@ -1057,8 +1026,7 @@ class Api {
     });
     Response? response;
     try {
-      response = await Http().post('/append/topic/${args['topicId']}',
-          data: formData, options: options);
+      response = await Http().post('/append/topic/${args['topicId']}', data: formData, options: options);
       SmartDialog.dismiss();
       var document = parse(response.data);
       print(document);

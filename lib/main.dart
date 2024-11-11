@@ -13,9 +13,9 @@ import 'package:v2ex/pages/edit_tab.dart';
 import 'package:v2ex/pages/layout.dart';
 import 'package:v2ex/pages/login/google_login.dart';
 import 'package:v2ex/pages/login/login.dart';
-import 'package:v2ex/pages/node.dart';
-import 'package:v2ex/pages/node_list.dart';
-import 'package:v2ex/pages/nodes_topic.dart';
+import 'package:v2ex/pages/node_detail.dart';
+import 'package:v2ex/pages/node_group.dart';
+import 'package:v2ex/pages/search_node.dart';
 import 'package:v2ex/pages/post_detail/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
 import 'package:v2ex/utils/const_val.dart';
@@ -105,15 +105,15 @@ class MyApp extends StatelessWidget {
             },
             routes: {
               '/': (context) => const Index(),
-              '/post-detail': (context) => const PostDetailPage(),
+              '/post_detail': (context) => const PostDetailPage(),
               // '/test': (context) => const PostTest(),
               '/login': (context) => const LoginPage(),
-              '/node': (context) => NodePage(),
-              '/search': (context) => SearchPage(),
               '/edit_tab': (context) => EditTabPage(),
-              '/node_list': (context) => NodeListPage(),
+              '/node_detail': (context) => NodeDetailPage(),
+              '/node_group': (context) => NodeGroupPage(),
+              '/search': (context) => SearchPage(),
               '/layout': (context) => LayoutPage(),
-              '/topicNodes': (context) => TopicNodesPage(),
+              '/search_node': (context) => SearchNodePage(),
               '/google_login': (context) => GoogleLogin(),
               // '/create': (context) => Create(),
             },

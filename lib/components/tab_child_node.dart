@@ -38,7 +38,7 @@ class TabChildNodes extends StatelessWidget {
                 TextButton(
                     onPressed: () async {
                       await Future.delayed(const Duration(milliseconds: 200));
-                      Get.toNamed('/node', arguments: i);
+                      Get.toNamed('/node_detail', arguments: i);
                     },
                     child: Text(i.cnName))
             ],

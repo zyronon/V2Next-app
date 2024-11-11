@@ -76,7 +76,7 @@ class PostHeader extends StatelessWidget {
                             ),
                           ),
                           onTap: () {
-                            Get.toNamed('/node', arguments: ctrl.post.node);
+                            Get.toNamed('/node_detail', arguments: ctrl.post.node);
                           },
                         )
                     ],

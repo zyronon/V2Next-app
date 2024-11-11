@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 enum ReplyListType {
   Hot, //高赞回复
   Normal, //正常回复
@@ -387,10 +385,10 @@ class NodeListModel {
   String nodeId = ''; // 节点id
   String name = ''; // 节点url
   String title = ''; // 节点名称
-  String nodeIntro = ''; // 节点描述
-  String topicCount = ''; // 主题数量
+  String header = ''; // 节点描述
+  String topics = ''; // 主题数量
   bool isFavorite = false; // 是否收藏节点
-  int favoriteCount = 0; // 收藏人数
+  int stars = 0; // 收藏人数
   int totalPage = 1; // 总页数
   String avatar = ''; // 封面
   List<Post> postList = [];
@@ -431,42 +429,4 @@ class MemberNoticeItem {
   String delIdTwo = ''; // 删除id
   NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举
   String topicHref = ''; // 主题href  /t/923791#reply101
-}
-
-class NodeFavModel {
-  String nodeCover = ''; // 节点图标
-  String nodeName = ''; // 节点 名称
-  String nodeId = ''; // 节点id
-  String topicCount = ''; // 节点主题数量
-}
-
-class TopicNodeItem {
-  int? topics = 0;
-  List? aliases = [];
-  String? name = "";
-  String? title = "";
-
-  TopicNodeItem({
-    this.topics,
-    this.aliases,
-    this.name,
-    this.title,
-  });
-
-  TopicNodeItem.fromJson(Map<String, dynamic> json) {
-    topics = json['topics'];
-    aliases = json['aliases'];
-    name = json['name'];
-    title = json['title'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['topics'] = topics;
-    data['aliases'] = aliases;
-    data['name'] = name;
-    data['title'] = title;
-
-    return data;
-  }
 }

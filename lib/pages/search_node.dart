@@ -2,62 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/api.dart';
 
-class TopicNodesPage extends StatefulWidget {
-  const TopicNodesPage({Key? key}) : super(key: key);
+class SearchNodePage extends StatefulWidget {
+  const SearchNodePage({Key? key}) : super(key: key);
 
   @override
-  State<TopicNodesPage> createState() => _TopicNodesPageState();
+  State<SearchNodePage> createState() => _SearchNodePageState();
 }
 
-class _TopicNodesPageState extends State<TopicNodesPage> {
-  List topicNodesList = [];
-  List tempNodesList = [];
-  List searchResList = [];
+class _SearchNodePageState extends State<SearchNodePage> {
   TextEditingController controller = TextEditingController();
-
-  // 接收的参数
   late FromSource source;
-  String topicId = '';
+  List<NodeItem> list = [];
+  String searchKey = '';
+  String postId = '';
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (Get.arguments.isNotEmpty) {
-      source = Get.arguments['source'] != null ? Get.arguments['source']! : '';
-      topicId = Get.arguments['topicId'] != null ? Get.arguments['topicId']! : '';
+      source = Get.arguments['source'] != null ? Get.arguments['source'] : '';
+      postId = Get.arguments['postId'] != null ? Get.arguments['postId'] : '';
     }
-    getTopicNodes();
+    getData();
   }
 
-  Future<List> getTopicNodes() async {
-    var res = await Api.getAllNodesT();
+  Future getData() async {
+    var res = await Api.getAllNodesBySort();
     setState(() {
-      topicNodesList = res;
-      tempNodesList = res;
+      list = res;
     });
-    return res;
   }
 
-  void search(searchKey) {
-    if (searchKey == '') {
-      setState(() {
-        topicNodesList = tempNodesList;
-      });
-      return;
-    }
-    List resultList = [];
-    for (var i in topicNodesList) {
-      if (i.name.contains(searchKey) || i.title.contains(searchKey)) {
-        resultList.add(i);
-      }
-    }
-    setState(() {
-      topicNodesList = resultList;
-    });
+  List<NodeItem> get searchList {
+    if (searchKey.isEmpty) return list;
+    return list.where((v) {
+      return v.name.toLowerCase().contains(searchKey.toLowerCase()) || v.title.toString().contains(searchKey);
+    }).toList();
   }
 
   moveTopicNode(node) {
@@ -73,7 +57,7 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                 child: const Text('确定'),
                 onPressed: () async {
                   Navigator.pop(context);
-                  var res = await Api.moveTopicNode(topicId, node.name);
+                  var res = await Api.moveTopicNode(postId, node.name);
                   if (res) {
                     SmartDialog.showToast(
                       '移动成功',
@@ -121,7 +105,9 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                   title: TDSearchBar(
                     placeHolder: '请输入节点名',
                     onTextChanged: (String text) {
-                      search(text);
+                      setState(() {
+                        searchKey = text;
+                      });
                     },
                   ),
                   elevation: 1,
@@ -134,26 +120,25 @@ class _TopicNodesPageState extends State<TopicNodesPage> {
                       onTap: () {
                         if (source != '' && source == FromSource.move) {
                           // 移动节点
-                          moveTopicNode(topicNodesList[index]);
+                          moveTopicNode(searchList[index]);
                         } else if (source == FromSource.editTab) {
-                          print(topicNodesList[index]);
-                          TopicNodeItem s = topicNodesList[index];
+                          print(searchList[index]);
                           Get.back();
-                          Get.back(result: {'title': s.title, 'name': s.name});
+                          Get.back(result: searchList[index]);
                           // Get.back(result: {'node': topicNodesList[index]});
                         } else {
                           // 新建主题
-                          Get.back(result: {'node': topicNodesList[index]});
+                          Get.back(result: {'node': searchList[index]});
                         }
                       },
                       title: Text(
-                        topicNodesList[index].title,
+                        searchList[index].title,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      subtitle: Text(topicNodesList[index].name),
+                      subtitle: Text(searchList[index].name),
                       enableFeedback: true,
-                      trailing: Text('主题数：${topicNodesList[index].topics}'));
-                }, childCount: topicNodesList.length)),
+                      trailing: Text('主题数：${searchList[index].topics}'));
+                }, childCount: searchList.length)),
               ],
             ),
           ],

@@ -13,6 +13,7 @@ enum StoreKeys {
   themeType,
   signStatus,
   nodes,
+  allNodes,
   linkOpenInApp,
   expendAppBar,
   noticeOn,
@@ -94,6 +95,11 @@ class GStorage {
   setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
 
   List getNodes() => _box.read<List>(StoreKeys.nodes.toString()) ?? [];
+
+  // 所有节点信息
+  setAllNodes(List data) => _box.write(StoreKeys.allNodes.toString(), data);
+
+  List getAllNodes() => _box.read<List>(StoreKeys.allNodes.toString()) ?? [];
 
   // 链接打开方式 默认应用内打开
   setLinkOpenInApp(bool value) => _box.write(StoreKeys.linkOpenInApp.toString(), value);
