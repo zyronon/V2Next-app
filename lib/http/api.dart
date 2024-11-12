@@ -247,10 +247,12 @@ class Api {
         noticeItem.noticeType = NoticeType.favTopic;
       }
       if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
-        noticeItem.noticeType = NoticeType.thanksTopic;
+        // noticeItem.noticeType = NoticeType.thanksTopic;
+        noticeItem.noticeType = NoticeType.thanks;
       }
       if (noticeTypeStr.text!.contains('感谢了你在主题')) {
-        noticeItem.noticeType = NoticeType.thanksReply;
+        // noticeItem.noticeType = NoticeType.thanksReply;
+        noticeItem.noticeType = NoticeType.thanks;
       }
 
       if (td2Node.querySelector('div.payload') != null) {

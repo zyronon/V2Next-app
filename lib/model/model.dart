@@ -393,7 +393,7 @@ enum Auth { normal, notAllow }
 
 enum FromSource { search, editTab, move }
 
-enum NoticeType { reply, thanksTopic, thanksReply, favTopic } // 消息类型
+enum NoticeType { reply, thanks, thanksTopic, thanksReply, favTopic } // 消息类型
 
 class MemberNoticeModel {
   int totalPage = 1; // 总页数
@@ -478,7 +478,7 @@ class NodeItem {
     parentNodeName = json['parent_node_name'] ?? '';
     titleAlternative = json['title_alternative'] ?? '';
     type = TabType.values.firstWhere(
-          (e) => e.toString() == 'TabType.${json['type'] ?? ''}',
+      (e) => e.toString() == 'TabType.${json['type'] ?? ''}',
       orElse: () => TabType.tab,
     );
   }

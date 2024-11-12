@@ -6,9 +6,9 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/utils/const_val.dart';
-import '../model/model.dart';
+
 import '../http/api.dart';
+import '../model/model.dart';
 
 class NotificationController extends GetxController {
   MemberNoticeModel data = MemberNoticeModel();
@@ -19,6 +19,10 @@ class NotificationController extends GetxController {
   void onInit() {
     super.onInit();
     getData();
+  }
+
+  List<MemberNoticeItem> getList(NoticeType noticeType) {
+    return data.noticeList.where((v) => v.noticeType == noticeType).toList();
   }
 
   Future<void> getData() async {
@@ -47,6 +51,34 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
     new NodeItem(title: '感谢', name: 'sandbox', type: TabType.node),
     new NodeItem(title: '收藏', name: 'new', type: TabType.latest),
   ];
+
+  Widget _buildPage(List<MemberNoticeItem> list) {
+    NotificationController _ = Get.find();
+    return list.length == 0
+        ? LoadingListPage()
+        : RefreshIndicator(
+            child: ListView.separated(
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) {
+                var v = list[index];
+                return NoticeItem(
+                    noticeItem: v,
+                    onDeleteNotice: () async {
+                      String noticeId = v.delIdOne;
+                      String once = v.delIdTwo;
+                      await Api.onDelNotice(noticeId, once);
+                      _.data.noticeList.remove(v);
+                      _.update();
+                    });
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return BaseDivider();
+              },
+            ),
+            onRefresh: _.getData,
+          );
+  }
 
   BaseController bc = Get.find();
 
@@ -82,34 +114,12 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                   ),
                   Expanded(
                     child: bc.isLogin
-                        ? TabBarView(
-                            physics: NeverScrollableScrollPhysics(),
-                            children: tabMap.map((e) {
-                              return _.data.noticeList.length == 0
-                                  ? LoadingListPage()
-                                  : RefreshIndicator(
-                                      child: ListView.separated(
-                                        physics: AlwaysScrollableScrollPhysics(),
-                                        itemCount: _.data.noticeList.length,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          var v = _.data.noticeList[index];
-                                          return NoticeItem(
-                                              noticeItem: v,
-                                              onDeleteNotice: () async {
-                                                String noticeId = v.delIdOne;
-                                                String once = v.delIdTwo;
-                                                await Api.onDelNotice(noticeId, once);
-                                                _.data.noticeList.remove(v);
-                                                _.update();
-                                              });
-                                        },
-                                        separatorBuilder: (BuildContext context, int index){
-                                          return BaseDivider();
-                                        },
-                                      ),
-                                      onRefresh: _.getData,
-                                    );
-                            }).toList())
+                        ? TabBarView(physics: NeverScrollableScrollPhysics(), children: [
+                            _buildPage(_.data.noticeList),
+                            _buildPage(_.getList(NoticeType.reply)),
+                            _buildPage(_.getList(NoticeType.thanks)),
+                            _buildPage(_.getList(NoticeType.favTopic)),
+                          ])
                         : NotAllow(),
                   )
                 ],
