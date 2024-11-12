@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_divider.dart';
 import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model.dart';
-import 'package:v2ex/model/TabItem.dart';
 
 class PostItem extends StatelessWidget {
   Post item;
-  TabItem tab;
+  NodeItem tab;
 
   PostItem({required this.item, required this.tab});
 

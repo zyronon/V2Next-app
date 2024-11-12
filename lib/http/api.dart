@@ -10,7 +10,6 @@ import 'package:html/parser.dart';
 import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/model.dart';
-import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
@@ -19,7 +18,7 @@ import 'package:xml2json/xml2json.dart';
 
 class Api {
   //获取tab 主题列表
-  static Future<Result> getPostListByTab({required TabItem tab, int pageNo = 1, String? date}) async {
+  static Future<Result> getPostListByTab({required NodeItem tab, int pageNo = 1, String? date}) async {
     Result res = new Result();
     Response response;
     List<Post> postList = [];
@@ -28,7 +27,7 @@ class Api {
       case TabType.tab:
         if (pageNo == 1) {
           //用pc网站，因为要取子tab。不取子tab可以用mobile网站
-          response = await Http().get('/', data: {'tab': tab.enName}, isMobile: false);
+          response = await Http().get('/', data: {'tab': tab.name}, isMobile: false);
           Document document = parse(response.data);
           List<Element> listEl = document.querySelectorAll("div[class='cell item']");
           List<Element> childNodeEl = document.querySelectorAll("#SecondaryTabs > a");
@@ -44,7 +43,7 @@ class Api {
         res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
         break;
       case TabType.node:
-        NodeListModel? s = await getNodePageInfo(nodeEnName: tab.enName, pageNo: pageNo);
+        NodeItem? s = await getNodePageInfo(name: tab.name, pageNo: pageNo);
         if (s != null) {
           res.success = true;
           res.data = {'list': s.postList, 'nodeList': nodeList, 'totalPage': s.totalPage};
@@ -56,7 +55,7 @@ class Api {
       case TabType.latest:
         res.success = true;
         if (pageNo == 1) {
-          postList = await getLatestPostList(nodeId: tab.enName, pageNo: pageNo);
+          postList = await getLatestPostList(nodeId: tab.name, pageNo: pageNo);
         }
         res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
         break;
@@ -111,11 +110,11 @@ class Api {
     return list;
   }
 
-  static Future<NodeListModel?> getNodePageInfo({required String nodeEnName, int pageNo = 1}) async {
-    NodeListModel detailModel = NodeListModel();
-    detailModel.name = nodeEnName;
+  static Future<NodeItem?> getNodePageInfo({required String name, int pageNo = 1}) async {
+    NodeItem data = NodeItem();
+    data.name = name;
     //手机端 收藏人数获取不到
-    Response response = await Http().get('/go/$nodeEnName', data: {'p': pageNo});
+    Response response = await Http().get('/go/$name', data: {'p': pageNo});
     var document = parse(response.data);
     var mainBox = document.body!.children[1].querySelector('#Main');
     var mainHeader = mainBox!.querySelector('.node-header');
@@ -125,40 +124,40 @@ class Api {
       return null;
     }
 
-    detailModel.avatar = mainHeader.querySelector('img')!.attributes['src']!;
+    data.avatar = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
-    detailModel.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+    data.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
     // 主题总数
-    detailModel.topics = mainHeader.querySelector('strong')!.text;
+    data.topics = int.parse(mainHeader.querySelector('strong')!.text.replaceAll(',', ''));
     // 节点描述
     if (mainHeader.querySelector('div.intro') != null) {
-      detailModel.header = mainHeader.querySelector('div.intro')!.text;
+      data.header = mainHeader.querySelector('div.intro')!.text;
     }
     // 节点收藏状态
     if (mainHeader.querySelector('div.cell_ops') != null) {
-      detailModel.isFavorite = mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
+      data.isFavorite = mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
       // 数字
-      detailModel.nodeId = mainHeader.querySelector('div.cell_ops > div >a')!.attributes['href']!.split('=')[0].replaceAll(RegExp(r'\D'), '');
+      data.id = int.parse(mainHeader.querySelector('div.cell_ops > div >a')!.attributes['href']!.split('=')[0].replaceAll(RegExp(r'\D'), ''));
     }
-    if (mainBox!.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') != null) {
+    if (mainBox.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') != null) {
       var totalpageNode = mainBox.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container)');
       if (totalpageNode!.querySelectorAll('a.page_normal').isNotEmpty) {
-        detailModel.totalPage = int.parse(totalpageNode.querySelectorAll('a.page_normal').last.text);
+        data.totalPage = int.parse(totalpageNode.querySelectorAll('a.page_normal').last.text);
       }
     }
 
     if (mainBox.querySelector('div.box:not(.box-title)>div.cell.flex-one-row') != null) {
       var favNode = mainBox.querySelector('div.box:not(.box-title)>div.cell.flex-one-row>div');
-      detailModel.stars = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+      data.stars = int.parse(favNode!.innerHtml.replaceAll(RegExp(r'\D'), ''));
     }
 
     if (document.querySelector('#TopicsNode') != null) {
       // 主题
       var topicEle = document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
 
-      detailModel.postList = Utils().parsePagePostList(topicEle);
+      data.postList = Utils().parsePagePostList(topicEle);
     }
-    return detailModel;
+    return data;
   }
 
   //获取发布页

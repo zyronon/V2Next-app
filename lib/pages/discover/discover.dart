@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_webview.dart';
-import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/pages/discover/tab_page.dart';
 import 'package:v2ex/utils/const_val.dart';
 
@@ -15,11 +15,11 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClientMixin {
-  List<TabItem> tabMap = [
-    new TabItem(cnName: '今日热议', enName: '', type: TabType.tab),
-    new TabItem(cnName: '3天最热', enName: '3d', type: TabType.tab),
-    new TabItem(cnName: '7天最热', enName: '7d', type: TabType.tab),
-    new TabItem(cnName: '30天最热', enName: '30d', type: TabType.tab),
+  List<NodeItem> tabMap = [
+    new NodeItem(title: '今日热议', name: '', type: TabType.tab),
+    new NodeItem(title: '3天最热', name: '3d', type: TabType.tab),
+    new NodeItem(title: '7天最热', name: '7d', type: TabType.tab),
+    new NodeItem(title: '30天最热', name: '30d', type: TabType.tab),
   ];
 
   @override
@@ -95,7 +95,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
                                   labelPadding: EdgeInsets.zero,
                                   labelStyle: TextStyle(fontSize: 15.sp),
                                   unselectedLabelStyle: TextStyle(fontSize: 15.sp),
-                                  tabs: tabMap.map((e) => Tab(text: e.cnName)).toList(),
+                                  tabs: tabMap.map((e) => Tab(text: e.title)).toList(),
                                 ),
                                 Expanded(child: TabBarView(children: tabMap.map((e) => TabPage(tab: e)).toList())),
                               ],

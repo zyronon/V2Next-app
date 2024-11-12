@@ -4,24 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
-import 'package:v2ex/components/base_divider.dart';
-import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/not_allow.dart';
-import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/components/tab_child_node.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
   List<Post> postList = [];
   final BaseController home = Get.find();
-  TabItem tab;
+  NodeItem tab;
   bool isLoadingMore = false;
 
   TabPageController({required this.tab});
@@ -33,12 +28,12 @@ class TabPageController extends GetxController {
   }
 
   getData({bool isRefresh = false}) async {
-    print('getList:type:${tab.type},id:${tab.cnName}');
+    print('getList:type:${tab.type},id:${tab.title}');
     if (isRefresh) {
       loading = true;
       update();
     }
-    Result res = await Api.getDiscoverInfo(date: tab.enName);
+    Result res = await Api.getDiscoverInfo(date: tab.name);
     if (res.success) {
       if (isRefresh) postList = [];
       postList.addAll(res.data.cast<Post>());
@@ -55,7 +50,7 @@ class TabPageController extends GetxController {
 }
 
 class TabPage extends StatefulWidget {
-  final TabItem tab;
+  final NodeItem tab;
 
   const TabPage({super.key, required this.tab});
 
@@ -65,7 +60,7 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   Future<void> onRefresh() async {
-    final TabPageController c = Get.find(tag: widget.tab.enName);
+    final TabPageController c = Get.find(tag: widget.tab.name);
     await c.onRefresh();
     return;
   }
@@ -76,7 +71,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
     return RefreshIndicator(
         child: GetBuilder<TabPageController>(
             init: TabPageController(tab: widget.tab),
-            tag: widget.tab.cnName,
+            tag: widget.tab.title,
             builder: (_) {
               if (_.loading && _.postList.length == 0) return LoadingListPage();
               return ListView.separated(

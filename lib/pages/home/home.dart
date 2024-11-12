@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/model/database.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/pages/home/components/tab_hot_page.dart';
 import 'package:v2ex/pages/home/components/tab_page.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/TabItem.dart';
-import 'package:v2ex/http/request.dart';
-import 'package:v2ex/utils/utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,7 +26,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     super.initState();
     setState(() {
       tabs = bc.tabList.map((e) {
-        return Tab(text: e.cnName);
+        return Tab(text: e.title);
       }).toList();
       pages = bc.tabList.map((e) {
         if (e.type == TabType.hot) return new TabHotPage(tab: e);
@@ -48,10 +44,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   );
 
   submit() async {
-    var allItems = await bc.database.select(bc.database.dbReply).get();
-    print('items in database: ${allItems.length}');
-    // BaseController c = Get.find();
-    // c.initStorage();
+    // var allItems = await bc.database.select(bc.database.dbReply).get();
+    // print('items in database: ${allItems.length}');
+    BaseController c = Get.find();
+    c.initStorage();
     // Api.pullOnce();
     // c.initStorage();
     // Http().setCookie();
@@ -95,7 +91,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                               await Get.toNamed('/edit_tab');
                               setState(() {
                                 tabs = bc.tabList.map((e) {
-                                  return Tab(text: e.cnName);
+                                  return Tab(text: e.title);
                                 }).toList();
                                 pages = bc.tabList.map((e) {
                                   if (e.type == TabType.hot) return new TabHotPage(tab: e);

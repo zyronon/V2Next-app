@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/model/item_node.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
@@ -11,7 +10,7 @@ import 'package:v2ex/utils/utils.dart';
 class Controller extends GetxController {
   BaseController bc = BaseController.to;
   var isEdit = false.obs;
-  var tabList = <TabItem>[].obs;
+  var tabList = <NodeItem>[].obs;
 
   @override
   void onInit() {
@@ -59,14 +58,14 @@ class EditTabPage extends StatelessWidget {
     var _ = Get.find<Controller>();
     var r = await Get.toNamed('/node_group', arguments: FromSource.editTab);
     if (r != null) {
-      if (_.tabList.any((val) => val.enName == r['nodeId'])) {
+      if (_.tabList.any((val) => val.name == r['nodeId'])) {
         Utils.toast(msg: '已存在，请勿重复添加');
       } else {
         _.isEdit.value = true;
         if (r is NodeItem) {
-          _.tabList.add(TabItem(cnName: r.title, enName: r.name, type: TabType.node));
+          _.tabList.add(NodeItem(title: r.title, name: r.name, type: TabType.node));
         } else {
-          _.tabList.add(TabItem(cnName: r['title'], enName: r['name'], type: TabType.node));
+          _.tabList.add(NodeItem(title: r['title'], name: r['name'], type: TabType.node));
         }
         Future.delayed(Duration(milliseconds: 300), () {
           scrollController.jumpTo(scrollController.position.maxScrollExtent);
@@ -121,7 +120,7 @@ class EditTabPage extends StatelessWidget {
                                           child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(item.cnName),
+                                              Text(item.title),
                                               Row(
                                                 children: [
                                                   Icon(TDIcons.move, color: Colors.grey),
@@ -147,7 +146,7 @@ class EditTabPage extends StatelessWidget {
                                         crossAxisAlignment: WrapCrossAlignment.start,
                                         spacing: 8,
                                         runSpacing: 8,
-                                        children: _.tabList.map((i) => TDTag(i.cnName, isLight: true, size: TDTagSize.large)).toList()),
+                                        children: _.tabList.map((i) => TDTag(i.title, isLight: true, size: TDTagSize.large)).toList()),
                                     Padding(
                                         padding: EdgeInsets.fromLTRB(8, 20, 8, 8),
                                         child: Row(

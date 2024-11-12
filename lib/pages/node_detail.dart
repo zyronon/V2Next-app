@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,26 +8,26 @@ import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/model/TabItem.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
 
 class NodeController extends GetxController {
   int pageNo = 1;
   bool needAuth = false;
   bool loading = false;
-  NodeListModel model = NodeListModel();
-  bool isLoadingMore = false;
+  bool isLoadMore = false;
+  NodeItem data = NodeItem();
   ScrollController ctrl = ScrollController();
+  List<Post> postList = [];
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     ctrl.addListener(scrollListener);
     V2Node node = Get.arguments;
-    model.name = node.enName;
-    model.title = node.cnName;
+    data.name = node.enName;
+    data.title = node.cnName;
     update();
     getData(isRefresh: true);
   }
@@ -49,13 +50,14 @@ class NodeController extends GetxController {
       loading = true;
       update();
     }
-    NodeListModel? res = await Api.getNodePageInfo(nodeEnName: model.name, pageNo: pageNo);
+    NodeItem? res = await Api.getNodePageInfo(name: data.name, pageNo: pageNo);
     if (res != null) {
-      if (isRefresh) model.postList = [];
-      if (model.avatar.isEmpty && model.topics.isEmpty) {
-        model = res;
+      if (isRefresh) postList = [];
+      if (data.avatar.isEmpty && data.topics == 0) {
+        data = res;
+        postList = res.postList;
       } else {
-        model.postList.addAll(res.postList);
+        postList.addAll(res.postList);
       }
     } else {
       needAuth = true;
@@ -66,17 +68,18 @@ class NodeController extends GetxController {
 
   Future<void> onRefresh() async {
     pageNo = 1;
-    isLoadingMore = false;
+    isLoadMore = false;
     await getData(isRefresh: true);
   }
 
   loadMore() async {
-    if (isLoadingMore) return;
+    if (isLoadMore) return;
+    if (data.totalPage <= pageNo) return;
+    isLoadMore = true;
     pageNo++;
-    isLoadingMore = true;
     update();
     await getData();
-    isLoadingMore = false;
+    isLoadMore = false;
     update();
   }
 }
@@ -84,27 +87,6 @@ class NodeController extends GetxController {
 class NodeDetailPage extends StatelessWidget {
   NodeDetailPage();
 
-  // Expanded(
-  //     child: ListView.builder(
-  //   physics: new AlwaysScrollableScrollPhysics(),
-  //   controller: _.ctrl,
-  //   itemCount: _.model.topicList.length,
-  //   itemBuilder: (BuildContext context, int index) {
-  //     if (index == 0) {
-  //       return Column(children: [
-  //
-  //         PostItem(item: _.model.topicList[index], tab: TabItem(type: TabType.node)),
-  //       ]);
-  //     }
-  //     if (_.model.topicList.length - 1 == index) {
-  //       return Column(children: [
-  //         PostItem(item: _.model.topicList[index], tab: TabItem(type: TabType.node)),
-  //         FooterTips(loading: _.isLoadingMore),
-  //       ]);
-  //     }
-  //     return PostItem(item: _.model.topicList[index], tab: TabItem(type: TabType.node));
-  //   },
-  // ))
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -127,15 +109,15 @@ class NodeDetailPage extends StatelessWidget {
                           duration: const Duration(milliseconds: 500),
                           child: Row(
                             children: [
-                              BaseAvatar(src: _.model.avatar, diameter: 35, radius: 0),
+                              BaseAvatar(src: _.data.avatar, diameter: 35, radius: 0),
                               const SizedBox(width: 6),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(_.model.title,
+                                  Text(_.data.title,
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
                                   Text(
-                                    '   ${_.model.topics} 主题  ${_.model.stars} 收藏',
+                                    '   ${_.data.topics} 主题  ${_.data.stars} 收藏',
                                     style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
                                   )
                                 ],
@@ -158,9 +140,9 @@ class NodeDetailPage extends StatelessWidget {
                         flexibleSpace: FlexibleSpaceBar(
                           background: Stack(
                             children: [
-                              _.model.avatar.isNotEmpty
+                              _.data.avatar.isNotEmpty
                                   ? Container(
-                                      decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_.model.avatar), fit: BoxFit.fitWidth)),
+                                      decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_.data.avatar), fit: BoxFit.fitWidth)),
                                     )
                                   : const Spacer(),
                               Positioned.fill(
@@ -180,32 +162,32 @@ class NodeDetailPage extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        BaseAvatar(src: _.model.avatar, diameter: 62, radius: 0),
+                                        BaseAvatar(src: _.data.avatar, diameter: 62, radius: 0),
                                         const SizedBox(width: 6),
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              _.model.title,
+                                              _.data.title,
                                               style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.white),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '   ${_.model.topics} 主题  ${_.model.stars} 收藏',
+                                              '   ${_.data.topics} 主题  ${_.data.stars} 收藏',
                                               style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),
                                             ),
                                           ],
                                         ),
                                         const Spacer(),
                                         //TODO
-                                        ElevatedButton(onPressed: () {}, child: Text(_.model.isFavorite ? '已收藏' : '收藏'))
+                                        ElevatedButton(onPressed: () {}, child: Text(_.data.isFavorite ? '已收藏' : '收藏'))
                                       ],
                                     ),
                                     const SizedBox(height: 15),
                                     Padding(
                                       padding: const EdgeInsets.only(right: 10),
-                                      child: Text(_.model.header != '' ? _.model.header : '还没有节点描述 😊', style: const TextStyle(color: Colors.white), maxLines: 2),
+                                      child: Text(_.data.header.isNotEmpty ? _.data.header : '还没有节点描述 😊', style: const TextStyle(color: Colors.white), maxLines: 2),
                                     ),
                                   ],
                                 ),
@@ -214,20 +196,19 @@ class NodeDetailPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (_.loading && _.model.postList.isEmpty) LoadingListPage(type: 1),
+                      if (_.loading && _.postList.isEmpty) LoadingListPage(type: 1),
                       if (_.needAuth) SliverToBoxAdapter(child: NotAllow()),
-                      if (_.model.postList.isNotEmpty)
+                      if (_.postList.isNotEmpty)
                         SliverList(
                           delegate: SliverChildBuilderDelegate((context, index) {
-                            if (_.model.postList.length - 1 == index) {
+                            if (_.postList.length - 1 == index) {
                               return Column(children: [
-                                PostItem(item: _.model.postList[index], tab: TabItem(type: TabType.node)),
-                                FooterTips(loading: _.isLoadingMore),
+                                PostItem(item: _.postList[index], tab: NodeItem(type: TabType.node)),
+                                FooterTips(loading: _.isLoadMore),
                               ]);
                             }
-                            return PostItem(item: _.model.postList[index],  tab: TabItem(type: TabType.node));
-
-                          }, childCount: _.model.postList.length),
+                            return PostItem(item: _.postList[index], tab: NodeItem(type: TabType.node));
+                          }, childCount: _.postList.length),
                         ),
                     ],
                   ),

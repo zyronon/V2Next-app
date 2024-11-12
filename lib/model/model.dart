@@ -381,19 +381,6 @@ class UserConfig {
   }
 }
 
-class NodeListModel {
-  String nodeId = ''; // 节点id
-  String name = ''; // 节点url
-  String title = ''; // 节点名称
-  String header = ''; // 节点描述
-  String topics = ''; // 主题数量
-  bool isFavorite = false; // 是否收藏节点
-  int stars = 0; // 收藏人数
-  int totalPage = 1; // 总页数
-  String avatar = ''; // 封面
-  List<Post> postList = [];
-}
-
 class Result {
   bool success;
   dynamic data;

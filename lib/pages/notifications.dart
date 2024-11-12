@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/TabItem.dart';
+import 'package:v2ex/model/item_node.dart';
 
 import '../model/model.dart';
 import '../http/api.dart';
@@ -40,11 +40,11 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> with AutomaticKeepAliveClientMixin {
-  List<TabItem> tabMap = [
-    new TabItem(cnName: '全部', enName: 'all', type: TabType.tab),
-    new TabItem(cnName: '回复', enName: 'hot', type: TabType.hot),
-    new TabItem(cnName: '感谢', enName: 'sandbox', type: TabType.node),
-    new TabItem(cnName: '收藏', enName: 'new', type: TabType.latest),
+  List<NodeItem> tabMap = [
+    new NodeItem(title: '全部', name: 'all', type: TabType.tab),
+    new NodeItem(title: '回复', name: 'hot', type: TabType.hot),
+    new NodeItem(title: '感谢', name: 'sandbox', type: TabType.node),
+    new NodeItem(title: '收藏', name: 'new', type: TabType.latest),
   ];
 
   BaseController bc = Get.find();
@@ -75,7 +75,7 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                     labelStyle: TextStyle(fontSize: 15.sp),
                     unselectedLabelStyle: TextStyle(fontSize: 15.sp),
                     tabs: tabMap.map((e) {
-                      return Tab(text: e.cnName);
+                      return Tab(text: e.title);
                     }).toList(),
                   ),
                   Expanded(
