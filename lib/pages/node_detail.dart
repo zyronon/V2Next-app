@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/footer.dart';
@@ -9,8 +11,10 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class NodeController extends GetxController {
   int pageNo = 1;
@@ -53,7 +57,7 @@ class NodeController extends GetxController {
     NodeItem? res = await Api.getNodePageInfo(name: data.name, pageNo: pageNo);
     if (res != null) {
       if (isRefresh) postList = [];
-      if (data.avatar.isEmpty && data.topics == 0) {
+      if (data.avatar.isEmpty) {
         data = res;
         postList = res.postList;
       } else {
@@ -82,6 +86,19 @@ class NodeController extends GetxController {
     isLoadMore = false;
     update();
   }
+
+  Future favNode() async {
+    SmartDialog.showLoading();
+    bool res = await Api.onFavNode(data.id, data.isFavorite);
+    SmartDialog.dismiss();
+    if (res) {
+      Utils.toast(msg: data.isFavorite ? '取消收藏成功' : '收藏成功');
+      data.isFavorite = !data.isFavorite;
+      update();
+    } else {
+      Utils.toast(msg: '收藏失败');
+    }
+  }
 }
 
 class NodeDetailPage extends StatelessWidget {
@@ -100,99 +117,35 @@ class NodeDetailPage extends StatelessWidget {
                       SliverAppBar(
                         // automaticallyImplyLeading: Breakpoints.mediumAndUp.isActive(context) ? false : true,
                         backgroundColor: Get.isDarkMode ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.primary,
-                        expandedHeight: 280 - MediaQuery.of(context).padding.top,
                         iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
                         pinned: true,
-                        title: AnimatedOpacity(
-                          opacity: 1,
-                          curve: Curves.easeOut,
-                          duration: const Duration(milliseconds: 500),
-                          child: Row(
-                            children: [
-                              BaseAvatar(src: _.data.avatar, diameter: 35, radius: 0),
-                              const SizedBox(width: 6),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(_.data.title,
-                                      style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
-                                  Text(
-                                    '   ${_.data.topics} 主题  ${_.data.stars} 收藏',
-                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
+                        title: Row(
+                          children: [
+                            BaseAvatar(src: _.data.avatar, diameter: 35, radius: 0),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(_.data.title,
+                                    style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary)),
+                                Text(
+                                  '   ${_.data.topics} 主题  ${_.data.stars} 收藏',
+                                  style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Get.isDarkMode ? Colors.white : Theme.of(context).colorScheme.onPrimary),
+                                )
+                              ],
+                            ),
+                            Spacer(),
+                            if (BaseController.to.isLogin) ElevatedButton(onPressed: _.favNode, child: Text(_.data.isFavorite ? '已收藏' : '收藏'))
+                          ],
                         ),
-                        bottom: PreferredSize(
-                            preferredSize: const Size.fromHeight(25),
-                            child: Container(
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.background,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
-                                ),
-                              ),
-                            )),
-                        flexibleSpace: FlexibleSpaceBar(
-                          background: Stack(
-                            children: [
-                              _.data.avatar.isNotEmpty
-                                  ? Container(
-                                      decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(_.data.avatar), fit: BoxFit.fitWidth)),
-                                    )
-                                  : const Spacer(),
-                              Positioned.fill(
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), //可以看源码
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.only(top: 112, left: 24, right: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        BaseAvatar(src: _.data.avatar, diameter: 62, radius: 0),
-                                        const SizedBox(width: 6),
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              _.data.title,
-                                              style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.white),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              '   ${_.data.topics} 主题  ${_.data.stars} 收藏',
-                                              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        //TODO
-                                        ElevatedButton(onPressed: () {}, child: Text(_.data.isFavorite ? '已收藏' : '收藏'))
-                                      ],
-                                    ),
-                                    const SizedBox(height: 15),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 10),
-                                      child: Text(_.data.header.isNotEmpty ? _.data.header : '还没有节点描述 😊', style: const TextStyle(color: Colors.white), maxLines: 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                      ),
+                      SliverToBoxAdapter(
+                        child: Container(
+                          color: Theme.of(context).colorScheme.primary,
+                          padding: EdgeInsets.all(20.w),
+                          child: Text(
+                            _.data.header.isNotEmpty ? _.data.header : '还没有节点描述 😊',
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       ),

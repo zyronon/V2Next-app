@@ -57,6 +57,7 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
     if (bc.isLogin) {
       var res = await Api.getFavNodes();
       if (res.isNotEmpty) {
+        nodesList[0]['children'] = [];
         for (var i in res) {
           nodesList[0]['children'].add({'name': i.name, 'title': i.title, 'avatar': i.avatar});
         }
@@ -186,9 +187,9 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
           InkWell(
             onTap: () {
               // Get.toNamed('/go/${item['nodeId']}');
-              if(Get.arguments == FromSource.editTab){
+              if (Get.arguments == FromSource.editTab) {
                 Get.back(result: item);
-              }else{
+              } else {
                 Get.toNamed('/node_detail', arguments: item);
               }
             },

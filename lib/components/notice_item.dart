@@ -30,21 +30,13 @@ class _NoticeItemState extends State<NoticeItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 0, right: 12, bottom: 7, left: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      clipBehavior: Clip.hardEdge,
       child: Dismissible(
         movementDuration: const Duration(milliseconds: 300),
         background: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Icon(Icons.clear_all_rounded), SizedBox(width: 6), Text('删除')],
+            color: Colors.redAccent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [Text('删除', style: TextStyle(color: Colors.white, fontSize: 18.sp)), SizedBox(width: 20.w)],
             )),
         direction: DismissDirection.endToStart,
         key: ValueKey<String>(widget.noticeItem.delIdOne),

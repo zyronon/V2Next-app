@@ -58,7 +58,8 @@ class EditTabPage extends StatelessWidget {
     var _ = Get.find<Controller>();
     var r = await Get.toNamed('/node_group', arguments: FromSource.editTab);
     if (r != null) {
-      if (_.tabList.any((val) => val.name == r['nodeId'])) {
+      var name = r is NodeItem ? r.name : r['name'];
+      if (_.tabList.any((val) => val.name == name)) {
         Utils.toast(msg: '已存在，请勿重复添加');
       } else {
         _.isEdit.value = true;

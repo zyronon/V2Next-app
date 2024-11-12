@@ -34,7 +34,7 @@ class PostHeader extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         verticalDirection: VerticalDirection.down,
                         children: [
-                          BaseAvatar(src: ctrl.post.member.avatarLarge, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
+                          BaseAvatar(src: ctrl.post.member.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
                           Expanded(
                               child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,

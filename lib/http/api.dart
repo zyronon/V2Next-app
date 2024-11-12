@@ -123,6 +123,7 @@ class Api {
       //TODO 无权限
       return null;
     }
+    Utils.getOnce(document);
 
     data.avatar = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
@@ -134,10 +135,11 @@ class Api {
       data.header = mainHeader.querySelector('div.intro')!.text;
     }
     // 节点收藏状态
-    if (mainHeader.querySelector('div.cell_ops') != null) {
-      data.isFavorite = mainHeader.querySelector('div.cell_ops')!.text.contains('取消');
+    var cell_ops = mainHeader.querySelector('.cell_ops a');
+    if (cell_ops != null) {
+      data.isFavorite = cell_ops.text.contains('取消');
       // 数字
-      data.id = int.parse(mainHeader.querySelector('div.cell_ops > div >a')!.attributes['href']!.split('=')[0].replaceAll(RegExp(r'\D'), ''));
+      data.id = int.parse(cell_ops.attributes['href']!.split('=')[0].replaceAll(RegExp(r'\D'), ''));
     }
     if (mainBox.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container):not(.item)') != null) {
       var totalpageNode = mainBox.querySelector('div.box:not(.box-title)>div.cell:not(.tab-alt-container)');
@@ -152,9 +154,7 @@ class Api {
     }
 
     if (document.querySelector('#TopicsNode') != null) {
-      // 主题
       var topicEle = document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
-
       data.postList = Utils().parsePagePostList(topicEle);
     }
     return data;
@@ -267,6 +267,22 @@ class Api {
     }
     memberNotices.noticeList = noticeList;
     return memberNotices;
+  }
+
+  // 删除消息
+  static Future<bool> onDelNotice(String noticeId, String once) async {
+    // https://www.v2ex.com/delete/notification/19134720?once=22730
+    Options options = Options();
+    // options.contentType = Headers.textPlainContentType;
+    options.headers = {
+      // 必须字段
+      'Referer': '${Const.v2exHost}/notifications',
+      'Origin': Const.v2exHost,
+    };
+    FormData formData = FormData.fromMap({'once': once});
+    var res = await Http().post('/delete/notification/$noticeId?once=$once', data: formData, options: options);
+    log(res.data);
+    return true;
   }
 
   //获取最新帖子(特殊处理)
@@ -587,16 +603,10 @@ class Api {
     });
   }
 
-  thank(String id) {}
-
-  reply(String id, String content) {}
-
-  collect(String id, int type) {}
-
   // 感谢主题
   static Future thankTopic(int postId) async {
     int once = GStorage().getOnce();
-    SmartDialog.showLoading(msg: '表示感谢ing');
+    SmartDialog.showLoading();
     try {
       var response = await Http().post("/thank/topic/$postId?once=$once");
       // ua mob
@@ -763,28 +773,15 @@ class Api {
   // 感谢回复
   static Future thankReply(int replyId, int postId) async {
     int once = GStorage().getOnce();
-    SmartDialog.showLoading();
-    try {
-      var response = await Http().post("/thank/reply/$replyId?once=$once");
-      // print('1019 thankReply: $response');
-      var data = jsonDecode(response.toString());
-      SmartDialog.dismiss();
-      bool responseStatus = data['success'];
-      if (responseStatus) {
-        SmartDialog.showToast('操作成功');
-      } else {
-        SmartDialog.showToast(data['message']);
-      }
-      if (data['once'] != null) {
-        int onceR = data['once'];
-        GStorage().setOnce(onceR);
-      }
-      // 操作成功
-      return responseStatus;
-    } on DioException catch (e) {
-      SmartDialog.dismiss();
-      SmartDialog.showToast(e.message!);
+    var response = await Http().post("/thank/reply/$replyId?once=$once");
+    // print('1019 thankReply: $response');
+    var data = jsonDecode(response.toString());
+    bool responseStatus = data['success'];
+    if (data['once'] != null) {
+      int onceR = data['once'];
+      GStorage().setOnce(onceR);
     }
+    return responseStatus;
   }
 
   static Future<Result> createNoteItem(String itemName) async {
@@ -1032,6 +1029,46 @@ class Api {
       return true;
     } catch (err) {
       SmartDialog.dismiss();
+    }
+  }
+
+  // 收藏节点
+  static Future onFavNode(int nodeId, bool isFavorite) async {
+    int once = GStorage().getOnce();
+    var reqUrl = isFavorite ? '/unfavorite/node/$nodeId' : '/favorite/node/$nodeId';
+    Response response = await Http().get(reqUrl, data: {'once': once});
+    Utils.getOnce(parse(response.data));
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 举报主题
+  static Future<bool> onReportPost(int topicId) async {
+    int once = GStorage().getOnce();
+    SmartDialog.showLoading();
+    Response response = await Http().get('/report/topic/$topicId', data: {'once': once});
+    SmartDialog.dismiss();
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 屏蔽主题 完成后返回上一页
+  static Future<bool> onIgnorePost(int topicId) async {
+    SmartDialog.showLoading();
+    int once = GStorage().getOnce();
+    Response response = await Http().get('/ignore/topic/$topicId', data: {'once': once});
+    SmartDialog.dismiss();
+    if (response.statusCode == 200) {
+      // 操作成功
+      return true;
+    } else {
+      return false;
     }
   }
 }

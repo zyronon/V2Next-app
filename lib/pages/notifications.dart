@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:v2ex/components/base_divider.dart';
+import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
-
-
+import 'package:v2ex/utils/const_val.dart';
 import '../model/model.dart';
 import '../http/api.dart';
 
@@ -64,9 +65,10 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
         builder: (_) {
           return DefaultTabController(
             length: tabMap.length,
-            child: SizedBox(
+            child: Container(
               height: double.infinity,
               width: double.infinity,
+              color: Colors.white,
               child: Column(
                 children: [
                   TabBar(
@@ -83,17 +85,30 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                         ? TabBarView(
                             physics: NeverScrollableScrollPhysics(),
                             children: tabMap.map((e) {
-                              return RefreshIndicator(
-                                child: ListView(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  children: [
-                                    ..._.data.noticeList.map((v) {
-                                      return NoticeItem(noticeItem: v, onDeleteNotice: () => {});
-                                    })
-                                  ],
-                                ),
-                                onRefresh: _.getData,
-                              );
+                              return _.data.noticeList.length == 0
+                                  ? LoadingListPage()
+                                  : RefreshIndicator(
+                                      child: ListView.separated(
+                                        physics: AlwaysScrollableScrollPhysics(),
+                                        itemCount: _.data.noticeList.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          var v = _.data.noticeList[index];
+                                          return NoticeItem(
+                                              noticeItem: v,
+                                              onDeleteNotice: () async {
+                                                String noticeId = v.delIdOne;
+                                                String once = v.delIdTwo;
+                                                await Api.onDelNotice(noticeId, once);
+                                                _.data.noticeList.remove(v);
+                                                _.update();
+                                              });
+                                        },
+                                        separatorBuilder: (BuildContext context, int index){
+                                          return BaseDivider();
+                                        },
+                                      ),
+                                      onRefresh: _.getData,
+                                    );
                             }).toList())
                         : NotAllow(),
                   )

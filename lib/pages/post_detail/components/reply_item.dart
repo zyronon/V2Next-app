@@ -46,7 +46,7 @@ class ReplyItem extends StatelessWidget {
     }
   }
 
-Widget  _buildTagList() {
+  Widget _buildTagList() {
     BaseController bc = BaseController.to;
     List list = bc.getTags(item.username);
     if (list.length != 0) {
@@ -116,22 +116,25 @@ Widget  _buildTagList() {
                 children: [
                   if (item.thankCount != 0)
                     InkWell(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              item.isThanked ? Icons.favorite : Icons.favorite_border,
-                              size: 18.sp,
-                              color: Colors.red,
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(left: 4.w),
-                                child: Text(
-                                  item.thankCount.toString(),
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 14.sp, color: Colors.red, height: 1.2),
-                                ))
-                          ],
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 6.w, top: 6.w, bottom: 6.w, right: 0.w),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                item.isThanked ? Icons.favorite : Icons.favorite_border,
+                                size: 18.sp,
+                                color: Colors.red,
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.only(left: 4.w),
+                                  child: Text(
+                                    item.thankCount.toString(),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(fontSize: 14.sp, color: Colors.red, height: 1.2),
+                                  ))
+                            ],
+                          ),
                         ),
                         onTap: () => onThank?.call(item)),
                   if (onMenu != null)

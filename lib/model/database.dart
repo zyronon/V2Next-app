@@ -173,6 +173,7 @@ class PostDao extends DatabaseAccessor<AppDatabase> with _$PostDaoMixin {
       replyCount: Value(post.replyCount),
       thankCount: Value(post.thankCount),
       collectCount: Value(post.collectCount),
+      clickCount: Value(post.clickCount),
       isTop: Value(post.isTop),
       isFavorite: Value(post.isFavorite),
       isIgnore: Value(post.isIgnore),

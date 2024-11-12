@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:scrollview_observer/scrollview_observer.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/database.dart';
-import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class PostDetailController extends GetxController {
@@ -36,7 +33,7 @@ class PostDetailController extends GetxController {
 
   rebuildList() {
     post = Utils.buildList(post, post.replyList);
-    update();
+    updateAndSave();
     observerController.reattach();
   }
 
@@ -79,11 +76,18 @@ class PostDetailController extends GetxController {
 
     var s = await postDao.getPostWithReplies(post.postId);
     if (s != null) {
+      loading = false;
+      update();
       print('replies.length${s.replies.length}');
       // print(s.replies[0].replyContent);
       // print(s.post.id);
       // print(s.post.postId);
-      post = Post.fromJson(s.post.toJson());
+      var postJson = s.post.toJson();
+      post = Post.fromJson(postJson);
+      post.member.username = postJson['memberUsername'];
+      post.member.avatar = postJson['memberAvatar'];
+      post.node.name = postJson['nodeName'];
+      post.node.title = postJson['nodeTitle'];
       post.replyList = s.replies.map((v) {
         var json = v.toJson();
         json['replyUsers'] = jsonDecode(json['replyUsers']);
@@ -101,7 +105,10 @@ class PostDetailController extends GetxController {
     }
 
     update();
-    post = await Api.getPostDetail(Get.arguments.postId);
+
+    var res = await Api.getPostDetail(Get.arguments.postId);
+    res.member.avatar = post.member.avatar;
+    post = res;
     // post = await Api.getPostDetail('825072');
     loading = false;
     update();
@@ -119,5 +126,11 @@ class PostDetailController extends GetxController {
     print('onClose');
     super.onClose();
     scrollController.dispose();
+  }
+
+  updateAndSave(){
+    update();
+    final postDao = bc.database.postDao;
+    postDao.updatePost(post, post.replyList);
   }
 }

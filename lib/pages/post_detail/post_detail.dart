@@ -20,6 +20,7 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_avatar.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/http/api.dart';
@@ -397,7 +398,59 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  //TODO
+// 忽略主题
+  Future onIgnorePost() async {
+    Future.delayed(
+      const Duration(seconds: 0),
+      () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('操作提示'),
+          content: const Text('确认忽略该主题吗？'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+            TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  SmartDialog.showLoading();
+                  var res = await Api.onIgnorePost(ctrl.post.postId);
+                  SmartDialog.dismiss();
+                  SmartDialog.showToast(res ? '已忽略' : '操作失败');
+                  Get.back();
+                },
+                child: const Text('确认'))
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 举报主题
+  Future onReportPost() async {
+    Future.delayed(
+      const Duration(seconds: 0),
+      () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('操作提示'),
+          content: const Text('确认举报该主题吗？'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+            TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  SmartDialog.showLoading();
+                  var res = await Api.onReportPost(ctrl.post.postId);
+                  SmartDialog.dismiss();
+                  SmartDialog.showToast(res ? '已举报' : '操作失败');
+                },
+                child: const Text('确认'))
+          ],
+        ),
+      ),
+    );
+  }
+
   //显示帖子菜单弹窗
   showPostMenuModal() {
     modalWrap(
@@ -433,16 +486,17 @@ class PostDetailPageState extends State<PostDetailPage> {
               text: '忽略',
               icon: TDIcons.browse_off,
               onTap: () {
-                //TODO
-                Utils.toast(msg: '未实现');
+                Get.back();
+                //TODO 这里手机上还是会把已忽略的帖子显示出来，因为电脑上是靠display:none来隐藏的...
+                onIgnorePost();
               }),
           _buildLine(),
           _buildReplyMenuOption(
               text: '报告',
               icon: TDIcons.info_circle,
               onTap: () {
-                //TODO
-                Utils.toast(msg: '未实现');
+                Get.back();
+                onReportPost();
               }),
         ])),
         _buildReplyMenuOptionWrapper(
@@ -582,13 +636,13 @@ class PostDetailPageState extends State<PostDetailPage> {
     bool isFavorite = ctrl.post.isFavorite;
     ctrl.post.isFavorite = !isFavorite;
     ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
-    ctrl.update();
+    ctrl.updateAndSave();
 
     var res = await Api.favoriteTopic(isFavorite, ctrl.post.postId);
     if (!res) {
       ctrl.post.isFavorite = !ctrl.post.isFavorite;
       ctrl.post.collectCount = ctrl.post.isFavorite ? ctrl.post.collectCount + 1 : ctrl.post.collectCount - 1;
-      ctrl.update();
+      ctrl.updateAndSave();
       Get.snackbar('提示', '',
           colorText: Colors.white,
           duration: Duration(seconds: 5),
@@ -629,7 +683,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               if (res) {
                 ctrl.post.isThanked = true;
                 ctrl.post.thankCount += 1;
-                ctrl.update();
+                ctrl.updateAndSave();
                 Utils.toast(msg: '感谢成功');
                 Get.back();
               }
@@ -643,12 +697,24 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   // 感谢回复 request
   void thankReply(Reply val) async {
+    var index = ctrl.post.replyList.indexWhere((v) => v.replyId == val.replyId);
+    ctrl.post.replyList[index].isThanked = true;
+    ctrl.post.replyList[index].thankCount += 1;
+    ctrl.rebuildList();
+
     var res = await Api.thankReply(val.replyId, ctrl.post.postId);
-    if (res) {
-      var index = ctrl.post.replyList.indexWhere((v) => v.replyId == val.replyId);
-      ctrl.post.replyList[index].isThanked = true;
-      ctrl.post.replyList[index].thankCount += 1;
+    if (!res) {
+      ctrl.post.replyList[index].isThanked = false;
+      ctrl.post.replyList[index].thankCount -= 1;
       ctrl.rebuildList();
+      Get.snackbar('提示', '',
+          colorText: Colors.white,
+          duration: Duration(seconds: 5),
+          messageText: Text(
+            '感谢失败',
+            style: TextStyle(fontSize: 16, color: Colors.white),
+          ),
+          backgroundColor: Colors.redAccent);
     }
   }
 
@@ -667,10 +733,10 @@ class PostDetailPageState extends State<PostDetailPage> {
       return;
     }
 
-    // if (bc.currentConfig.ignoreThankConfirm) {
-    //   thankReply(val);
-    //   return;
-    // }
+    if (bc.currentConfig.ignoreThankConfirm) {
+      thankReply(val);
+      return;
+    }
 
     await showDialog<String>(
       context: context,
@@ -679,7 +745,7 @@ class PostDetailPageState extends State<PostDetailPage> {
         content: IntrinsicHeight(
           child: Column(
             children: [
-              const Text('确认向该用户表示感谢吗？，将花费10个铜板💰'),
+              Text('确认向该用户表示感谢吗？，将花费10个铜板💰', style: TextStyle(fontSize: 16.sp)),
               SizedBox(height: 20.w),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -704,10 +770,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                 children: [
                   Text(
                     '可在设置中恢复',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.grey
-                    ),
+                    style: TextStyle(fontSize: 11.sp, color: Colors.grey),
                   ),
                 ],
               )
@@ -715,16 +778,17 @@ class PostDetailPageState extends State<PostDetailPage> {
           ),
         ),
         actions: <Widget>[
-          TextButton(
-            onPressed: Get.back,
-            child: const Text('取消'),
+          BaseButton(
+            theme: TDButtonTheme.light,
+            onTap: Get.back,
+            text: '取消',
           ),
-          TextButton(
-            onPressed: () async {
+          BaseButton(
+            onTap: () async {
               thankReply(val);
               Get.back();
             },
-            child: const Text('确认'),
+            text: '确认',
           ),
         ],
       ),
