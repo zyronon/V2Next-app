@@ -17,6 +17,8 @@ samples, guidance on mobile development, and a full API reference.
 
 flutter build apk --split-per-abi
 
+dart run build_runner watch
+
 [x] 测试在回复或者主题里面，打开另一个帖子
 [x] 可修改展示楼层
 [ ] 高赞，菜单项添加跳转功能(目前位置跳转不精准，后期需要自己重写)

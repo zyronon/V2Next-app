@@ -366,8 +366,8 @@ class Utils {
 
         Element? nodeEl = aNode.querySelector('.node');
         if (nodeEl != null) {
-          item.node.cnName = nodeEl.text;
-          item.node.enName = nodeEl.attributes['href']!.replaceFirst('/go/', '');
+          item.node.title = nodeEl.text;
+          item.node.name = nodeEl.attributes['href']!.replaceFirst('/go/', '');
         }
 
         List<Element> spanList = aNode.querySelectorAll('span[class="small fade"]');

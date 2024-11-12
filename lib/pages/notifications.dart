@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+
 
 import '../model/model.dart';
 import '../http/api.dart';

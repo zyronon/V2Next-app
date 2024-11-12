@@ -9,7 +9,7 @@ import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 
 class TabPageController extends GetxController {

@@ -40,7 +40,7 @@ class TabChildNodes extends StatelessWidget {
                       await Future.delayed(const Duration(milliseconds: 200));
                       Get.toNamed('/node_detail', arguments: i);
                     },
-                    child: Text(i.cnName))
+                    child: Text(i.title))
             ],
           ),
         ],

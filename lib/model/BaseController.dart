@@ -5,7 +5,7 @@ import 'package:get/get.dart' hide Response;
 import 'package:get_storage/get_storage.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 
@@ -93,7 +93,6 @@ class BaseController extends GetxController {
       });
     }
     var r3 = _box.read(StoreKeys.tabMap.toString());
-    debugger();
     if (r3 != null) {
       print(r3);
       r3 = jsonDecode(r3);

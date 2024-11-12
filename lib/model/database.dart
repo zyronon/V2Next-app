@@ -28,6 +28,14 @@ class DbPost extends Table {
 
   TextColumn get lastReplyUsername => text().withLength(max: 20)();
 
+  TextColumn get nodeTitle => text().withLength(max: 30)();
+
+  TextColumn get nodeName => text().withLength(max: 20)();
+
+  TextColumn get memberAvatar => text()();
+
+  TextColumn get memberUsername => text().withLength(max: 20)();
+
   IntColumn get replyCount => integer().withDefault(Constant(0))();
 
   IntColumn get clickCount => integer().withDefault(Constant(0))();
@@ -158,6 +166,10 @@ class PostDao extends DatabaseAccessor<AppDatabase> with _$PostDaoMixin {
       lastReplyDate: Value(post.lastReplyDate),
       lastReplyDateAgo: Value(post.lastReplyDateAgo),
       lastReplyUsername: Value(post.lastReplyUsername),
+      nodeName: Value(post.node.name),
+      nodeTitle: Value(post.node.title),
+      memberAvatar: Value(post.member.avatar),
+      memberUsername: Value(post.member.username),
       replyCount: Value(post.replyCount),
       thankCount: Value(post.thankCount),
       collectCount: Value(post.collectCount),

@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_webview.dart';
-import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
+
 import 'package:v2ex/pages/discover/tab_page.dart';
 import 'package:v2ex/utils/const_val.dart';
 

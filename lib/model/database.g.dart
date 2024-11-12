@@ -83,6 +83,36 @@ class $DbPostTable extends DbPost with TableInfo<$DbPostTable, DbPostData> {
           additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 20),
           type: DriftSqlType.string,
           requiredDuringInsert: true);
+  static const VerificationMeta _nodeTitleMeta =
+      const VerificationMeta('nodeTitle');
+  @override
+  late final GeneratedColumn<String> nodeTitle = GeneratedColumn<String>(
+      'node_title', aliasedName, false,
+      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 30),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _nodeNameMeta =
+      const VerificationMeta('nodeName');
+  @override
+  late final GeneratedColumn<String> nodeName = GeneratedColumn<String>(
+      'node_name', aliasedName, false,
+      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 20),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _memberAvatarMeta =
+      const VerificationMeta('memberAvatar');
+  @override
+  late final GeneratedColumn<String> memberAvatar = GeneratedColumn<String>(
+      'member_avatar', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _memberUsernameMeta =
+      const VerificationMeta('memberUsername');
+  @override
+  late final GeneratedColumn<String> memberUsername = GeneratedColumn<String>(
+      'member_username', aliasedName, false,
+      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 20),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
   static const VerificationMeta _replyCountMeta =
       const VerificationMeta('replyCount');
   @override
@@ -212,6 +242,10 @@ class $DbPostTable extends DbPost with TableInfo<$DbPostTable, DbPostData> {
         lastReplyDate,
         lastReplyDateAgo,
         lastReplyUsername,
+        nodeTitle,
+        nodeName,
+        memberAvatar,
+        memberUsername,
         replyCount,
         clickCount,
         thankCount,
@@ -304,6 +338,34 @@ class $DbPostTable extends DbPost with TableInfo<$DbPostTable, DbPostData> {
               data['last_reply_username']!, _lastReplyUsernameMeta));
     } else if (isInserting) {
       context.missing(_lastReplyUsernameMeta);
+    }
+    if (data.containsKey('node_title')) {
+      context.handle(_nodeTitleMeta,
+          nodeTitle.isAcceptableOrUnknown(data['node_title']!, _nodeTitleMeta));
+    } else if (isInserting) {
+      context.missing(_nodeTitleMeta);
+    }
+    if (data.containsKey('node_name')) {
+      context.handle(_nodeNameMeta,
+          nodeName.isAcceptableOrUnknown(data['node_name']!, _nodeNameMeta));
+    } else if (isInserting) {
+      context.missing(_nodeNameMeta);
+    }
+    if (data.containsKey('member_avatar')) {
+      context.handle(
+          _memberAvatarMeta,
+          memberAvatar.isAcceptableOrUnknown(
+              data['member_avatar']!, _memberAvatarMeta));
+    } else if (isInserting) {
+      context.missing(_memberAvatarMeta);
+    }
+    if (data.containsKey('member_username')) {
+      context.handle(
+          _memberUsernameMeta,
+          memberUsername.isAcceptableOrUnknown(
+              data['member_username']!, _memberUsernameMeta));
+    } else if (isInserting) {
+      context.missing(_memberUsernameMeta);
     }
     if (data.containsKey('reply_count')) {
       context.handle(
@@ -398,6 +460,14 @@ class $DbPostTable extends DbPost with TableInfo<$DbPostTable, DbPostData> {
           DriftSqlType.string, data['${effectivePrefix}last_reply_date_ago'])!,
       lastReplyUsername: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}last_reply_username'])!,
+      nodeTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}node_title'])!,
+      nodeName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}node_name'])!,
+      memberAvatar: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}member_avatar'])!,
+      memberUsername: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}member_username'])!,
       replyCount: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}reply_count'])!,
       clickCount: attachedDatabase.typeMapping
@@ -444,6 +514,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
   final String lastReplyDate;
   final String lastReplyDateAgo;
   final String lastReplyUsername;
+  final String nodeTitle;
+  final String nodeName;
+  final String memberAvatar;
+  final String memberUsername;
   final int replyCount;
   final int clickCount;
   final int thankCount;
@@ -468,6 +542,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
       required this.lastReplyDate,
       required this.lastReplyDateAgo,
       required this.lastReplyUsername,
+      required this.nodeTitle,
+      required this.nodeName,
+      required this.memberAvatar,
+      required this.memberUsername,
       required this.replyCount,
       required this.clickCount,
       required this.thankCount,
@@ -494,6 +572,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
     map['last_reply_date'] = Variable<String>(lastReplyDate);
     map['last_reply_date_ago'] = Variable<String>(lastReplyDateAgo);
     map['last_reply_username'] = Variable<String>(lastReplyUsername);
+    map['node_title'] = Variable<String>(nodeTitle);
+    map['node_name'] = Variable<String>(nodeName);
+    map['member_avatar'] = Variable<String>(memberAvatar);
+    map['member_username'] = Variable<String>(memberUsername);
     map['reply_count'] = Variable<int>(replyCount);
     map['click_count'] = Variable<int>(clickCount);
     map['thank_count'] = Variable<int>(thankCount);
@@ -522,6 +604,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
       lastReplyDate: Value(lastReplyDate),
       lastReplyDateAgo: Value(lastReplyDateAgo),
       lastReplyUsername: Value(lastReplyUsername),
+      nodeTitle: Value(nodeTitle),
+      nodeName: Value(nodeName),
+      memberAvatar: Value(memberAvatar),
+      memberUsername: Value(memberUsername),
       replyCount: Value(replyCount),
       clickCount: Value(clickCount),
       thankCount: Value(thankCount),
@@ -552,6 +638,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
       lastReplyDate: serializer.fromJson<String>(json['lastReplyDate']),
       lastReplyDateAgo: serializer.fromJson<String>(json['lastReplyDateAgo']),
       lastReplyUsername: serializer.fromJson<String>(json['lastReplyUsername']),
+      nodeTitle: serializer.fromJson<String>(json['nodeTitle']),
+      nodeName: serializer.fromJson<String>(json['nodeName']),
+      memberAvatar: serializer.fromJson<String>(json['memberAvatar']),
+      memberUsername: serializer.fromJson<String>(json['memberUsername']),
       replyCount: serializer.fromJson<int>(json['replyCount']),
       clickCount: serializer.fromJson<int>(json['clickCount']),
       thankCount: serializer.fromJson<int>(json['thankCount']),
@@ -581,6 +671,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
       'lastReplyDate': serializer.toJson<String>(lastReplyDate),
       'lastReplyDateAgo': serializer.toJson<String>(lastReplyDateAgo),
       'lastReplyUsername': serializer.toJson<String>(lastReplyUsername),
+      'nodeTitle': serializer.toJson<String>(nodeTitle),
+      'nodeName': serializer.toJson<String>(nodeName),
+      'memberAvatar': serializer.toJson<String>(memberAvatar),
+      'memberUsername': serializer.toJson<String>(memberUsername),
       'replyCount': serializer.toJson<int>(replyCount),
       'clickCount': serializer.toJson<int>(clickCount),
       'thankCount': serializer.toJson<int>(thankCount),
@@ -608,6 +702,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
           String? lastReplyDate,
           String? lastReplyDateAgo,
           String? lastReplyUsername,
+          String? nodeTitle,
+          String? nodeName,
+          String? memberAvatar,
+          String? memberUsername,
           int? replyCount,
           int? clickCount,
           int? thankCount,
@@ -632,6 +730,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
         lastReplyDate: lastReplyDate ?? this.lastReplyDate,
         lastReplyDateAgo: lastReplyDateAgo ?? this.lastReplyDateAgo,
         lastReplyUsername: lastReplyUsername ?? this.lastReplyUsername,
+        nodeTitle: nodeTitle ?? this.nodeTitle,
+        nodeName: nodeName ?? this.nodeName,
+        memberAvatar: memberAvatar ?? this.memberAvatar,
+        memberUsername: memberUsername ?? this.memberUsername,
         replyCount: replyCount ?? this.replyCount,
         clickCount: clickCount ?? this.clickCount,
         thankCount: thankCount ?? this.thankCount,
@@ -670,6 +772,14 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
       lastReplyUsername: data.lastReplyUsername.present
           ? data.lastReplyUsername.value
           : this.lastReplyUsername,
+      nodeTitle: data.nodeTitle.present ? data.nodeTitle.value : this.nodeTitle,
+      nodeName: data.nodeName.present ? data.nodeName.value : this.nodeName,
+      memberAvatar: data.memberAvatar.present
+          ? data.memberAvatar.value
+          : this.memberAvatar,
+      memberUsername: data.memberUsername.present
+          ? data.memberUsername.value
+          : this.memberUsername,
       replyCount:
           data.replyCount.present ? data.replyCount.value : this.replyCount,
       clickCount:
@@ -706,6 +816,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
           ..write('lastReplyDate: $lastReplyDate, ')
           ..write('lastReplyDateAgo: $lastReplyDateAgo, ')
           ..write('lastReplyUsername: $lastReplyUsername, ')
+          ..write('nodeTitle: $nodeTitle, ')
+          ..write('nodeName: $nodeName, ')
+          ..write('memberAvatar: $memberAvatar, ')
+          ..write('memberUsername: $memberUsername, ')
           ..write('replyCount: $replyCount, ')
           ..write('clickCount: $clickCount, ')
           ..write('thankCount: $thankCount, ')
@@ -735,6 +849,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
         lastReplyDate,
         lastReplyDateAgo,
         lastReplyUsername,
+        nodeTitle,
+        nodeName,
+        memberAvatar,
+        memberUsername,
         replyCount,
         clickCount,
         thankCount,
@@ -763,6 +881,10 @@ class DbPostData extends DataClass implements Insertable<DbPostData> {
           other.lastReplyDate == this.lastReplyDate &&
           other.lastReplyDateAgo == this.lastReplyDateAgo &&
           other.lastReplyUsername == this.lastReplyUsername &&
+          other.nodeTitle == this.nodeTitle &&
+          other.nodeName == this.nodeName &&
+          other.memberAvatar == this.memberAvatar &&
+          other.memberUsername == this.memberUsername &&
           other.replyCount == this.replyCount &&
           other.clickCount == this.clickCount &&
           other.thankCount == this.thankCount &&
@@ -789,6 +911,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
   final Value<String> lastReplyDate;
   final Value<String> lastReplyDateAgo;
   final Value<String> lastReplyUsername;
+  final Value<String> nodeTitle;
+  final Value<String> nodeName;
+  final Value<String> memberAvatar;
+  final Value<String> memberUsername;
   final Value<int> replyCount;
   final Value<int> clickCount;
   final Value<int> thankCount;
@@ -813,6 +939,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
     this.lastReplyDate = const Value.absent(),
     this.lastReplyDateAgo = const Value.absent(),
     this.lastReplyUsername = const Value.absent(),
+    this.nodeTitle = const Value.absent(),
+    this.nodeName = const Value.absent(),
+    this.memberAvatar = const Value.absent(),
+    this.memberUsername = const Value.absent(),
     this.replyCount = const Value.absent(),
     this.clickCount = const Value.absent(),
     this.thankCount = const Value.absent(),
@@ -838,6 +968,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
     required String lastReplyDate,
     required String lastReplyDateAgo,
     required String lastReplyUsername,
+    required String nodeTitle,
+    required String nodeName,
+    required String memberAvatar,
+    required String memberUsername,
     this.replyCount = const Value.absent(),
     this.clickCount = const Value.absent(),
     this.thankCount = const Value.absent(),
@@ -858,7 +992,11 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
         createDateAgo = Value(createDateAgo),
         lastReplyDate = Value(lastReplyDate),
         lastReplyDateAgo = Value(lastReplyDateAgo),
-        lastReplyUsername = Value(lastReplyUsername);
+        lastReplyUsername = Value(lastReplyUsername),
+        nodeTitle = Value(nodeTitle),
+        nodeName = Value(nodeName),
+        memberAvatar = Value(memberAvatar),
+        memberUsername = Value(memberUsername);
   static Insertable<DbPostData> custom({
     Expression<int>? id,
     Expression<int>? postId,
@@ -870,6 +1008,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
     Expression<String>? lastReplyDate,
     Expression<String>? lastReplyDateAgo,
     Expression<String>? lastReplyUsername,
+    Expression<String>? nodeTitle,
+    Expression<String>? nodeName,
+    Expression<String>? memberAvatar,
+    Expression<String>? memberUsername,
     Expression<int>? replyCount,
     Expression<int>? clickCount,
     Expression<int>? thankCount,
@@ -895,6 +1037,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
       if (lastReplyDate != null) 'last_reply_date': lastReplyDate,
       if (lastReplyDateAgo != null) 'last_reply_date_ago': lastReplyDateAgo,
       if (lastReplyUsername != null) 'last_reply_username': lastReplyUsername,
+      if (nodeTitle != null) 'node_title': nodeTitle,
+      if (nodeName != null) 'node_name': nodeName,
+      if (memberAvatar != null) 'member_avatar': memberAvatar,
+      if (memberUsername != null) 'member_username': memberUsername,
       if (replyCount != null) 'reply_count': replyCount,
       if (clickCount != null) 'click_count': clickCount,
       if (thankCount != null) 'thank_count': thankCount,
@@ -922,6 +1068,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
       Value<String>? lastReplyDate,
       Value<String>? lastReplyDateAgo,
       Value<String>? lastReplyUsername,
+      Value<String>? nodeTitle,
+      Value<String>? nodeName,
+      Value<String>? memberAvatar,
+      Value<String>? memberUsername,
       Value<int>? replyCount,
       Value<int>? clickCount,
       Value<int>? thankCount,
@@ -946,6 +1096,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
       lastReplyDate: lastReplyDate ?? this.lastReplyDate,
       lastReplyDateAgo: lastReplyDateAgo ?? this.lastReplyDateAgo,
       lastReplyUsername: lastReplyUsername ?? this.lastReplyUsername,
+      nodeTitle: nodeTitle ?? this.nodeTitle,
+      nodeName: nodeName ?? this.nodeName,
+      memberAvatar: memberAvatar ?? this.memberAvatar,
+      memberUsername: memberUsername ?? this.memberUsername,
       replyCount: replyCount ?? this.replyCount,
       clickCount: clickCount ?? this.clickCount,
       thankCount: thankCount ?? this.thankCount,
@@ -994,6 +1148,18 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
     }
     if (lastReplyUsername.present) {
       map['last_reply_username'] = Variable<String>(lastReplyUsername.value);
+    }
+    if (nodeTitle.present) {
+      map['node_title'] = Variable<String>(nodeTitle.value);
+    }
+    if (nodeName.present) {
+      map['node_name'] = Variable<String>(nodeName.value);
+    }
+    if (memberAvatar.present) {
+      map['member_avatar'] = Variable<String>(memberAvatar.value);
+    }
+    if (memberUsername.present) {
+      map['member_username'] = Variable<String>(memberUsername.value);
     }
     if (replyCount.present) {
       map['reply_count'] = Variable<int>(replyCount.value);
@@ -1050,6 +1216,10 @@ class DbPostCompanion extends UpdateCompanion<DbPostData> {
           ..write('lastReplyDate: $lastReplyDate, ')
           ..write('lastReplyDateAgo: $lastReplyDateAgo, ')
           ..write('lastReplyUsername: $lastReplyUsername, ')
+          ..write('nodeTitle: $nodeTitle, ')
+          ..write('nodeName: $nodeName, ')
+          ..write('memberAvatar: $memberAvatar, ')
+          ..write('memberUsername: $memberUsername, ')
           ..write('replyCount: $replyCount, ')
           ..write('clickCount: $clickCount, ')
           ..write('thankCount: $thankCount, ')
@@ -2080,6 +2250,10 @@ typedef $$DbPostTableCreateCompanionBuilder = DbPostCompanion Function({
   required String lastReplyDate,
   required String lastReplyDateAgo,
   required String lastReplyUsername,
+  required String nodeTitle,
+  required String nodeName,
+  required String memberAvatar,
+  required String memberUsername,
   Value<int> replyCount,
   Value<int> clickCount,
   Value<int> thankCount,
@@ -2105,6 +2279,10 @@ typedef $$DbPostTableUpdateCompanionBuilder = DbPostCompanion Function({
   Value<String> lastReplyDate,
   Value<String> lastReplyDateAgo,
   Value<String> lastReplyUsername,
+  Value<String> nodeTitle,
+  Value<String> nodeName,
+  Value<String> memberAvatar,
+  Value<String> memberUsername,
   Value<int> replyCount,
   Value<int> clickCount,
   Value<int> thankCount,
@@ -2160,6 +2338,19 @@ class $$DbPostTableFilterComposer
 
   ColumnFilters<String> get lastReplyUsername => $composableBuilder(
       column: $table.lastReplyUsername,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nodeTitle => $composableBuilder(
+      column: $table.nodeTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nodeName => $composableBuilder(
+      column: $table.nodeName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memberAvatar => $composableBuilder(
+      column: $table.memberAvatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memberUsername => $composableBuilder(
+      column: $table.memberUsername,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get replyCount => $composableBuilder(
@@ -2246,6 +2437,20 @@ class $$DbPostTableOrderingComposer
       column: $table.lastReplyUsername,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get nodeTitle => $composableBuilder(
+      column: $table.nodeTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nodeName => $composableBuilder(
+      column: $table.nodeName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memberAvatar => $composableBuilder(
+      column: $table.memberAvatar,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memberUsername => $composableBuilder(
+      column: $table.memberUsername,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get replyCount => $composableBuilder(
       column: $table.replyCount, builder: (column) => ColumnOrderings(column));
 
@@ -2326,6 +2531,18 @@ class $$DbPostTableAnnotationComposer
   GeneratedColumn<String> get lastReplyUsername => $composableBuilder(
       column: $table.lastReplyUsername, builder: (column) => column);
 
+  GeneratedColumn<String> get nodeTitle =>
+      $composableBuilder(column: $table.nodeTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get nodeName =>
+      $composableBuilder(column: $table.nodeName, builder: (column) => column);
+
+  GeneratedColumn<String> get memberAvatar => $composableBuilder(
+      column: $table.memberAvatar, builder: (column) => column);
+
+  GeneratedColumn<String> get memberUsername => $composableBuilder(
+      column: $table.memberUsername, builder: (column) => column);
+
   GeneratedColumn<int> get replyCount => $composableBuilder(
       column: $table.replyCount, builder: (column) => column);
 
@@ -2399,6 +2616,10 @@ class $$DbPostTableTableManager extends RootTableManager<
             Value<String> lastReplyDate = const Value.absent(),
             Value<String> lastReplyDateAgo = const Value.absent(),
             Value<String> lastReplyUsername = const Value.absent(),
+            Value<String> nodeTitle = const Value.absent(),
+            Value<String> nodeName = const Value.absent(),
+            Value<String> memberAvatar = const Value.absent(),
+            Value<String> memberUsername = const Value.absent(),
             Value<int> replyCount = const Value.absent(),
             Value<int> clickCount = const Value.absent(),
             Value<int> thankCount = const Value.absent(),
@@ -2424,6 +2645,10 @@ class $$DbPostTableTableManager extends RootTableManager<
             lastReplyDate: lastReplyDate,
             lastReplyDateAgo: lastReplyDateAgo,
             lastReplyUsername: lastReplyUsername,
+            nodeTitle: nodeTitle,
+            nodeName: nodeName,
+            memberAvatar: memberAvatar,
+            memberUsername: memberUsername,
             replyCount: replyCount,
             clickCount: clickCount,
             thankCount: thankCount,
@@ -2449,6 +2674,10 @@ class $$DbPostTableTableManager extends RootTableManager<
             required String lastReplyDate,
             required String lastReplyDateAgo,
             required String lastReplyUsername,
+            required String nodeTitle,
+            required String nodeName,
+            required String memberAvatar,
+            required String memberUsername,
             Value<int> replyCount = const Value.absent(),
             Value<int> clickCount = const Value.absent(),
             Value<int> thankCount = const Value.absent(),
@@ -2474,6 +2703,10 @@ class $$DbPostTableTableManager extends RootTableManager<
             lastReplyDate: lastReplyDate,
             lastReplyDateAgo: lastReplyDateAgo,
             lastReplyUsername: lastReplyUsername,
+            nodeTitle: nodeTitle,
+            nodeName: nodeName,
+            memberAvatar: memberAvatar,
+            memberUsername: memberUsername,
             replyCount: replyCount,
             clickCount: clickCount,
             thankCount: thankCount,

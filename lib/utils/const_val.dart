@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
 
 export '';
 

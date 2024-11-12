@@ -3,7 +3,8 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
+
 import 'package:v2ex/pages/home/components/tab_hot_page.dart';
 import 'package:v2ex/pages/home/components/tab_page.dart';
 

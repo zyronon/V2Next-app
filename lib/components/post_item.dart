@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_divider.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 
 class PostItem extends StatelessWidget {
@@ -75,7 +75,7 @@ class PostItem extends StatelessWidget {
                             ),
                             SizedBox(width: 10.w),
                           ],
-                          if (item.node.cnName.isNotEmpty)
+                          if (item.node.title.isNotEmpty)
                             // 这里的点击事件，最新index.xml获取到的数据没有url
                             InkWell(
                               child: DecoratedBox(
@@ -86,13 +86,13 @@ class PostItem extends StatelessWidget {
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.w),
                                   child: Text(
-                                    item.node.cnName,
+                                    item.node.title,
                                     style: TextStyle(color: Colors.black54, fontSize: bc.fontSize * 0.6, height: 1.4),
                                   ),
                                 ),
                               ),
                               onTap: () {
-                                if (item.node.enName.isEmpty) {
+                                if (item.node.name.isEmpty) {
                                   Get.snackbar('提示', '抱歉，由于源数据未提供节点url，所以无法跳转');
                                   return;
                                 }

@@ -60,7 +60,7 @@ class PostHeader extends StatelessWidget {
                           ))
                         ],
                       )),
-                      if (ctrl.post.node.cnName.isNotEmpty)
+                      if (ctrl.post.node.title.isNotEmpty)
                         InkWell(
                           child: Container(
                             decoration: BoxDecoration(
@@ -70,7 +70,7 @@ class PostHeader extends StatelessWidget {
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
                               child: Text(
-                                ctrl.post.node.cnName,
+                                ctrl.post.node.title,
                                 style: TextStyle(color: Colors.black, fontSize: bc.fontSize * 0.8),
                               ),
                             ),

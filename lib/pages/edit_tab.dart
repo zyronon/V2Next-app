@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/utils.dart';

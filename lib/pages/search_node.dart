@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/api.dart';
 

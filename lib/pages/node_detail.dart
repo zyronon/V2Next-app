@@ -9,7 +9,7 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 
 class NodeController extends GetxController {
@@ -26,8 +26,8 @@ class NodeController extends GetxController {
     super.onInit();
     ctrl.addListener(scrollListener);
     V2Node node = Get.arguments;
-    data.name = node.enName;
-    data.title = node.cnName;
+    data.name = node.name;
+    data.title = node.title;
     update();
     getData(isRefresh: true);
   }

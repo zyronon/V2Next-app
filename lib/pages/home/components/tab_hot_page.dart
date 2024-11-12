@@ -12,7 +12,7 @@ import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/utils.dart';
 

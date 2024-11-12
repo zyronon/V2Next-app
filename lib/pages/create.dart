@@ -3,7 +3,8 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/item_node.dart';
+import 'package:v2ex/model/model.dart';
+
 import 'package:v2ex/package/markdown_editable_textinput/format_markdown.dart';
 import 'package:v2ex/package/markdown_editable_textinput/markdown_text_input.dart';
 
@@ -141,11 +142,7 @@ class _CreateState extends State<Create> {
                 // Text('- 创建附言价格为每千字 20 铜币'),
               ],
             ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('了解了'))
-            ],
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('了解了'))],
           );
         });
   }
@@ -223,12 +220,7 @@ class _CreateState extends State<Create> {
       (_formKey.currentState as FormState).save();
       // 键盘收起
       contentTextFieldNode.unfocus();
-      var args = {
-        'title': title,
-        'syntax': syntax == 'default' ? 0 : 1,
-        'content': content,
-        'topicId': topicId
-      };
+      var args = {'title': title, 'syntax': syntax == 'default' ? 0 : 1, 'content': content, 'topicId': topicId};
       var result = await Api.eidtTopic(args);
       if (result) {
         if (context.mounted) {
@@ -280,17 +272,11 @@ class _CreateState extends State<Create> {
       (_formKey.currentState as FormState).save();
       // 键盘收起
       contentTextFieldNode.unfocus();
-      var args = {
-        'syntax': syntax == 'default' ? 0 : 1,
-        'content': content,
-        'topicId': topicId
-      };
+      var args = {'syntax': syntax == 'default' ? 0 : 1, 'content': content, 'topicId': topicId};
       var result = await Api.appendContent(args);
       if (result) {
         if (context.mounted) {
-          SmartDialog.showToast('发布成功',
-              displayTime: const Duration(milliseconds: 800))
-              .then((value) {
+          SmartDialog.showToast('发布成功', displayTime: const Duration(milliseconds: 800)).then((value) {
             Get.back(result: {'refresh': true});
           });
         }
@@ -319,21 +305,12 @@ class _CreateState extends State<Create> {
         title: Text(source == 'edit'
             ? '编辑主题内容'
             : source == 'append'
-            ? '增加附言'
-            : '创作新主题'),
+                ? '增加附言'
+                : '创作新主题'),
         actions: [
-          IconButton(
-              onPressed: () => modeChange(),
-              icon: const Icon(Icons.sync_alt),
-              tooltip: '正文格式'),
-          IconButton(
-              onPressed: () => onSubmit(),
-              icon: const Icon(Icons.send),
-              tooltip: '发布'),
-          if (source == 'append')
-            IconButton(
-                onPressed: () => appendDialog(),
-                icon: const Icon(Icons.info_outline_rounded)),
+          IconButton(onPressed: () => modeChange(), icon: const Icon(Icons.sync_alt), tooltip: '正文格式'),
+          IconButton(onPressed: () => onSubmit(), icon: const Icon(Icons.send), tooltip: '发布'),
+          if (source == 'append') IconButton(onPressed: () => appendDialog(), icon: const Icon(Icons.info_outline_rounded)),
           const SizedBox(width: 10),
           // if(source != 'append')
           // PopupMenuButton<SampleItem>(
@@ -374,14 +351,8 @@ class _CreateState extends State<Create> {
                   });
                 },
                 child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 20),
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(
-                                color: Theme.of(context)
-                                    .dividerColor
-                                    .withOpacity(0.2)))),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                    decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)))),
                     child: Row(
                       children: [
                         Text(
@@ -391,11 +362,7 @@ class _CreateState extends State<Create> {
                         const SizedBox(width: 20),
                         Text(
                           currentNode != null ? currentNode!.title! : '选择节点',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(
-                              color: Theme.of(context).colorScheme.primary),
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).colorScheme.primary),
                         ),
                       ],
                     )),
@@ -404,12 +371,7 @@ class _CreateState extends State<Create> {
             if (source != 'append')
               Container(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
-                decoration: BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                            color: Theme.of(context)
-                                .dividerColor
-                                .withOpacity(0.2)))),
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)))),
                 child: TextFormField(
                   autofocus: true,
                   controller: titleController,
@@ -430,100 +392,89 @@ class _CreateState extends State<Create> {
               ),
             Expanded(
               child: Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 child: syntax == 'default'
                     ? TextFormField(
-                  controller: contentController,
-                  minLines: 1,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                      hintText:
-                      source == 'append' ? '输入附言内容' : '输入正文内容（原生格式）',
-                      border: InputBorder.none),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  validator: (v) {
-                    return v!.trim().isNotEmpty ? null : "请输入正文内容";
-                  },
-                  onSaved: (val) {
-                    content = val!;
-                  },
-                )
+                        controller: contentController,
+                        minLines: 1,
+                        maxLines: null,
+                        decoration: InputDecoration(hintText: source == 'append' ? '输入附言内容' : '输入正文内容（原生格式）', border: InputBorder.none),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        validator: (v) {
+                          return v!.trim().isNotEmpty ? null : "请输入正文内容";
+                        },
+                        onSaved: (val) {
+                          content = val!;
+                        },
+                      )
                     : MarkdownTextInput(
-                      (String value) => setState(() => content = value),
-                  description,
-                  label: '请输入正文内容（markdown格式）',
-                  actions: const [
-                    MarkdownType.image,
-                    MarkdownType.bold,
-                    MarkdownType.italic,
-                    MarkdownType.link,
-                    MarkdownType.title,
-                    MarkdownType.list,
-                    MarkdownType.code,
-                    MarkdownType.blockquote,
-                    MarkdownType.separator,
-                  ],
-                  controller: mdEditController,
-                  textStyle: const TextStyle(fontSize: 16),
-                  customActions: [
-                    InkWell(
-                      onTap: () {
-                        showModalBottomSheet<void>(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            // return
-                            // SafeArea(
-                            //     child: Scaffold(
-                            //   appBar: AppBar(),
-                            //   body: MarkdownBody(
-                            //     data: description,
-                            //   ),
-                            // ));
-                            return Container(
-                              clipBehavior: Clip.hardEdge,
-                              height: MediaQuery.of(context).size.height -
-                                  kTextTabBarHeight,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(25),
-                                  topRight: Radius.circular(25),
-                                ),
-                              ),
-                              child: SafeArea(
-                                  child: Scaffold(
-                                    appBar: AppBar(
-                                      automaticallyImplyLeading: false,
-                                      title: const Text('Markdown内容预览'),
-                                      centerTitle: false,
-                                      toolbarHeight: 80,
-                                      actions: [
-                                        IconButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            icon: const Icon(Icons.close))
-                                      ],
-                                    ),
-                                    body: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 12, right: 12),
-                                      child: MarkdownBody(
-                                        data: content,
+                        (String value) => setState(() => content = value),
+                        description,
+                        label: '请输入正文内容（markdown格式）',
+                        actions: const [
+                          MarkdownType.image,
+                          MarkdownType.bold,
+                          MarkdownType.italic,
+                          MarkdownType.link,
+                          MarkdownType.title,
+                          MarkdownType.list,
+                          MarkdownType.code,
+                          MarkdownType.blockquote,
+                          MarkdownType.separator,
+                        ],
+                        controller: mdEditController,
+                        textStyle: const TextStyle(fontSize: 16),
+                        customActions: [
+                          InkWell(
+                            onTap: () {
+                              showModalBottomSheet<void>(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (BuildContext context) {
+                                  // return
+                                  // SafeArea(
+                                  //     child: Scaffold(
+                                  //   appBar: AppBar(),
+                                  //   body: MarkdownBody(
+                                  //     data: description,
+                                  //   ),
+                                  // ));
+                                  return Container(
+                                    clipBehavior: Clip.hardEdge,
+                                    height: MediaQuery.of(context).size.height - kTextTabBarHeight,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(25),
+                                        topRight: Radius.circular(25),
                                       ),
                                     ),
-                                  )),
-                            );
-                          },
-                        );
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 10, 12, 10),
-                        child: Icon(Icons.remove_red_eye),
+                                    child: SafeArea(
+                                        child: Scaffold(
+                                      appBar: AppBar(
+                                        automaticallyImplyLeading: false,
+                                        title: const Text('Markdown内容预览'),
+                                        centerTitle: false,
+                                        toolbarHeight: 80,
+                                        actions: [IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close))],
+                                      ),
+                                      body: Padding(
+                                        padding: const EdgeInsets.only(left: 12, right: 12),
+                                        child: MarkdownBody(
+                                          data: content,
+                                        ),
+                                      ),
+                                    )),
+                                  );
+                                },
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(16, 10, 12, 10),
+                              child: Icon(Icons.remove_red_eye),
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
               ),
             ),
           ],

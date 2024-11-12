@@ -10,7 +10,7 @@ import 'package:html/parser.dart';
 import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/model.dart';
-import 'package:v2ex/model/item_node.dart';
+
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
@@ -34,7 +34,7 @@ class Api {
           for (var i in childNodeEl) {
             List<String> s = i.attributes['href']!.split('/go/');
             if (s.isNotEmpty && s.length >= 2) {
-              nodeList.add(V2Node(enName: s[1], cnName: i.text));
+              nodeList.add(V2Node(name: s[1], title: i.text));
             }
           }
           postList = Utils().parsePagePostList(listEl);
@@ -90,8 +90,8 @@ class Api {
         Post item = Post.fromJson(v);
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
-        item.node.cnName = v['nodeTitle'];
-        item.node.enName = v['nodeUrl'];
+        item.node.title = v['nodeTitle'];
+        item.node.name = v['nodeUrl'];
         list.add(item);
       });
       res.success = true;
@@ -178,8 +178,8 @@ class Api {
                   username: e['member']['username'],
                 ),
                 node: V2Node(
-                  enName: e['node']['name'],
-                  cnName: e['node']['title'],
+                  name: e['node']['name'],
+                  title: e['node']['title'],
                 ),
                 contentText: e['content'],
                 contentRendered: e['content_rendered'],
@@ -195,8 +195,8 @@ class Api {
         item.postId = v['id'];
         item.member.username = v['username'];
         item.member.avatar = v['avatar'];
-        item.node.cnName = v['nodeTitle'];
-        item.node.enName = v['nodeUrl'];
+        item.node.title = v['nodeTitle'];
+        item.node.name = v['nodeUrl'];
         list.add(item);
       });
       res.success = true;
@@ -289,7 +289,7 @@ class Api {
       Match? match = regExp.firstMatch(item['title']);
       if (match != null) {
         String nodeText = match.group(0)!;
-        p.node.cnName = nodeText.replaceAll('[', '').replaceAll(']', '');
+        p.node.title = nodeText.replaceAll('[', '').replaceAll(']', '');
       }
       String? href = item['link']['href'];
       var match1 = RegExp(r'(\d+)').allMatches(href!);
@@ -374,8 +374,8 @@ class Api {
 
     var as = wrapper!.querySelectorAll('.header > a');
     if (as.isNotEmpty) {
-      post.node.cnName = as[1].text;
-      post.node.enName = as[1].attributes['href']!.replaceAll('/go/', '');
+      post.node.title = as[1].text;
+      post.node.name = as[1].attributes['href']!.replaceAll('/go/', '');
     }
 
     var header = wrapper.querySelector('.header');
