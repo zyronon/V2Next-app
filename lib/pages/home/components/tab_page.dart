@@ -20,7 +20,7 @@ class TabPageController extends GetxController {
   final BaseController home = Get.find();
   NodeItem tab;
   int pageNo = 1;
-  int totalPage = 5;
+  int totalPage = 1;
   bool isLoadingMore = false;
 
   TabPageController({required this.tab});

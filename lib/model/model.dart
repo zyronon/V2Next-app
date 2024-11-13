@@ -398,24 +398,21 @@ enum NoticeType { reply, thanks, thanksTopic, thanksReply, favTopic } // 消息�
 class MemberNoticeModel {
   int totalPage = 1; // 总页数
   int totalCount = 0; // 总条目
-  List<MemberNoticeItem> noticeList = []; // 消息列表
+  List<MemberNoticeItem> list = []; // 消息列表
   bool isEmpty = false; // 无内容
 }
 
 class MemberNoticeItem {
-  String memberId = ''; // 回复用户id
+  String memberUsername = ''; // 回复用户id
   String memberAvatar = ''; // 回复用户头像
-  String replyContent = ''; // 回复内容
-  var replyContentHtml;
-  List<String> replyMemberId = []; // 被回复id
-  String replyTime = ''; // 回复时间
-  String topicTitle = ''; // 主题标题
-  var topicTitleHtml; // 主题标题
-  int topicId = 0; // 主题id
+  String replyContentHtml = '';
+  String replyDate = ''; // 回复时间
+  String postTitle = ''; // 主题标题
+  int postId = 0; // 主题id
   String delIdOne = ''; // 删除id
   String delIdTwo = ''; // 删除id
   NoticeType noticeType = NoticeType.reply; // 消息类型 可枚举
-  String topicHref = ''; // 主题href  /t/923791#reply101
+  String postHref = ''; // 主题href  /t/923791#reply101
 }
 
 enum TabType { tab, node, recent, latest, hot, xna }

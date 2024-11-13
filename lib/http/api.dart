@@ -207,7 +207,7 @@ class Api {
 
   //获取通知
   static Future<MemberNoticeModel> getNotifications({int pageNo = 1}) async {
-    MemberNoticeModel memberNotices = MemberNoticeModel();
+    MemberNoticeModel data = MemberNoticeModel();
     List<MemberNoticeItem> noticeList = [];
 
     Response response = await Http().get('/notifications', data: {'p': pageNo});
@@ -215,60 +215,60 @@ class Api {
     List<Element> cellList = document.querySelectorAll('#notifications > .cell');
     Element? countEl = document.querySelector('#Main .box .header strong');
     if (countEl != null) {
-      memberNotices.totalCount = int.parse(countEl.text);
+      data.totalCount = int.parse(countEl.text);
     }
     Element? inputEl = document.querySelector('#Main .box .ps_container input');
     if (inputEl != null) {
       var max = inputEl.attributes['max'];
       if (max != null) {
-        memberNotices.totalPage = int.parse(max);
+        data.totalPage = int.parse(max);
       }
     }
 
     for (var i = 0; i < cellList.length; i++) {
       var aNode = cellList[i];
-      MemberNoticeItem noticeItem = MemberNoticeItem();
-      noticeItem.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
-      noticeItem.memberId = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+      MemberNoticeItem item = MemberNoticeItem();
+      item.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+      item.memberUsername = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
 
       var td2Node = aNode.querySelectorAll('tr>td')[1];
 
-      noticeItem.topicId = int.parse(td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0]);
-      noticeItem.topicTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
+      item.postId = int.parse(td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0]);
+      item.postTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
       var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
 
       if (noticeTypeStr.text!.contains('在回复')) {
-        noticeItem.noticeType = NoticeType.reply;
+        item.noticeType = NoticeType.reply;
       }
       if (noticeTypeStr.text!.contains('回复了你')) {
-        noticeItem.noticeType = NoticeType.reply;
+        item.noticeType = NoticeType.reply;
       }
       if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
-        noticeItem.noticeType = NoticeType.favTopic;
+        item.noticeType = NoticeType.favTopic;
       }
       if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
-        // noticeItem.noticeType = NoticeType.thanksTopic;
-        noticeItem.noticeType = NoticeType.thanks;
+        // item.noticeType = NoticeType.thanksTopic;
+        item.noticeType = NoticeType.thanks;
       }
       if (noticeTypeStr.text!.contains('感谢了你在主题')) {
-        // noticeItem.noticeType = NoticeType.thanksReply;
-        noticeItem.noticeType = NoticeType.thanks;
+        // item.noticeType = NoticeType.thanksReply;
+        item.noticeType = NoticeType.thanks;
       }
 
       if (td2Node.querySelector('div.payload') != null) {
-        noticeItem.replyContentHtml = td2Node.querySelector('div.payload')!.innerHtml;
+        item.replyContentHtml = td2Node.querySelector('div.payload')!.innerHtml;
       } else {
-        noticeItem.replyContentHtml = null;
+        item.replyContentHtml = '';
       }
 
-      noticeItem.replyTime = td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
+      item.replyDate = td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
       var delNum = td2Node.querySelector('a.node')!.attributes['onclick']!.replaceAll(RegExp(r"[deleteNotification( | )]"), '');
-      noticeItem.delIdOne = delNum.split(',')[0];
-      noticeItem.delIdTwo = delNum.split(',')[1];
-      noticeList.add(noticeItem);
+      item.delIdOne = delNum.split(',')[0];
+      item.delIdTwo = delNum.split(',')[1];
+      noticeList.add(item);
     }
-    memberNotices.noticeList = noticeList;
-    return memberNotices;
+    data.list = noticeList;
+    return data;
   }
 
   // 删除消息

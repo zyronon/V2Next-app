@@ -7,34 +7,55 @@ import 'package:v2ex/components/not_allow.dart';
 import 'package:v2ex/components/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 
-import '../http/api.dart';
-import '../model/model.dart';
+import '../../http/api.dart';
+import '../../model/model.dart';
 
 class NotificationController extends GetxController {
   MemberNoticeModel data = MemberNoticeModel();
   bool loading = false;
   int pageNo = 1;
+  bool isLoadingMore = false;
 
   @override
   void onInit() {
     super.onInit();
-    getData();
+    getData(isRefresh: true);
   }
 
   List<MemberNoticeItem> getList(NoticeType noticeType) {
-    return data.noticeList.where((v) => v.noticeType == noticeType).toList();
+    return data.list.where((v) => v.noticeType == noticeType).toList();
   }
 
-  Future<void> getData() async {
-    loading = true;
-    update();
-    var res = await Api.getNotifications(pageNo: pageNo);
+  getData({bool isRefresh = false}) async {
+    if (isRefresh) {
+      loading = true;
+      update();
+    }
+    MemberNoticeModel res = await Api.getNotifications(pageNo: pageNo);
+    if (isRefresh) data.list = [];
     if (pageNo == 1) {
       data = res;
-    } else {
-      data.noticeList.addAll(res.noticeList);
+    }else{
+      data.list.addAll(res.list);
     }
-    loading = false;
+    if (isRefresh) loading = false;
+    update();
+  }
+
+  Future onRefresh() async {
+    pageNo = 1;
+    isLoadingMore = false;
+    await getData(isRefresh: true);
+  }
+
+  loadMore() async {
+    if (isLoadingMore) return;
+    if (pageNo >= data.totalPage) return;
+    pageNo++;
+    isLoadingMore = true;
+    update();
+    await getData();
+    isLoadingMore = false;
     update();
   }
 }
@@ -54,10 +75,10 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
 
   Widget _buildPage(List<MemberNoticeItem> list) {
     NotificationController _ = Get.find();
-    return list.length == 0
-        ? LoadingListPage()
-        : RefreshIndicator(
-            child: ListView.separated(
+    return RefreshIndicator(
+      child: list.length == 0
+          ? LoadingListPage()
+          : ListView.separated(
               physics: AlwaysScrollableScrollPhysics(),
               itemCount: list.length,
               itemBuilder: (BuildContext context, int index) {
@@ -68,7 +89,7 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                       String noticeId = v.delIdOne;
                       String once = v.delIdTwo;
                       await Api.onDelNotice(noticeId, once);
-                      _.data.noticeList.remove(v);
+                      _.data.list.remove(v);
                       _.update();
                     });
               },
@@ -76,8 +97,8 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                 return BaseDivider();
               },
             ),
-            onRefresh: _.getData,
-          );
+      onRefresh: _.onRefresh,
+    );
   }
 
   BaseController bc = Get.find();
@@ -86,8 +107,6 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
   void initState() {
     super.initState();
   }
-
-  Future<void> onRefresh() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +134,7 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                   Expanded(
                     child: bc.isLogin
                         ? TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-                            _buildPage(_.data.noticeList),
+                            _buildPage(_.data.list),
                             _buildPage(_.getList(NoticeType.reply)),
                             _buildPage(_.getList(NoticeType.thanks)),
                             _buildPage(_.getList(NoticeType.favTopic)),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' ;
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/discover/discover.dart';
-import 'package:v2ex/pages/notifications.dart';
+import 'package:v2ex/pages/notifications/notifications.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/const_val.dart';
 

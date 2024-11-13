@@ -54,7 +54,7 @@ class _NoticeItemState extends State<NoticeItem> {
               //   回复 or 感谢回复
               // parameters = {'source': 'notice', 'floor': floor};
               // }
-              Get.toNamed('/post_detail', arguments: Post(postId: widget.noticeItem.topicId));
+              Get.toNamed('/post_detail', arguments: Post(postId: widget.noticeItem.postId));
             },
             child: Ink(
               padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
@@ -79,16 +79,16 @@ class _NoticeItemState extends State<NoticeItem> {
                     src: widget.noticeItem.memberAvatar,
                     diameter: 30.w,
                     onTap: () => Get.toNamed('/member', parameters: {
-                          'id': widget.noticeItem.memberId,
+                          'id': widget.noticeItem.memberUsername,
                         })),
                 SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(widget.noticeItem.memberId),
+                    Text(widget.noticeItem.memberUsername),
                     SizedBox(height: 1.5.w),
-                    if (widget.noticeItem.replyTime.isNotEmpty)
-                      Text(widget.noticeItem.replyTime,
+                    if (widget.noticeItem.replyDate.isNotEmpty)
+                      Text(widget.noticeItem.replyDate,
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Colors.grey,
@@ -127,7 +127,7 @@ class _NoticeItemState extends State<NoticeItem> {
             ],
           ),
         SizedBox(height: 6.w),
-        if (widget.noticeItem.topicTitle.isNotEmpty)
+        if (widget.noticeItem.postTitle.isNotEmpty)
           Container(
             alignment: Alignment.centerLeft,
             // decoration: BoxDecoration(
@@ -137,7 +137,7 @@ class _NoticeItemState extends State<NoticeItem> {
             // margin: EdgeInsets.only(top: 2.w, bottom: 10.w, right: 10.w),
             // padding: EdgeInsets.all(10.w),
             child: Text(
-              widget.noticeItem.topicTitle,
+              widget.noticeItem.postTitle,
               style: TextStyle(color: Color(0xff2395f1), decoration: TextDecoration.underline, decorationColor: Color(0xff2395f1)),
             ),
           ),

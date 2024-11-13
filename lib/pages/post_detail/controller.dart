@@ -107,7 +107,11 @@ class PostDetailController extends GetxController {
     update();
 
     var res = await Api.getPostDetail(Get.arguments.postId);
-    res.member.avatar = post.member.avatar;
+    if (post.member.avatar.isEmpty) {
+      res.member.avatar = res.member.avatarLarge;
+    } else {
+      res.member.avatar = post.member.avatar;
+    }
     post = res;
     // post = await Api.getPostDetail('825072');
     loading = false;
@@ -128,7 +132,7 @@ class PostDetailController extends GetxController {
     scrollController.dispose();
   }
 
-  updateAndSave(){
+  updateAndSave() {
     update();
     final postDao = bc.database.postDao;
     postDao.updatePost(post, post.replyList);
