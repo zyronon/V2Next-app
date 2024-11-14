@@ -232,6 +232,7 @@ class Member {
   String username;
   String avatarLarge;
   String balance;
+  String sign;
   bool needAuth2fa;
   Map tagMap;
 
@@ -244,6 +245,7 @@ class Member {
     this.username = 'default',
     this.avatarLarge = '',
     this.balance = '',
+    this.sign = '',
     this.actionCounts = const [0, 0, 0],
     this.needAuth2fa = false,
     Map? tagMap,
@@ -255,6 +257,7 @@ class Member {
         username = json['username'] ?? 'default',
         avatarLarge = json['avatarLarge'] ?? '',
         balance = json['balance'] ?? '',
+        sign = json['sign'] ?? '',
         needAuth2fa = json['needAuth2fa'] ?? false,
         tagMap = json['tagMap'] ?? {},
         actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0];
@@ -266,6 +269,7 @@ class Member {
       'username': username,
       'avatarLarge': avatarLarge,
       'balance': balance,
+      'sign': sign,
       'actionCounts': actionCounts,
       'needAuth2fa': needAuth2fa,
       'tagMap': tagMap,
@@ -549,5 +553,6 @@ enum StoreKeys {
   config,
   currentMember,
   tabMap,
-  signDate
+  signDate,
+  allNodes
 }

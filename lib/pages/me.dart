@@ -61,7 +61,8 @@ class MePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(elevation: 0, toolbarHeight: 0),
       body: GetBuilder<BaseController>(builder: (_) {
-        return Container(
+        return SingleChildScrollView(
+            child: Container(
           padding: EdgeInsets.all(20.w),
           color: Colors.grey[100],
           child: Column(
@@ -147,6 +148,29 @@ class MePage extends StatelessWidget {
                             if (!Utils.checkIsLogin()) return;
                             Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
                           }),
+                      SizedBox(height: 10.w),
+                      Divider(height: 1.w, color: Colors.grey[200]),
+                      SizedBox(height: 10.w),
+                      InkWell(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(children: [
+                                Icon(Icons.event_available),
+                                SizedBox(width: 10.w),
+                                Text('签到', style: TextStyle(fontSize: 15.sp)),
+                              ]),
+                              Row(children: [
+                                if (_.member.sign.isNotEmpty) Text(_.member.sign, style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
+                                Icon(Icons.keyboard_arrow_right, color: Colors.grey),
+                              ])
+                            ],
+                          ),
+                          onTap: () {
+                            if (!Utils.checkIsLogin()) return;
+                            Get.to(BaseWebView(url: 'https://www.v2ex.com/mission/daily'), transition: Transition.cupertino);
+                          }),
                     ],
                   ),
                   null),
@@ -214,7 +238,7 @@ class MePage extends StatelessWidget {
                   ]))
             ],
           ),
-        );
+        ));
       }),
     );
   }

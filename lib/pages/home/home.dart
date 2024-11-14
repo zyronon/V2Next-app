@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     // var allItems = await bc.database.select(bc.database.dbReply).get();
     // print('items in database: ${allItems.length}');
     BaseController c = Get.find();
-    c.initStorage();
+    c.initData();
     // Api.pullOnce();
     // c.initStorage();
     // Http().setCookie();

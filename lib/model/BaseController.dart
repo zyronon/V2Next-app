@@ -41,6 +41,7 @@ class BaseController extends GetxController {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);
+          LoginApi.sign();
         }
       } else {
         setUserinfo({'member': Member(), 'uc': config['default']});

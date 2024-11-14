@@ -346,35 +346,38 @@ class LoginApi {
 
   static sign() async {
     String timeNow = '${DateTime.now().toUtc().year}/${DateTime.now().toUtc().month}/${DateTime.now().toUtc().day}'; // 当前 UTC-0 时间（V2EX 按这个时间的）
-
     String timeOld = GStorage().getSignDate();
     if (timeOld.isEmpty || timeOld != timeNow) {
-      Http().get('/mission/daily').then((r) {
+      Http().get('/mission/daily').then((r) async {
         Document document = parse(r.data);
         var item = document.querySelector('input[value^="领取"]');
         if (item != null) {
-          var once = Utils.getOnce(document);
-          String url = '/mission/daily/redeem?${once}';
-          Http().get(url).then((r) {
+          var once = await Utils.getOnce(document);
+          LoginDio().get('/mission/daily/redeem?once=${once}').then((r) {
             document = parse(r.data);
-            if (html!.contains('li.fa.fa-ok-sign')) {
+            item = document.querySelector('li.fa.fa-ok-sign');
+            if (item != null) {
               RegExp loginDaysRegExp = RegExp(r'已连续登录 (\d+?) 天');
-              String? loginDays = loginDaysRegExp.firstMatch(html)?.group(0);
-              window.localStorage['menu_clockInTime'] = timeNow; // 写入签到时间以供后续比较
-              print('[V2Next] 自动签到完成！');
-              if (qiandao != null) {
-                qiandao.text = '自动签到完成！$loginDays';
-                qiandao.href = 'javascript:void(0);';
+              item = document.querySelector('#Main');
+              if (item != null) {
+                String? loginDays = loginDaysRegExp.firstMatch(item!.text)?.group(0);
+                BaseController.to.member.sign = loginDays!;
+                print('[V2Next] ！$loginDays');
               }
+              GStorage().setSignDate(timeNow);
+              print('[V2Next] 自动签到完成！');
+              BaseController.to.member.sign = '已签到';
             } else {
               print('[V2Next] 自动签到失败！请关闭其他插件或脚本。如果连续几天都签到失败，请联系作者解决！');
-              if (qiandao != null) qiandao.text = '自动签到失败！请尝试手动签到！';
             }
           });
         } else {
+          BaseController.to.member.sign = '已签到';
           GStorage().setSignDate(timeNow);
         }
       });
+    }else{
+      BaseController.to.member.sign = '已签到';
     }
   }
 }

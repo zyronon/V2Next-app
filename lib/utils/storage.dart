@@ -142,7 +142,7 @@ class GStorage {
 
   double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
 
-  setSignDate(double value) => _box.write(StoreKeys.signDate.toString(), value);
+  setSignDate(String value) => _box.write(StoreKeys.signDate.toString(), value);
 
   String getSignDate() => _box.read<String>(StoreKeys.signDate.toString()) ?? '';
 }
