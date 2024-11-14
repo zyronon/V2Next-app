@@ -63,10 +63,11 @@ class Const {
 
   static List<NodeItem> defaultTabList = [
     new NodeItem(title: '最热', name: 'hot', type: TabType.hot),
-    new NodeItem(title: '沙盒', name: 'sandbox', type: TabType.node),
-    new NodeItem(title: '水深火热', name: 'flamewar', type: TabType.node),
+    new NodeItem(title: '最近', name: 'recent', type: TabType.recent),
     new NodeItem(title: '最新', name: 'new', type: TabType.latest),
     new NodeItem(title: '全部', name: 'all', type: TabType.tab),
+    new NodeItem(title: '沙盒', name: 'sandbox', type: TabType.node),
+    new NodeItem(title: '水深火热', name: 'flamewar', type: TabType.node),
     new NodeItem(title: '技术', name: 'tech', type: TabType.tab),
     new NodeItem(title: '创意', name: 'creative', type: TabType.tab),
     new NodeItem(title: '好玩', name: 'play', type: TabType.tab),

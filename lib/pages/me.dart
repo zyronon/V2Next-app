@@ -74,7 +74,7 @@ class MePage extends StatelessWidget {
                     Row(
                       children: [
                         _.member.avatar.isNotEmpty
-                            ? BaseAvatar(src: _.member.avatar, diameter: 70.r, radius: 100.r)
+                            ? BaseAvatar(user: _.member, diameter: 70.r, radius: 100.r)
                             : Container(
                                 child: Image.asset(
                                   'assets/images/user.png',

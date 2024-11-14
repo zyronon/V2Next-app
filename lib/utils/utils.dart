@@ -49,32 +49,6 @@ class Utils {
     return email;
   }
 
-  static openURL(aUrl) async {
-    bool linkOpenType = GStorage().getLinkOpenInApp();
-    if (!linkOpenType) {
-      // 1. openWithSystemBrowser
-      try {
-        await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
-      } catch (err) {
-        SmartDialog.showToast(err.toString());
-      }
-    } else {
-      // 2. openWithAppBrowser
-      try {
-        await ChromeSafariBrowser().open(url: WebUri(aUrl));
-      } catch (err) {
-        // SmartDialog.showToast(err.toString());
-        // https://github.com/guozhigq/flutter_v2ex/issues/49
-        GStorage().setLinkOpenInApp(false);
-        try {
-          await InAppBrowser.openWithSystemBrowser(url: WebUri(aUrl));
-        } catch (err) {
-          SmartDialog.showToast('openURL: $err');
-        }
-      }
-    }
-  }
-
   static Map<String, dynamic> parseReplyContent(String str) {
     if (str.isEmpty) return {};
 
@@ -632,8 +606,8 @@ class Utils {
 
   static MemberNoticeItem parseNoticeItem(Element aNode) {
     MemberNoticeItem item = MemberNoticeItem();
-    item.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
-    item.memberUsername = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+    item.member.avatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+    item.member.username = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
 
     var td2Node = aNode.querySelectorAll('tr>td')[1];
 

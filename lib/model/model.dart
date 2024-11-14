@@ -290,13 +290,13 @@ class V2Node {
   // fromJson 方法
   V2Node.fromJson(Map<String, dynamic> json)
       : title = json['title'] ?? '',
-        name = json['url'] ?? '';
+        name = json['name'] ?? '';
 
   // toJson 方法
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'url': name,
+      'name': name,
     };
   }
 }
@@ -409,8 +409,7 @@ class MemberNoticeModel {
 }
 
 class MemberNoticeItem {
-  String memberUsername = ''; // 回复用户id
-  String memberAvatar = ''; // 回复用户头像
+  Member member = Member();
   String replyContentHtml = '';
   String replyDate = ''; // 回复时间
   String postTitle = ''; // 主题标题
@@ -525,24 +524,11 @@ class LoginDetailModel {
 }
 
 enum StoreKeys {
-  token,
-  userInfo,
-  loginStatus,
   once,
-  replyContent,
-  replyItem,
   statusBarHeight,
   themeType,
-  signStatus,
-  nodes,
-  linkOpenInApp,
-  expendAppBar,
+  nodeGroup,
   noticeOn,
-  autoSign,
-  eightQuery,
-  globalFs,
-  htmlFs,
-  replyFs,
   tabs,
   autoUpdate,
   highlightOp,
@@ -554,5 +540,6 @@ enum StoreKeys {
   currentMember,
   tabMap,
   signDate,
-  allNodes
+  allNodes,
+  searchList,
 }

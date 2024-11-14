@@ -76,16 +76,14 @@ class _NoticeItemState extends State<NoticeItem> {
             Row(
               children: <Widget>[
                 BaseAvatar(
-                    src: widget.noticeItem.memberAvatar,
-                    diameter: 30.w,
-                    onTap: () => Get.toNamed('/member', parameters: {
-                          'id': widget.noticeItem.memberUsername,
-                        })),
+                  diameter: 30.w,
+                  user: widget.noticeItem.member,
+                ),
                 SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(widget.noticeItem.memberUsername),
+                    Text(widget.noticeItem.member.username),
                     SizedBox(height: 1.5.w),
                     if (widget.noticeItem.replyDate.isNotEmpty)
                       Text(widget.noticeItem.replyDate,

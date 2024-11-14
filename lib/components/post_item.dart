@@ -31,7 +31,11 @@ class PostItem extends StatelessWidget {
                   if (tab.type != TabType.latest)
                     Padding(
                       padding: EdgeInsets.only(right: 10.w),
-                      child: BaseAvatar(src: item.member.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
+                      child: BaseAvatar(
+                        diameter: bc.fontSize * 1.6,
+                        radius: bc.fontSize * 0.25,
+                        user: item.member,
+                      ),
                     ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

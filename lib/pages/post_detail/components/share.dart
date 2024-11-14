@@ -45,7 +45,7 @@ class PostShare extends StatelessWidget {
         width: 1.sw,
         decoration: BoxDecoration(color: Colors.white, borderRadius: Const.borderRadiusWidget, border: Border.all(color: isShare ? Colors.transparent : Const.line2)),
         margin: EdgeInsets.all(isShare ? 0 : 4.w),
-        padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: isShare ? 70.w : 10.w, top: isShare ? 40.w : 20.w),
+        padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 10.w, top: 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -89,7 +89,7 @@ class PostShare extends StatelessWidget {
                   ),
                   child: CommonHtml(html: ctrl.post.contentRendered)),
             ] else ...[
-              Text('V2EX回复',style: TextStyle(fontSize: 20.w,fontWeight: FontWeight.bold)),
+              Text('V2EX回复', style: TextStyle(fontSize: 20.w, fontWeight: FontWeight.bold)),
               SizedBox(height: 20.w),
               Container(
                 decoration: BoxDecoration(
@@ -128,10 +128,10 @@ class PostShare extends StatelessWidget {
               ),
               SizedBox(height: 40.w),
             ],
-            SizedBox(height: 10.w),
+            SizedBox(height: 20.w),
             Center(
                 child: Text(
-              '本内容由“V2Next”自动生成，并不代表同意其观点或证实其描述',
+              '本内容由 “V2Next” App分享生成，并不代表同意其观点或证实其描述',
               style: TextStyle(color: Colors.grey, fontSize: 10.sp),
             )),
             SizedBox(height: 10.w),

@@ -10,34 +10,10 @@ class GStorage {
 
   factory GStorage() => _storage;
 
-  // setToken, getToken
-  setToken(String token) => _box.write(StoreKeys.token.toString(), token);
-
-  String getToken() => _box.read<String>(StoreKeys.token.toString())!;
-
-  // 用户信息
-  setUserInfo(Map info) => _box.write(StoreKeys.userInfo.toString(), info);
-
-  Map getUserInfo() => _box.read<Map>(StoreKeys.userInfo.toString()) ?? {};
-
-  // 登陆状态
-  setLoginStatus(bool status) => _box.write(StoreKeys.loginStatus.toString(), status);
-
-  bool getLoginStatus() => _box.read<bool>(StoreKeys.loginStatus.toString()) ?? false;
-
   // once
   setOnce(int once) => _box.write(StoreKeys.once.toString(), once);
 
   int getOnce() => _box.read<int>(StoreKeys.once.toString()) ?? 0;
-
-  // 回复内容
-  setReplyContent(String content) => _box.write(StoreKeys.replyContent.toString(), content);
-
-  String getReplyContent() => _box.read<String>(StoreKeys.replyContent.toString()) ?? '';
-
-  setReplyItem(Reply item) => _box.write(StoreKeys.replyItem.toString(), item);
-
-  Reply getReplyItem() => _box.read<Reply>(StoreKeys.replyItem.toString()) ?? Reply();
 
   setStatusBarHeight(num height) => _box.write(StoreKeys.statusBarHeight.toString(), height);
 
@@ -57,71 +33,25 @@ class GStorage {
     return f;
   }
 
-  // 签到状态
-  setSignStatus(String date) => _box.write(StoreKeys.signStatus.toString(), date);
+  // 节点地图信息
+  setNodeGroup(List data) => _box.write(StoreKeys.nodeGroup.toString(), data);
 
-  String getSignStatus() => _box.read<String>(StoreKeys.signStatus.toString()) ?? '';
-
-  // 节点信息
-  setNodes(List data) => _box.write(StoreKeys.nodes.toString(), data);
-
-  List getNodes() => _box.read<List>(StoreKeys.nodes.toString()) ?? [];
+  List getNodeGroup() => _box.read<List>(StoreKeys.nodeGroup.toString()) ?? [];
 
   // 所有节点信息
   setAllNodes(List data) => _box.write(StoreKeys.allNodes.toString(), data);
 
   List getAllNodes() => _box.read<List>(StoreKeys.allNodes.toString()) ?? [];
 
-  // 链接打开方式 默认应用内打开
-  setLinkOpenInApp(bool value) => _box.write(StoreKeys.linkOpenInApp.toString(), value);
+  // 搜索历史
+  setSearchList(List data) => _box.write(StoreKeys.searchList.toString(), data);
 
-  bool getLinkOpenInApp() => _box.read<bool>(StoreKeys.linkOpenInApp.toString()) ?? true;
-
-  // 拓展 appBar
-  setExpendAppBar(bool value) => _box.write(StoreKeys.expendAppBar.toString(), value);
-
-  bool getExpendAppBar() => _box.read<bool>(StoreKeys.expendAppBar.toString()) ?? false;
+  List<String> getSearchList() => List<String>.from(_box.read(StoreKeys.searchList.toString()) ?? []);
 
   // 消息通知
   setNoticeOn(bool value) => _box.write(StoreKeys.noticeOn.toString(), value);
 
   bool getNoticeOn() => _box.read<bool>(StoreKeys.noticeOn.toString()) ?? true;
-
-  // 自动签到
-  setAutoSign(bool value) => _box.write(StoreKeys.autoSign.toString(), value);
-
-  bool getAutoSign() => _box.read<bool>(StoreKeys.autoSign.toString()) ?? true;
-
-  setEightQuery(bool value) => _box.write(StoreKeys.eightQuery.toString(), value);
-
-  bool getEightQuery() => _box.read<bool>(StoreKeys.eightQuery.toString()) ?? false;
-
-  // 全局字体大小
-  setGlobalFs(double value) => _box.write(StoreKeys.globalFs.toString(), value);
-
-  double getGlobalFs() => _box.read<double>(StoreKeys.globalFs.toString()) ?? 14;
-
-  // html字体大小
-  setHtmlFs(double value) => _box.write(StoreKeys.htmlFs.toString(), value);
-
-  double getHtmlFs() => _box.read<double>(StoreKeys.htmlFs.toString()) ?? 15;
-
-  // 回复字体
-  setReplyFs(double value) => _box.write(StoreKeys.replyFs.toString(), value);
-
-  double getReplyFs() => _box.read<double>(StoreKeys.replyFs.toString()) ?? 14;
-
-  // 首页tabs
-  // setTabs(List<TabModel> value) => _box.write(StoreKeys.tabs.toString(), value);
-  //
-  // List<TabModel> getTabs() {
-  //   List tabs = _box.read<List>(StoreKeys.tabs.toString()) ?? Strings.tabs;
-  //   List<TabModel> list = [];
-  //   for (var i in tabs) {
-  //     list.add(i is TabModel ? i : TabModel.fromJson(i));
-  //   }
-  //   return list;
-  // }
 
   // 自动更新
   setAutoUpdate(bool value) => _box.write(StoreKeys.autoUpdate.toString(), value);

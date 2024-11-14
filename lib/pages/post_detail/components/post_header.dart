@@ -5,6 +5,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/pages/post_detail/components/user_tags.dart';
 
 import '../controller.dart';
 
@@ -34,7 +35,7 @@ class PostHeader extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         verticalDirection: VerticalDirection.down,
                         children: [
-                          BaseAvatar(src: ctrl.post.member.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
+                          BaseAvatar(user: ctrl.post.member, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
                           Expanded(
                               child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -81,6 +82,7 @@ class PostHeader extends StatelessWidget {
                         )
                     ],
                   ),
+                  UserTags(username: ctrl.post.member.username),
                   Padding(
                     padding: EdgeInsets.only(top: 6.w, bottom: 6.w),
                     child: SelectableText(

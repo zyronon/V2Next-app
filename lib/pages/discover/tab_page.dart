@@ -46,7 +46,6 @@ class TabPageController extends GetxController {
     isLoadingMore = false;
     await getData(isRefresh: true);
   }
-
 }
 
 class TabPage extends StatefulWidget {
@@ -83,13 +82,16 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                       child: Container(
                         padding: EdgeInsets.only(top: Const.padding, left: Const.padding, right: Const.padding, bottom: Const.padding),
                         child: Row(children: [
-                          Expanded(child: Row(children: [
-                            BaseAvatar(src: v.member.avatar, diameter: 30.w, radius: 6.r),
-                            SizedBox(width: 10.w),
-                            Expanded(child: Text(v.title)),
-                          ],)),
+                          Expanded(
+                              child: Row(
+                            children: [
+                              BaseAvatar(user: v.member, diameter: 30.w, radius: 6.r),
+                              SizedBox(width: 10.w),
+                              Expanded(child: Text(v.title)),
+                            ],
+                          )),
                           SizedBox(width: 15),
-                          Text(v.replyCount.toString(),style: TextStyle(color: Colors.grey,fontSize: 11)),
+                          Text(v.replyCount.toString(), style: TextStyle(color: Colors.grey, fontSize: 11)),
                         ]),
                       ),
                       onTap: () => Get.toNamed('/post_detail', arguments: v));

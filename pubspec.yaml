@@ -111,9 +111,9 @@ dependencies:
   expandable: ^5.0.1
   # translator: ^0.1.7
   flutter_markdown: ^0.6.14
+  # 数据保存
   drift: ^2.21.0
   drift_flutter: ^0.2.1
-
 
 dev_dependencies:
   flutter_test:

@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios), onPressed: () => Get.back(result: {'loginStatus': 'cancel'})),
-        actions: [TextButton(onPressed: () => Utils.openURL('https://www.v2ex.com/signup'), child: const Text('注册账号')), const SizedBox(width: 12)],
+        actions: [TextButton(onPressed: () => Utils.openBrowser('https://www.v2ex.com/signup'), child: const Text('注册账号')), const SizedBox(width: 12)],
       ),
       body: GetX<Controller>(
           init: Controller(),
@@ -263,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               TextButton(
-                                onPressed: () => Utils.openURL('https://www.v2ex.com/forgot'),
+                                onPressed: () => Utils.openBrowser('https://www.v2ex.com/forgot'),
                                 child: Text(
                                   '忘记密码？',
                                   style: TextStyle(color: Colors.grey[600]),

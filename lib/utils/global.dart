@@ -54,15 +54,6 @@ class Global {
     } catch (err) {
       print('GetStorage err: ${err.toString()}');
     }
-    // Hive初始化 历史浏览box
-    // await initHive();
-    // Dio 初始化
-    // await Http().setCookie();
-    // 自动签到
-    var userInfo = GStorage().getUserInfo();
-    if (userInfo.isNotEmpty && GStorage().getAutoSign()) {
-      // DioRequestWeb.dailyMission();
-    }
     // 高帧率滚动性能优化
     // GestureBinding.instance.resamplingEnabled = true;
   }

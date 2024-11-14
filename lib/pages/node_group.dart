@@ -20,7 +20,7 @@ class NodeGroupPage extends StatefulWidget {
 }
 
 class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateMixin {
-  List nodesList = GStorage().getNodes().isNotEmpty ? GStorage().getNodes() : [];
+  List nodesList = GStorage().getNodeGroup().isNotEmpty ? GStorage().getNodeGroup() : [];
 
   BaseController bc = BaseController.to;
   late final Axis scrollDirection;
@@ -46,14 +46,17 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
     }
     setState(() {});
     //显示出来后，再请求最新数据
-    var list = await Api.getNodeMap();
-    if (nodesList[0]['name'] == '已收藏') {
-      nodesList.removeRange(1, nodesList.length);
-      nodesList.addAll(list);
-    } else {
-      nodesList = list;
+    List list = await Api.getNodeMap();
+    if (list.isNotEmpty) {
+      if (nodesList[0]['name'] == '已收藏') {
+        nodesList.removeRange(1, nodesList.length);
+        nodesList.addAll(list);
+      } else {
+        nodesList = list;
+      }
+      setState(() {});
     }
-    setState(() {});
+
     if (bc.isLogin) {
       var res = await Api.getFavNodes();
       if (res.isNotEmpty) {
@@ -64,7 +67,7 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
       }
       setState(() {});
     }
-    GStorage().setNodes(nodesList);
+    GStorage().setNodeGroup(nodesList);
   }
 
   allNodes(e) {

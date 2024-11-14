@@ -27,7 +27,7 @@ class Api {
       case TabType.tab:
         if (pageNo == 1) {
           //用pc网站，因为要取子tab。不取子tab可以用mobile网站
-          response = await Http().get('/', data: {'tab': tab.name}, isMobile: false);
+          response = await Http().get('/', data: {'tab': tab.name});
           Document document = parse(response.data);
           List<Element> listEl = document.querySelectorAll("div[class='cell item']");
           List<Element> childNodeEl = document.querySelectorAll("#SecondaryTabs > a");
@@ -41,6 +41,18 @@ class Api {
         }
         res.success = true;
         res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
+        break;
+      case TabType.recent:
+        response = await Http().get('/recent', data: {'p': pageNo});
+        Document document = parse(response.data);
+        List<Element> listEl = document.querySelectorAll("div[class='cell item']");
+        postList = Utils.parsePagePostList(listEl);
+        var totalPageNode = document.querySelectorAll('.ps_container .page_normal');
+        if (totalPageNode.isNotEmpty) {
+          pageNo = int.parse(totalPageNode.last.text);
+        }
+        res.success = true;
+        res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': pageNo};
         break;
       case TabType.node:
         NodeItem? s = await getNodePageInfo(name: tab.name, pageNo: pageNo);
@@ -661,7 +673,7 @@ class Api {
   }
 
   // 获取节点地图
-  static Future getNodeMap() async {
+  static Future<List> getNodeMap() async {
     Response response = await Http().get('/');
     List<Map<dynamic, dynamic>> nodesList = [];
     var document = parse(response.data);
@@ -671,9 +683,7 @@ class Api {
       nodesBox = document.querySelector('#Main')!.children.last;
     }
     if (nodesBox != null) {
-      Response response = await Http().get(Const.allNodes);
-      List<dynamic> allList = response.data.map((e) => NodeItem.fromJson(e)).toList();
-      GStorage().setAllNodes(allList);
+      List<NodeItem> allList = await getAllNode();
       nodesBox.children.removeAt(0);
       var nodeTd = nodesBox.children;
       for (var i in nodeTd) {
@@ -706,6 +716,14 @@ class Api {
       }
     }
     return nodesList;
+  }
+
+  // 获取所有节点
+  static Future<List<NodeItem>> getAllNode() async {
+    Response response = await Http().get(Const.allNodes);
+    GStorage().setAllNodes(response.data);
+    List<NodeItem> allList = response.data.map((e) => NodeItem.fromJson(e)).toList();
+    return allList;
   }
 
   // 获取收藏的节点

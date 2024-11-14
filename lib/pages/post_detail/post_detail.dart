@@ -483,6 +483,30 @@ class PostDetailPageState extends State<PostDetailPage> {
         _buildReplyMenuOptionWrapper(
             child: Column(children: [
           _buildReplyMenuOption(
+              text: '标签管理',
+              icon: Icons.tag,
+              onTap: () {
+                if (!bc.isLogin) {
+                  Get.toNamed('/login');
+                  return;
+                }
+                Get.back();
+                Future.delayed(Duration(milliseconds: 300), () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => TagManagerModal(
+                      tags: bc.getTags(ctrl.post.member.username),
+                      onSave: (e) {
+                        print(e);
+                        bc.setTags(ctrl.post.member.username, e);
+                        ctrl.update();
+                      },
+                    ),
+                  );
+                });
+              }),
+          _buildLine(),
+          _buildReplyMenuOption(
               text: '忽略',
               icon: TDIcons.browse_off,
               onTap: () {

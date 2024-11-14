@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/components/user_tag.dart';
+import 'package:v2ex/pages/post_detail/components/user_tag.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/pages/post_detail/components/user_tags.dart';
 import 'package:v2ex/utils/const_val.dart';
 
 import '../../../components/base_avatar.dart';
@@ -77,7 +78,7 @@ class ReplyItem extends StatelessWidget {
                 child: Row(
                   children: [
                     // if ((item.level == 0 && type == 0) || type == 1)
-                    BaseAvatar(src: item.avatar, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
+                    BaseAvatar(src: item.avatar, username: item.username, diameter: bc.fontSize * 1.6, radius: bc.fontSize * 0.25),
                     SizedBox(width: 10.w),
                     Expanded(
                         child: Column(
@@ -157,7 +158,7 @@ class ReplyItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
           ),
-          _buildTagList(),
+          UserTags(username: item.username),
           Padding(
             padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),
             child: SizedBox(

@@ -11,7 +11,6 @@ import 'package:v2ex/utils/const_val.dart';
 
 import 'database.dart';
 
-
 class BaseController extends GetxController {
   final database = AppDatabase();
   List<NodeItem> tabList = <NodeItem>[].obs;
@@ -33,7 +32,9 @@ class BaseController extends GetxController {
   void onInit() async {
     super.onInit();
     initStorage();
-    initData();
+    Future.delayed(Duration(seconds: 1), () {
+      initData();
+    });
   }
 
   initData() async {
@@ -41,7 +42,9 @@ class BaseController extends GetxController {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);
-          LoginApi.sign();
+          Future.delayed(Duration(seconds: 5), () {
+            LoginApi.sign();
+          });
         }
       } else {
         setUserinfo({'member': Member(), 'uc': config['default']});
@@ -68,7 +71,8 @@ class BaseController extends GetxController {
     if (r3 != null) {
       r3 = jsonDecode(r3);
       List<NodeItem> list = (r3 as List).map((v) => NodeItem.fromJson(v)).toList();
-      setTabMap(list);
+      // setTabMap(list);
+      setTabMap(Const.defaultTabList);
     } else {
       setTabMap(Const.defaultTabList);
     }

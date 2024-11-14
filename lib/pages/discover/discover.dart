@@ -22,6 +22,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
     new NodeItem(title: '7天最热', name: '7d', type: TabType.tab),
     new NodeItem(title: '30天最热', name: '30d', type: TabType.tab),
   ];
+  late TextEditingController editingController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +36,13 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
             child: Column(
               children: [
                 TDSearchBar(
+                  controller: editingController,
                   placeHolder: '搜索',
                   onSubmitted: (val) {
                     Get.toNamed('/search', arguments: val);
+                    Future.delayed(Duration(seconds: 1),(){
+                      editingController.text = '';
+                    });
                   },
                 ),
                 Expanded(
