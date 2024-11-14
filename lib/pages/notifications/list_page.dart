@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_divider.dart';
@@ -62,8 +61,9 @@ class NotificationController extends GetxController {
 class ListPage extends StatelessWidget {
   List list = [];
   Function onDel;
+  RefreshCallback onRefresh;
 
-  ListPage({required this.list, required this.onDel});
+  ListPage({required this.list, required this.onDel, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class ListPage extends StatelessWidget {
                 return BaseDivider();
               },
             ),
-      onRefresh: _.onRefresh,
+      onRefresh: onRefresh,
     );
   }
 }
