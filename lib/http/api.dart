@@ -832,12 +832,13 @@ class Api {
     }
   }
 
-  static pullOnce() async {
+  static Future<Result> pullOnce() async {
     Response response = await Http().get('/poll_once');
     try {
       if (response.statusCode == 200) {
-        GStorage().setOnce(int.parse(response.data));
-        return Result(success: true);
+        var once = int.parse(response.data);
+        GStorage().setOnce(once);
+        return Result(success: true, data: once);
       }
     } catch (e) {
       return Result(success: false);

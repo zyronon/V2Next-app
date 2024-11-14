@@ -34,9 +34,7 @@ class TabHotPageController extends GetxController {
   void onInit() async {
     super.onInit();
     getList(isRefresh: true);
-    if (tab.type == TabType.hot) {
-      dateList = await Api.getV2HotDateMap();
-    }
+    dateList = await Api.getV2HotDateMap();
   }
 
   String get currentDate {
@@ -164,6 +162,7 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
           ),
         ),
       )));
+
       slivers.add(SliverList(
           delegate: SliverChildBuilderDelegate(
         (context, index) {

@@ -11,36 +11,6 @@ import 'package:v2ex/utils/const_val.dart';
 
 import 'database.dart';
 
-enum StoreKeys {
-  token,
-  userInfo,
-  loginStatus,
-  once,
-  replyContent,
-  replyItem,
-  statusBarHeight,
-  themeType,
-  signStatus,
-  nodes,
-  linkOpenInApp,
-  expendAppBar,
-  noticeOn,
-  autoSign,
-  eightQuery,
-  globalFs,
-  htmlFs,
-  replyFs,
-  tabs,
-  autoUpdate,
-  highlightOp,
-  tempFs,
-  sideslip,
-  dragOffset,
-  displayModeType,
-  config,
-  currentMember,
-  tabMap
-}
 
 class BaseController extends GetxController {
   final database = AppDatabase();
@@ -63,6 +33,7 @@ class BaseController extends GetxController {
   void onInit() async {
     super.onInit();
     initStorage();
+    initData();
   }
 
   initData() async {
@@ -94,7 +65,6 @@ class BaseController extends GetxController {
     }
     var r3 = _box.read(StoreKeys.tabMap.toString());
     if (r3 != null) {
-      print(r3);
       r3 = jsonDecode(r3);
       List<NodeItem> list = (r3 as List).map((v) => NodeItem.fromJson(v)).toList();
       setTabMap(list);
@@ -102,7 +72,6 @@ class BaseController extends GetxController {
       setTabMap(Const.defaultTabList);
     }
     update();
-    initData();
   }
 
   setUserinfo(Map val) {

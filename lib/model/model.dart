@@ -477,7 +477,7 @@ class NodeItem {
     parentNodeName = json['parent_node_name'] ?? '';
     titleAlternative = json['title_alternative'] ?? '';
     type = TabType.values.firstWhere(
-      (e) => e.toString() == 'TabType.${json['type'] ?? ''}',
+      (e) => e.toString() == json['type'],
       orElse: () => TabType.tab,
     );
   }
@@ -504,7 +504,6 @@ class NodeItem {
   }
 }
 
-
 class LoginDetailModel {
   String usernameHash = ''; // 用户名key 随机
   String pwdHash = ''; // 用户密码key 随机
@@ -521,3 +520,34 @@ class LoginDetailModel {
   bool twoFa = false;
 }
 
+enum StoreKeys {
+  token,
+  userInfo,
+  loginStatus,
+  once,
+  replyContent,
+  replyItem,
+  statusBarHeight,
+  themeType,
+  signStatus,
+  nodes,
+  linkOpenInApp,
+  expendAppBar,
+  noticeOn,
+  autoSign,
+  eightQuery,
+  globalFs,
+  htmlFs,
+  replyFs,
+  tabs,
+  autoUpdate,
+  highlightOp,
+  tempFs,
+  sideslip,
+  dragOffset,
+  displayModeType,
+  config,
+  currentMember,
+  tabMap,
+  signDate
+}

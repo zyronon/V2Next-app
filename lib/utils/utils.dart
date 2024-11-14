@@ -609,21 +609,25 @@ class Utils {
     }
   }
 
-  static getOnce(Document document) async {
+  static Future<int> getOnce(Document document) async {
     var menuBodyNode = document.querySelector("#Top .tools");
     var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
     var loginOutHref = loginOutNode.attributes['onclick']!;
     RegExp regExp = RegExp(r'\d{3,}');
     Iterable<Match> matches = regExp.allMatches(loginOutHref);
     if (matches.length == 0) {
-      await Api.pullOnce();
+      var r = await Api.pullOnce();
+      if (r.success) return r.data;
     } else {
+      var once = 0;
       for (Match m in matches) {
-        var once = int.parse(m.group(0)!);
+        once = int.parse(m.group(0)!);
         print('getOnce${once}');
         GStorage().setOnce(once);
       }
+      return once;
     }
+    return 0;
   }
 
   static MemberNoticeItem parseNoticeItem(Element aNode) {

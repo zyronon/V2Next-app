@@ -2,35 +2,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 
-enum StoreKeys {
-  token,
-  userInfo,
-  loginStatus,
-  once,
-  replyContent,
-  replyItem,
-  statusBarHeight,
-  themeType,
-  signStatus,
-  nodes,
-  allNodes,
-  linkOpenInApp,
-  expendAppBar,
-  noticeOn,
-  autoSign,
-  eightQuery,
-  globalFs,
-  htmlFs,
-  replyFs,
-  tabs,
-  autoUpdate,
-  highlightOp,
-  tempFs,
-  sideslip,
-  dragOffset,
-  displayModeType
-}
-
 class GStorage {
   static final GStorage _storage = GStorage._internal();
   final GetStorage _box = GetStorage();
@@ -166,31 +137,12 @@ class GStorage {
 
   double getTempFs() => _box.read<double>(StoreKeys.tempFs.toString()) ?? 14;
 
-  // 侧滑返回
-  setSideslip(bool value) => _box.write(StoreKeys.sideslip.toString(), value);
-
-  bool getSideslip() => _box.read<bool>(StoreKeys.sideslip.toString()) ?? false;
-
   // iPad横屏拖拽距离
   setDragOffset(double value) => _box.write(StoreKeys.dragOffset.toString(), value);
 
   double getDragOffset() => _box.read<double>(StoreKeys.dragOffset.toString()) ?? 0.0;
 
-// 屏幕帧率
-// setDisplayModeType() => _box.write(key, value)
+  setSignDate(double value) => _box.write(StoreKeys.signDate.toString(), value);
 
-// setDisplayModeType(DisplayMode type) {
-//   return _box.write(StoreKeys.displayModeType.toString(), type.toString());
-// }
-//
-//
-// Future<DisplayMode> getDisplayModeType() async{
-//   var value = _box.read(StoreKeys.displayModeType.toString());
-//   DisplayMode f = DisplayMode.auto;
-//   if (value != null) {
-//     List<DisplayMode> modes = await FlutterDisplayMode.supported;
-//     f = modes.firstWhere((e) => e.toString() == value);
-//   }
-//   return f;
-// }
+  String getSignDate() => _box.read<String>(StoreKeys.signDate.toString()) ?? '';
 }

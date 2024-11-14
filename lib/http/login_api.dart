@@ -14,6 +14,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/storage.dart';
+import 'package:v2ex/utils/utils.dart';
 
 class LoginApi {
   // 获取登录字段
@@ -231,7 +232,7 @@ class LoginApi {
               needInitConfig = true;
             }
           }
-          if(needInitConfig){
+          if (needInitConfig) {
             //创建配置
             print('初始化配置');
             Result r = await Api.createNoteItem(Const.configPrefix + jsonEncode(uc.toJson()));
@@ -281,7 +282,7 @@ class LoginApi {
                 needInitTag = true;
               }
             }
-            if(needInitTag){
+            if (needInitTag) {
               //创建标签
               print('初始化标签');
               Result r = await Api.createNoteItem(Const.tagPrefix + jsonEncode(member.tagMap));
@@ -341,5 +342,39 @@ class LoginApi {
     Http.dio.options.headers['cookie'] = '';
     final inAppCookieManager = CookieManager.instance();
     inAppCookieManager.deleteAllCookies();
+  }
+
+  static sign() async {
+    String timeNow = '${DateTime.now().toUtc().year}/${DateTime.now().toUtc().month}/${DateTime.now().toUtc().day}'; // 当前 UTC-0 时间（V2EX 按这个时间的）
+
+    String timeOld = GStorage().getSignDate();
+    if (timeOld.isEmpty || timeOld != timeNow) {
+      Http().get('/mission/daily').then((r) {
+        Document document = parse(r.data);
+        var item = document.querySelector('input[value^="领取"]');
+        if (item != null) {
+          var once = Utils.getOnce(document);
+          String url = '/mission/daily/redeem?${once}';
+          Http().get(url).then((r) {
+            document = parse(r.data);
+            if (html!.contains('li.fa.fa-ok-sign')) {
+              RegExp loginDaysRegExp = RegExp(r'已连续登录 (\d+?) 天');
+              String? loginDays = loginDaysRegExp.firstMatch(html)?.group(0);
+              window.localStorage['menu_clockInTime'] = timeNow; // 写入签到时间以供后续比较
+              print('[V2Next] 自动签到完成！');
+              if (qiandao != null) {
+                qiandao.text = '自动签到完成！$loginDays';
+                qiandao.href = 'javascript:void(0);';
+              }
+            } else {
+              print('[V2Next] 自动签到失败！请关闭其他插件或脚本。如果连续几天都签到失败，请联系作者解决！');
+              if (qiandao != null) qiandao.text = '自动签到失败！请尝试手动签到！';
+            }
+          });
+        } else {
+          GStorage().setSignDate(timeNow);
+        }
+      });
+    }
   }
 }
