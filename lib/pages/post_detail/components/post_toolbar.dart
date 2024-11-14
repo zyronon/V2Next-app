@@ -43,7 +43,7 @@ class PostToolbar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Const.line)),
-                boxShadow: [Const.boxShadow],
+                boxShadow: [Const.boxShadowTop],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

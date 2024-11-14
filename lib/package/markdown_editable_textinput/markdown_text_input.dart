@@ -348,7 +348,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                           key: Key((type as MarkdownType).key),
                           onTap: () => onTap(type),
                           onLongPress: () async {
-                            final res = await Utils().uploadImage();
+                            final res = await Utils.uploadImage();
                             // if (res is Map) {
                             //   onTap(
                             //     type,

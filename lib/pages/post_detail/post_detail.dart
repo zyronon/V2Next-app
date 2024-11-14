@@ -398,7 +398,7 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-// 忽略主题
+  // 忽略主题
   Future onIgnorePost() async {
     Future.delayed(
       const Duration(seconds: 0),
@@ -655,7 +655,7 @@ class PostDetailPageState extends State<PostDetailPage> {
   }
 
   //感谢帖子
-  onThankPostClick() async {
+  onThankPost() async {
     if (!bc.isLogin) {
       return Get.toNamed('/login');
     }
@@ -671,7 +671,7 @@ class PostDetailPageState extends State<PostDetailPage> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('提示'),
-        content: const Text('确认向本主题创建者表示感谢吗？'),
+        content: const Text('确认花费 10 个铜币向创建者发送感谢？'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Get.back(),
@@ -745,8 +745,8 @@ class PostDetailPageState extends State<PostDetailPage> {
         content: IntrinsicHeight(
           child: Column(
             children: [
-              Text('确认向该用户表示感谢吗？，将花费10个铜板💰', style: TextStyle(fontSize: 16.sp)),
-              SizedBox(height: 20.w),
+              Text('确认花费 10 个铜币向 @${val.username} 的这条回复发送感谢？', style: TextStyle(fontSize: 16.sp)),
+              SizedBox(height: 10.w),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -921,7 +921,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                         onRefresh: onRefresh)),
                 PostToolbar(
                     onCollect: onCollect,
-                    onThank: onThankPostClick,
+                    onThank: onThankPost,
                     onCommit: () {
                       if (firstChildCtx == null || firstChildCtx == headerCtx) {
                         debugPrint('当前是 - headerCtx');

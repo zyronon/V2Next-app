@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/not_allow.dart';
+import 'package:v2ex/components/no_data.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
@@ -150,7 +150,7 @@ class NodeDetailPage extends StatelessWidget {
                         ),
                       ),
                       if (_.loading && _.postList.isEmpty) LoadingListPage(type: 1),
-                      if (_.needAuth) SliverToBoxAdapter(child: NotAllow()),
+                      if (_.needAuth) SliverToBoxAdapter(child: NoData()),
                       if (_.postList.isNotEmpty)
                         SliverList(
                           delegate: SliverChildBuilderDelegate((context, index) {

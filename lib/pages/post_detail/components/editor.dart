@@ -374,7 +374,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                             onTap: () async {
                               ec.setStatus(Status.image);
                               ec.uploading.value = true;
-                              Result? res = await Utils().uploadImage();
+                              Result? res = await Utils.uploadImage();
                               ec.uploading.value = false;
                               if (res != null) {
                                 if (res.success) {

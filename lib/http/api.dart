@@ -37,7 +37,7 @@ class Api {
               nodeList.add(V2Node(name: s[1], title: i.text));
             }
           }
-          postList = Utils().parsePagePostList(listEl);
+          postList = Utils.parsePagePostList(listEl);
         }
         res.success = true;
         res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': 1};
@@ -82,7 +82,7 @@ class Api {
       Document document = parse(response.data);
       List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
       res.success = true;
-      res.data = Utils().parsePagePostList(aRootNode);
+      res.data = Utils.parsePagePostList(aRootNode);
     } else {
       response = await Http().get(Const.v2Hot + '/hot/${date}.json');
       List<Post> list = [];
@@ -155,7 +155,7 @@ class Api {
 
     if (document.querySelector('#TopicsNode') != null) {
       var topicEle = document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
-      data.postList = Utils().parsePagePostList(topicEle);
+      data.postList = Utils.parsePagePostList(topicEle);
     }
     return data;
   }
@@ -226,65 +226,26 @@ class Api {
     }
 
     for (var i = 0; i < cellList.length; i++) {
-      var aNode = cellList[i];
-      MemberNoticeItem item = MemberNoticeItem();
-      item.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
-      item.memberUsername = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
-
-      var td2Node = aNode.querySelectorAll('tr>td')[1];
-
-      item.postId = int.parse(td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0]);
-      item.postTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
-      var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
-
-      if (noticeTypeStr.text!.contains('在回复')) {
-        item.noticeType = NoticeType.reply;
-      }
-      if (noticeTypeStr.text!.contains('回复了你')) {
-        item.noticeType = NoticeType.reply;
-      }
-      if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
-        item.noticeType = NoticeType.favTopic;
-      }
-      if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
-        // item.noticeType = NoticeType.thanksTopic;
-        item.noticeType = NoticeType.thanks;
-      }
-      if (noticeTypeStr.text!.contains('感谢了你在主题')) {
-        // item.noticeType = NoticeType.thanksReply;
-        item.noticeType = NoticeType.thanks;
-      }
-
-      if (td2Node.querySelector('div.payload') != null) {
-        item.replyContentHtml = td2Node.querySelector('div.payload')!.innerHtml;
-      } else {
-        item.replyContentHtml = '';
-      }
-
-      item.replyDate = td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
-      var delNum = td2Node.querySelector('a.node')!.attributes['onclick']!.replaceAll(RegExp(r"[deleteNotification( | )]"), '');
-      item.delIdOne = delNum.split(',')[0];
-      item.delIdTwo = delNum.split(',')[1];
-      noticeList.add(item);
+      noticeList.add(Utils.parseNoticeItem(cellList[i]));
     }
     data.list = noticeList;
     return data;
   }
 
   // 删除消息
-  static Future<bool> onDelNotice(String noticeId, String once) async {
-    // https://www.v2ex.com/delete/notification/19134720?once=22730
+  static Future<MemberNoticeItem> onDelNotice(String noticeId, String once) async {
     Options options = Options();
-    // options.contentType = Headers.textPlainContentType;
     options.headers = {
-      // 必须字段
       'Referer': '${Const.v2exHost}/notifications',
       'Origin': Const.v2exHost,
     };
     FormData formData = FormData.fromMap({'once': once});
-    var res = await Http().post('/delete/notification/$noticeId?once=$once', data: formData, options: options);
-    log(res.data);
-    return true;
+    await Http().post('/delete/notification/$noticeId?once=$once', data: formData, options: options);
+    var res = await Http().get('/notifications/below/$noticeId');
+    Document document = parse(res.data);
+    List<Element> cellList = document.querySelectorAll(' .cell');
+    return Utils.parseNoticeItem(cellList[0]);
+    ;
   }
 
   //获取最新帖子(特殊处理)
@@ -313,7 +274,7 @@ class Api {
       var match1 = RegExp(r'(\d+)').allMatches(href!);
       var result = match1.map((m) => m.group(0)).toList();
       p.postId = int.parse(result[1]!);
-      p.createDateAgo = Utils().timeAgo(item['published']);
+      p.createDateAgo = Utils.timeAgo(item['published']);
       // p.contentHtml = item['content'];
       // print(item['content']);
       p.member.username = item['author']['name'];

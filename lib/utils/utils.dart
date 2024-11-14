@@ -326,18 +326,7 @@ class Utils {
     return Future.wait(futures.map((f) => allSettledWrapper(f)));
   }
 
-  String headerUa(ua) {
-    String headerUa = '';
-    if (ua == 'mob') {
-      headerUa = Platform.isIOS ? Const.agent.ios : Const.agent.android;
-    } else {
-      // headerUa = 'Mozilla/5.0 (MaciMozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
-      headerUa = Const.agent.pc;
-    }
-    return headerUa;
-  }
-
-  List<Post> parsePagePostList(List<Element> list) {
+  static List<Post> parsePagePostList(List<Element> list) {
     List<Post> topicList = [];
     if (list.isNotEmpty) {
       for (Element aNode in list) {
@@ -422,35 +411,11 @@ class Utils {
     return topicList;
   }
 
-  showNotAllowDialog() {
-    BaseController bc = Get.find();
-    SmartDialog.show(
-      useSystem: true,
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('权限不足'),
-          content: Text(bc.isLogin ? '' : '登录后查看节点内容'),
-          actions: [
-            TextButton(
-              onPressed: (() => {SmartDialog.dismiss(), Get.back()}),
-              child: const Text('返回上一页'),
-            ),
-            TextButton(
-                // TODO
-                onPressed: (() => {Navigator.of(context).pushNamed('/login')}),
-                child: const Text('去登录'))
-          ],
-        );
-      },
-    );
-  }
-
-  String _twoDigits(int n) {
+  static String _twoDigits(int n) {
     return n >= 10 ? "$n" : "0$n";
   }
 
-  String timeAgo(String dateTime) {
+  static String timeAgo(String dateTime) {
     final d = DateTime.parse(dateTime);
     final now = DateTime.now();
     final difference = now.difference(d);
@@ -471,7 +436,7 @@ class Utils {
     }
   }
 
-  Future<Result?> uploadImage() async {
+  static Future<Result?> uploadImage() async {
     final List<AssetEntity>? assets = await AssetPicker.pickAssets(
       Get.context!,
       pickerConfig: const AssetPickerConfig(maxAssets: 1, requestType: RequestType.image),
@@ -659,5 +624,47 @@ class Utils {
         GStorage().setOnce(once);
       }
     }
+  }
+
+  static MemberNoticeItem parseNoticeItem(Element aNode) {
+    MemberNoticeItem item = MemberNoticeItem();
+    item.memberAvatar = aNode.querySelector('tr>td>a>img')!.attributes['src']!;
+    item.memberUsername = aNode.querySelector('tr>td>a>img')!.attributes['alt']!;
+
+    var td2Node = aNode.querySelectorAll('tr>td')[1];
+
+    item.postId = int.parse(td2Node.querySelectorAll('span.fade>a')[1].attributes['href']!.split('/')[2].split('#')[0]);
+    item.postTitle = td2Node.querySelectorAll('span.fade>a')[1].text;
+    var noticeTypeStr = td2Node.querySelector('span.fade')!.nodes[1];
+
+    if (noticeTypeStr.text!.contains('在回复')) {
+      item.noticeType = NoticeType.reply;
+    }
+    if (noticeTypeStr.text!.contains('回复了你')) {
+      item.noticeType = NoticeType.reply;
+    }
+    if (noticeTypeStr.text!.contains('收藏了你发布的主题')) {
+      item.noticeType = NoticeType.favTopic;
+    }
+    if (noticeTypeStr.text!.contains('感谢了你发布的主题')) {
+      // item.noticeType = NoticeType.thanksTopic;
+      item.noticeType = NoticeType.thanks;
+    }
+    if (noticeTypeStr.text!.contains('感谢了你在主题')) {
+      // item.noticeType = NoticeType.thanksReply;
+      item.noticeType = NoticeType.thanks;
+    }
+
+    if (td2Node.querySelector('div.payload') != null) {
+      item.replyContentHtml = td2Node.querySelector('div.payload')!.innerHtml;
+    } else {
+      item.replyContentHtml = '';
+    }
+
+    item.replyDate = td2Node.querySelector('span.snow')!.text.replaceAll('+08:00', '');
+    var delNum = td2Node.querySelector('a.node')!.attributes['onclick']!.replaceAll(RegExp(r"[deleteNotification( | )]"), '');
+    item.delIdOne = delNum.split(',')[0];
+    item.delIdTwo = delNum.split(',')[1];
+    return item;
   }
 }

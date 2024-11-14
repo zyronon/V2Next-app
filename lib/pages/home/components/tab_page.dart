@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/not_allow.dart';
+import 'package:v2ex/components/no_data.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/http/api.dart';
@@ -119,7 +119,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
             builder: (_) {
               if (_.loading && _.postList.length == 0) return LoadingListPage();
               if (_.needAuth)
-                return NotAllow(cb: () {
+                return NoData(cb: () {
                   if (BaseController.to.isLogin) {
                     onRefresh();
                   }

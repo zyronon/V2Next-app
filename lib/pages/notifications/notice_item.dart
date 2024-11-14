@@ -103,9 +103,10 @@ class _NoticeItemState extends State<NoticeItem> {
         if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复：'),
         if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢：'),
         if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢：'),
+        if (widget.noticeItem.noticeType == NoticeType.thanks) Text('感谢：'),
         if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏：'),
         SizedBox(height: 6.w),
-        if (widget.noticeItem.replyContentHtml != null)
+        if (widget.noticeItem.replyContentHtml.isNotEmpty)
           Stack(
             children: [
               Positioned.fill(

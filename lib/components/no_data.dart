@@ -4,10 +4,11 @@ import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 
-class NotAllow extends StatelessWidget {
+class NoData extends StatelessWidget {
   Function? cb;
+  String text;
 
-  NotAllow({this.cb});
+  NoData({this.cb, this.text = '没有权限'});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class NotAllow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset('assets/images/nodata.png', width: 125, height: 125),
-                  Text('没有权限', style: TextStyle(fontSize: 24.sp)),
+                  if (text.isNotEmpty) Text(text, style: TextStyle(fontSize: 24.sp)),
                   SizedBox(height: 20.w),
                   if (!_.isLogin)
                     TDButton(

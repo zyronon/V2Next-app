@@ -3,9 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_divider.dart';
 import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/not_allow.dart';
-import 'package:v2ex/components/notice_item.dart';
+import 'package:v2ex/components/no_data.dart';
+import 'package:v2ex/pages/notifications/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
+import 'package:v2ex/pages/notifications/list_page.dart';
+import 'package:v2ex/utils/const_val.dart';
 
 import '../../http/api.dart';
 import '../../model/model.dart';
@@ -23,6 +25,7 @@ class NotificationController extends GetxController {
   }
 
   List<MemberNoticeItem> getList(NoticeType noticeType) {
+    if (noticeType == NoticeType.all) return data.list;
     return data.list.where((v) => v.noticeType == noticeType).toList();
   }
 
@@ -35,7 +38,7 @@ class NotificationController extends GetxController {
     if (isRefresh) data.list = [];
     if (pageNo == 1) {
       data = res;
-    }else{
+    } else {
       data.list.addAll(res.list);
     }
     if (isRefresh) loading = false;
@@ -58,6 +61,12 @@ class NotificationController extends GetxController {
     isLoadingMore = false;
     update();
   }
+
+  onDel(v, item) {
+    data.list.remove(v);
+    data.list.add(item);
+    update();
+  }
 }
 
 class NotificationsPage extends StatefulWidget {
@@ -73,40 +82,7 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
     new NodeItem(title: '收藏', name: 'new', type: TabType.latest),
   ];
 
-  Widget _buildPage(List<MemberNoticeItem> list) {
-    NotificationController _ = Get.find();
-    return RefreshIndicator(
-      child: list.length == 0
-          ? LoadingListPage()
-          : ListView.separated(
-              physics: AlwaysScrollableScrollPhysics(),
-              itemCount: list.length,
-              itemBuilder: (BuildContext context, int index) {
-                var v = list[index];
-                return NoticeItem(
-                    noticeItem: v,
-                    onDeleteNotice: () async {
-                      String noticeId = v.delIdOne;
-                      String once = v.delIdTwo;
-                      await Api.onDelNotice(noticeId, once);
-                      _.data.list.remove(v);
-                      _.update();
-                    });
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return BaseDivider();
-              },
-            ),
-      onRefresh: _.onRefresh,
-    );
-  }
-
   BaseController bc = Get.find();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,29 +94,39 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
             length: tabMap.length,
             child: Container(
               height: double.infinity,
-              width: double.infinity,
-              color: Colors.white,
-              child: Column(
+              child: Stack(
                 children: [
-                  TabBar(
-                    tabAlignment: TabAlignment.start,
-                    isScrollable: true,
-                    labelStyle: TextStyle(fontSize: 15.sp),
-                    unselectedLabelStyle: TextStyle(fontSize: 15.sp),
-                    tabs: tabMap.map((e) {
-                      return Tab(text: e.title);
-                    }).toList(),
+                  Positioned.fill(
+                    child: Container(color: Colors.white),
                   ),
-                  Expanded(
+                  Positioned(
+                      child: Padding(
+                    padding: EdgeInsets.only(top: 40.w),
                     child: bc.isLogin
                         ? TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-                            _buildPage(_.data.list),
-                            _buildPage(_.getList(NoticeType.reply)),
-                            _buildPage(_.getList(NoticeType.thanks)),
-                            _buildPage(_.getList(NoticeType.favTopic)),
+                            ListPage(type: NoticeType.all),
+                            ListPage(type: NoticeType.reply),
+                            ListPage(type: NoticeType.thanks),
+                            ListPage(type: NoticeType.favTopic),
                           ])
-                        : NotAllow(),
-                  )
+                        : NoData(text: '', cb: _.onRefresh),
+                  )),
+                  Container(
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Const.line)),
+                        color: Colors.white,
+                        boxShadow: [Const.boxShadowBottom],
+                      ),
+                      child: TabBar(
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        labelStyle: TextStyle(fontSize: 15.sp),
+                        unselectedLabelStyle: TextStyle(fontSize: 15.sp),
+                        tabs: tabMap.map((e) {
+                          return Tab(text: e.title);
+                        }).toList(),
+                      )),
                 ],
               ),
             ),

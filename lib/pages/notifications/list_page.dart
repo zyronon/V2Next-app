@@ -1,96 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_divider.dart';
+import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/notice_item.dart';
+import 'package:v2ex/components/no_data.dart';
+import 'package:v2ex/pages/notifications/notice_item.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/model.dart';
 
-class NotificationController extends GetxController {
-  final ScrollController ctrl = ScrollController();
+import 'notifications.dart';
 
-  MemberNoticeModel data = MemberNoticeModel();
-  bool loading = false;
-  int pageNo = 1;
-  bool isLoadingMore = false;
+class ListPage extends StatefulWidget {
+  NoticeType type;
+
+  ListPage({required this.type});
 
   @override
-  void onInit() {
-    super.onInit();
-    getData(isRefresh: true);
-  }
-
-  List<MemberNoticeItem> getList(NoticeType noticeType) {
-    return data.list.where((v) => v.noticeType == noticeType).toList();
-  }
-
-  getData({bool isRefresh = false}) async {
-    if (isRefresh) {
-      loading = true;
-      update();
-    }
-    MemberNoticeModel res = await Api.getNotifications(pageNo: pageNo);
-    if (isRefresh) data.list = [];
-    if (pageNo == 1) {
-      data = res;
-    } else {
-      data.list.addAll(res.list);
-    }
-    if (isRefresh) loading = false;
-    update();
-  }
-
-  Future onRefresh() async {
-    pageNo = 1;
-    isLoadingMore = false;
-    await getData(isRefresh: true);
-  }
-
-  loadMore() async {
-    if (isLoadingMore) return;
-    if (pageNo >= data.totalPage) return;
-    pageNo++;
-    isLoadingMore = true;
-    update();
-    await getData();
-    isLoadingMore = false;
-    update();
-  }
+  State<ListPage> createState() => _ListPageState();
 }
 
-class ListPage extends StatelessWidget {
-  List list = [];
-  Function onDel;
-  RefreshCallback onRefresh;
+class _ListPageState extends State<ListPage> {
+  ScrollController ctrl = ScrollController();
+  NotificationController c = Get.find();
 
-  ListPage({required this.list, required this.onDel, required this.onRefresh});
+  @override
+  void initState() {
+    super.initState();
+    ctrl.addListener(scrollListener);
+  }
+
+  @override
+  void dispose() {
+    ctrl.removeListener(scrollListener);
+    ctrl.dispose();
+    super.dispose();
+  }
+
+  void scrollListener() {
+    if (ctrl.position.pixels == ctrl.position.maxScrollExtent) {
+      c.loadMore();
+    }
+  }
+
+  get list {
+    return c.getList(widget.type);
+  }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      child: list.length == 0
+      child: c.loading
           ? LoadingListPage()
-          : ListView.separated(
-              physics: AlwaysScrollableScrollPhysics(),
-              itemCount: list.length,
-              itemBuilder: (BuildContext context, int index) {
-                var v = list[index];
-                return NoticeItem(
-                    noticeItem: v,
-                    onDeleteNotice: () async {
-                      String noticeId = v.delIdOne;
-                      String once = v.delIdTwo;
-                      await Api.onDelNotice(noticeId, once);
-                      onDel.call();
-                      // _.data.list.remove(v);
-                      // _.update();
-                    });
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return BaseDivider();
-              },
-            ),
-      onRefresh: onRefresh,
+          : list.length == 0
+              ? NoData(text: '没有数据')
+              : ListView.separated(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  itemCount: list.length,
+                  controller: ctrl,
+                  itemBuilder: (BuildContext context, int index) {
+                    var v = list[index];
+                    if (list.length - 1 == index) {
+                      return Column(children: [
+                        NoticeItem(
+                            noticeItem: v,
+                            onDeleteNotice: () async {
+                              String noticeId = v.delIdOne;
+                              String once = v.delIdTwo;
+                              var item = await Api.onDelNotice(noticeId, once);
+                              c.onDel(v, item);
+                            }),
+                        FooterTips(loading: c.isLoadingMore),
+                      ]);
+                    }
+                    return NoticeItem(
+                        noticeItem: v,
+                        onDeleteNotice: () async {
+                          String noticeId = v.delIdOne;
+                          String once = v.delIdTwo;
+                          var item = await Api.onDelNotice(noticeId, once);
+                          c.onDel(v, item);
+                        });
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return BaseDivider();
+                  },
+                ),
+      onRefresh: c.onRefresh,
     );
   }
 }
