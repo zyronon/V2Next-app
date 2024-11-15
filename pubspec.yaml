@@ -115,6 +115,9 @@ dependencies:
   drift: ^2.21.0
   drift_flutter: ^0.2.1
 
+  # 用于底部导航栏
+  bruno: ^3.4.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
