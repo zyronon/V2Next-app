@@ -69,7 +69,7 @@ class PostDetailController extends GetxController {
     getData();
   }
 
-  getData() async {
+  Future getData() async {
     post = Get.arguments;
     isShowFixedTitle = false;
     final postDao = bc.database.postDao;

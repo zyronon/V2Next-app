@@ -21,6 +21,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_button.dart';
+import 'package:v2ex/components/base_divider.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/http/api.dart';
@@ -176,7 +177,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                 ),
               ),
               Expanded(
-                  child: ListView.builder(
+                  child: ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: list.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -195,27 +196,13 @@ class PostDetailPageState extends State<PostDetailPage> {
                     // },
                   );
                 },
+                separatorBuilder: (BuildContext context, int index) {
+                  return  Const.lineWidget;
+                },
               )),
               SizedBox(height: 20.w)
             ],
           ),
-        );
-        return Column(
-          children: list
-              .map((v) => ReplyItem(
-                    item: v,
-                    onThank: null,
-                    onMenu: null,
-                    type: ReplyListType.Hot,
-                    index: 0,
-                    onTap: (i) {
-                      int rIndex = ctrl.post.replyList.indexWhere((j) => j.replyId == i.postId);
-                      if (rIndex > -1) {
-                        jumpToIndexItem(index: rIndex);
-                      }
-                    },
-                  ))
-              .toList(),
         );
       },
     );
@@ -819,16 +806,6 @@ class PostDetailPageState extends State<PostDetailPage> {
     );
   }
 
-  Future<void> onRefresh() async {
-    // print(ctrl.post.replyList[2].replyFloor.toString());
-    // print(ctrl.post.replyList[2].replyContent.toString());
-    // print(ctrl.post.replyList[2].hideCallUserReplyContent.toString());
-    // print(ctrl.post.replyList[2].replyUsers.toString());
-    // ctrl.rebuildList();
-    ctrl.getData();
-    return;
-  }
-
   jumpToIndexItem({int index = 0}) {
     ctrl.setShowFixedTitle(true);
     firstChildCtx = normalListCtx;
@@ -942,7 +919,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                             ],
                           ),
                         ),
-                        onRefresh: onRefresh)),
+                        onRefresh: ctrl.getData)),
                 PostToolbar(
                     onCollect: onCollect,
                     onThank: onThankPost,

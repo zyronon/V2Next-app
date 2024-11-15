@@ -457,9 +457,6 @@ class NodeItem {
     this.avatarMini = '',
     this.avatarLarge = '',
     this.avatarNormal = '',
-    this.parentNodeName = '',
-    this.titleAlternative = '',
-    this.postList = const [],
     TabType? type,
   }) : this.type = type ?? TabType.tab;
 
@@ -477,8 +474,6 @@ class NodeItem {
     avatarMini = json['avatar_mini'] ?? '';
     avatarLarge = json['avatar_large'] ?? '';
     avatarNormal = json['avatar_normal'] ?? '';
-    parentNodeName = json['parent_node_name'] ?? '';
-    titleAlternative = json['title_alternative'] ?? '';
     type = TabType.values.firstWhere(
       (e) => e.toString() == json['type'],
       orElse: () => TabType.tab,
@@ -500,8 +495,6 @@ class NodeItem {
     data['avatar_mini'] = avatarMini;
     data['avatar_large'] = avatarLarge;
     data['avatar_normal'] = avatarNormal;
-    data['parent_node_name'] = parentNodeName;
-    data['title_alternative'] = titleAlternative;
     data['type'] = type.toString();
     return data;
   }

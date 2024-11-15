@@ -55,10 +55,10 @@ class Api {
         res.data = {'list': postList, 'nodeList': nodeList, 'totalPage': pageNo};
         break;
       case TabType.node:
-        NodeItem? s = await getNodePageInfo(name: tab.name, pageNo: pageNo);
+        var s = await getNodePageInfo(name: tab.name, pageNo: pageNo);
         if (s != null) {
           res.success = true;
-          res.data = {'list': s.postList, 'nodeList': nodeList, 'totalPage': s.totalPage};
+          res.data = {'list': s['list'], 'nodeList': nodeList, 'totalPage': s['model'].totalPage};
         } else {
           res.success = false;
           res.data = Auth.notAllow;
@@ -104,6 +104,7 @@ class Api {
         item.member.avatar = v['avatar'];
         item.node.title = v['nodeTitle'];
         item.node.name = v['nodeUrl'];
+        item.postId = v['id'];
         list.add(item);
       });
       res.success = true;
@@ -122,9 +123,7 @@ class Api {
     return list;
   }
 
-  static Future<NodeItem?> getNodePageInfo({required String name, int pageNo = 1}) async {
-    NodeItem data = NodeItem();
-    data.name = name;
+  static Future getNodePageInfo({required String name, int pageNo = 1}) async {
     //手机端 收藏人数获取不到
     Response response = await Http().get('/go/$name', data: {'p': pageNo});
     var document = parse(response.data);
@@ -136,7 +135,9 @@ class Api {
       return null;
     }
     Utils.getOnce(document);
-
+    NodeItem data = NodeItem();
+    var res = {'model': data, 'list': []};
+    data.name = name;
     data.avatar = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
     data.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
@@ -167,9 +168,9 @@ class Api {
 
     if (document.querySelector('#TopicsNode') != null) {
       var topicEle = document.querySelector('#TopicsNode')!.querySelectorAll('div.cell');
-      data.postList = Utils.parsePagePostList(topicEle);
+      res['list'] = Utils.parsePagePostList(topicEle);
     }
-    return data;
+    return res;
   }
 
   //获取发布页

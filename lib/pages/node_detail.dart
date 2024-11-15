@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_avatar.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/no_data.dart';
@@ -54,14 +56,14 @@ class NodeController extends GetxController {
       loading = true;
       update();
     }
-    NodeItem? res = await Api.getNodePageInfo(name: data.name, pageNo: pageNo);
+    var res = await Api.getNodePageInfo(name: data.name, pageNo: pageNo);
     if (res != null) {
       if (isRefresh) postList = [];
       if (data.avatar.isEmpty) {
-        data = res;
-        postList = res.postList;
+        data = res['model'];
+        postList = res['list'];
       } else {
-        postList.addAll(res.postList);
+        postList.addAll(res['list']);
       }
     } else {
       needAuth = true;
@@ -122,7 +124,7 @@ class NodeDetailPage extends StatelessWidget {
                         title: Row(
                           children: [
                             BaseAvatar(src: _.data.avatar, diameter: 35, radius: 0),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6.w),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -135,7 +137,17 @@ class NodeDetailPage extends StatelessWidget {
                               ],
                             ),
                             Spacer(),
-                            if (BaseController.to.isLogin) ElevatedButton(onPressed: _.favNode, child: Text(_.data.isFavorite ? '已收藏' : '收藏'))
+                            if (BaseController.to.isLogin)
+                              InkWell(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(6.w),
+                                    child: Icon(
+                                      _.data.isFavorite ? TDIcons.star_filled : TDIcons.star,
+                                      size: 24.sp,
+                                      color: _.data.isFavorite ? Colors.redAccent : Colors.white,
+                                    ),
+                                  ),
+                                  onTap: _.favNode)
                           ],
                         ),
                       ),
@@ -143,9 +155,28 @@ class NodeDetailPage extends StatelessWidget {
                         child: Container(
                           color: Theme.of(context).colorScheme.primary,
                           padding: EdgeInsets.all(20.w),
-                          child: Text(
-                            _.data.header.isNotEmpty ? _.data.header : '还没有节点描述 😊',
-                            style: const TextStyle(color: Colors.white),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                  child: Text(
+                                _.data.header.isNotEmpty ? _.data.header : '还没有节点描述 😊',
+                                style: const TextStyle(color: Colors.white),
+                              )),
+                              SizedBox(width: 10.w),
+                              BaseButton(
+                                  text: '添加到首页',
+                                  onTap: () {
+                                    BaseController bc = BaseController.to;
+                                    if (bc.tabList.any((val) => val.name == _.data.name)) {
+                                      Utils.toast(msg: '已添加到首页');
+                                      return;
+                                    }
+                                    bc.tabList.add(_.data);
+                                    bc.setTabMap(bc.tabList);
+                                    Utils.toast(msg: '已添加到首页');
+                                  }),
+                            ],
                           ),
                         ),
                       ),
