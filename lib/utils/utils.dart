@@ -21,6 +21,7 @@ import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/upload.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -644,5 +645,16 @@ class Utils {
     item.delIdOne = delNum.split(',')[0];
     item.delIdTwo = delNum.split(',')[1];
     return item;
+  }
+
+  static int parseUnRead(Document doc) {
+    var noticeEl = doc.querySelector('a[href="/notifications"]');
+    if (noticeEl != null) {
+      var unRead = int.parse(noticeEl.text.replaceAll(RegExp(r'\D'), ''));
+      print('$unRead条未读消息');
+      EventBus().emit('setUnread', unRead);
+      return unRead;
+    }
+    return -1;
   }
 }

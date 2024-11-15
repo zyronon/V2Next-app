@@ -10,6 +10,7 @@ import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/storage.dart';
 import 'package:v2ex/utils/utils.dart';
 
@@ -243,6 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                                         Utils.twoFADialog();
                                       } else {
                                         BaseController.to.setUserinfo(res.data);
+                                        EventBus().emit('startTask');
                                         Get.back(result: {'loginStatus': 'success'});
                                       }
                                     } else {
@@ -289,6 +291,8 @@ class _LoginPageState extends State<LoginPage> {
                           if (res.data == '2fa') {
                             Utils.twoFADialog();
                           } else {
+                            BaseController.to.setUserinfo(res.data);
+                            EventBus().emit('startTask');
                             Get.back(result: {'loginStatus': 'success'});
                           }
                         } else {

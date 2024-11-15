@@ -40,17 +40,48 @@ class _IndexState extends State<Index> {
     });
   }
 
-  int _unreadCount = 51; // 未读消息数量
+  Widget _widget({required int index, required IconData icon, required String text, int? badge}) {
+    return Expanded(
+        child: InkWell(
+            child: Stack(
+              children: [
+                Center(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      color: _selectedIndex == index ? Colors.grey : Colors.black,
+                    ),
+                    Text(text),
+                  ],
+                )),
+                if (badge != null && badge != 0)
+                  Positioned(
+                      right: 20.w,
+                      top: 5.w,
+                      child: Container(
+                        // width: 24,
+                        padding: EdgeInsets.fromLTRB(5.w, 1.5.w, 5.w, 3.w),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: Colors.redAccent, shape: BoxShape.rectangle, borderRadius: BorderRadius.all(Radius.circular(10))),
+                        child: Text(
+                          badge > 99 ? '99' : badge.toString(),
+                          style: TextStyle(fontSize: 12.sp, color: Colors.white, height: 1),
+                        ),
+                      ))
+              ],
+            ),
+            onTap: () {
+              _onItemTapped(index);
+            }));
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        elevation: 0,
-        toolbarHeight: 0,
-        // backgroundColor: bg,
-        // surfaceTintColor: bg,
-      ),
+      appBar: AppBar(elevation: 0, toolbarHeight: 0),
       body: ConstrainedBox(
         constraints: const BoxConstraints(
             minWidth: double.infinity, //宽度尽可能大
@@ -66,122 +97,25 @@ class _IndexState extends State<Index> {
               children: _Pages),
         ),
       ),
-      bottomNavigationBar: SizedBox(
+      bottomNavigationBar: Container(
         height: 60.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Const.line)),
+          boxShadow: [Const.boxShadowTop],
+        ),
         child: Container(
           height: double.infinity, // 占满父容器高度
           child: Row(
             children: [
-              Expanded(child: Container(color: Colors.blue)),
-              Expanded(child: Container(color: Colors.green)),
+              _widget(index: 0, icon: Icons.home, text: '首页'),
+              _widget(index: 1, icon: Icons.business, text: '发现'),
+              _widget(index: 2, icon: Icons.notifications, text: '通知', badge: c.member.actionCounts[3]),
+              _widget(index: 3, icon: Icons.settings, text: '我'),
             ],
           ),
         ),
       ),
-
-      // bottomNavigationBar: Container(
-      //   height: 60.w,
-      //   decoration: BoxDecoration(
-      //     color: Colors.white,
-      //     border: Border(top: BorderSide(color: Const.line)),
-      //     boxShadow: [Const.boxShadowTop],
-      //   ),
-      //   child: SizedBox.expand(
-      //   child: Row(
-      //     mainAxisSize: MainAxisSize.max,
-      //     children: [
-      //       Expanded(
-      //           child: Container(
-      //             child: Text('data'),
-      //           )),
-      //       Expanded(
-      //           child: Container(
-      //             child: Text('data'),
-      //           )),
-      //       Expanded(
-      //           child: Stack(
-      //             children: [
-      //
-      //               Center(
-      //                   child: Column(
-      //                     children: [Icon(Icons.home), Text('通知')],
-      //                   ))
-      //             ],
-      //           )),
-      //       Expanded(
-      //           child: Container(
-      //             color: Colors.redAccent,
-      //             child: Text('data'),
-      //           )),
-      //     ],
-      //   )),
-      // )
-      // bottomNavigationBar: BrnBottomTabBar(
-      //   fixedColor: Colors.blue,
-      //   currentIndex: _selectedIndex,
-      //   onTap: _onItemTapped,
-      //   badgeColor: Colors.red,
-      //   items: <BrnBottomTabBarItem>[
-      //     BrnBottomTabBarItem(icon: Icon(Icons.home), title: Text('首页')),
-      //     BrnBottomTabBarItem(icon: Icon(Icons.business), title: Text('发现')),
-      //     BrnBottomTabBarItem(
-      //         icon: Icon(Icons.notifications),
-      //         title: Text('通知'),
-      //         badge: Container(
-      //           // width: 24,
-      //           padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
-      //           alignment: Alignment.center,
-      //           decoration: BoxDecoration(color: Colors.redAccent, shape: BoxShape.rectangle, borderRadius: BorderRadius.all(Radius.circular(10))),
-      //           child: Text(
-      //             '9',
-      //             style: TextStyle(fontSize: 10, color: Colors.white, height: 1),
-      //           ),
-      //         )),
-      //     BrnBottomTabBarItem(icon: Icon(Icons.settings), title: Text('我的')),
-      //   ],
-      // ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   backgroundColor: mainBgColor2,
-      //   type: BottomNavigationBarType.fixed,
-      //   // showSelectedLabels: false,
-      //   // showUnselectedLabels: false,
-      //   // iconSize: 24.sp,
-      //   items: <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.business), label: '发现'),
-      //     // BottomNavigationBarItem(icon: Icon(Icons.notifications), label: '通知'),
-      //     BottomNavigationBarItem(
-      //       icon: Stack(
-      //         clipBehavior: Clip.none, // 允许角标超出 Stack 范围
-      //         children: [
-      //           Icon(Icons.notifications), // 主图标
-      //           if (_unreadCount > 0) // 动态显示徽标
-      //             Positioned(
-      //               right: -6.w, // 调整徽标位置
-      //               top: -3.w,
-      //               child: Container(
-      //                 padding: EdgeInsets.fromLTRB(4.w, 4.w, 4.w, 4.w),
-      //                 decoration: BoxDecoration(
-      //                   color: Colors.red,
-      //                   shape: BoxShape.circle,
-      //                 ),
-      //                 child: Text(
-      //                   '123$_unreadCount',
-      //                   style: TextStyle(color: Colors.white, fontSize: 10.sp, fontWeight: FontWeight.bold, height: 1),
-      //                 ),
-      //               ),
-      //             )
-      //         ],
-      //       ),
-      //       label: '通知',
-      //     ),
-      //     BottomNavigationBarItem(icon: Icon(Icons.settings), label: '我的'),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: Const.primaryColor,
-      //   unselectedItemColor: Colors.black,
-      //   onTap: _onItemTapped,
-      // ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -8,6 +9,7 @@ import 'package:v2ex/http/login_api.dart';
 
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 
 import 'database.dart';
 
@@ -17,6 +19,7 @@ class BaseController extends GetxController {
   Member member = new Member();
   Map<String, UserConfig> config = {'default': UserConfig()};
   final GetStorage _box = GetStorage();
+  Timer? _timer;
 
   static BaseController get to => Get.find<BaseController>();
 
@@ -35,6 +38,39 @@ class BaseController extends GetxController {
     Future.delayed(Duration(seconds: 1), () {
       initData();
     });
+    EventBus().on('setUnread', (_) {
+      member.actionCounts[3] = _;
+      setMember(member);
+    });
+
+    EventBus().on('startTask', (_) {
+      startTask();
+    });
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+  }
+
+  startTask() {
+    print('startTask');
+    Future.delayed(Duration(seconds: 5), () {
+      LoginApi.sign();
+    });
+
+    print('开始定时查询');
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    _timer = Timer.periodic(Duration(seconds: 15), (timer) {
+      Api.fetchUnRead().then((r) {
+        if (r == -1) _timer!.cancel();
+      });
+    });
   }
 
   initData() async {
@@ -42,9 +78,7 @@ class BaseController extends GetxController {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);
-          Future.delayed(Duration(seconds: 5), () {
-            LoginApi.sign();
-          });
+          startTask();
         }
       } else {
         setUserinfo({'member': Member(), 'uc': config['default']});

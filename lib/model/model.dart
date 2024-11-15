@@ -236,7 +236,7 @@ class Member {
   bool needAuth2fa;
   Map tagMap;
 
-  //依次是节点、主题、特别关注
+  //依次是节点、主题、特别关注，未读
   List<int> actionCounts;
 
   // 构造函数，带默认值
@@ -246,7 +246,7 @@ class Member {
     this.avatarLarge = '',
     this.balance = '',
     this.sign = '',
-    this.actionCounts = const [0, 0, 0],
+    this.actionCounts = const [0, 0, 0, 0],
     this.needAuth2fa = false,
     Map? tagMap,
   }) : tagMap = tagMap ?? {};
@@ -260,7 +260,7 @@ class Member {
         sign = json['sign'] ?? '',
         needAuth2fa = json['needAuth2fa'] ?? false,
         tagMap = json['tagMap'] ?? {},
-        actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0];
+        actionCounts = (json['actionCounts'] as List?)?.map((item) => item as int).toList() ?? [0, 0, 0, 0];
 
   // toJson 方法
   Map<String, dynamic> toJson() {

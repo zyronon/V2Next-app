@@ -29,6 +29,7 @@ class Api {
           //用pc网站，因为要取子tab。不取子tab可以用mobile网站
           response = await Http().get('/', data: {'tab': tab.name});
           Document document = parse(response.data);
+          Utils.parseUnRead(document);
           List<Element> listEl = document.querySelectorAll("div[class='cell item']");
           List<Element> childNodeEl = document.querySelectorAll("#SecondaryTabs > a");
           for (var i in childNodeEl) {
@@ -45,6 +46,7 @@ class Api {
       case TabType.recent:
         response = await Http().get('/recent', data: {'p': pageNo});
         Document document = parse(response.data);
+        Utils.parseUnRead(document);
         List<Element> listEl = document.querySelectorAll("div[class='cell item']");
         postList = Utils.parsePagePostList(listEl);
         var totalPageNode = document.querySelectorAll('.ps_container .page_normal');
@@ -93,6 +95,7 @@ class Api {
       response = await Http().get('/?tab=hot');
       Document document = parse(response.data);
       List<Element> aRootNode = document.querySelectorAll("div[class='cell item']");
+      Utils.parseUnRead(document);
       res.success = true;
       res.data = Utils.parsePagePostList(aRootNode);
     } else {
@@ -127,6 +130,7 @@ class Api {
     //手机端 收藏人数获取不到
     Response response = await Http().get('/go/$name', data: {'p': pageNo});
     var document = parse(response.data);
+    Utils.parseUnRead(document);
     var mainBox = document.body!.children[1].querySelector('#Main');
     var mainHeader = mainBox!.querySelector('.node-header');
     if (response.realUri.toString() == '/' || (response.data as String).contains('其他登录方式') || mainHeader == null) {
@@ -308,6 +312,7 @@ class Api {
 
     String htmlText = response.data;
     var document = parse(response.data);
+    Utils.parseUnRead(document);
     var wrapper = document.querySelector('#Main');
 
     //不知为何dio的 重写向检测不到，加上下面两个判断
@@ -1053,5 +1058,14 @@ class Api {
     } else {
       return false;
     }
+  }
+
+  //获取未读
+  static Future<int> fetchUnRead() async {
+    print('定时查询未读消息');
+    //用pc网站，因为要取子tab。不取子tab可以用mobile网站
+    var response = await Http().get('/faq');
+    Document document = parse(response.data);
+    return Utils.parseUnRead(document);
   }
 }

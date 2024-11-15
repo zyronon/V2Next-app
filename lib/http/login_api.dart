@@ -166,7 +166,7 @@ class LoginApi {
           //获取、节点收藏、主题收藏、特别关注
           var res2 = await Http().get('/?tab=all', isMobile: false);
           Document document2 = parse(res2.data);
-          var rightBarNode = document2.querySelector('#Rightbar > div.box');
+          var rightBarNode = document2.querySelector('#Rightbar > .box');
           List tableList = rightBarNode!.querySelectorAll('table');
           if (tableList.isNotEmpty) {
             member.actionCounts = [];
@@ -182,11 +182,16 @@ class LoginApi {
               });
               member.balance = rightBarNode.querySelector('#money >a')!.innerHtml;
             }
-            var noticeEl = rightBarNode.querySelectorAll('a.fade');
-            if (noticeEl.isNotEmpty) {
-              var unRead = noticeEl[0].text.replaceAll(RegExp(r'\D'), '');
+            var noticeEl = rightBarNode.querySelector('a[href="/notifications"]');
+            if (noticeEl != null) {
+              var unRead = noticeEl.text.replaceAll(RegExp(r'\D'), '');
               print('$unRead条未读消息');
               member.actionCounts.add(int.parse(unRead));
+            } else {
+              member.actionCounts.add(0);
+            }
+            if (member.actionCounts.isEmpty) {
+              member.actionCounts = [0, 0, 0, 0];
             }
           }
         }
@@ -345,6 +350,7 @@ class LoginApi {
   }
 
   static sign() async {
+    print('开始签到');
     String timeNow = '${DateTime.now().toUtc().year}/${DateTime.now().toUtc().month}/${DateTime.now().toUtc().day}'; // 当前 UTC-0 时间（V2EX 按这个时间的）
     String timeOld = GStorage().getSignDate();
     if (timeOld.isEmpty || timeOld != timeNow) {
@@ -376,15 +382,8 @@ class LoginApi {
           GStorage().setSignDate(timeNow);
         }
       });
-    }else{
+    } else {
       BaseController.to.member.sign = '已签到';
     }
   }
 }
-
-
-
-
-
-
-
