@@ -522,7 +522,6 @@ enum StoreKeys {
   tabs,
   autoUpdate,
   highlightOp,
-  tempFs,
   sideslip,
   dragOffset,
   displayModeType,
@@ -532,4 +531,5 @@ enum StoreKeys {
   signDate,
   allNodes,
   searchList,
+  readList
 }

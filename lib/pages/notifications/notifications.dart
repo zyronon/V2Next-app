@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/base_divider.dart';
-import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/no_data.dart';
-import 'package:v2ex/pages/notifications/notice_item.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/notifications/list_page.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 
 import '../../http/api.dart';
 import '../../model/model.dart';
@@ -30,6 +28,7 @@ class NotificationController extends GetxController {
   }
 
   getData({bool isRefresh = false}) async {
+    EventBus().emit('setUnread', 0);
     if (isRefresh) {
       loading = true;
       update();

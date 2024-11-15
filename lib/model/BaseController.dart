@@ -10,6 +10,7 @@ import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/event_bus.dart';
+import 'package:v2ex/utils/storage.dart';
 
 import 'database.dart';
 
@@ -18,8 +19,8 @@ class BaseController extends GetxController {
   List<NodeItem> tabList = <NodeItem>[].obs;
   Member member = new Member();
   Map<String, UserConfig> config = {'default': UserConfig()};
-  final GetStorage _box = GetStorage();
   Timer? _timer;
+  List<Map<String, int>> readList = [];
 
   static BaseController get to => Get.find<BaseController>();
 
@@ -41,6 +42,7 @@ class BaseController extends GetxController {
     EventBus().on('setUnread', (_) {
       member.actionCounts[3] = _;
       setMember(member);
+      update();
     });
 
     EventBus().on('startTask', (_) {
@@ -54,6 +56,8 @@ class BaseController extends GetxController {
     if (_timer != null) {
       _timer!.cancel();
     }
+    EventBus().off('setUnread');
+    EventBus().off('startTask');
   }
 
   startTask() {
@@ -66,7 +70,7 @@ class BaseController extends GetxController {
     if (_timer != null) {
       _timer!.cancel();
     }
-    _timer = Timer.periodic(Duration(seconds: 15), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 180), (timer) {
       Api.fetchUnRead().then((r) {
         if (r == -1) _timer!.cancel();
       });
@@ -87,28 +91,24 @@ class BaseController extends GetxController {
   }
 
   Future initStorage() async {
-    var r = _box.read(StoreKeys.currentMember.toString());
+    readList = GStorage().getReadList();
+    // print('readList===>${readList.toString()}');
+
+    var r = GStorage().getCurrentMember();
     if (r != null) {
-      member = Member.fromJson(r);
+      member = r;
     }
-    var r2 = _box.read(StoreKeys.config.toString());
+
+    var r2 = GStorage().getConfig();
     if (r2 != null) {
-      r2.forEach((key, value) {
-        if (config[key] == null) {
-          config[key] = new UserConfig();
-        } else {
-          config[key] = value is Map ? UserConfig.fromJson(value as dynamic) : value;
-        }
-      });
+      config = r2;
     }
-    var r3 = _box.read(StoreKeys.tabMap.toString());
-    if (r3 != null) {
-      r3 = jsonDecode(r3);
-      List<NodeItem> list = (r3 as List).map((v) => NodeItem.fromJson(v)).toList();
-      setTabMap(list);
-      // setTabMap(Const.defaultTabList);
+
+    var list = GStorage().getTabMap();
+    if (list.isEmpty) {
+      setHomeTabList(Const.defaultTabList);
     } else {
-      setTabMap(Const.defaultTabList);
+      setHomeTabList(list);
     }
     update();
   }
@@ -118,8 +118,7 @@ class BaseController extends GetxController {
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
-    _box.write(StoreKeys.currentMember.toString(), member.toJson());
-
+    GStorage().setCurrentMember(member);
     UserConfig uc = val['uc'];
     config[member.username] = uc;
     update();
@@ -131,22 +130,34 @@ class BaseController extends GetxController {
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
-    _box.write(StoreKeys.currentMember.toString(), member.toJson());
-    _box.write(StoreKeys.config.toString(), config);
+    GStorage().setCurrentMember(member);
+    GStorage().setConfig(config);
     update();
   }
 
   saveConfig() {
-    _box.write(StoreKeys.config.toString(), config);
+    GStorage().setConfig(config);
     if (isLogin) {
       Api.editNoteItem(Const.configPrefix + jsonEncode(currentConfig.toJson()), currentConfig.configNoteId);
     }
   }
 
-  setTabMap(val) {
+  setHomeTabList(val) {
     tabList.assignAll([...val]);
-    _box.write(StoreKeys.tabMap.toString(), jsonEncode(tabList));
+    GStorage().setTabMap(tabList);
     update();
+  }
+
+  addRead(Map<String, int> val) {
+    readList.add(val);
+    update();
+    GStorage().setReadList(readList);
+  }
+
+  isRead(int id, int count) {
+    return readList.any((map) {
+      return map.entries.any((entry) => entry.key == id.toString() && entry.value == count);
+    });
   }
 
   List getTags(String username) {

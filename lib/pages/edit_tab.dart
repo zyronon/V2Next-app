@@ -221,7 +221,7 @@ class EditTabPage extends StatelessWidget {
                               _buildIconButton(
                                   text: '保存',
                                   onTap: () {
-                                    _.bc.setTabMap(_.tabList);
+                                    _.bc.setHomeTabList(_.tabList);
                                     _.isEdit.value = false;
                                     EventBus().emit('refreshHomeTab');
                                   })

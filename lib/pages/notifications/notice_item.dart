@@ -129,15 +129,9 @@ class _NoticeItemState extends State<NoticeItem> {
         if (widget.noticeItem.postTitle.isNotEmpty)
           Container(
             alignment: Alignment.centerLeft,
-            // decoration: BoxDecoration(
-            //   color: Colors.grey[200],
-            //   borderRadius: BorderRadius.circular(5.r),
-            // ),
-            // margin: EdgeInsets.only(top: 2.w, bottom: 10.w, right: 10.w),
-            // padding: EdgeInsets.all(10.w),
             child: Text(
               widget.noticeItem.postTitle,
-              style: TextStyle(color: Color(0xff2395f1), decoration: TextDecoration.underline, decorationColor: Color(0xff2395f1)),
+              style: TextStyle(color: Color(0xff2395f1), fontSize: 16.sp, decoration: TextDecoration.underline, decorationColor: Color(0xff2395f1)),
             ),
           ),
       ],

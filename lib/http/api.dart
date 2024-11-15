@@ -7,6 +7,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response, FormData;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
+import 'package:intl/intl.dart';
 import 'package:v2ex/http/login_dio.dart';
 import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/model.dart';
@@ -1062,7 +1063,9 @@ class Api {
 
   //获取未读
   static Future<int> fetchUnRead() async {
-    print('定时查询未读消息');
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    print('定时查询未读消息:$formattedDate');
     //用pc网站，因为要取子tab。不取子tab可以用mobile网站
     var response = await Http().get('/faq');
     Document document = parse(response.data);

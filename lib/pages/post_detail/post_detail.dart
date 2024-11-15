@@ -769,7 +769,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                       onChanged: (bool v) {
                         (context as Element).markNeedsBuild();
                         bc.currentConfig.ignoreThankConfirm = !bc.currentConfig.ignoreThankConfirm;
-                        // bc.saveConfig();
+                        bc.saveConfig();
                         return true;
                       },
                     );

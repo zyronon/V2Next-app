@@ -11,6 +11,7 @@ import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/event_bus.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;
@@ -26,9 +27,25 @@ class TabPageController extends GetxController {
   TabPageController({required this.tab});
 
   @override
+  void onClose() {
+    super.onClose();
+    EventBus().off('post_detail', mergePost as EventCallback);
+  }
+
+  @override
   void onInit() async {
     super.onInit();
     getData(isRefresh: true);
+    EventBus().on('post_detail', mergePost as EventCallback);
+  }
+
+  mergePost(Post post) {
+    print('mergePost${post}');
+    var rIndex = postList.indexWhere((v) => v.postId == post.postId);
+    if (rIndex > -1) {
+      postList[rIndex].replyCount = post.replyCount;
+      update();
+    }
   }
 
   getData({bool isRefresh = false}) async {
@@ -44,7 +61,6 @@ class TabPageController extends GetxController {
       postList.addAll(res.data['list'].cast<Post>());
       nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
       totalPage = res.data['totalPage'];
-      print(nodeList);
     } else {
       needAuth = res.data == Auth.notAllow;
     }

@@ -6,6 +6,7 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class PostDetailController extends GetxController {
@@ -116,6 +117,8 @@ class PostDetailController extends GetxController {
     // post = await Api.getPostDetail('825072');
     loading = false;
     update();
+    bc.addRead({post.postId.toString(): post.replyCount});
+    EventBus().emit('post_detail', post);
     observerController.reattach();
 
     if (s == null) {

@@ -7,6 +7,7 @@ import 'package:v2ex/model/model.dart';
 
 import 'package:v2ex/pages/home/components/tab_hot_page.dart';
 import 'package:v2ex/pages/home/components/tab_page.dart';
+import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/event_bus.dart';
 
 class HomePage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     BaseController c = Get.find();
     // Api.pullOnce();
     c.initStorage();
-    c.initData();
+    // c.initData();
     // Http().setCookie();
   }
 
@@ -75,51 +76,56 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         body: Container(
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 7,
-                    child: TabBar(
-                      tabAlignment: TabAlignment.start,
-                      labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
-                      isScrollable: true,
-                      labelStyle: TextStyle(fontSize: 15.sp),
-                      unselectedLabelStyle: TextStyle(fontSize: 15.sp),
-                      tabs: tabs,
-                    ),
+              Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(bottom: BorderSide(color: Const.line)),
+                    boxShadow: [Const.boxShadowBottom],
                   ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          InkWell(
-                            child: Padding(
-                                padding: EdgeInsets.all(10.w),
-                                child: Icon(
-                                  Icons.sort,
-                                  size: 22.sp,
-                                )),
-                            onTap: () {
-                              Get.toNamed('/edit_tab');
-                            },
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 7,
+                          child: TabBar(
+                            tabAlignment: TabAlignment.start,
+                            labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
+                            isScrollable: true,
+                            labelStyle: TextStyle(fontSize: 15.sp),
+                            unselectedLabelStyle: TextStyle(fontSize: 15.sp),
+                            tabs: tabs,
+                          )),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                child: Padding(
+                                    padding: EdgeInsets.all(10.w),
+                                    child: Icon(
+                                      Icons.sort,
+                                      size: 22.sp,
+                                    )),
+                                onTap: () {
+                                  Get.toNamed('/edit_tab');
+                                },
+                              ),
+                              InkWell(
+                                child: Padding(
+                                    padding: EdgeInsets.all(10.w),
+                                    child: Icon(
+                                      Icons.search,
+                                      size: 22.sp,
+                                    )),
+                                onTap: () => Get.toNamed('/search'),
+                              ),
+                            ],
                           ),
-                          InkWell(
-                            child: Padding(
-                                padding: EdgeInsets.all(10.w),
-                                child: Icon(
-                                  Icons.search,
-                                  size: 22.sp,
-                                )),
-                            onTap: () => Get.toNamed('/search'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
+                        ),
+                      )
+                    ],
+                  )),
               Expanded(child: TabBarView(children: pages))
             ],
           ),

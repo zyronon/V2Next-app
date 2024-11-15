@@ -7,6 +7,7 @@ import 'package:v2ex/pages/discover/discover.dart';
 import 'package:v2ex/pages/notifications/notifications.dart';
 import 'package:v2ex/pages/me.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 
 import 'home/home.dart';
 
@@ -18,7 +19,7 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
-  BaseController c = Get.put(BaseController());
+  BaseController bc = Get.put(BaseController());
   int _selectedIndex = 0;
   PageController _controller = PageController(initialPage: 0);
   final List<Widget> _Pages = [
@@ -40,7 +41,7 @@ class _IndexState extends State<Index> {
     });
   }
 
-  Widget _widget({required int index, required IconData icon, required String text, int? badge}) {
+  Widget bottomBarItem({required int index, required IconData icon, required String text, int? badge}) {
     return Expanded(
         child: InkWell(
             child: Stack(
@@ -74,6 +75,9 @@ class _IndexState extends State<Index> {
               ],
             ),
             onTap: () {
+              if(index == 2){
+                EventBus().emit('setUnread', 0);
+              }
               _onItemTapped(index);
             }));
   }
@@ -97,25 +101,28 @@ class _IndexState extends State<Index> {
               children: _Pages),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 60.w,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Const.line)),
-          boxShadow: [Const.boxShadowTop],
-        ),
-        child: Container(
-          height: double.infinity, // 占满父容器高度
-          child: Row(
-            children: [
-              _widget(index: 0, icon: Icons.home, text: '首页'),
-              _widget(index: 1, icon: Icons.business, text: '发现'),
-              _widget(index: 2, icon: Icons.notifications, text: '通知', badge: c.member.actionCounts[3]),
-              _widget(index: 3, icon: Icons.settings, text: '我'),
-            ],
+      bottomNavigationBar: GetBuilder<BaseController>(
+          builder: (_){
+        return Container(
+          height: 60.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Const.line)),
+            boxShadow: [Const.boxShadowTop],
           ),
-        ),
-      ),
+          child: Container(
+            height: double.infinity, // 占满父容器高度
+            child: Row(
+              children: [
+                bottomBarItem(index: 0, icon: Icons.home, text: '首页'),
+                bottomBarItem(index: 1, icon: Icons.business, text: '发现'),
+                bottomBarItem(index: 2, icon: Icons.notifications, text: '通知', badge: bc.member.actionCounts[3]),
+                bottomBarItem(index: 3, icon: Icons.settings, text: '我'),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 }

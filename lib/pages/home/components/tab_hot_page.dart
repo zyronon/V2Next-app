@@ -14,6 +14,7 @@ import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class TabHotPageController extends GetxController {
@@ -21,6 +22,7 @@ class TabHotPageController extends GetxController {
   bool needAuth = false;
   List<Post> postList = [];
   List<Map> mapPostList = [];
+
   final BaseController home = Get.find();
   NodeItem tab;
   String test = '';
@@ -31,10 +33,27 @@ class TabHotPageController extends GetxController {
   TabHotPageController({required this.tab});
 
   @override
+  void onClose() {
+    super.onClose();
+    EventBus().off('post_detail', mergePost as EventCallback);
+  }
+
+  @override
   void onInit() async {
     super.onInit();
     getList(isRefresh: true);
     dateList = await Api.getV2HotDateMap();
+    EventBus().on('post_detail', mergePost as EventCallback);
+  }
+
+  mergePost(Post post) {
+    print('mergePost${post}');
+    List list = mapPostList.map((item) => item['list']).expand((list) => list).toList();
+    var rIndex = list.indexWhere((v) => v.postId == post.postId);
+    if (rIndex > -1) {
+      list[rIndex].replyCount = post.replyCount;
+      update();
+    }
   }
 
   String get currentDate {
@@ -151,10 +170,7 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
                 SizedBox(width: 5.w),
                 InkWell(
                   child: Icon(Icons.help_outline, size: 14.w),
-                  onTap: () => Utils.toast(
-                    msg: item['date'] == c.currentDate ? '列表数据来源于实时请求v2ex.com解析' : '列表数据来源于当天23:30采集，回复时间以当天23:30为准',
-                    duration: 5
-                  ),
+                  onTap: () => Utils.toast(msg: item['date'] == c.currentDate ? '列表数据来源于实时请求v2ex.com解析' : '列表数据来源于当天23:30采集，回复时间以当天23:30为准', duration: 5),
                 )
               ]),
               Icon(Icons.calendar_month, size: 18.w)
