@@ -140,7 +140,7 @@ class Api {
     data.name = name;
     data.avatar = mainHeader.querySelector('img')!.attributes['src']!;
     // 节点名称
-    data.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1];
+    data.title = mainHeader.querySelector('div.node-breadcrumb')!.text.split('›')[1].trim();
     // 主题总数
     data.topics = int.parse(mainHeader.querySelector('strong')!.text.replaceAll(',', ''));
     // 节点描述
@@ -723,7 +723,7 @@ class Api {
   static Future<List<NodeItem>> getAllNode() async {
     Response response = await Http().get(Const.allNodes);
     GStorage().setAllNodes(response.data);
-    List<NodeItem> allList = response.data.map((e) => NodeItem.fromJson(e)).toList();
+    List<NodeItem> allList = (response.data as List<dynamic>).map((e) => NodeItem.fromJson(e)).toList();
     return allList;
   }
 

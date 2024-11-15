@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class Controller extends GetxController {
@@ -59,14 +61,16 @@ class EditTabPage extends StatelessWidget {
     var r = await Get.toNamed('/node_group', arguments: FromSource.editTab);
     if (r != null) {
       var name = r is NodeItem ? r.name : r['name'];
+      var title = r is NodeItem ? r.title : r['title'];
       if (_.tabList.any((val) => val.name == name)) {
         Utils.toast(msg: '已存在，请勿重复添加');
       } else {
         _.isEdit.value = true;
-        if (r is NodeItem) {
-          _.tabList.add(NodeItem(title: r.title, name: r.name, type: TabType.node));
+        var rIndex = Const.defaultTabList.indexWhere((v) => v.name == name);
+        if (rIndex > -1) {
+          _.tabList.add(Const.defaultTabList[rIndex]);
         } else {
-          _.tabList.add(NodeItem(title: r['title'], name: r['name'], type: TabType.node));
+          _.tabList.add(NodeItem(title: title, name: name, type: TabType.node));
         }
         Future.delayed(Duration(milliseconds: 300), () {
           scrollController.jumpTo(scrollController.position.maxScrollExtent);
@@ -142,12 +146,15 @@ class EditTabPage extends StatelessWidget {
                                 )
                               : Column(
                                   children: [
-                                    Wrap(
-                                        alignment: WrapAlignment.start,
-                                        crossAxisAlignment: WrapCrossAlignment.start,
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: _.tabList.map((i) => TDTag(i.title, isLight: true, size: TDTagSize.large)).toList()),
+                                    Container(
+                                        padding: EdgeInsets.all(12.w),
+                                        width: double.infinity,
+                                        child: Wrap(
+                                            alignment: WrapAlignment.start,
+                                            crossAxisAlignment: WrapCrossAlignment.start,
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: _.tabList.map((i) => TDTag(i.title, isLight: true, size: TDTagSize.large)).toList())),
                                     Padding(
                                         padding: EdgeInsets.fromLTRB(8, 20, 8, 8),
                                         child: Row(
@@ -161,7 +168,7 @@ class EditTabPage extends StatelessWidget {
                                             SizedBox(width: 5),
                                             Expanded(
                                                 child: Text(
-                                              '默认Tab为特殊Tab，处理逻辑和自行添加的节点不同，删除后无法再从节点列表添加，误删除请点击"编辑"=>"恢复默认"按钮',
+                                              '部分默认Tab为特殊Tab，误删除请点击"编辑"=>"恢复默认"按钮',
                                               style: TextStyle(fontSize: 12, color: Colors.grey),
                                             )),
                                           ],
@@ -216,6 +223,7 @@ class EditTabPage extends StatelessWidget {
                                   onTap: () {
                                     _.bc.setTabMap(_.tabList);
                                     _.isEdit.value = false;
+                                    EventBus().emit('refreshHomeTab');
                                   })
                             ]
                           ],

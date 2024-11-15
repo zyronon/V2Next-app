@@ -7,6 +7,7 @@ import 'package:v2ex/model/model.dart';
 
 import 'package:v2ex/pages/home/components/tab_hot_page.dart';
 import 'package:v2ex/pages/home/components/tab_page.dart';
+import 'package:v2ex/utils/event_bus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,6 +26,16 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
+    init();
+    EventBus().on('refreshHomeTab', (_) {
+      init();
+      setState(() {
+        tabKey = UniqueKey();
+      });
+    });
+  }
+
+  init() {
     setState(() {
       tabs = bc.tabList.map((e) {
         return Tab(text: e.title);
@@ -67,16 +78,18 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
               Row(
                 children: [
                   Expanded(
+                    flex: 7,
                     child: TabBar(
                       tabAlignment: TabAlignment.start,
+                      labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
                       isScrollable: true,
                       labelStyle: TextStyle(fontSize: 15.sp),
                       unselectedLabelStyle: TextStyle(fontSize: 15.sp),
                       tabs: tabs,
                     ),
-                    flex: 7,
                   ),
                   Expanded(
+                    flex: 3,
                     child: Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -88,18 +101,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                                   Icons.sort,
                                   size: 22.sp,
                                 )),
-                            onTap: () async {
-                              await Get.toNamed('/edit_tab');
-                              setState(() {
-                                tabs = bc.tabList.map((e) {
-                                  return Tab(text: e.title);
-                                }).toList();
-                                pages = bc.tabList.map((e) {
-                                  if (e.type == TabType.hot) return new TabHotPage(tab: e);
-                                  return new TabPage(tab: e);
-                                }).toList();
-                                tabKey = UniqueKey();
-                              });
+                            onTap: () {
+                              Get.toNamed('/edit_tab');
                             },
                           ),
                           InkWell(
@@ -114,7 +117,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         ],
                       ),
                     ),
-                    flex: 3,
                   )
                 ],
               ),

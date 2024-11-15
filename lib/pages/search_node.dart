@@ -33,7 +33,13 @@ class _SearchNodePageState extends State<SearchNodePage> {
   Future getData() async {
     var res = await Api.getAllNodesBySort();
     setState(() {
-      list = res;
+      list.addAll([
+        new NodeItem(title: '最热', name: 'hot', type: TabType.hot),
+        new NodeItem(title: '最近', name: 'recent', type: TabType.recent),
+        new NodeItem(title: '最新', name: 'new', type: TabType.latest),
+        new NodeItem(title: '全部', name: 'all', type: TabType.tab),
+      ]);
+      list.addAll(res);
     });
   }
 
@@ -137,7 +143,7 @@ class _SearchNodePageState extends State<SearchNodePage> {
                       ),
                       subtitle: Text(searchList[index].name),
                       enableFeedback: true,
-                      trailing: Text('主题数：${searchList[index].topics}'));
+                      trailing: Text(searchList[index].topics == 0 ? '' : '主题数：${searchList[index].topics}'));
                 }, childCount: searchList.length)),
               ],
             ),

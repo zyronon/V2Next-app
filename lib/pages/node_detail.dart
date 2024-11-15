@@ -16,6 +16,8 @@ import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
+import 'package:v2ex/utils/const_val.dart';
+import 'package:v2ex/utils/event_bus.dart';
 import 'package:v2ex/utils/utils.dart';
 
 class NodeController extends GetxController {
@@ -101,6 +103,11 @@ class NodeController extends GetxController {
       Utils.toast(msg: '收藏失败');
     }
   }
+
+  bool get isInHomeTab {
+    BaseController bc = BaseController.to;
+    return bc.tabList.any((v) => v.name == data.name);
+  }
 }
 
 class NodeDetailPage extends StatelessWidget {
@@ -165,16 +172,30 @@ class NodeDetailPage extends StatelessWidget {
                               )),
                               SizedBox(width: 10.w),
                               BaseButton(
-                                  text: '添加到首页',
+                                  text: _.isInHomeTab ? '从首页移除' : '添加到首页',
                                   onTap: () {
                                     BaseController bc = BaseController.to;
-                                    if (bc.tabList.any((val) => val.name == _.data.name)) {
+                                    if (_.isInHomeTab) {
+                                      var rIndex = bc.tabList.indexWhere((v) => v.name == _.data.name);
+                                      if (rIndex > -1) {
+                                        bc.tabList.removeAt(rIndex);
+                                        bc.setTabMap(bc.tabList);
+                                        Utils.toast(msg: '已从首页移除');
+                                        EventBus().emit('refreshHomeTab');
+                                        _.update();
+                                      }
+                                    } else {
+                                      var rIndex = Const.defaultTabList.indexWhere((v) => v.name == _.data.name);
+                                      if (rIndex > -1) {
+                                        bc.tabList.add(Const.defaultTabList[rIndex]);
+                                      } else {
+                                        bc.tabList.add(_.data);
+                                      }
+                                      bc.setTabMap(bc.tabList);
                                       Utils.toast(msg: '已添加到首页');
-                                      return;
+                                      EventBus().emit('refreshHomeTab');
+                                      _.update();
                                     }
-                                    bc.tabList.add(_.data);
-                                    bc.setTabMap(bc.tabList);
-                                    Utils.toast(msg: '已添加到首页');
                                   }),
                             ],
                           ),

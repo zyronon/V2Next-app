@@ -437,9 +437,6 @@ class NodeItem {
   String avatarMini = '';
   String avatarLarge = '';
   String avatarNormal = '';
-  String parentNodeName = ''; // 父节点名
-  String titleAlternative = ''; // 好像没什么用
-  List<Post> postList = [];
   TabType type = TabType.tab;
 
   NodeItem({
@@ -458,7 +455,7 @@ class NodeItem {
     this.avatarLarge = '',
     this.avatarNormal = '',
     TabType? type,
-  }) : this.type = type ?? TabType.tab;
+  }) : this.type = type ?? TabType.node;
 
   NodeItem.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;

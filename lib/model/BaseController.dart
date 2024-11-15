@@ -71,8 +71,8 @@ class BaseController extends GetxController {
     if (r3 != null) {
       r3 = jsonDecode(r3);
       List<NodeItem> list = (r3 as List).map((v) => NodeItem.fromJson(v)).toList();
-      // setTabMap(list);
-      setTabMap(Const.defaultTabList);
+      setTabMap(list);
+      // setTabMap(Const.defaultTabList);
     } else {
       setTabMap(Const.defaultTabList);
     }
@@ -110,7 +110,7 @@ class BaseController extends GetxController {
   }
 
   setTabMap(val) {
-    tabList.assignAll(val);
+    tabList.assignAll([...val]);
     _box.write(StoreKeys.tabMap.toString(), jsonEncode(tabList));
     update();
   }
