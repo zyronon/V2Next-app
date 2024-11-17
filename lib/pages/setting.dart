@@ -19,8 +19,8 @@ class _SettingState extends State<Setting> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
+
   Widget _buildMenuItem({required String name, Widget? right, GestureTapCallback? onTap}) {
     return InkWell(
       child: Container(
@@ -72,22 +72,7 @@ class _SettingState extends State<Setting> {
                           }),
                       Const.lineWidget,
                       _buildMenuItem(
-                          name: '排版设置',
-                          onTap: () {
-                            Get.toNamed('/layout');
-                          }),
-                      _buildMenuItem(
-                          name: '排版设置',
-                          onTap: () {
-                            Get.toNamed('/layout');
-                          }),
-                      _buildMenuItem(
-                          name: '排版设置',
-                          onTap: () {
-                            Get.toNamed('/layout');
-                          }),
-                      _buildMenuItem(
-                          name: '排版设置',
+                          name: '字体排版设置',
                           onTap: () {
                             Get.toNamed('/layout');
                           }),
@@ -129,42 +114,6 @@ class _SettingState extends State<Setting> {
                           )),
                       Const.lineWidget,
                       _buildMenuItem(
-                          name: '显示高赞回复',
-                          right: TDSwitch(
-                            size: TDSwitchSize.small,
-                            isOn: bc.currentConfig.showTopReply,
-                            onChanged: (bool v) {
-                              bc.currentConfig.showTopReply = !bc.currentConfig.showTopReply;
-                              bc.saveConfig();
-                              return true;
-                            },
-                          )),
-                      Const.lineWidget,
-                      _buildMenuItem(
-                          name: '最多显示5个高赞回复',
-                          right: TDSwitch(
-                            size: TDSwitchSize.small,
-                            isOn: bc.currentConfig.showTopReply,
-                            onChanged: (bool v) {
-                              bc.currentConfig.showTopReply = !bc.currentConfig.showTopReply;
-                              bc.saveConfig();
-                              return true;
-                            },
-                          )),
-                      Const.lineWidget,
-                      _buildMenuItem(
-                          name: '最少需要3个赞才能被判定为高赞',
-                          right: TDSwitch(
-                            size: TDSwitchSize.small,
-                            isOn: bc.currentConfig.showTopReply,
-                            onChanged: (bool v) {
-                              bc.currentConfig.showTopReply = !bc.currentConfig.showTopReply;
-                              bc.saveConfig();
-                              return true;
-                            },
-                          )),
-                      Const.lineWidget,
-                      _buildMenuItem(
                           name: '用户标签',
                           right: TDSwitch(
                             size: TDSwitchSize.small,
@@ -177,21 +126,70 @@ class _SettingState extends State<Setting> {
                           )),
                       Const.lineWidget,
                       _buildMenuItem(
-                          name: '反馈',
+                          name: '显示高赞回复',
+                          right: TDSwitch(
+                            size: TDSwitchSize.small,
+                            isOn: bc.currentConfig.showTopReply,
+                            onChanged: (bool v) {
+                              bc.currentConfig.showTopReply = !bc.currentConfig.showTopReply;
+                              bc.saveConfig();
+                              return true;
+                            },
+                          )),
+                      Const.lineWidget,
+                      _buildMenuItem(
+                          name: '显示 ${bc.currentConfig.topReplyCount} 个高赞回复',
                           onTap: () {
-                            Utils.openBrowser(Const.issues);
+                            TDPicker.showMultiPicker(context, title: '显示多少个高赞回复', onConfirm: (selected) {
+                              bc.currentConfig.topReplyCount = selected[0] + 3;
+                              Get.back();
+                              bc.saveConfig();
+                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
                           }),
                       Const.lineWidget,
                       _buildMenuItem(
-                          name: '退出登录',
-                          onTap: () async {
-                            await LoginApi.logout();
-                            Restart.restartApp(
-                              // Customizing the restart notification message (only needed on iOS)
-                              notificationTitle: 'Restarting App',
-                              notificationBody: 'Please tap here to open the app again.',
-                            );
+                          name: '至少 ${bc.currentConfig.topReplyLoveMinCount} 个赞判定为高赞',
+                          onTap: () {
+                            TDPicker.showMultiPicker(context, title: '多少个赞判定为高赞', onConfirm: (selected) {
+                              bc.currentConfig.topReplyLoveMinCount = selected[0] + 3;
+                              Get.back();
+                              bc.saveConfig();
+                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
                           }),
+                      Const.lineWidget,
+                      _buildMenuItem(
+                          name: '检查更新',
+                          onTap: () {
+                            TDPicker.showMultiPicker(context, title: '显示多少个高赞回复', onConfirm: (selected) {
+                              bc.currentConfig.topReplyCount = selected[0] + 3;
+                              Get.back();
+                              bc.saveConfig();
+                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
+                          }),
+                      Const.lineWidget,
+                      _buildMenuItem(
+                          name: '关于 V2Next',
+                          onTap: () {
+                            TDPicker.showMultiPicker(context, title: '显示多少个高赞回复', onConfirm: (selected) {
+                              bc.currentConfig.topReplyCount = selected[0] + 3;
+                              Get.back();
+                              bc.saveConfig();
+                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
+                          }),
+                      if (bc.isLogin) ...[
+                        Const.lineWidget,
+                        _buildMenuItem(
+                            name: '退出登录',
+                            right: Text(''),
+                            onTap: () async {
+                              await LoginApi.logout();
+                              Restart.restartApp(
+                                // Customizing the restart notification message (only needed on iOS)
+                                notificationTitle: 'Restarting App',
+                                notificationBody: 'Please tap here to open the app again.',
+                              );
+                            }),
+                      ]
                     ]))
               ],
             ),

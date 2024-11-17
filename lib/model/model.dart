@@ -331,11 +331,13 @@ class Layout {
 }
 
 class UserConfig {
-  bool showTopReply;//高赞回复
-  bool openTag;//标签功能
-  bool replaceImgur;//替换imgur源
-  bool ignoreThankConfirm;//忽略感谢确认弹框
-  bool autoLoadPostContent;//自动加载帖子内容
+  bool showTopReply; //高赞回复
+  bool openTag; //标签功能
+  bool replaceImgur; //替换imgur源
+  bool ignoreThankConfirm; //忽略感谢确认弹框
+  bool autoLoadPostContent; //自动加载帖子内容
+  int topReplyLoveMinCount; //高赞，统计最小限制
+  int topReplyCount; //高赞数量
   double version;
   String configNoteId;
   String tagNoteId;
@@ -350,6 +352,8 @@ class UserConfig {
     this.ignoreThankConfirm = false,
     this.autoLoadPostContent = false,
     this.version = 0.1,
+    this.topReplyLoveMinCount = 3,
+    this.topReplyCount = 5,
     this.configNoteId = '',
     this.tagNoteId = '',
     Layout? layout,
@@ -365,6 +369,8 @@ class UserConfig {
         ignoreThankConfirm = json['ignoreThankConfirm'] ?? false,
         autoLoadPostContent = json['autoLoadPostContent'] ?? false,
         version = json['version']?.toDouble() ?? 0.1,
+        topReplyLoveMinCount = json['topReplyLoveMinCount']?.toInt() ?? 3,
+        topReplyCount = json['topReplyCount']?.toInt() ?? 5,
         // 防止类型不匹配时出错
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
         configNoteId = json['configNoteId'] ?? '',
@@ -382,6 +388,8 @@ class UserConfig {
       'replaceImgur': replaceImgur,
       'ignoreThankConfirm': ignoreThankConfirm,
       'autoLoadPostContent': autoLoadPostContent,
+      'topReplyLoveMinCount': topReplyLoveMinCount,
+      'topReplyCount': topReplyCount,
       'version': version,
       'configNoteId': configNoteId,
       'tagNoteId': tagNoteId,
