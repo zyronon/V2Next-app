@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_divider.dart';
+import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
@@ -11,12 +12,11 @@ class PostItem extends StatelessWidget {
   Post item;
   NodeItem tab;
 
-  PostItem({required this.item, required this.tab});
+  PostItem({super.key, required this.item, required this.tab});
 
   goPostDetail() {
     Get.toNamed('/post_detail', arguments: item);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -138,21 +138,20 @@ class PostItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: bc.layout.fontSize,
                       height: bc.layout.lineHeight,
+                      fontWeight: item.contentRendered.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                       color: bc.isRead(item.postId, item.replyCount) ? Colors.grey[400] : Colors.black,
                     ),
                   ),
                 ),
                 onTap: goPostDetail,
               ),
-              // InkWell(
-              //   child: Padding(
-              //     padding: EdgeInsets.only(
-              //       top: 10,
-              //     ),
-              //     child: BaseHtmlWidget(html: item.contentHtml),
-              //   ),
-              //   onTap: () => {getPost(item)},
-              // ),
+              if (item.contentRendered.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 10.w,
+                  ),
+                  child: BaseHtml(html: item.contentRendered, fontSize: bc.fontSize, onTap: goPostDetail),
+                )
             ]),
           ),
           BaseDivider()

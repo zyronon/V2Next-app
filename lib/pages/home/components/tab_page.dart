@@ -8,8 +8,8 @@ import 'package:v2ex/components/no_data.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/components/tab_child_node.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/BaseController.dart';
-
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/event_bus.dart';
 
@@ -39,7 +39,7 @@ class TabPageController extends GetxController {
     EventBus().on('post_detail', mergePost as EventCallback);
   }
 
-  mergePost(Post post) {
+  mergePost(post) {
     print('mergePost${post}');
     var rIndex = postList.indexWhere((v) => v.postId == post.postId);
     if (rIndex > -1) {
@@ -61,6 +61,19 @@ class TabPageController extends GetxController {
       postList.addAll(res.data['list'].cast<Post>());
       nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
       totalPage = res.data['totalPage'];
+      if (isRefresh) {
+        var maxI = postList.length > 3 ? 3 : postList.length;
+        for (var i = 0; i < maxI; i++) {
+          var item = postList[i];
+          Http().get('/api/topics/show.json?id=${item.postId}').then((res) {
+            try {
+              String t = res.data[0]['content_rendered'];
+              item.contentRendered = t + ' ';
+              update();
+            } catch (e) {}
+          });
+        }
+      }
     } else {
       needAuth = res.data == Auth.notAllow;
     }
@@ -68,7 +81,7 @@ class TabPageController extends GetxController {
     update();
   }
 
-  onRefresh() async {
+  Future onRefresh() async {
     pageNo = 1;
     isLoadingMore = false;
     await getData(isRefresh: true);
@@ -98,24 +111,66 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   final ScrollController ctrl = ScrollController();
+  Map<int, GlobalKey> _itemKeys = {}; // 存储每个子项的 GlobalKey
 
   Future<void> onRefresh() async {
     final TabPageController c = Get.find(tag: widget.tab.name);
     await c.onRefresh();
-    return;
+    _itemKeys = {};
   }
 
   @override
   void initState() {
     super.initState();
     ctrl.addListener(scrollListener);
+    ctrl.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    ctrl.removeListener(scrollListener);
+    ctrl.removeListener(_onScroll);
     ctrl.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 获取 ListView 的 RenderObject
+      final RenderObject? listViewRenderObject = ctrl.position.context.storageContext.findRenderObject();
+      if (listViewRenderObject is RenderBox) {
+        // 获取可见区域
+        //ctrl.position.viewportDimension list高度
+        List<int> visibleItems = [];
+
+        _itemKeys.forEach((index, GlobalKey key) {
+          final RenderObject? renderObject = key.currentContext?.findRenderObject();
+          if (renderObject is RenderBox) {
+            final Offset childOffset = renderObject.localToGlobal(Offset.zero);
+            //childOffset.dy item的绝对y坐标
+            if (childOffset.dy > 0 && childOffset.dy < ctrl.position.viewportDimension + 300) {
+              visibleItems.add(index);
+            }
+          }
+        });
+
+        final TabPageController c = Get.find(tag: widget.tab.name);
+        visibleItems.forEach((v) {
+          var item = c.postList[v];
+          if (item.contentRendered.isEmpty) {
+            _itemKeys.remove(v);
+            print('请求内容: ${item.title}');
+            Http().get('/api/topics/show.json?id=${item.postId}').then((res) {
+              try {
+                String t = res.data[0]['content_rendered'];
+                item.contentRendered = t + ' ';
+                c.update();
+              } catch (e) {}
+            });
+          }
+        });
+        // print('可见: ${visibleItems},_itemKeys$_itemKeys');
+      }
+    });
   }
 
   void scrollListener() {
@@ -137,7 +192,7 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
               if (_.needAuth)
                 return NoData(cb: () {
                   if (BaseController.to.isLogin) {
-                    onRefresh();
+                    _.onRefresh();
                   }
                 });
               return ListView.builder(
@@ -145,14 +200,16 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                 controller: ctrl,
                 itemCount: _.postList.length,
                 itemBuilder: (BuildContext context, int index) {
+                  final key = GlobalKey();
+                  _itemKeys[index] = key;
                   if (_.postList.length - 1 == index) {
-                    return Column(children: [
+                    return Column(key: key, children: [
                       PostItem(item: _.postList[index], tab: widget.tab),
                       FooterTips(loading: _.isLoadingMore),
                       if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList)
                     ]);
                   }
-                  return PostItem(item: _.postList[index], tab: widget.tab);
+                  return PostItem(key: key, item: _.postList[index], tab: widget.tab);
                 },
               );
             }),

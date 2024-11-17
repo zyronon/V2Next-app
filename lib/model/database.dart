@@ -108,6 +108,8 @@ class DbReply extends Table {
   BoolColumn get isChoose => boolean().withDefault(Constant(false))();
 
   BoolColumn get isWrong => boolean().withDefault(Constant(false))();
+
+  DateTimeColumn get createdTime => dateTime().withDefault(currentDateAndTime)();
 }
 
 class PostWithReplies {
@@ -125,15 +127,23 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'my_database');
   }
 
+  //TODO 未测试
+  Future<void> deleteOldRecords() async {
+    // 计算15天前的日期
+    final threeMonthsAgo = DateTime.now().subtract(Duration(days: 15));
+    await (delete(dbPost)..where((record) => record.createdTime.isSmallerThanValue(threeMonthsAgo))).go();
+    await (delete(dbReply)..where((record) => record.createdTime.isSmallerThanValue(threeMonthsAgo))).go();
+  }
+
   @override
   MigrationStrategy get migration => MigrationStrategy(onUpgrade: (migrator, from, to) async {
-        if (from == 3) {
+        if (from == 4) {
           // await migrator.dropColumn(todoItems, 'postId'); // 添加新列
           // await migrator.addColumn(todoItems, todoItems.postId); // 添加新列
         }

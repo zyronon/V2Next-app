@@ -36,6 +36,7 @@ class BaseController extends GetxController {
   void onInit() async {
     super.onInit();
     initStorage();
+    database.deleteOldRecords();
     Future.delayed(Duration(seconds: 1), () {
       initData();
     });

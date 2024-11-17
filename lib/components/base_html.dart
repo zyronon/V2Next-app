@@ -15,8 +15,9 @@ import 'package:v2ex/utils/utils.dart';
 class CommonHtml extends StatelessWidget {
   final String html;
   final bool ellipsis;
+  final double? fontSize;
 
-  const CommonHtml({super.key, required this.html, this.ellipsis = false});
+  const CommonHtml({super.key, required this.html, this.ellipsis = false, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class CommonHtml extends StatelessWidget {
 
     return HtmlWidget(ellipsis ? '<div style="max-lines: 3; text-overflow: ellipsis">${html}</div>' : html,
         renderMode: RenderMode.column,
-        textStyle: TextStyle(fontSize: bc.layout.fontSize, height: bc.layout.lineHeight),
+        textStyle: TextStyle(fontSize: this.fontSize != null ? this.fontSize : bc.fontSize, height: bc.layout.lineHeight),
         factoryBuilder: () => MyHtmlFactory(),
         customStylesBuilder: (element) {
           if (element.classes.contains('subtle')) {
@@ -71,8 +72,9 @@ class BaseHtml extends StatelessWidget {
   final String html;
   final bool ellipsis;
   final GestureTapCallback? onTap;
+  final double? fontSize;
 
-  const BaseHtml({super.key, required this.html, this.onTap, this.ellipsis = false});
+  const BaseHtml({super.key, required this.html, this.onTap, this.ellipsis = false, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +143,7 @@ class BaseHtml extends StatelessWidget {
           );
         },
         child: InkWell(
-          child: CommonHtml(html: html, ellipsis: ellipsis),
+          child: CommonHtml(html: html, ellipsis: ellipsis, fontSize: fontSize),
           onTap: onTap,
         ));
   }

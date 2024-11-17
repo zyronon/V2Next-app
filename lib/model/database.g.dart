@@ -1414,6 +1414,14 @@ class $DbReplyTable extends DbReply with TableInfo<$DbReplyTable, DbReplyData> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_wrong" IN (0, 1))'),
       defaultValue: Constant(false));
+  static const VerificationMeta _createdTimeMeta =
+      const VerificationMeta('createdTime');
+  @override
+  late final GeneratedColumn<DateTime> createdTime = GeneratedColumn<DateTime>(
+      'created_time', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1437,7 +1445,8 @@ class $DbReplyTable extends DbReply with TableInfo<$DbReplyTable, DbReplyData> {
         isMod,
         isUse,
         isChoose,
-        isWrong
+        isWrong,
+        createdTime
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1564,6 +1573,12 @@ class $DbReplyTable extends DbReply with TableInfo<$DbReplyTable, DbReplyData> {
       context.handle(_isWrongMeta,
           isWrong.isAcceptableOrUnknown(data['is_wrong']!, _isWrongMeta));
     }
+    if (data.containsKey('created_time')) {
+      context.handle(
+          _createdTimeMeta,
+          createdTime.isAcceptableOrUnknown(
+              data['created_time']!, _createdTimeMeta));
+    }
     return context;
   }
 
@@ -1617,6 +1632,8 @@ class $DbReplyTable extends DbReply with TableInfo<$DbReplyTable, DbReplyData> {
           .read(DriftSqlType.bool, data['${effectivePrefix}is_choose'])!,
       isWrong: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_wrong'])!,
+      createdTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_time'])!,
     );
   }
 
@@ -1649,6 +1666,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
   final bool isUse;
   final bool isChoose;
   final bool isWrong;
+  final DateTime createdTime;
   const DbReplyData(
       {required this.id,
       required this.postAutoId,
@@ -1671,7 +1689,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
       required this.isMod,
       required this.isUse,
       required this.isChoose,
-      required this.isWrong});
+      required this.isWrong,
+      required this.createdTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1697,6 +1716,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
     map['is_use'] = Variable<bool>(isUse);
     map['is_choose'] = Variable<bool>(isChoose);
     map['is_wrong'] = Variable<bool>(isWrong);
+    map['created_time'] = Variable<DateTime>(createdTime);
     return map;
   }
 
@@ -1724,6 +1744,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
       isUse: Value(isUse),
       isChoose: Value(isChoose),
       isWrong: Value(isWrong),
+      createdTime: Value(createdTime),
     );
   }
 
@@ -1753,6 +1774,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
       isUse: serializer.fromJson<bool>(json['isUse']),
       isChoose: serializer.fromJson<bool>(json['isChoose']),
       isWrong: serializer.fromJson<bool>(json['isWrong']),
+      createdTime: serializer.fromJson<DateTime>(json['createdTime']),
     );
   }
   @override
@@ -1781,6 +1803,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
       'isUse': serializer.toJson<bool>(isUse),
       'isChoose': serializer.toJson<bool>(isChoose),
       'isWrong': serializer.toJson<bool>(isWrong),
+      'createdTime': serializer.toJson<DateTime>(createdTime),
     };
   }
 
@@ -1806,7 +1829,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
           bool? isMod,
           bool? isUse,
           bool? isChoose,
-          bool? isWrong}) =>
+          bool? isWrong,
+          DateTime? createdTime}) =>
       DbReplyData(
         id: id ?? this.id,
         postAutoId: postAutoId ?? this.postAutoId,
@@ -1830,6 +1854,7 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
         isUse: isUse ?? this.isUse,
         isChoose: isChoose ?? this.isChoose,
         isWrong: isWrong ?? this.isWrong,
+        createdTime: createdTime ?? this.createdTime,
       );
   DbReplyData copyWithCompanion(DbReplyCompanion data) {
     return DbReplyData(
@@ -1862,6 +1887,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
       isUse: data.isUse.present ? data.isUse.value : this.isUse,
       isChoose: data.isChoose.present ? data.isChoose.value : this.isChoose,
       isWrong: data.isWrong.present ? data.isWrong.value : this.isWrong,
+      createdTime:
+          data.createdTime.present ? data.createdTime.value : this.createdTime,
     );
   }
 
@@ -1889,7 +1916,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
           ..write('isMod: $isMod, ')
           ..write('isUse: $isUse, ')
           ..write('isChoose: $isChoose, ')
-          ..write('isWrong: $isWrong')
+          ..write('isWrong: $isWrong, ')
+          ..write('createdTime: $createdTime')
           ..write(')'))
         .toString();
   }
@@ -1917,7 +1945,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
         isMod,
         isUse,
         isChoose,
-        isWrong
+        isWrong,
+        createdTime
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1944,7 +1973,8 @@ class DbReplyData extends DataClass implements Insertable<DbReplyData> {
           other.isMod == this.isMod &&
           other.isUse == this.isUse &&
           other.isChoose == this.isChoose &&
-          other.isWrong == this.isWrong);
+          other.isWrong == this.isWrong &&
+          other.createdTime == this.createdTime);
 }
 
 class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
@@ -1970,6 +2000,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
   final Value<bool> isUse;
   final Value<bool> isChoose;
   final Value<bool> isWrong;
+  final Value<DateTime> createdTime;
   const DbReplyCompanion({
     this.id = const Value.absent(),
     this.postAutoId = const Value.absent(),
@@ -1993,6 +2024,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
     this.isUse = const Value.absent(),
     this.isChoose = const Value.absent(),
     this.isWrong = const Value.absent(),
+    this.createdTime = const Value.absent(),
   });
   DbReplyCompanion.insert({
     this.id = const Value.absent(),
@@ -2017,6 +2049,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
     this.isUse = const Value.absent(),
     this.isChoose = const Value.absent(),
     this.isWrong = const Value.absent(),
+    this.createdTime = const Value.absent(),
   })  : postAutoId = Value(postAutoId),
         replyContent = Value(replyContent),
         replyUsers = Value(replyUsers),
@@ -2048,6 +2081,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
     Expression<bool>? isUse,
     Expression<bool>? isChoose,
     Expression<bool>? isWrong,
+    Expression<DateTime>? createdTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2072,6 +2106,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
       if (isUse != null) 'is_use': isUse,
       if (isChoose != null) 'is_choose': isChoose,
       if (isWrong != null) 'is_wrong': isWrong,
+      if (createdTime != null) 'created_time': createdTime,
     });
   }
 
@@ -2097,7 +2132,8 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
       Value<bool>? isMod,
       Value<bool>? isUse,
       Value<bool>? isChoose,
-      Value<bool>? isWrong}) {
+      Value<bool>? isWrong,
+      Value<DateTime>? createdTime}) {
     return DbReplyCompanion(
       id: id ?? this.id,
       postAutoId: postAutoId ?? this.postAutoId,
@@ -2121,6 +2157,7 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
       isUse: isUse ?? this.isUse,
       isChoose: isChoose ?? this.isChoose,
       isWrong: isWrong ?? this.isWrong,
+      createdTime: createdTime ?? this.createdTime,
     );
   }
 
@@ -2193,6 +2230,9 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
     if (isWrong.present) {
       map['is_wrong'] = Variable<bool>(isWrong.value);
     }
+    if (createdTime.present) {
+      map['created_time'] = Variable<DateTime>(createdTime.value);
+    }
     return map;
   }
 
@@ -2220,7 +2260,8 @@ class DbReplyCompanion extends UpdateCompanion<DbReplyData> {
           ..write('isMod: $isMod, ')
           ..write('isUse: $isUse, ')
           ..write('isChoose: $isChoose, ')
-          ..write('isWrong: $isWrong')
+          ..write('isWrong: $isWrong, ')
+          ..write('createdTime: $createdTime')
           ..write(')'))
         .toString();
   }
@@ -2763,6 +2804,7 @@ typedef $$DbReplyTableCreateCompanionBuilder = DbReplyCompanion Function({
   Value<bool> isUse,
   Value<bool> isChoose,
   Value<bool> isWrong,
+  Value<DateTime> createdTime,
 });
 typedef $$DbReplyTableUpdateCompanionBuilder = DbReplyCompanion Function({
   Value<int> id,
@@ -2787,6 +2829,7 @@ typedef $$DbReplyTableUpdateCompanionBuilder = DbReplyCompanion Function({
   Value<bool> isUse,
   Value<bool> isChoose,
   Value<bool> isWrong,
+  Value<DateTime> createdTime,
 });
 
 class $$DbReplyTableFilterComposer
@@ -2863,6 +2906,9 @@ class $$DbReplyTableFilterComposer
 
   ColumnFilters<bool> get isWrong => $composableBuilder(
       column: $table.isWrong, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => ColumnFilters(column));
 }
 
 class $$DbReplyTableOrderingComposer
@@ -2940,6 +2986,9 @@ class $$DbReplyTableOrderingComposer
 
   ColumnOrderings<bool> get isWrong => $composableBuilder(
       column: $table.isWrong, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => ColumnOrderings(column));
 }
 
 class $$DbReplyTableAnnotationComposer
@@ -3016,6 +3065,9 @@ class $$DbReplyTableAnnotationComposer
 
   GeneratedColumn<bool> get isWrong =>
       $composableBuilder(column: $table.isWrong, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdTime => $composableBuilder(
+      column: $table.createdTime, builder: (column) => column);
 }
 
 class $$DbReplyTableTableManager extends RootTableManager<
@@ -3063,6 +3115,7 @@ class $$DbReplyTableTableManager extends RootTableManager<
             Value<bool> isUse = const Value.absent(),
             Value<bool> isChoose = const Value.absent(),
             Value<bool> isWrong = const Value.absent(),
+            Value<DateTime> createdTime = const Value.absent(),
           }) =>
               DbReplyCompanion(
             id: id,
@@ -3087,6 +3140,7 @@ class $$DbReplyTableTableManager extends RootTableManager<
             isUse: isUse,
             isChoose: isChoose,
             isWrong: isWrong,
+            createdTime: createdTime,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -3111,6 +3165,7 @@ class $$DbReplyTableTableManager extends RootTableManager<
             Value<bool> isUse = const Value.absent(),
             Value<bool> isChoose = const Value.absent(),
             Value<bool> isWrong = const Value.absent(),
+            Value<DateTime> createdTime = const Value.absent(),
           }) =>
               DbReplyCompanion.insert(
             id: id,
@@ -3135,6 +3190,7 @@ class $$DbReplyTableTableManager extends RootTableManager<
             isUse: isUse,
             isChoose: isChoose,
             isWrong: isWrong,
+            createdTime: createdTime,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

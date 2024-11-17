@@ -46,7 +46,7 @@ class TabHotPageController extends GetxController {
     EventBus().on('post_detail', mergePost as EventCallback);
   }
 
-  mergePost(Post post) {
+  mergePost(post) {
     print('mergePost${post}');
     List list = mapPostList.map((item) => item['list']).expand((list) => list).toList();
     var rIndex = list.indexWhere((v) => v.postId == post.postId);
