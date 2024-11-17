@@ -3,9 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/components/base_avatar.dart';
 import 'package:v2ex/components/base_divider.dart';
-import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
-
 import 'package:v2ex/model/model.dart';
 
 class PostItem extends StatelessWidget {
@@ -16,6 +14,12 @@ class PostItem extends StatelessWidget {
 
   goPostDetail() {
     Get.toNamed('/post_detail', arguments: item);
+  }
+
+  get isRead {
+    return BaseController.to.readList.any((map) {
+      return map.entries.any((entry) => entry.key == item.postId.toString() && entry.value == item.replyCount);
+    });
   }
 
   @override
@@ -139,19 +143,27 @@ class PostItem extends StatelessWidget {
                       fontSize: bc.layout.fontSize,
                       height: bc.layout.lineHeight,
                       fontWeight: item.contentRendered.isNotEmpty ? FontWeight.bold : FontWeight.normal,
-                      color: bc.isRead(item.postId, item.replyCount) ? Colors.grey[400] : Colors.black,
+                      color: isRead ? Colors.grey[400] : Colors.black,
                     ),
                   ),
                 ),
                 onTap: goPostDetail,
               ),
+              //判断用contentRendered，因为contentText有可能是个空格（为了避免重复请求，特意在请求过后在内容最后加了个空格）
               if (item.contentRendered.isNotEmpty)
                 Padding(
-                  padding: EdgeInsets.only(
-                    top: 10.w,
-                  ),
-                  child: BaseHtml(html: item.contentRendered, fontSize: bc.fontSize, onTap: goPostDetail),
-                )
+                    padding: EdgeInsets.only(
+                      top: 10.w,
+                    ),
+                    child: Text(
+                      item.contentText,
+                      style: TextStyle(
+                        fontSize: bc.fontSize,
+                        color: isRead ? Colors.grey[400] : Colors.black,
+                      ),
+                      maxLines: 7,
+                      overflow: TextOverflow.ellipsis,
+                    )),
             ]),
           ),
           BaseDivider()

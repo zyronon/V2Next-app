@@ -137,6 +137,7 @@ class BaseController extends GetxController {
   }
 
   saveConfig() {
+    update();
     GStorage().setConfig(config);
     if (isLogin) {
       Api.editNoteItem(Const.configPrefix + jsonEncode(currentConfig.toJson()), currentConfig.configNoteId);

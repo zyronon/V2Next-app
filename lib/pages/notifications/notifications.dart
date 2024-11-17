@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -19,6 +21,7 @@ class NotificationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print('NotificationController init');
     getData(isRefresh: true);
   }
 
@@ -28,7 +31,6 @@ class NotificationController extends GetxController {
   }
 
   getData({bool isRefresh = false}) async {
-    EventBus().emit('setUnread', 0);
     if (isRefresh) {
       loading = true;
       update();
@@ -42,6 +44,7 @@ class NotificationController extends GetxController {
     }
     if (isRefresh) loading = false;
     update();
+    EventBus().emit('setUnread', 0);
   }
 
   Future onRefresh() async {
@@ -115,7 +118,6 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                       decoration: BoxDecoration(
                         border: Border(bottom: BorderSide(color: Const.line)),
                         color: Colors.white,
-                        boxShadow: [Const.boxShadowBottom],
                       ),
                       child: TabBar(
                         tabAlignment: TabAlignment.start,

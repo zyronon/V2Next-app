@@ -80,7 +80,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border(bottom: BorderSide(color: Const.line)),
-                    boxShadow: [Const.boxShadowBottom],
                   ),
                   child: Row(
                     children: [

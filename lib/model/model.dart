@@ -331,10 +331,11 @@ class Layout {
 }
 
 class UserConfig {
-  bool showTopReply;
-  bool openTag;
-  bool replaceImgur;
-  bool ignoreThankConfirm;
+  bool showTopReply;//高赞回复
+  bool openTag;//标签功能
+  bool replaceImgur;//替换imgur源
+  bool ignoreThankConfirm;//忽略感谢确认弹框
+  bool autoLoadPostContent;//自动加载帖子内容
   double version;
   String configNoteId;
   String tagNoteId;
@@ -347,6 +348,7 @@ class UserConfig {
     this.openTag = true,
     this.replaceImgur = false,
     this.ignoreThankConfirm = false,
+    this.autoLoadPostContent = false,
     this.version = 0.1,
     this.configNoteId = '',
     this.tagNoteId = '',
@@ -361,6 +363,7 @@ class UserConfig {
         openTag = json['openTag'] ?? true,
         replaceImgur = json['replaceImgur'] ?? false,
         ignoreThankConfirm = json['ignoreThankConfirm'] ?? false,
+        autoLoadPostContent = json['autoLoadPostContent'] ?? false,
         version = json['version']?.toDouble() ?? 0.1,
         // 防止类型不匹配时出错
         layout = json['layout'] != null ? Layout.fromJson(json['layout']) : Layout(),
@@ -378,6 +381,7 @@ class UserConfig {
       'openTag': openTag,
       'replaceImgur': replaceImgur,
       'ignoreThankConfirm': ignoreThankConfirm,
+      'autoLoadPostContent': autoLoadPostContent,
       'version': version,
       'configNoteId': configNoteId,
       'tagNoteId': tagNoteId,

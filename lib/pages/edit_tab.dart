@@ -86,15 +86,9 @@ class EditTabPage extends StatelessWidget {
         builder: (_) {
           return PopScope(
               child: Scaffold(
-                  appBar: AppBar(elevation: 0, toolbarHeight: 0),
+                  appBar: AppBar(title: Text('Tab列表', style: TextStyle(fontSize: 17.sp))),
                   body: Column(
                     children: [
-                      TDNavBar(
-                        height: 48,
-                        title: 'Tab列表',
-                        screenAdaptation: false,
-                        useDefaultBack: true,
-                      ),
                       Expanded(
                           child: _.isEdit.value
                               ? Container(

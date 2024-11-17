@@ -1,11 +1,11 @@
-import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/discover/discover.dart';
-import 'package:v2ex/pages/notifications/notifications.dart';
 import 'package:v2ex/pages/me.dart';
+import 'package:v2ex/pages/notifications/notifications.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/event_bus.dart';
 
@@ -35,6 +35,9 @@ class _IndexState extends State<Index> {
   }
 
   void _onItemTapped(int index) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: index == 3 ? Colors.grey[100] : Colors.transparent,
+    ));
     _controller.jumpToPage(index);
     setState(() {
       _selectedIndex = index;
@@ -75,7 +78,7 @@ class _IndexState extends State<Index> {
               ],
             ),
             onTap: () {
-              if(index == 2){
+              if (index == 2) {
                 EventBus().emit('setUnread', 0);
               }
               _onItemTapped(index);
@@ -101,8 +104,7 @@ class _IndexState extends State<Index> {
               children: _Pages),
         ),
       ),
-      bottomNavigationBar: GetBuilder<BaseController>(
-          builder: (_){
+      bottomNavigationBar: GetBuilder<BaseController>(builder: (_) {
         return Container(
           height: 60.w,
           decoration: BoxDecoration(

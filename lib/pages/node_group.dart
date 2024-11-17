@@ -99,8 +99,6 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        foregroundColor: Theme.of(context).appBarTheme.backgroundColor,
         actions: [
           TextButton(
               onPressed: () {

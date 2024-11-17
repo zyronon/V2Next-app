@@ -498,10 +498,6 @@ class Utils {
     return true;
   }
 
-  static PreferredSizeWidget appBar() {
-    return AppBar(elevation: 0, toolbarHeight: 0);
-  }
-
   static twoFADialog({VoidCallback? onSuccess}) async {
     String _currentPage = Get.currentRoute;
     print('_currentPage: $_currentPage');

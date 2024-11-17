@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
@@ -93,11 +94,13 @@ class _SearchNodePageState extends State<SearchNodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(source == FromSource.move
-              ? '移动节点'
-              : source == FromSource.editTab
-                  ? '全部节点'
-                  : '选择节点'),
+          title: Text(
+              source == FromSource.move
+                  ? '移动节点'
+                  : source == FromSource.editTab
+                      ? '全部节点'
+                      : '选择节点',
+              style: TextStyle(fontSize: 17.sp)),
         ),
         body: Stack(
           children: [

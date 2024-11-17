@@ -43,13 +43,13 @@ class Const {
   static BorderRadiusGeometry borderRadiusWidget = BorderRadius.circular(10.r);
   static BorderRadiusGeometry cardRadius = BorderRadius.only(topLeft: Radius.circular(12.r), topRight: Radius.circular(12.r));
   static BoxShadow boxShadowTop = BoxShadow(
-    color: Colors.grey.withOpacity(0.2), // 阴影颜色
+    color: Colors.grey.withOpacity(0.1), // 阴影颜色
     spreadRadius: 1, // 扩散半径
     blurRadius: 10, // 模糊半径
     offset: Offset(0, -2), // 阴影偏移量 (x, y)
   );
   static BoxShadow boxShadowBottom = BoxShadow(
-    color: Colors.grey.withOpacity(0.2), // 阴影颜色
+    color: Colors.grey.withOpacity(0.1), // 阴影颜色
     spreadRadius: 1, // 扩散半径
     blurRadius: 10, // 模糊半径
     offset: Offset(0, 2), // 阴影偏移量 (x, y)

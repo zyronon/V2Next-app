@@ -18,6 +18,7 @@ import 'package:v2ex/pages/node_group.dart';
 import 'package:v2ex/pages/search_node.dart';
 import 'package:v2ex/pages/post_detail/post_detail.dart';
 import 'package:v2ex/pages/search.dart';
+import 'package:v2ex/pages/setting.dart';
 import 'package:v2ex/utils/const_val.dart';
 
 import 'pages/index.dart';
@@ -34,17 +35,34 @@ void main() async {
   await ScreenUtil.ensureScreenSize();
   LoginDio().setCookie();
   Http().setCookie();
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
-  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+
+  // if (GetPlatform.isAndroid) {
+  //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
+  //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  //     statusBarColor: Colors.white,
+  //     systemNavigationBarColor: Colors.white.withOpacity(0.1),
+  //     // Setting a transparent navigation bar color
+  //     systemNavigationBarContrastEnforced: true,
+  //     // Default
+  //     statusBarBrightness: Brightness.light,
+  //     // statusBarIconBrightness: Brightness.dark,
+  //     systemNavigationBarIconBrightness: Brightness.dark, // This defines the color of the scrim
+  //   ));
+  // }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
   }
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -52,7 +70,7 @@ class MyApp extends StatelessWidget {
         minTextAdapt: true,
         builder: (context, child) {
           return GetMaterialApp(
-            title: 'Flutter Demo',
+            title: 'V2Next',
             theme: ThemeData(
               useMaterial3: true,
               //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
@@ -65,25 +83,25 @@ class MyApp extends StatelessWidget {
                   TargetPlatform.android: CupertinoPageTransitionsBuilder(),
                 },
               ),
-              appBarTheme: const AppBarTheme(
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                systemNavigationBarColor: Colors.white, // 底部导航栏颜色
-              )),
+              appBarTheme: AppBarTheme(
+                toolbarHeight: 40.w,
+                elevation: 0,
+                centerTitle: true,
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                surfaceTintColor: Colors.transparent,
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  // statusBarColor: Colors.transparent, // 去除状态栏遮罩
+                  statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
+                  systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
+                ),
+              ),
               colorScheme: ColorScheme.light(
-                surface: Colors.white,
-                // 和底部导航栏保持一致
-                // surfaceBright: Color(0x00FFFFFF), // 透明背景
                 primary: Const.primaryColor,
-                secondary: const Color(0xFFE3EDF2),
-                tertiary: Colors.black,
-                onSecondary: Colors.black,
-                secondaryContainer: const Color(0xFFE3EDF2),
-                // 骨架屏底色
-                onSecondaryContainer: const Color.fromARGB(255, 242, 247, 251),
-                // 骨架屏亮色
-                inversePrimary: Colors.black54,
+                // 背景色，包括状态栏
+                surface: Colors.white,
+                surfaceBright: Color(0x00FFFFFF), // 透明背景
+                onSurface: Colors.black,
               ),
             ),
             navigatorObservers: [FlutterSmartDialog.observer],
@@ -115,6 +133,7 @@ class MyApp extends StatelessWidget {
               '/layout': (context) => LayoutPage(),
               '/search_node': (context) => SearchNodePage(),
               '/google_login': (context) => GoogleLogin(),
+              '/setting': (context) => Setting(),
               // '/create': (context) => Create(),
             },
           );
