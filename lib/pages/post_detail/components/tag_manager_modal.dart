@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/base_button.dart';
 
 class TagManagerModal extends StatefulWidget {
   List tags = [];
@@ -113,7 +114,7 @@ class _TagManagerModalState extends State<TagManagerModal> {
                             controller: ctrl,
                           )),
                       SizedBox(width: 10.w),
-                      TDButton(
+                      BaseButton(
                         text: '确定',
                         theme: TDButtonTheme.primary,
                         // size: TDButtonSize.small,
@@ -128,11 +129,10 @@ class _TagManagerModalState extends State<TagManagerModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TDButton(text: '取消', onTap: Get.back),
+                BaseButton(text: '取消', onTap: Get.back),
                 SizedBox(width: 10.w),
-                TDButton(
+                BaseButton(
                   text: '保存',
-                  theme: TDButtonTheme.primary,
                   onTap: () {
                     widget.onSave(editTags);
                     Get.back();

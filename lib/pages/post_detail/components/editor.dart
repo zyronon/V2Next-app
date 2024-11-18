@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_avatar.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/http/api.dart';
 import 'package:v2ex/model/BaseController.dart';
@@ -394,11 +395,9 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                           ),
                           const SizedBox(width: 15),
                           if (!bc.isLogin) ...[
-                            TDButton(
+                            BaseButton(
                               text: '登录后回复',
                               size: TDButtonSize.small,
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
                               theme: TDButtonTheme.primary,
                               onTap: () async {
                                 await Get.to(LoginPage());
@@ -409,11 +408,9 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                               },
                             )
                           ] else ...[
-                            TDButton(
+                            BaseButton(
                               text: '回复',
                               size: TDButtonSize.small,
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
                               theme: TDButtonTheme.primary,
                               disabled: ec.disabled,
                               onTap: onSubmit,

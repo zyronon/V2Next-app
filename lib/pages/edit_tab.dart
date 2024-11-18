@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/model/BaseController.dart';
-
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/const_val.dart';
 import 'package:v2ex/utils/event_bus.dart';
@@ -46,11 +46,9 @@ class EditTabPage extends StatelessWidget {
   }
 
   Widget _buildIconButton({VoidCallback? onTap, required String text, TDButtonTheme theme = TDButtonTheme.primary}) {
-    return TDButton(
+    return BaseButton(
       text: text,
       size: TDButtonSize.small,
-      type: TDButtonType.fill,
-      shape: TDButtonShape.rectangle,
       theme: theme,
       onTap: onTap,
     );
@@ -192,11 +190,9 @@ class EditTabPage extends StatelessWidget {
                                     _.isEdit.value = false;
                                   }),
                               SizedBox(width: 5),
-                              TDButton(
+                              BaseButton(
                                 text: '恢复默认',
                                 size: TDButtonSize.small,
-                                type: TDButtonType.fill,
-                                shape: TDButtonShape.rectangle,
                                 theme: TDButtonTheme.primary,
                                 onTap: () {
                                   // _.bc.setTabMap(Const.defaultTabList);

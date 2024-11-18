@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 class NoData extends StatelessWidget {
@@ -27,11 +28,9 @@ class NoData extends StatelessWidget {
                   if (text.isNotEmpty) Text(text, style: TextStyle(fontSize: 24.sp)),
                   SizedBox(height: 20.w),
                   if (!_.isLogin)
-                    TDButton(
+                    BaseButton(
                       text: '登录',
                       size: TDButtonSize.large,
-                      type: TDButtonType.fill,
-                      shape: TDButtonShape.rectangle,
                       theme: TDButtonTheme.primary,
                       onTap: () async {
                         await Get.toNamed('/login');

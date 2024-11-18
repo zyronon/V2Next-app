@@ -13,6 +13,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/components/base_avatar.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/components/base_html.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
@@ -183,11 +184,9 @@ class PostShare extends StatelessWidget {
               child: SingleChildScrollView(child: getShare()),
             ),
             SizedBox(height: 20.w),
-            TDButton(
+            BaseButton(
               width: .8.sw,
               text: '下一步',
-              type: TDButtonType.fill,
-              shape: TDButtonShape.rectangle,
               theme: TDButtonTheme.primary,
               onTap: () {
                 SmartDialog.showLoading();

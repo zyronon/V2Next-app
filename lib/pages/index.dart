@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/pages/discover/discover.dart';
 import 'package:v2ex/pages/me.dart';
@@ -59,9 +60,9 @@ class _IndexState extends State<Index> {
                   children: [
                     Icon(
                       icon,
-                      color: _selectedIndex == index ? Const.primaryColor : Colors.grey,
+                      color: _selectedIndex == index ? Const.primaryColor : Colors.black,
                     ),
-                    Text(text, style: TextStyle(color: _selectedIndex == index ? Const.primaryColor : Colors.grey)),
+                    Text(text, style: TextStyle(color: _selectedIndex == index ? Const.primaryColor : Colors.black)),
                   ],
                 )),
                 if (badge != null && badge != 0)
@@ -114,10 +115,10 @@ class _IndexState extends State<Index> {
             height: double.infinity, // 占满父容器高度
             child: Row(
               children: [
-                bottomBarItem(index: 0, icon: Icons.home, text: '首页'),
-                bottomBarItem(index: 1, icon: Icons.business, text: '发现'),
-                bottomBarItem(index: 2, icon: Icons.notifications, text: '通知', badge: bc.member.actionCounts[3]),
-                bottomBarItem(index: 3, icon: Icons.settings, text: '我'),
+                bottomBarItem(index: 0, icon: Icons.cottage_outlined, text: '首页'),
+                bottomBarItem(index: 1, icon: Icons.query_stats, text: '发现'),
+                bottomBarItem(index: 2, icon: Icons.notifications_none, text: '通知', badge: bc.member.actionCounts[3]),
+                bottomBarItem(index: 3, icon: Icons.person_outline, text: '我'),
               ],
             ),
           ),

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/components/base_button.dart';
 import 'package:v2ex/components/image_preview.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/model/model.dart';
@@ -108,10 +108,8 @@ class BaseHtml extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end, // 按钮右对齐
                           children: [
-                            TDButton(
+                            BaseButton(
                               text: '复制',
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
                               theme: TDButtonTheme.primary,
                               onTap: () {
                                 Utils.copy(res);
@@ -119,10 +117,8 @@ class BaseHtml extends StatelessWidget {
                               },
                             ),
                             SizedBox(width: 8), // 添加按钮之间的间距
-                            TDButton(
+                            BaseButton(
                               text: '关闭',
-                              type: TDButtonType.fill,
-                              shape: TDButtonShape.rectangle,
                               theme: TDButtonTheme.primary,
                               onTap: () {
                                 Get.back();

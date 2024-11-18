@@ -90,12 +90,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    //TODO 记得改密码
-    // usernameController.text = 'shzbkzo';
-    // pwdController.text = 'o894948816O!';
-    usernameController.text = 'ttentau1';
-    pwdController.text = 'o8949488816';
-    // _codeController.text = '1234';
   }
 
   @override
@@ -213,6 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                               padding: const EdgeInsets.all(20),
                               child: TDButton(
                                 text: '登录',
+                                style: TDButtonStyle(backgroundColor: Const.primaryColor, textColor: Colors.white),
                                 iconWidget: _.loadingLogin.value
                                     ? TDLoading(
                                         size: TDLoadingSize.small,
