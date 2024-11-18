@@ -178,17 +178,6 @@ class MePage extends StatelessWidget {
                     ),
                     null),
                 SizedBox(height: 20.w),
-                _card(
-                    _buildMenuItem(
-                        name: '创作新主题',
-                        icon: Icons.create_outlined,
-                        onTap: () {
-                          if (!Utils.checkIsLogin()) return;
-                          // Get.toNamed('/create');
-                          Get.to(BaseWebView(url: 'https://www.v2ex.com/write'), transition: Transition.cupertino);
-                        }),
-                    EdgeInsets.only(left: 12.w, right: 12.w)),
-                SizedBox(height: 20.w),
                 Container(
                     padding: EdgeInsets.fromLTRB(12.w, 0.w, 12.w, 0.w),
                     decoration: BoxDecoration(
@@ -197,6 +186,15 @@ class MePage extends StatelessWidget {
                     ),
                     child: Column(children: [
                       _buildMenuItem(
+                          name: '创作新主题',
+                          icon: Icons.create_outlined,
+                          onTap: () {
+                            if (!Utils.checkIsLogin()) return;
+                            // Get.toNamed('/create');
+                            Get.to(BaseWebView(url: 'https://www.v2ex.com/write'), transition: Transition.cupertino);
+                          }),
+                      Const.lineWidget,
+                      _buildMenuItem(
                           name: '最近浏览',
                           icon: Icons.history,
                           onTap: () {
@@ -204,15 +202,15 @@ class MePage extends StatelessWidget {
                             Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
                           }),
                       Const.lineWidget,
-                      _buildMenuItem(
-                          name: '记事本',
-                          icon: Icons.format_list_bulleted,
-                          onTap: () {
-                            // Get.toNamed('/notes');
-                            if (!Utils.checkIsLogin()) return;
-                            Get.to(BaseWebView(url: 'https://www.v2ex.com/notes'), transition: Transition.cupertino);
-                          }),
-                      Const.lineWidget,
+                      // _buildMenuItem(
+                      //     name: '记事本',
+                      //     icon: Icons.format_list_bulleted,
+                      //     onTap: () {
+                      //       // Get.toNamed('/notes');
+                      //       if (!Utils.checkIsLogin()) return;
+                      //       Get.to(BaseWebView(url: 'https://www.v2ex.com/notes'), transition: Transition.cupertino);
+                      //     }),
+                      // Const.lineWidget,
                       _buildMenuItem(
                           name: '反馈',
                           icon: TDIcons.service,

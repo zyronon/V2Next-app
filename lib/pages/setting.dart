@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2ex/http/api.dart';
 import 'package:v2ex/http/login_api.dart';
 import 'package:v2ex/model/BaseController.dart';
 import 'package:v2ex/utils/const_val.dart';
@@ -56,8 +58,6 @@ class _SettingState extends State<Setting> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('列表', style: TextStyle(color: Colors.grey)),
-                SizedBox(height: 10.w),
                 Container(
                     padding: EdgeInsets.fromLTRB(12.w, 0.w, 12.w, 0.w),
                     decoration: BoxDecoration(
@@ -158,23 +158,32 @@ class _SettingState extends State<Setting> {
                           }),
                       Const.lineWidget,
                       _buildMenuItem(
-                          name: '检查更新',
-                          onTap: () {
-                            TDPicker.showMultiPicker(context, title: '显示多少个高赞回复', onConfirm: (selected) {
-                              bc.currentConfig.topReplyCount = selected[0] + 3;
-                              Get.back();
+                          name: '自动检查更新',
+                          right: TDSwitch(
+                            size: TDSwitchSize.small,
+                            isOn: bc.currentConfig.checkUpdate,
+                            onChanged: (bool v) {
+                              bc.currentConfig.checkUpdate = !bc.currentConfig.checkUpdate;
                               bc.saveConfig();
-                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
+                              return true;
+                            },
+                          )),
+                      Const.lineWidget,
+                      _buildMenuItem(
+                          name: '检查更新',
+                          onTap: () async {
+                            SmartDialog.showLoading(msg: '正在检查更新');
+                            Map update = await Api.checkUpdate();
+                            SmartDialog.dismiss();
+                            if (!update['needUpdate'] && context.mounted) {
+                              SmartDialog.showToast('已经是最新版了');
+                            }
                           }),
                       Const.lineWidget,
                       _buildMenuItem(
                           name: '关于 V2Next',
                           onTap: () {
-                            TDPicker.showMultiPicker(context, title: '显示多少个高赞回复', onConfirm: (selected) {
-                              bc.currentConfig.topReplyCount = selected[0] + 3;
-                              Get.back();
-                              bc.saveConfig();
-                            }, data: [List.generate(30, (index) => (index + 1).toString()).sublist(2, 30)]);
+                            Utils.openBrowser(Const.git);
                           }),
                       if (bc.isLogin) ...[
                         Const.lineWidget,

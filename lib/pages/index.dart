@@ -32,6 +32,9 @@ class _IndexState extends State<Index> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
   }
 
   void _onItemTapped(int index) {

@@ -70,73 +70,78 @@ class _MyAppState extends State<MyApp> {
         minTextAdapt: true,
         builder: (context, child) {
           return GetMaterialApp(
-            title: 'V2Next',
-            theme: ThemeData(
-              useMaterial3: true,
-              //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
-              textTheme: GoogleFonts.notoSansScTextTheme(),
-              // 去除TabBar底部线条
-              tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
-              pageTransitionsTheme: const PageTransitionsTheme(
-                builders: <TargetPlatform, PageTransitionsBuilder>{
-                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-                },
-              ),
-              appBarTheme: AppBarTheme(
-                toolbarHeight: 40.w,
-                elevation: 0,
-                centerTitle: true,
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                surfaceTintColor: Colors.transparent,
-                systemOverlayStyle: SystemUiOverlayStyle(
-                  // statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                  statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                  systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
+              title: 'V2Next',
+              theme: ThemeData(
+                useMaterial3: true,
+                //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
+                textTheme: GoogleFonts.notoSansScTextTheme(),
+                // 去除TabBar底部线条
+                tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: <TargetPlatform, PageTransitionsBuilder>{
+                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  },
+                ),
+                appBarTheme: AppBarTheme(
+                  toolbarHeight: 40.w,
+                  elevation: 0,
+                  centerTitle: true,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  surfaceTintColor: Colors.transparent,
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                    //这里设置了，无法再手动修改了
+                    // statusBarColor: Colors.transparent, // 去除状态栏遮罩
+                    statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
+                    systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
+                  ),
+                ),
+                colorScheme: ColorScheme.light(
+                  primary: Const.primaryColor,
+                  // 背景色，包括状态栏
+                  surface: Colors.white,
+                  surfaceBright: Color(0x00FFFFFF), // 透明背景
+                  onSurface: Colors.black,
                 ),
               ),
-              colorScheme: ColorScheme.light(
-                primary: Const.primaryColor,
-                // 背景色，包括状态栏
-                surface: Colors.white,
-                surfaceBright: Color(0x00FFFFFF), // 透明背景
-                onSurface: Colors.black,
-              ),
-            ),
-            navigatorObservers: [FlutterSmartDialog.observer],
-            // builder: FlutterSmartDialog.init(),
-            builder: (BuildContext context, Widget? child) {
-              return GetBuilder(
-                  init: IndexController(),
-                  builder: (_) {
-                    return FlutterSmartDialog(
-                      child: MediaQuery(
-                        data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
-                        child: DefaultTextStyle(
-                          style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 16.sp, height: 1)),
-                          child: child!,
+              navigatorObservers: [FlutterSmartDialog.observer],
+              // builder: FlutterSmartDialog.init(),
+              builder: (BuildContext context, Widget? child) {
+                return GetBuilder(
+                    init: IndexController(),
+                    builder: (_) {
+                      return FlutterSmartDialog(
+                        child: MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaleFactor: _.textScaleFactor),
+                          child: DefaultTextStyle(
+                            style: GoogleFonts.notoSansSc(textStyle: TextStyle(color: Colors.black, fontSize: 16.sp, height: 1)),
+                            child: child!,
+                          ),
                         ),
-                      ),
-                    );
-                  });
-            },
-            routes: {
-              '/': (context) => const Index(),
-              '/post_detail': (context) => const PostDetailPage(),
-              // '/test': (context) => const PostTest(),
-              '/login': (context) => const LoginPage(),
-              '/edit_tab': (context) => EditTabPage(),
-              '/node_detail': (context) => NodeDetailPage(),
-              '/node_group': (context) => NodeGroupPage(),
-              '/search': (context) => SearchPage(),
-              '/layout': (context) => LayoutPage(),
-              '/search_node': (context) => SearchNodePage(),
-              '/google_login': (context) => GoogleLogin(),
-              '/setting': (context) => Setting(),
-              // '/create': (context) => Create(),
-            },
-          );
+                      );
+                    });
+              },
+              routes: {
+                '/': (context) => const Index(),
+                '/post_detail': (context) => const PostDetailPage(),
+                // '/test': (context) => const PostTest(),
+                '/login': (context) => const LoginPage(),
+                '/edit_tab': (context) => EditTabPage(),
+                '/node_detail': (context) => NodeDetailPage(),
+                '/node_group': (context) => NodeGroupPage(),
+                '/search': (context) => SearchPage(),
+                '/layout': (context) => LayoutPage(),
+                '/search_node': (context) => SearchNodePage(),
+                '/google_login': (context) => GoogleLogin(),
+                '/setting': (context) => Setting(),
+                // '/create': (context) => Create(),
+              },
+              routingCallback: (routing) {
+                SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                ));
+              });
         });
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
-import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2ex/model/model.dart';
 import 'package:v2ex/utils/utils.dart';
 
@@ -49,18 +48,8 @@ class _BaseWebViewState extends State<BaseWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          toolbarHeight: 0,
-        ),
+        appBar: AppBar(),
         body: SafeArea(
-            child: Column(children: <Widget>[
-          TDNavBar(
-            height: 48,
-            screenAdaptation: false,
-            useDefaultBack: true,
-          ),
-          Expanded(
             child: Stack(
               children: [
                 InAppWebView(
@@ -102,8 +91,6 @@ class _BaseWebViewState extends State<BaseWebView> {
                 ),
                 progress < 1.0 ? LinearProgressIndicator(value: progress) : Container(),
               ],
-            ),
-          ),
-        ])));
+            )));
   }
 }

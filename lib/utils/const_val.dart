@@ -30,7 +30,9 @@ class Const {
   static String v2Hot = 'https://v2hotlist.vercel.app';
   static String v2exHost = 'https://www.v2ex.com';
   static String git = 'https://github.com/zyronon/V2Next';
+  static String gitName = 'zyronon/V2Next';
   static String issues = 'https://github.com/zyronon/V2Next/issues';
+
   static String configPrefix = '--mob-config--';
   static String tagPrefix = '--用户标签--';
   static Color primaryColor = Color(0xff48a24a);
@@ -60,6 +62,9 @@ class Const {
 
   // 所有节点 ,可排序
   static String allNodesBySort = '/api/nodes/list.json';
+
+  /// 提交tag时 记得更改
+  static String currentVersion = 'v1.0.0';
 
   static List<NodeItem> defaultTabList = [
     new NodeItem(title: '最热', name: 'hot', type: TabType.hot),

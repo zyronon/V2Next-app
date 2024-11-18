@@ -40,6 +40,11 @@ class BaseController extends GetxController {
     Future.delayed(Duration(seconds: 1), () {
       initData();
     });
+
+    if (currentConfig.checkUpdate) {
+      Api.checkUpdate();
+    }
+
     EventBus().on('setUnread', (_) {
       member.actionCounts[3] = _;
       setMember(member);

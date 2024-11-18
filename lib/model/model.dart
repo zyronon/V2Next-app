@@ -338,6 +338,7 @@ class UserConfig {
   bool autoLoadPostContent; //自动加载帖子内容
   int topReplyLoveMinCount; //高赞，统计最小限制
   int topReplyCount; //高赞数量
+  bool checkUpdate; //检测更新
   double version;
   String configNoteId;
   String tagNoteId;
@@ -351,6 +352,7 @@ class UserConfig {
     this.replaceImgur = false,
     this.ignoreThankConfirm = false,
     this.autoLoadPostContent = false,
+    this.checkUpdate = true,
     this.version = 0.1,
     this.topReplyLoveMinCount = 3,
     this.topReplyCount = 5,
@@ -368,6 +370,7 @@ class UserConfig {
         replaceImgur = json['replaceImgur'] ?? false,
         ignoreThankConfirm = json['ignoreThankConfirm'] ?? false,
         autoLoadPostContent = json['autoLoadPostContent'] ?? false,
+        checkUpdate = json['checkUpdate'] ?? true,
         version = json['version']?.toDouble() ?? 0.1,
         topReplyLoveMinCount = json['topReplyLoveMinCount']?.toInt() ?? 3,
         topReplyCount = json['topReplyCount']?.toInt() ?? 5,
@@ -386,6 +389,7 @@ class UserConfig {
       'showTopReply': showTopReply,
       'openTag': openTag,
       'replaceImgur': replaceImgur,
+      'checkUpdate': checkUpdate,
       'ignoreThankConfirm': ignoreThankConfirm,
       'autoLoadPostContent': autoLoadPostContent,
       'topReplyLoveMinCount': topReplyLoveMinCount,
