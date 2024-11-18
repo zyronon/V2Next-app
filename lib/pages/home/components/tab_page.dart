@@ -142,9 +142,9 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   }
 
   void onScrollEnd() {
-    // if (!BaseController.to.currentConfig.autoLoadPostContent) {
-    //   return;
-    // }
+    if (!BaseController.to.currentConfig.autoLoadPostContent) {
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 获取 ListView 的 RenderObject
       final RenderObject? listViewRenderObject = scrollCtrl.position.context.storageContext.findRenderObject();
