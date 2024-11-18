@@ -112,7 +112,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                   if (right != null) right
                 ],
               ))),
-      onTap: disabled ? null : onTap,
+      onTap: onTap,
     );
   }
 
@@ -197,7 +197,7 @@ class PostDetailPageState extends State<PostDetailPage> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
-                  return  Const.lineWidget;
+                  return Const.lineWidget;
                 },
               )),
               SizedBox(height: 20.w)
@@ -237,9 +237,14 @@ class PostDetailPageState extends State<PostDetailPage> {
           _buildReplyMenuOption(
               text: '标签管理',
               icon: Icons.tag,
+              disabled: !bc.currentConfig.openTag,
               onTap: () {
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
+                  return;
+                }
+                if (!bc.currentConfig.openTag) {
+                  Utils.toast(msg: '标签管理未启用');
                   return;
                 }
                 Get.back();
@@ -472,9 +477,14 @@ class PostDetailPageState extends State<PostDetailPage> {
           _buildReplyMenuOption(
               text: '标签管理',
               icon: Icons.tag,
+              disabled: !bc.currentConfig.openTag,
               onTap: () {
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
+                  return;
+                }
+                if (!bc.currentConfig.openTag) {
+                  Utils.toast(msg: '标签管理未启用');
                   return;
                 }
                 Get.back();

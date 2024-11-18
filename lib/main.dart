@@ -36,19 +36,11 @@ void main() async {
   LoginDio().setCookie();
   Http().setCookie();
 
-  // if (GetPlatform.isAndroid) {
-  //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); // Enable Edge-to-Edge on Android 10+
-  //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-  //     statusBarColor: Colors.white,
-  //     systemNavigationBarColor: Colors.white.withOpacity(0.1),
-  //     // Setting a transparent navigation bar color
-  //     systemNavigationBarContrastEnforced: true,
-  //     // Default
-  //     statusBarBrightness: Brightness.light,
-  //     // statusBarIconBrightness: Brightness.dark,
-  //     systemNavigationBarIconBrightness: Brightness.dark, // This defines the color of the scrim
-  //   ));
-  // }
+  if (GetPlatform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+    ));
+  }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
   }

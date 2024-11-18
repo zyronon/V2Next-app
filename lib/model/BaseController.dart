@@ -68,9 +68,11 @@ class BaseController extends GetxController {
 
   startTask() {
     print('startTask');
-    Future.delayed(Duration(seconds: 5), () {
-      LoginApi.sign();
-    });
+    if(currentConfig.autoSign){
+      Future.delayed(Duration(seconds: 5), () {
+        LoginApi.sign();
+      });
+    }
 
     print('开始定时查询');
     if (_timer != null) {

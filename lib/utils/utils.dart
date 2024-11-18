@@ -249,7 +249,7 @@ class Utils {
 
   static checkPhotoLink2Img(Element dom) {
     bool replaceImgur = BaseController.to.currentConfig.replaceImgur;
-    String prefixImg = replaceImgur ? "https://img.noobzone.ru/getimg.php?url=" : '';
+    String prefixImg = replaceImgur ? Const.imgurProxy : '';
 
     List<Element> imgList = dom.querySelectorAll('img');
     imgList.forEach((Element img) {

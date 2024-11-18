@@ -26,7 +26,7 @@ class _SettingState extends State<Setting> {
   Widget _buildMenuItem({required String name, Widget? right, GestureTapCallback? onTap}) {
     return InkWell(
       child: Container(
-          height: 60.w,
+          height: 50.w,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,9 +81,9 @@ class _SettingState extends State<Setting> {
                           name: '自动签到',
                           right: TDSwitch(
                             size: TDSwitchSize.small,
-                            isOn: bc.currentConfig.ignoreThankConfirm,
+                            isOn: bc.currentConfig.autoSign,
                             onChanged: (bool v) {
-                              bc.currentConfig.ignoreThankConfirm = !bc.currentConfig.ignoreThankConfirm;
+                              bc.currentConfig.autoSign = !bc.currentConfig.autoSign;
                               bc.saveConfig();
                               return true;
                             },

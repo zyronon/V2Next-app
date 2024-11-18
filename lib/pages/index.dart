@@ -59,9 +59,9 @@ class _IndexState extends State<Index> {
                   children: [
                     Icon(
                       icon,
-                      color: _selectedIndex == index ? Colors.grey : Colors.black,
+                      color: _selectedIndex == index ? Const.primaryColor : Colors.grey,
                     ),
-                    Text(text),
+                    Text(text, style: TextStyle(color: _selectedIndex == index ? Const.primaryColor : Colors.grey)),
                   ],
                 )),
                 if (badge != null && badge != 0)
@@ -96,20 +96,15 @@ class _IndexState extends State<Index> {
         constraints: const BoxConstraints(
             minWidth: double.infinity, //宽度尽可能大
             minHeight: double.infinity),
-        child: Container(
-          decoration: BoxDecoration(
-            color: mainBgColor2,
-          ),
-          child: PageView(
-              controller: _controller,
-              //不设置默认可以左右活动，如果不想左右滑动如下设置，可以根据ios或者android来设置
-              physics: const NeverScrollableScrollPhysics(),
-              children: _Pages),
-        ),
+        child: PageView(
+            controller: _controller,
+            //不设置默认可以左右活动，如果不想左右滑动如下设置，可以根据ios或者android来设置
+            physics: const NeverScrollableScrollPhysics(),
+            children: _Pages),
       ),
       bottomNavigationBar: GetBuilder<BaseController>(builder: (_) {
         return Container(
-          height: 60.w,
+          height: 56.w,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border(top: BorderSide(color: Const.line)),

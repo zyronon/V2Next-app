@@ -4,18 +4,6 @@ import 'package:v2ex/model/model.dart';
 
 export '';
 
-Color mainColor = const Color(0xff40c7ff);
-int mainBgColor = 0xff0F1621;
-// Color mainBgColor2 = const Color(0xffe1e1e1);
-Color mainBgColor2 = const Color(0xfff1f1f1);
-// Color mainBgColor2 = const Color(0xffa9a9a9);
-double headerHeight = 40.w;
-Color line = const Color(0xfff1f1f1);
-TextStyle titleStyle = TextStyle(fontSize: 16.sp, color: Colors.black);
-TextStyle descStyle = TextStyle(fontSize: 12.sp, color: Colors.grey);
-TextStyle timeStyle = TextStyle(fontSize: 10.sp, color: Colors.grey);
-EdgeInsets pagePadding = EdgeInsets.only(left: 8.w, right: 8.w, bottom: 8.w);
-
 enum ThemeType { light, dark, system } // 主题切换
 
 class Agent {
@@ -28,13 +16,19 @@ class Agent {
 class Const {
   static Agent agent = new Agent();
   static String v2Hot = 'https://v2hotlist.vercel.app';
+  static String home = 'https://v2ex-script.vercel.app/';
   static String v2exHost = 'https://www.v2ex.com';
   static String git = 'https://github.com/zyronon/V2Next';
   static String gitName = 'zyronon/V2Next';
   static String issues = 'https://github.com/zyronon/V2Next/issues';
+  static String imgurProxy = 'https://img.noobzone.ru/getimg.php?url=';
+
+  /// 提交tag时 记得更改
+  static String currentVersion = 'v1.0.0';
 
   static String configPrefix = '--mob-config--';
   static String tagPrefix = '--用户标签--';
+
   static Color primaryColor = Color(0xff48a24a);
   static Color line = Color(0xfff1f1f1);
   static Color line2 = Color(0xffe1e1e1);
@@ -62,9 +56,6 @@ class Const {
 
   // 所有节点 ,可排序
   static String allNodesBySort = '/api/nodes/list.json';
-
-  /// 提交tag时 记得更改
-  static String currentVersion = 'v1.0.0';
 
   static List<NodeItem> defaultTabList = [
     new NodeItem(title: '最热', name: 'hot', type: TabType.hot),

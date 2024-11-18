@@ -246,10 +246,11 @@ class Member {
     this.avatarLarge = '',
     this.balance = '',
     this.sign = '',
-    this.actionCounts = const [0, 0, 0, 0],
+    List<int>? actionCounts,
     this.needAuth2fa = false,
     Map? tagMap,
-  }) : tagMap = tagMap ?? {};
+  })  : tagMap = tagMap ?? {},
+        actionCounts = actionCounts ?? [0, 0, 0, 0];
 
   // fromJson 方法
   Member.fromJson(Map<String, dynamic> json)
@@ -339,6 +340,7 @@ class UserConfig {
   int topReplyLoveMinCount; //高赞，统计最小限制
   int topReplyCount; //高赞数量
   bool checkUpdate; //检测更新
+  bool autoSign; //自动签到
   double version;
   String configNoteId;
   String tagNoteId;
@@ -353,6 +355,7 @@ class UserConfig {
     this.ignoreThankConfirm = false,
     this.autoLoadPostContent = false,
     this.checkUpdate = true,
+    this.autoSign = true,
     this.version = 0.1,
     this.topReplyLoveMinCount = 3,
     this.topReplyCount = 5,
@@ -371,6 +374,7 @@ class UserConfig {
         ignoreThankConfirm = json['ignoreThankConfirm'] ?? false,
         autoLoadPostContent = json['autoLoadPostContent'] ?? false,
         checkUpdate = json['checkUpdate'] ?? true,
+        autoSign = json['autoSign'] ?? true,
         version = json['version']?.toDouble() ?? 0.1,
         topReplyLoveMinCount = json['topReplyLoveMinCount']?.toInt() ?? 3,
         topReplyCount = json['topReplyCount']?.toInt() ?? 5,
@@ -390,6 +394,7 @@ class UserConfig {
       'openTag': openTag,
       'replaceImgur': replaceImgur,
       'checkUpdate': checkUpdate,
+      'autoSign': autoSign,
       'ignoreThankConfirm': ignoreThankConfirm,
       'autoLoadPostContent': autoLoadPostContent,
       'topReplyLoveMinCount': topReplyLoveMinCount,

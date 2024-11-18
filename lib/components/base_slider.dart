@@ -13,10 +13,10 @@ class BaseSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
-        activeTrackColor: Colors.grey[500],
-        inactiveTrackColor: Colors.grey[600],
+        activeTrackColor: Colors.grey[400],
+        inactiveTrackColor: Colors.grey[300],
         trackHeight: 24,
-        thumbColor: Colors.grey[200],
+        thumbColor: Colors.grey[100],
         thumbShape: RoundSliderThumbShape(enabledThumbRadius: 13),
         overlayColor: Colors.grey.withOpacity(0.2),
         overlayShape: RoundSliderOverlayShape(overlayRadius: 20.0),

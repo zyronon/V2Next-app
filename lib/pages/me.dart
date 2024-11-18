@@ -194,14 +194,14 @@ class MePage extends StatelessWidget {
                             Get.to(BaseWebView(url: 'https://www.v2ex.com/write'), transition: Transition.cupertino);
                           }),
                       Const.lineWidget,
-                      _buildMenuItem(
-                          name: '最近浏览',
-                          icon: Icons.history,
-                          onTap: () {
-                            if (!Utils.checkIsLogin()) return;
-                            Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
-                          }),
-                      Const.lineWidget,
+                      // _buildMenuItem(
+                      //     name: '最近浏览',
+                      //     icon: Icons.history,
+                      //     onTap: () {
+                      //       if (!Utils.checkIsLogin()) return;
+                      //       Get.to(BaseWebView(url: 'https://www.v2ex.com/balance'), transition: Transition.cupertino);
+                      //     }),
+                      // Const.lineWidget,
                       // _buildMenuItem(
                       //     name: '记事本',
                       //     icon: Icons.format_list_bulleted,

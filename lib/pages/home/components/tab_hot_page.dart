@@ -11,6 +11,7 @@ import 'package:v2ex/components/footer.dart';
 import 'package:v2ex/components/loading_list_page.dart';
 import 'package:v2ex/components/post_item.dart';
 import 'package:v2ex/http/api.dart';
+import 'package:v2ex/http/request.dart';
 import 'package:v2ex/model/BaseController.dart';
 
 import 'package:v2ex/model/model.dart';
@@ -20,7 +21,6 @@ import 'package:v2ex/utils/utils.dart';
 class TabHotPageController extends GetxController {
   bool loading = true;
   bool needAuth = false;
-  List<Post> postList = [];
   List<Map> mapPostList = [];
 
   final BaseController home = Get.find();
@@ -46,12 +46,15 @@ class TabHotPageController extends GetxController {
     EventBus().on('post_detail', mergePost);
   }
 
+  List<Post> get allList {
+    return mapPostList.map((item) => item['list']).expand((list) => list).toList().cast();
+  }
+
   mergePost(post) {
     print('mergePost${post}');
-    List list = mapPostList.map((item) => item['list']).expand((list) => list).toList();
-    var rIndex = list.indexWhere((v) => v.postId == post.postId);
+    var rIndex = allList.indexWhere((v) => v.postId == post.postId);
     if (rIndex > -1) {
-      list[rIndex].replyCount = post.replyCount;
+      allList[rIndex].replyCount = post.replyCount;
       update();
     }
   }
@@ -81,8 +84,30 @@ class TabHotPageController extends GetxController {
     } else {
       needAuth = res.data == Auth.notAllow;
     }
-    if (isRefresh) loading = false;
+    if (isRefresh) {
+      loading = false;
+      if (BaseController.to.currentConfig.autoLoadPostContent) {
+        var maxI = allList.length > 3 ? 3 : allList.length;
+        for (var i = 0; i < maxI; i++) {
+          var item = allList[i];
+          getPostContent(item);
+        }
+      }
+    }
     update();
+  }
+
+  getPostContent(Post item) {
+    Http().get('/api/topics/show.json?id=${item.postId}').then((res) {
+      try {
+        String t = res.data[0]['content_rendered'];
+        String t1 = res.data[0]['content'];
+        item.contentRendered = t.trim();
+        //内容可能为空，导致重复请求，加个空格保证不为空，避免重复请求
+        item.contentText = t1.trim() + ' ';
+        update();
+      } catch (e) {}
+    });
   }
 
   onRefresh() async {
@@ -121,32 +146,76 @@ class TabHotPage extends StatefulWidget {
 }
 
 class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMixin {
-  final ScrollController ctrl = ScrollController();
+  final ScrollController scrollCtrl = ScrollController();
+  Map<int, GlobalKey> _itemKeys = {}; // 存储每个子项的 GlobalKey
 
   Future<void> onRefresh() async {
     final TabHotPageController c = Get.find(tag: widget.tab.name);
     await c.onRefresh();
+    _itemKeys = {};
     return;
   }
 
   @override
   void initState() {
     super.initState();
-    ctrl.addListener(scrollListener);
+    scrollCtrl.addListener(scrollListener);
   }
 
   @override
   void dispose() {
     super.dispose();
-    ctrl.removeListener(scrollListener);
-    ctrl.dispose();
+    scrollCtrl.removeListener(scrollListener);
+    scrollCtrl.dispose();
   }
 
   void scrollListener() {
-    if (ctrl.position.pixels == ctrl.position.maxScrollExtent) {
+    if (scrollCtrl.position.pixels == scrollCtrl.position.maxScrollExtent) {
       final TabHotPageController c = Get.find(tag: widget.tab.name);
       c.loadMore();
     }
+  }
+
+  void onScrollEnd() {
+    if (!BaseController.to.currentConfig.autoLoadPostContent) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 获取 ListView 的 RenderObject
+      final RenderObject? listViewRenderObject = scrollCtrl.position.context.storageContext.findRenderObject();
+      if (listViewRenderObject is RenderBox) {
+        // 获取可见区域
+        //ctrl.position.viewportDimension list高度
+        List<int> visibleItems = [];
+
+        _itemKeys.forEach((index, GlobalKey key) {
+          final RenderObject? renderObject = key.currentContext?.findRenderObject();
+          if (renderObject is RenderBox) {
+            final Offset childOffset = renderObject.localToGlobal(Offset.zero);
+            //childOffset.dy item的绝对y坐标
+            if (childOffset.dy > 0 && childOffset.dy < scrollCtrl.position.viewportDimension + 300) {
+              visibleItems.add(index);
+            }
+          }
+        });
+
+        final TabHotPageController c = Get.find(tag: widget.tab.name);
+        //如果猛的一次滑动到后面，那么会出现同时有7-10个可见的情况。这里做个限制
+        visibleItems.sublist(0, visibleItems.length > 3 ? 3 : visibleItems.length).forEach((v) {
+          _itemKeys.remove(v);
+          List<Post> list = c.allList.where((j) => j.postId == v).toList();
+          if (list.isNotEmpty) {
+            list.forEach((item) {
+              if (item.contentText.isEmpty) {
+                print('请求内容: ${item.title}');
+                c.getPostContent(item);
+              }
+            });
+          }
+        });
+        print('可见: ${visibleItems},_itemKeys$_itemKeys');
+      }
+    });
   }
 
   List<Widget> _buildSlivers() {
@@ -173,7 +242,7 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
                   onTap: () => Utils.toast(msg: item['date'] == c.currentDate ? '列表数据来源于实时请求v2ex.com解析' : '列表数据来源于当天23:30采集，回复时间以当天23:30为准', duration: 5),
                 )
               ]),
-              Icon(Icons.calendar_month, size: 18.w)
+              // Icon(Icons.calendar_month, size: 18.w)
             ],
           ),
         ),
@@ -182,7 +251,10 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
       slivers.add(SliverList(
           delegate: SliverChildBuilderDelegate(
         (context, index) {
-          return PostItem(item: item['list'][index], tab: widget.tab);
+          var temp = item['list'][index];
+          final key = GlobalKey();
+          _itemKeys[temp.postId] = key;
+          return PostItem(key: key, item: temp, tab: widget.tab);
         },
         childCount: item['list'].length,
       )));
@@ -200,11 +272,18 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
             tag: widget.tab.name,
             builder: (_) {
               if (_.loading && _.mapPostList.length == 0) return LoadingListPage();
-              return CustomScrollView(
-                controller: ctrl,
-                physics: new AlwaysScrollableScrollPhysics(),
-                slivers: _buildSlivers(),
-              );
+              return NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollEndNotification) {
+                      onScrollEnd();
+                    }
+                    return false;
+                  },
+                  child: CustomScrollView(
+                    controller: scrollCtrl,
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    slivers: _buildSlivers(),
+                  ));
             }),
         onRefresh: onRefresh);
   }

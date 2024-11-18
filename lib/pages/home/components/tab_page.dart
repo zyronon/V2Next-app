@@ -74,17 +74,19 @@ class TabPageController extends GetxController {
       postList.addAll(res.data['list'].cast<Post>());
       nodeList = nodeList.isEmpty ? res.data['nodeList'] : nodeList;
       totalPage = res.data['totalPage'];
-      if (isRefresh) {
+    } else {
+      needAuth = res.data == Auth.notAllow;
+    }
+    if (isRefresh) {
+      loading = false;
+      if (BaseController.to.currentConfig.autoLoadPostContent) {
         var maxI = postList.length > 3 ? 3 : postList.length;
         for (var i = 0; i < maxI; i++) {
           var item = postList[i];
           getPostContent(item);
         }
       }
-    } else {
-      needAuth = res.data == Auth.notAllow;
     }
-    if (isRefresh) loading = false;
     update();
   }
 
@@ -140,6 +142,9 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   }
 
   void onScrollEnd() {
+    // if (!BaseController.to.currentConfig.autoLoadPostContent) {
+    //   return;
+    // }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 获取 ListView 的 RenderObject
       final RenderObject? listViewRenderObject = scrollCtrl.position.context.storageContext.findRenderObject();
@@ -160,15 +165,16 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
         });
 
         final TabPageController c = Get.find(tag: widget.tab.name);
-        visibleItems.forEach((v) {
+        //如果猛的一次滑动到后面，那么会出现同时有7-10个可见的情况。这里做个限制
+        visibleItems.sublist(0, visibleItems.length > 3 ? 3 : visibleItems.length).forEach((v) {
+          _itemKeys.remove(v);
           var item = c.postList[v];
           if (item.contentText.isEmpty) {
-            _itemKeys.remove(v);
             print('请求内容: ${item.title}');
             c.getPostContent(item);
           }
         });
-        // print('可见: ${visibleItems},_itemKeys$_itemKeys');
+        print('可见: ${visibleItems},_itemKeys$_itemKeys');
       }
     });
   }
@@ -203,22 +209,22 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
                     return false;
                   },
                   child: ListView.builder(
-                physics: new AlwaysScrollableScrollPhysics(),
-                controller: scrollCtrl,
-                itemCount: _.postList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final key = GlobalKey();
-                  _itemKeys[index] = key;
-                  if (_.postList.length - 1 == index) {
-                    return Column(key: key, children: [
-                      PostItem(item: _.postList[index], tab: widget.tab),
-                      FooterTips(loading: _.isLoadingMore),
-                      if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList)
-                    ]);
-                  }
-                  return PostItem(key: key, item: _.postList[index], tab: widget.tab);
-                },
-              ));
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    controller: scrollCtrl,
+                    itemCount: _.postList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final key = GlobalKey();
+                      _itemKeys[index] = key;
+                      if (_.postList.length - 1 == index) {
+                        return Column(key: key, children: [
+                          PostItem(item: _.postList[index], tab: widget.tab),
+                          FooterTips(loading: _.isLoadingMore),
+                          if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList)
+                        ]);
+                      }
+                      return PostItem(key: key, item: _.postList[index], tab: widget.tab);
+                    },
+                  ));
             }),
         onRefresh: onRefresh);
   }

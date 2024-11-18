@@ -1,4 +1,6 @@
 //订阅者回调签名
+import 'dart:developer';
+
 typedef void EventCallback(arg);
 
 class EventBus {

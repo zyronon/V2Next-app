@@ -158,7 +158,7 @@ class ReplyItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             verticalDirection: VerticalDirection.down,
           ),
-          UserTags(username: item.username),
+          if (bc.currentConfig.openTag) UserTags(username: item.username),
           Padding(
             padding: EdgeInsets.only(top: bc.fontSize - 10, bottom: item.children.length == 0 ? 0 : bc.fontSize - 10, right: 10.w),
             child: SizedBox(
