@@ -54,6 +54,7 @@ class Const {
 
   // 所有节点
   static String allNodes = '/api/nodes/all.json';
+  static String allNodes1 = 'v22043nextSIGN!';
 
   // 所有节点 ,可排序
   static String allNodesBySort = '/api/nodes/list.json';

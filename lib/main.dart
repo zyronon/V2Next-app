@@ -39,6 +39,7 @@ void main() async {
   if (GetPlatform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.white,
+      systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
     ));
   }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
