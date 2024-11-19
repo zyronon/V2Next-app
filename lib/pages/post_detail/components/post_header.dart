@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:v2ex/components/base_avatar.dart';
-import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/pages/post_detail/components/user_tags.dart';
+import 'package:v2next/components/base_avatar.dart';
+import 'package:v2next/components/base_html.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/pages/post_detail/components/user_tags.dart';
 
 import '../controller.dart';
 

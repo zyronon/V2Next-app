@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/base_webview.dart';
-import 'package:v2ex/main.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/components/base_webview.dart';
+import 'package:v2next/main.dart';
+import 'package:v2next/model/model.dart';
 
 class BaseAvatar extends StatelessWidget {
   final String? src;

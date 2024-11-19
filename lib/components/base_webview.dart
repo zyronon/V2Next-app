@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/utils.dart';
 
 class BaseWebView extends StatefulWidget {
   late String url;

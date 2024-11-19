@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/utils/utils.dart';
 // import 'package:translator/translator.dart';
 import './format_markdown.dart';
 

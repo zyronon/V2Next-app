@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:dio/dio.dart';
-import 'package:v2ex/http/request.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/const_val.dart';
+import 'package:v2next/http/request.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Upload {

@@ -4,13 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/base_avatar.dart';
-import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/components/base_webview.dart';
-import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/components/base_avatar.dart';
+import 'package:v2next/components/base_html.dart';
+import 'package:v2next/components/base_webview.dart';
+import 'package:v2next/http/login_api.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/utils.dart';
 
 class MePage extends StatelessWidget {
   Widget _buildNumItem(String name, int num, [GestureTapCallback? onTap]) {

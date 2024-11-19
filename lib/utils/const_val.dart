@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/model/model.dart';
 
 export '';
 
@@ -30,6 +30,7 @@ class Const {
   static String tagPrefix = '--用户标签--';
 
   static Color primaryColor = Color(0xff48a24a);
+  static Color bg = Colors.grey.withOpacity(0.2);
   static Color line = Color(0xfff1f1f1);
   static Color line2 = Color(0xffe1e1e1);
   static Widget lineWidget = Divider(color: Const.line, height: 1);

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/pages/post_detail/post_detail.dart';
-import 'package:v2ex/utils/const_val.dart';
+import 'package:v2next/pages/post_detail/post_detail.dart';
+import 'package:v2next/utils/const_val.dart';
 
 import '../controller.dart';
 

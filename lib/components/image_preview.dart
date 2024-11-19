@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/utils/utils.dart';
 
 typedef DoubleClickAnimationListener = void Function();
 

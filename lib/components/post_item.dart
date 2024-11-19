@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/base_avatar.dart';
-import 'package:v2ex/components/base_divider.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/components/base_avatar.dart';
+import 'package:v2next/components/base_divider.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
 
 class PostItem extends StatelessWidget {
   Post item;

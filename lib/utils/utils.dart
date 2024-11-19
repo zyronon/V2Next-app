@@ -14,16 +14,16 @@ import 'package:get/get.dart';
 import 'package:html/dom.dart' hide Text;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/http/login_dio.dart';
-import 'package:v2ex/http/request.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/event_bus.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/upload.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/http/login_api.dart';
+import 'package:v2next/http/login_dio.dart';
+import 'package:v2next/http/request.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/event_bus.dart';
+import 'package:v2next/utils/storage.dart';
+import 'package:v2next/utils/upload.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class Utils {

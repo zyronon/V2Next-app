@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/components/base_slider.dart';
-import 'package:v2ex/main.dart';
-import 'package:v2ex/model/BaseController.dart';
+import 'package:v2next/components/base_html.dart';
+import 'package:v2next/components/base_slider.dart';
+import 'package:v2next/main.dart';
+import 'package:v2next/model/BaseController.dart';
 
 class C extends GetxController {}
 

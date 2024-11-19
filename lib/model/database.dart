@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/model/model.dart';
 
 part 'database.g.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/utils/utils.dart';
 
 class GoogleLogin extends StatefulWidget {
   const GoogleLogin({super.key});

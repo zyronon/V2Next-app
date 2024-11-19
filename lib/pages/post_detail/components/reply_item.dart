@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/base_html.dart';
-import 'package:v2ex/pages/post_detail/components/user_tag.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/pages/post_detail/components/user_tags.dart';
-import 'package:v2ex/utils/const_val.dart';
+import 'package:v2next/components/base_html.dart';
+import 'package:v2next/pages/post_detail/components/user_tag.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/pages/post_detail/components/user_tags.dart';
+import 'package:v2next/utils/const_val.dart';
 
 import '../../../components/base_avatar.dart';
 

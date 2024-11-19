@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Node;
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/model/model.dart';
 
 class TabChildNodes extends StatelessWidget {
   final List<V2Node> list;

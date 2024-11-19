@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:scrollview_observer/scrollview_observer.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/event_bus.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/event_bus.dart';
+import 'package:v2next/utils/utils.dart';
 
 class PostDetailController extends GetxController {
   bool isShowFixedTitle = false;

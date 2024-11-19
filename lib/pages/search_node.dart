@@ -4,8 +4,8 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/http/api.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/http/api.dart';
 
 class SearchNodePage extends StatefulWidget {
   const SearchNodePage({Key? key}) : super(key: key);

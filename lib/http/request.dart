@@ -5,9 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
-import 'package:v2ex/http/interceptor.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/http/interceptor.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/utils.dart';
 
 class Http {
   static late final Http _instance = Http._internal();

@@ -6,13 +6,13 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/event_bus.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/http/login_api.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/event_bus.dart';
+import 'package:v2next/utils/storage.dart';
+import 'package:v2next/utils/utils.dart';
 
 class Controller extends GetxController {
   var codeImg = '';
@@ -123,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                           Listener(
                             onPointerDown: (e) => FocusScope.of(context).requestFocus(usernameTextFieldNode),
                             child: TextFormField(
+                                autofillHints: [AutofillHints.name],
                                 controller: usernameController,
                                 focusNode: usernameTextFieldNode,
                                 // autofocus: true,
@@ -139,6 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                           Listener(
                               onPointerDown: (e) => FocusScope.of(context).requestFocus(pwdTextFieldNode),
                               child: TextFormField(
+                                  autofillHints: [AutofillHints.password],
                                   controller: pwdController,
                                   obscureText: _.showPwd.value,
                                   focusNode: pwdTextFieldNode,

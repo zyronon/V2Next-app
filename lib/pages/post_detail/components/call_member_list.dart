@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/base_button.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/pages/post_detail/controller.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/components/base_button.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/pages/post_detail/controller.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/utils.dart';
 
 class CallMemberList extends StatefulWidget {
   final String postId;

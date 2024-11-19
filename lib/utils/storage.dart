@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:get_storage/get_storage.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/const_val.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
 
 class GStorage {
   static final GStorage _storage = GStorage._internal();

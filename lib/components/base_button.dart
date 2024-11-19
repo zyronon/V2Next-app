@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/utils/const_val.dart';
+import 'package:v2next/utils/const_val.dart';
 
 class BaseButton extends StatelessWidget {
   final TDButtonEvent? onTap;

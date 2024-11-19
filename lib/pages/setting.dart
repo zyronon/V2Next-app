@@ -5,11 +5,11 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/http/login_api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/http/login_api.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/utils.dart';
 
 class Setting extends StatefulWidget {
   @override

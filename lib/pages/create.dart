@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/model/model.dart';
 
-import 'package:v2ex/package/markdown_editable_textinput/format_markdown.dart';
-import 'package:v2ex/package/markdown_editable_textinput/markdown_text_input.dart';
+import 'package:v2next/package/markdown_editable_textinput/format_markdown.dart';
+import 'package:v2next/package/markdown_editable_textinput/markdown_text_input.dart';
 
 enum SampleItem { draft, cancel, tips }
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/utils/utils.dart';
 
 class ApiInterceptor extends Interceptor {
   @override

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/base_button.dart';
-import 'package:v2ex/model/BaseController.dart';
+import 'package:v2next/components/base_button.dart';
+import 'package:v2next/model/BaseController.dart';
 
 class NoData extends StatelessWidget {
   Function? cb;

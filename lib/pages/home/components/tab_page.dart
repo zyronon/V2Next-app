@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/components/footer.dart';
-import 'package:v2ex/components/loading_list_page.dart';
-import 'package:v2ex/components/no_data.dart';
-import 'package:v2ex/components/post_item.dart';
-import 'package:v2ex/components/tab_child_node.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/http/request.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/event_bus.dart';
+import 'package:v2next/components/footer.dart';
+import 'package:v2next/components/loading_list_page.dart';
+import 'package:v2next/components/no_data.dart';
+import 'package:v2next/components/post_item.dart';
+import 'package:v2next/components/tab_child_node.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/http/request.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/event_bus.dart';
 
 class TabPageController extends GetxController {
   bool loading = true;

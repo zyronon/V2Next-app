@@ -4,9 +4,9 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:v2ex/http/interceptor.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/http/interceptor.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/utils.dart';
 
 
 //使用了原生平台adapter,无法登录，但不使用就太慢了...，

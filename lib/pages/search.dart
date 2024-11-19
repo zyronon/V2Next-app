@@ -7,11 +7,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/back.dart';
-import 'package:v2ex/components/base_divider.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/storage.dart';
+import 'package:v2next/components/back.dart';
+import 'package:v2next/components/base_divider.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/storage.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});

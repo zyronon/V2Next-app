@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:extended_text_library/extended_text_library.dart';
-import 'package:v2ex/pages/post_detail/components/extended_text/at_text.dart';
-import 'package:v2ex/pages/post_detail/components/extended_text/emoji_text.dart';
-import 'package:v2ex/pages/post_detail/components/extended_text/image_text.dart';
+import 'package:v2next/pages/post_detail/components/extended_text/at_text.dart';
+import 'package:v2next/pages/post_detail/components/extended_text/emoji_text.dart';
+import 'package:v2next/pages/post_detail/components/extended_text/image_text.dart';
 
 class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   MySpecialTextSpanBuilder({

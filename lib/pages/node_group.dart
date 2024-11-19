@@ -7,10 +7,10 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/http/api.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/storage.dart';
+import 'package:v2next/http/api.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/storage.dart';
 
 class NodeGroupPage extends StatefulWidget {
   const NodeGroupPage({super.key});

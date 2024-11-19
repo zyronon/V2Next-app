@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
 
-import 'package:v2ex/pages/home/components/tab_hot_page.dart';
-import 'package:v2ex/pages/home/components/tab_page.dart';
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/event_bus.dart';
+import 'package:v2next/pages/home/components/tab_hot_page.dart';
+import 'package:v2next/pages/home/components/tab_page.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/event_bus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

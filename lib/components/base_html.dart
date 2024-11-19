@@ -6,11 +6,11 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2ex/components/base_button.dart';
-import 'package:v2ex/components/image_preview.dart';
-import 'package:v2ex/model/BaseController.dart';
-import 'package:v2ex/model/model.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/components/base_button.dart';
+import 'package:v2next/components/image_preview.dart';
+import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/utils.dart';
 
 class CommonHtml extends StatelessWidget {
   final String html;

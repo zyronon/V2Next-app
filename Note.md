@@ -22,4 +22,7 @@ dart run build_runner watch
 [ ] 回复的imgur显示不出来
 [ ] 修改个人主页
 [ ] 主题显示OP注册时间
+[ ] 搜索支持链接搜索
+[ ] 双击底部tab 刷新
+[ ] 双击顶部tab 返回
  

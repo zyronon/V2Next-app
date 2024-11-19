@@ -8,13 +8,13 @@ import 'package:get/get.dart' hide Response, FormData;
 import 'package:html/dom.dart' hide Text, Node;
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
-import 'package:v2ex/http/login_dio.dart';
-import 'package:v2ex/http/request.dart';
-import 'package:v2ex/model/model.dart';
+import 'package:v2next/http/login_dio.dart';
+import 'package:v2next/http/request.dart';
+import 'package:v2next/model/model.dart';
 
-import 'package:v2ex/utils/const_val.dart';
-import 'package:v2ex/utils/storage.dart';
-import 'package:v2ex/utils/utils.dart';
+import 'package:v2next/utils/const_val.dart';
+import 'package:v2next/utils/storage.dart';
+import 'package:v2next/utils/utils.dart';
 import 'package:xml2json/xml2json.dart';
 
 class Api {
