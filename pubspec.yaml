@@ -136,6 +136,8 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/logo.png"  # 替换为你的图标文件路径
+  adaptive_icon_background: "#FFFFFF" # 或指定背景图片
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
 

@@ -2,6 +2,8 @@ flutter build apk --split-per-abi
 
 dart run build_runner watch
 
+dart run flutter_launcher_icons
+
 [x] 测试在回复或者主题里面，打开另一个帖子
 [x] 可修改展示楼层
 [x] 标签功能
