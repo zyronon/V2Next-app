@@ -35,6 +35,7 @@
     <img src="./docs/6.jpg" width="32%"></img>
 </div>
 <br/>
+
 ## 常见问题
 
 <details>y
@@ -67,6 +68,9 @@
 这个项目花了我很多精力，如果对您有用：
 
 - 点个 Star ⭐️ 或分享给他人，让更多的人知道我的存在。
-- 提供反馈，帮助我改进，以持续完善脚本。在[这里](https://github.com/zyronon/V2Next)提出。
+- 提供反馈，帮助我改进，以持续完善App。在[这里](https://github.com/zyronon/V2Next)提出。
 
-#### 更新日志：[https://github.com/zyronon/V2Next/releases](https://github.com/zyronon/V2Next/releases)
+## 更新日志：[https://github.com/zyronon/V2Next/releases](https://github.com/zyronon/V2Next/releases)
+
+## 感谢
+[VVEX](https://github.com/guozhigq/flutter_v2ex): 很多思路借鉴了 VVEX， 感谢 🙏
