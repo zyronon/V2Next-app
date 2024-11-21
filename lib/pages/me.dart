@@ -8,7 +8,7 @@ import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_html.dart';
 import 'package:v2next/components/base_webview.dart';
 import 'package:v2next/http/login_api.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/utils.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 
 import 'package:v2next/pages/home/components/tab_hot_page.dart';
@@ -17,8 +17,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   BaseController bc = BaseController.to;
+  late TabController _tabController;
 
   List<Widget> tabs = [];
   List<Widget> pages = [];
@@ -37,6 +38,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   }
 
   init() {
+    _tabController = TabController(length: bc.tabList.length, vsync: this);
+
     setState(() {
       tabs = bc.tabList.map((e) {
         return Tab(text: e.title);
@@ -69,72 +72,72 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return DefaultTabController(
+    return Scaffold(
       key: tabKey,
-      length: tabs.length,
-      child: Scaffold(
-        body: Container(
-          child: Column(
-            children: [
-              Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(bottom: BorderSide(color: Const.line)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 7,
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
-                            isScrollable: true,
-                            labelStyle: TextStyle(fontSize: 15.sp),
-                            unselectedLabelStyle: TextStyle(fontSize: 15.sp),
-                            tabs: tabs,
-                          )),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              InkWell(
-                                child: Padding(
-                                    padding: EdgeInsets.all(10.w),
-                                    child: Icon(
-                                      Icons.sort,
-                                      size: 22.sp,
-                                    )),
-                                onTap: () {
-                                  Get.toNamed('/edit_tab');
-                                },
-                              ),
-                              InkWell(
-                                child: Padding(
-                                    padding: EdgeInsets.all(10.w),
-                                    child: Icon(
-                                      Icons.search,
-                                      size: 22.sp,
-                                    )),
-                                onTap: () => Get.toNamed('/search'),
-                              ),
-                            ],
-                          ),
+      body: Container(
+        child: Column(
+          children: [
+            Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(bottom: BorderSide(color: Const.line)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                        flex: 7,
+                        child: TabBar(
+                          controller: _tabController,
+                          tabAlignment: TabAlignment.start,
+                          labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
+                          isScrollable: true,
+                          labelStyle: TextStyle(fontSize: 15.sp),
+                          unselectedLabelStyle: TextStyle(fontSize: 15.sp),
+                          tabs: tabs,
+                        )),
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              child: Padding(
+                                  padding: EdgeInsets.all(10.w),
+                                  child: Icon(
+                                    Icons.sort,
+                                    size: 22.sp,
+                                  )),
+                              onTap: () {
+                                Get.toNamed('/edit_tab');
+                              },
+                            ),
+                            InkWell(
+                              child: Padding(
+                                  padding: EdgeInsets.all(10.w),
+                                  child: Icon(
+                                    Icons.search,
+                                    size: 22.sp,
+                                  )),
+                              onTap: () => Get.toNamed('/search'),
+                            ),
+                          ],
                         ),
-                      )
-                    ],
-                  )),
-              Expanded(child: TabBarView(children: pages))
-            ],
-          ),
+                      ),
+                    )
+                  ],
+                )),
+            Expanded(child: TabBarView(
+                controller: _tabController,
+                children: pages))
+          ],
         ),
-        // floatingActionButton: FloatingActionButton(
-        //     onPressed: () {
-        //       submit();
-        //     },
-        //     child: Text('test')),
       ),
+      // floatingActionButton: FloatingActionButton(
+      //     onPressed: () {
+      //       submit();
+      //     },
+      //     child: Text('test')),
     );
   }
 

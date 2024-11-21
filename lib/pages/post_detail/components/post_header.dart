@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_html.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/pages/post_detail/components/user_tags.dart';
 
 import '../controller.dart';

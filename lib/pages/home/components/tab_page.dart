@@ -9,7 +9,7 @@ import 'package:v2next/components/post_item.dart';
 import 'package:v2next/components/tab_child_node.dart';
 import 'package:v2next/http/api.dart';
 import 'package:v2next/http/request.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/event_bus.dart';
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:v2next/components/no_data.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/pages/notifications/list_page.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/event_bus.dart';

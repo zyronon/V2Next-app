@@ -18,7 +18,7 @@ import 'package:v2next/http/api.dart';
 import 'package:v2next/http/login_api.dart';
 import 'package:v2next/http/login_dio.dart';
 import 'package:v2next/http/request.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/event_bus.dart';

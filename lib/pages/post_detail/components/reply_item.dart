@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2next/components/base_html.dart';
 import 'package:v2next/pages/post_detail/components/user_tag.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/pages/post_detail/components/user_tags.dart';
 import 'package:v2next/utils/const_val.dart';

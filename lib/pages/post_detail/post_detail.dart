@@ -25,7 +25,7 @@ import 'package:v2next/components/base_divider.dart';
 import 'package:v2next/components/base_html.dart';
 import 'package:v2next/components/footer.dart';
 import 'package:v2next/http/api.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/pages/post_detail/components/editor.dart';
 import 'package:v2next/pages/post_detail/components/post_navbar.dart';

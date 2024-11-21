@@ -13,7 +13,7 @@ import 'package:v2next/components/loading_list_page.dart';
 import 'package:v2next/components/no_data.dart';
 import 'package:v2next/components/post_item.dart';
 import 'package:v2next/http/api.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 
 import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/const_val.dart';

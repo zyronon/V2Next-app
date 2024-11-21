@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+
 // import 'package:fwfh_url_launcher/fwfh_url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2next/components/base_button.dart';
+import 'package:v2next/components/base_webview.dart';
 import 'package:v2next/components/image_preview.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/utils.dart';
 
 class CommonHtml extends StatelessWidget {
@@ -58,8 +61,15 @@ class CommonHtml extends StatelessWidget {
             var result = match.map((m) => m.group(0)).toList();
             Get.toNamed('/post_detail', arguments: Post(postId: int.parse(result[0]!)), preventDuplicates: false);
             return true;
+          } else {
+            if (url.contains('/member/')) {
+              url = url.replaceAll('/member/', '');
+              //TODO
+              Get.to(BaseWebView(url: '${Const.v2exHost}/member/${url}'), transition: Transition.cupertino);
+            } else {
+              Utils.openBrowser(url);
+            }
           }
-          Utils.openBrowser(url);
           return true;
         },
         onTapImage: (ImageMetadata imageMetadata) {

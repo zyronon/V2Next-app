@@ -15,7 +15,7 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_button.dart';
 import 'package:v2next/components/base_html.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/pages/post_detail/controller.dart';
 import 'package:v2next/utils/const_val.dart';

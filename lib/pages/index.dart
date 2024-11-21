@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/pages/discover/discover.dart';
 import 'package:v2next/pages/me.dart';
 import 'package:v2next/pages/notifications/notifications.dart';
@@ -38,7 +38,19 @@ class _IndexState extends State<Index> {
     ));
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _onItemTapped(int index) {
+    if (index == 0) {
+      EventBus().emit('refreshTab');
+    }
+    if (index == 2) {
+      EventBus().emit('setUnread', 0);
+    }
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: index == 3 ? Colors.grey[100] : Colors.transparent,
     ));
@@ -82,9 +94,6 @@ class _IndexState extends State<Index> {
               ],
             ),
             onTap: () {
-              if (index == 2) {
-                EventBus().emit('setUnread', 0);
-              }
               _onItemTapped(index);
             }));
   }

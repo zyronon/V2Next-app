@@ -149,11 +149,11 @@ class AppDatabase extends _$AppDatabase {
         }
       }, beforeOpen: (openingDetails) async {
         if (true /* or some other flag */) {
-          final m = this.createMigrator(); // changed to this
-          for (final table in allTables) {
-            await m.deleteTable(table.actualTableName);
-            await m.createTable(table);
-          }
+          // final m = this.createMigrator(); // changed to this
+          // for (final table in allTables) {
+          //   await m.deleteTable(table.actualTableName);
+          //   await m.createTable(table);
+          // }
         }
       });
 }

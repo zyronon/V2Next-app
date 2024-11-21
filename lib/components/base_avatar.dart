@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:v2next/components/base_webview.dart';
 import 'package:v2next/main.dart';
 import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
 
 class BaseAvatar extends StatelessWidget {
   final String? src;
@@ -50,7 +51,7 @@ class BaseAvatar extends StatelessWidget {
           ),
           onTap: () {
             if (user == null && username == null) return;
-            Get.to(BaseWebView(url: 'https://www.v2ex.com/member/${user?.username ?? username ?? ''}'), transition: Transition.cupertino);
+            Get.to(BaseWebView(url: '${Const.v2exHost}/member/${user?.username ?? username ?? ''}'), transition: Transition.cupertino);
           });
     } else {
       return _default();

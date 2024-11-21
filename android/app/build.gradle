@@ -46,21 +46,21 @@ android {
         versionName flutterVersionName
     }
 
-    signingConfigs {
-        release {
-            storeFile file('C:/code/v2ex/key.jks') // 使用密钥路径
-            storePassword System.getenv("MY_KEYSTORE_PASSWORD") ?: project.MY_KEYSTORE_PASSWORD
-            keyAlias System.getenv("MY_KEY_ALIAS") ?: project.MY_KEY_ALIAS
-            keyPassword System.getenv("MY_KEY_PASSWORD") ?: project.MY_KEY_PASSWORD
-        }
-    }
+//    signingConfigs {
+//        release {
+//            storeFile file('C:/code/v2ex/key.jks') // 使用密钥路径
+//            storePassword System.getenv("MY_KEYSTORE_PASSWORD") ?: project.MY_KEYSTORE_PASSWORD
+//            keyAlias System.getenv("MY_KEY_ALIAS") ?: project.MY_KEY_ALIAS
+//            keyPassword System.getenv("MY_KEY_PASSWORD") ?: project.MY_KEY_PASSWORD
+//        }
+//    }
 
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-//            signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.release
             // 移除调试符号以减小APK大小
             shrinkResources true
             minifyEnabled true // 启用混淆（ProGuard）

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:v2next/components/base_html.dart';
 import 'package:v2next/components/base_slider.dart';
 import 'package:v2next/main.dart';
-import 'package:v2next/model/BaseController.dart';
+import 'package:v2next/model/base_controller.dart';
 
 class C extends GetxController {}
 
