@@ -42,13 +42,13 @@ class BaseController extends GetxController {
       Api.checkUpdate();
     }
 
-    EventBus().on('setUnread', (_) {
+    EventBus().on(EventKey.setUnread, (_) {
       member.actionCounts[3] = _;
       setMember(member);
       update();
     });
 
-    EventBus().on('startTask', (_) {
+    EventBus().on(EventKey.startTask, (_) {
       startTask();
     });
   }
@@ -59,12 +59,12 @@ class BaseController extends GetxController {
     if (_timer != null) {
       _timer!.cancel();
     }
-    EventBus().off('setUnread');
-    EventBus().off('startTask');
+    EventBus().off(EventKey.setUnread);
+    EventBus().off(EventKey.startTask);
   }
 
   startTask() {
-    print('startTask');
+    print(EventKey.startTask);
     if(currentConfig.autoSign){
       Future.delayed(Duration(seconds: 5), () {
         LoginApi.sign();

@@ -44,7 +44,7 @@ class NotificationController extends GetxController {
     }
     if (isRefresh) loading = false;
     update();
-    EventBus().emit('setUnread', 0);
+    EventBus().emit(EventKey.setUnread, 0);
   }
 
   Future onRefresh() async {

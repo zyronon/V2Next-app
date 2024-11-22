@@ -648,7 +648,7 @@ class Utils {
     if (noticeEl != null) {
       var unRead = int.parse(noticeEl.text.replaceAll(RegExp(r'\D'), ''));
       print('$unRead条未读消息');
-      EventBus().emit('setUnread', unRead);
+      EventBus().emit(EventKey.setUnread, unRead);
       return unRead;
     }
     return -1;

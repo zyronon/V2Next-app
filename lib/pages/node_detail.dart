@@ -181,7 +181,7 @@ class NodeDetailPage extends StatelessWidget {
                                         bc.tabList.removeAt(rIndex);
                                         bc.setHomeTabList(bc.tabList);
                                         Utils.toast(msg: '已从首页移除');
-                                        EventBus().emit('refreshHomeTab');
+                                        EventBus().emit(EventKey.resetHomeTab);
                                         _.update();
                                       }
                                     } else {
@@ -193,7 +193,7 @@ class NodeDetailPage extends StatelessWidget {
                                       }
                                       bc.setHomeTabList(bc.tabList);
                                       Utils.toast(msg: '已添加到首页');
-                                      EventBus().emit('refreshHomeTab');
+                                      EventBus().emit(EventKey.resetHomeTab);
                                       _.update();
                                     }
                                   }),

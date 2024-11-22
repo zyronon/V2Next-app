@@ -46,10 +46,10 @@ class _IndexState extends State<Index> {
 
   void _onItemTapped(int index) {
     if (index == 0) {
-      EventBus().emit('refreshTab');
+      EventBus().emit(EventKey.noticeHomeTab);
     }
     if (index == 2) {
-      EventBus().emit('setUnread', 0);
+      EventBus().emit(EventKey.setUnread, 0);
     }
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: index == 3 ? Colors.grey[100] : Colors.transparent,

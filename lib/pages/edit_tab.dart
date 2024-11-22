@@ -213,7 +213,7 @@ class EditTabPage extends StatelessWidget {
                                   onTap: () {
                                     _.bc.setHomeTabList(_.tabList);
                                     _.isEdit.value = false;
-                                    EventBus().emit('refreshHomeTab');
+                                    EventBus().emit(EventKey.resetHomeTab);
                                   })
                             ]
                           ],

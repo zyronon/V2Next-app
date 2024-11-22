@@ -38,8 +38,11 @@ void main() async {
 
   if (GetPlatform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      //如果直接在下面的AppBarTheme里设置了，后续无法再手动修改了
+      // statusBarColor: Colors.transparent, // 去除状态栏遮罩
       statusBarColor: Colors.white,
       systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
+      statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
     ));
   }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
@@ -66,6 +69,8 @@ class _MyAppState extends State<MyApp> {
               title: 'V2Next',
               theme: ThemeData(
                 useMaterial3: true,
+                splashColor: Colors.transparent, // 点击时的高亮效果设置为透明
+                highlightColor: Colors.transparent, // 长按时的扩散效果设置为透明
                 //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
                 textTheme: GoogleFonts.notoSansScTextTheme(),
                 // 去除TabBar底部线条
@@ -83,12 +88,6 @@ class _MyAppState extends State<MyApp> {
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
                   surfaceTintColor: Colors.transparent,
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                    //这里设置了，无法再手动修改了
-                    // statusBarColor: Colors.transparent, // 去除状态栏遮罩
-                    statusBarIconBrightness: Brightness.dark, // 状态栏图标字体颜色
-                    systemNavigationBarColor: Colors.white.withOpacity(0.1), // 底部导航栏颜色
-                  ),
                 ),
                 colorScheme: ColorScheme.light(
                   primary: Const.primaryColor,

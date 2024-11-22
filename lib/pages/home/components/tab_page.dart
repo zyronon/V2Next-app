@@ -29,14 +29,21 @@ class TabPageController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    EventBus().off('post_detail', mergePost);
+    EventBus().off(EventKey.postDetail, mergePost);
+    EventBus().off(EventKey.refreshTab, refreshTab);
   }
 
   @override
   void onInit() async {
     super.onInit();
     getData(isRefresh: true);
-    EventBus().on('post_detail', mergePost);
+    EventBus().on(EventKey.postDetail, mergePost);
+    EventBus().on(EventKey.refreshTab, refreshTab);
+  }
+
+  refreshTab(_){
+    print('tab$_');
+    print(_.name == tab.name);
   }
 
   mergePost(post) {

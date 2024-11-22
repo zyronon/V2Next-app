@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   BaseController bc = BaseController.to;
   late TabController _tabController;
 
@@ -29,17 +29,25 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   void initState() {
     super.initState();
     init();
-    EventBus().on('refreshHomeTab', (_) {
+    EventBus().on(EventKey.resetHomeTab, (_) {
+      _tabController.dispose(); // 销毁旧的 TabController
       init();
-      setState(() {
-        tabKey = UniqueKey();
-      });
+    });
+    EventBus().on(EventKey.noticeHomeTab, (_) {
+      print(_tabController.index);
+      EventBus().emit(EventKey.refreshTab, bc.tabList[_tabController.index]);
     });
   }
 
-  init() {
-    _tabController = TabController(length: bc.tabList.length, vsync: this);
+  @override
+  void dispose() {
+    EventBus().off(EventKey.resetHomeTab);
+    EventBus().off(EventKey.noticeHomeTab);
+    _tabController.dispose(); // 销毁旧的 TabController
+    super.dispose();
+  }
 
+  init() {
     setState(() {
       tabs = bc.tabList.map((e) {
         return Tab(text: e.title);
@@ -49,6 +57,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
         return new TabPage(tab: e);
       }).toList();
     });
+    _tabController = TabController(length: bc.tabList.length, vsync: this);
   }
 
   InAppWebViewController? webViewController;
@@ -73,7 +82,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      key: tabKey,
       body: Container(
         child: Column(
           children: [
@@ -127,9 +135,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin,
                     )
                   ],
                 )),
-            Expanded(child: TabBarView(
-                controller: _tabController,
-                children: pages))
+            Expanded(child: TabBarView(controller: _tabController, children: pages))
           ],
         ),
       ),

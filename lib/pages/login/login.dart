@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                                         Utils.twoFADialog();
                                       } else {
                                         BaseController.to.setUserinfo(res.data);
-                                        EventBus().emit('startTask');
+                                        EventBus().emit(EventKey.startTask);
                                         Get.back(result: {'loginStatus': 'success'});
                                       }
                                     } else {
@@ -289,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                             Utils.twoFADialog();
                           } else {
                             BaseController.to.setUserinfo(res.data);
-                            EventBus().emit('startTask');
+                            EventBus().emit(EventKey.startTask);
                             Get.back(result: {'loginStatus': 'success'});
                           }
                         } else {

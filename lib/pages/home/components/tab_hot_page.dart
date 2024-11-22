@@ -35,7 +35,7 @@ class TabHotPageController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    EventBus().off('post_detail', mergePost);
+    EventBus().off(EventKey.postDetail, mergePost);
   }
 
   @override
@@ -43,7 +43,7 @@ class TabHotPageController extends GetxController {
     super.onInit();
     getList(isRefresh: true);
     dateList = await Api.getV2HotDateMap();
-    EventBus().on('post_detail', mergePost);
+    EventBus().on(EventKey.postDetail, mergePost);
   }
 
   List<Post> get allList {

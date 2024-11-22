@@ -118,7 +118,7 @@ class PostDetailController extends GetxController {
     loading = false;
     update();
     bc.addRead({post.postId.toString(): post.replyCount});
-    EventBus().emit('post_detail', post);
+    EventBus().emit(EventKey.postDetail, post);
     observerController.reattach();
 
     if (s == null) {
