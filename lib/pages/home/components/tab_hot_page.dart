@@ -147,6 +147,7 @@ class TabHotPage extends StatefulWidget {
 
 class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMixin {
   final ScrollController scrollCtrl = ScrollController();
+  final GlobalKey<RefreshIndicatorState> refreshKey = GlobalKey<RefreshIndicatorState>();
   Map<int, GlobalKey> _itemKeys = {}; // 存储每个子项的 GlobalKey
 
   Future<void> onRefresh() async {
@@ -160,6 +161,7 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
   void initState() {
     super.initState();
     scrollCtrl.addListener(scrollListener);
+    EventBus().on(EventKey.refreshTab, refreshTab);
   }
 
   @override
@@ -167,6 +169,15 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
     super.dispose();
     scrollCtrl.removeListener(scrollListener);
     scrollCtrl.dispose();
+    EventBus().off(EventKey.refreshTab, refreshTab);
+  }
+
+  refreshTab(_) {
+    final TabHotPageController c = Get.find(tag: widget.tab.name);
+    if (_.name == c.tab.name) {
+      scrollCtrl.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+      refreshKey.currentState?.show();
+    }
   }
 
   void scrollListener() {
@@ -267,6 +278,7 @@ class _TabHotPageState extends State<TabHotPage> with AutomaticKeepAliveClientMi
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
+        key: refreshKey,
         child: GetBuilder<TabHotPageController>(
             init: TabHotPageController(tab: widget.tab),
             tag: widget.tab.name,

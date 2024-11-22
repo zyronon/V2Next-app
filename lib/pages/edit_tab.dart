@@ -17,6 +17,7 @@ class Controller extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    Utils.report(name: 'edit_tab_page');
     tabList.assignAll(bc.tabList);
   }
 }
@@ -214,7 +215,7 @@ class EditTabPage extends StatelessWidget {
                                     _.bc.setHomeTabList(_.tabList);
                                     _.isEdit.value = false;
                                     EventBus().emit(EventKey.resetHomeTab);
-                                    Utils.report(name: 'edit_tab');
+                                    Utils.report(name: 'edit_tab_save');
                                   })
                             ]
                           ],

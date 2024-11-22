@@ -127,7 +127,7 @@ class BaseController extends GetxController {
     config[member.username] = uc;
 
     Utils.report(name: 'display_type', params: {'val': currentConfig.commentDisplayType.toString()});
-    Utils.report(name: 'ignore_thank_confirm', params: {'val': currentConfig.ignoreThankConfirm});
+    Utils.report(name: 'ignore_thank_confirm', params: {'val': currentConfig.ignoreThankConfirm.toString()});
     update();
     saveConfig();
   }

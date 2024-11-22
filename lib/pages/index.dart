@@ -9,6 +9,7 @@ import 'package:v2next/pages/me.dart';
 import 'package:v2next/pages/notifications/notifications.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/event_bus.dart';
+import 'package:v2next/utils/utils.dart';
 
 import 'home/home.dart';
 
@@ -45,10 +46,11 @@ class _IndexState extends State<Index> {
   }
 
   void _onItemTapped(int index) {
-    if (index == 0) {
+    if (index == 0 && _selectedIndex == 0) {
       EventBus().emit(EventKey.noticeHomeTab);
     }
     if (index == 2) {
+      Utils.report(name: 'notice_page');
       EventBus().emit(EventKey.setUnread, 0);
     }
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(

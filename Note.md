@@ -4,6 +4,10 @@ dart run build_runner watch
 
 dart run flutter_launcher_icons
 
+adb shell setprop debug.firebase.analytics.app com.zyronon.v2next
+adb shell setprop debug.firebase.analytics.app .none.
+
+
 [x] 测试在回复或者主题里面，打开另一个帖子
 [x] 可修改展示楼层
 [x] 标签功能
@@ -19,12 +23,12 @@ dart run flutter_launcher_icons
 [x] 添加已读功能
 [x] 定时清除缓存数据
 [x] 卡片模式
+[ ] 修改个人主页
 [ ] 高赞，菜单项添加跳转功能(目前位置跳转不精准，后期需要自己重写)
 [ ] 从点赞那登录，登录后再点赞会失效，需要再次重点才可
 [ ] 回复的imgur显示不出来
-[ ] 修改个人主页
 [ ] 主题显示OP注册时间
 [ ] 搜索支持链接搜索
-[ ] 双击底部tab 刷新
+[x] 重复点击底部tab 刷新
 [ ] 双击顶部tab 返回
  

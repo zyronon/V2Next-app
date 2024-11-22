@@ -239,7 +239,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: Icons.tag,
               disabled: !bc.currentConfig.openTag,
               onTap: () {
-                Utils.report(name: 'tag_manage');
+                Utils.report(name: 'tag_manage_click');
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
                   return;
@@ -483,7 +483,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: Icons.tag,
               disabled: !bc.currentConfig.openTag,
               onTap: () {
-                Utils.report(name: 'tag_manage');
+                Utils.report(name: 'tag_manage_click');
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
                   return;

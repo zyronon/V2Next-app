@@ -30,7 +30,6 @@ class TabPageController extends GetxController {
   void onClose() {
     super.onClose();
     EventBus().off(EventKey.postDetail, mergePost);
-    EventBus().off(EventKey.refreshTab, refreshTab);
   }
 
   @override
@@ -38,12 +37,6 @@ class TabPageController extends GetxController {
     super.onInit();
     getData(isRefresh: true);
     EventBus().on(EventKey.postDetail, mergePost);
-    EventBus().on(EventKey.refreshTab, refreshTab);
-  }
-
-  refreshTab(_){
-    print('tab$_');
-    print(_.name == tab.name);
   }
 
   mergePost(post) {
@@ -127,6 +120,7 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   final ScrollController scrollCtrl = ScrollController();
+  final GlobalKey<RefreshIndicatorState> refreshKey = GlobalKey<RefreshIndicatorState>();
   Map<int, GlobalKey> _itemKeys = {}; // 存储每个子项的 GlobalKey
 
   Future<void> onRefresh() async {
@@ -139,13 +133,23 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
   void initState() {
     super.initState();
     scrollCtrl.addListener(scrollListener);
+    EventBus().on(EventKey.refreshTab, refreshTab);
   }
 
   @override
   void dispose() {
     scrollCtrl.removeListener(scrollListener);
     scrollCtrl.dispose();
+    EventBus().off(EventKey.refreshTab, refreshTab);
     super.dispose();
+  }
+
+  refreshTab(_) {
+    final TabPageController c = Get.find(tag: widget.tab.name);
+    if (_.name == c.tab.name) {
+      scrollCtrl.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.ease);
+      refreshKey.currentState?.show();
+    }
   }
 
   void onScrollEnd() {
@@ -193,47 +197,52 @@ class _TabPageState extends State<TabPage> with AutomaticKeepAliveClientMixin {
     }
   }
 
+  Widget _buildChild(_) {
+    if (_.loading && _.postList.length == 0) return LoadingListPage();
+    if (_.needAuth)
+      return NoData(cb: () {
+        if (BaseController.to.isLogin) {
+          _.onRefresh();
+        }
+      });
+    return NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification is ScrollEndNotification) {
+            onScrollEnd();
+          }
+          return false;
+        },
+        child: ListView.builder(
+          physics: new AlwaysScrollableScrollPhysics(),
+          controller: scrollCtrl,
+          itemCount: _.postList.length,
+          itemBuilder: (BuildContext context, int index) {
+            final key = GlobalKey();
+            _itemKeys[index] = key;
+            if (_.postList.length - 1 == index) {
+              return Column(
+                key: key,
+                children: [
+                  PostItem(item: _.postList[index], tab: widget.tab),
+                  FooterTips(loading: _.isLoadingMore),
+                  if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList),
+                ],
+              );
+            }
+            return PostItem(key: key, item: _.postList[index], tab: widget.tab);
+          },
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-        child: GetBuilder<TabPageController>(
-            init: TabPageController(tab: widget.tab),
-            tag: widget.tab.name,
-            builder: (_) {
-              if (_.loading && _.postList.length == 0) return LoadingListPage();
-              if (_.needAuth)
-                return NoData(cb: () {
-                  if (BaseController.to.isLogin) {
-                    _.onRefresh();
-                  }
-                });
-              return NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (notification is ScrollEndNotification) {
-                      onScrollEnd();
-                    }
-                    return false;
-                  },
-                  child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    controller: scrollCtrl,
-                    itemCount: _.postList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final key = GlobalKey();
-                      _itemKeys[index] = key;
-                      if (_.postList.length - 1 == index) {
-                        return Column(key: key, children: [
-                          PostItem(item: _.postList[index], tab: widget.tab),
-                          FooterTips(loading: _.isLoadingMore),
-                          if (_.nodeList.isNotEmpty) TabChildNodes(list: _.nodeList)
-                        ]);
-                      }
-                      return PostItem(key: key, item: _.postList[index], tab: widget.tab);
-                    },
-                  ));
-            }),
-        onRefresh: onRefresh);
+    return GetBuilder<TabPageController>(
+        init: TabPageController(tab: widget.tab),
+        tag: widget.tab.name,
+        builder: (_) {
+          return RefreshIndicator(key: refreshKey, child: _buildChild(_), onRefresh: onRefresh);
+        });
   }
 
   @override
