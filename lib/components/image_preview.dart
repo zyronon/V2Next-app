@@ -41,7 +41,6 @@ class _ImagePreviewState extends State<ImagePreview> with TickerProviderStateMix
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _requestPermission();
     animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
@@ -95,7 +94,6 @@ class _ImagePreviewState extends State<ImagePreview> with TickerProviderStateMix
 
   @override
   void dispose() {
-    // TODO: implement dispose
     animationController.dispose();
     _doubleClickAnimationController.dispose();
     clearGestureDetailsCache();

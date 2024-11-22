@@ -53,6 +53,5 @@ enum EventKey{
   resetHomeTab,
   refreshTab,
   setUnread,
-  startTask,
   postDetail,
 }

@@ -89,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
+    Utils.report(name: 'login_page');
     super.initState();
   }
 
@@ -224,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                                 theme: TDButtonTheme.primary,
                                 onTap: () async {
                                   if ((_formKey.currentState as FormState).validate()) {
+                                    Utils.report(name: 'login_click');
                                     print(usernameController.text);
                                     print(pwdController.text);
                                     print(codeController.text);
@@ -241,7 +243,6 @@ class _LoginPageState extends State<LoginPage> {
                                         Utils.twoFADialog();
                                       } else {
                                         BaseController.to.setUserinfo(res.data);
-                                        EventBus().emit(EventKey.startTask);
                                         Get.back(result: {'loginStatus': 'success'});
                                       }
                                     } else {
@@ -289,7 +290,6 @@ class _LoginPageState extends State<LoginPage> {
                             Utils.twoFADialog();
                           } else {
                             BaseController.to.setUserinfo(res.data);
-                            EventBus().emit(EventKey.startTask);
                             Get.back(result: {'loginStatus': 'success'});
                           }
                         } else {

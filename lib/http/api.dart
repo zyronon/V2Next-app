@@ -330,7 +330,6 @@ class Api {
             actions: [
               TextButton(onPressed: (() => {SmartDialog.dismiss(), Get.back()}), child: const Text('返回')),
               TextButton(
-                  // TODO
                   onPressed: (() => {Get.toNamed('/login')}),
                   child: const Text('去登录'))
             ],

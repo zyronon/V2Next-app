@@ -239,6 +239,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: Icons.tag,
               disabled: !bc.currentConfig.openTag,
               onTap: () {
+                Utils.report(name: 'tag_manage');
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
                   return;
@@ -273,13 +274,6 @@ class PostDetailPageState extends State<PostDetailPage> {
                 }
               },
               disabled: val.replyUsers.length == 0),
-          _buildLine(),
-          _buildReplyMenuOption(
-              text: '复制',
-              icon: TDIcons.file_copy,
-              onTap: () {
-                Utils.copy(val.replyText);
-              }),
         ],
       )),
       _buildReplyMenuOptionWrapper(
@@ -295,21 +289,30 @@ class PostDetailPageState extends State<PostDetailPage> {
         //         }
         //     },
         //     disabled: type == ReplyListType.Normal),
+
         _buildReplyMenuOption(
             text: '分享',
             icon: TDIcons.share,
             onTap: () {
               Get.back();
+              Utils.report(name: 'share_item');
               showShareModal(val: val);
             }),
         _buildLine(),
         _buildReplyMenuOption(
-            text: '忽略',
-            icon: TDIcons.browse_off,
+            text: '复制',
+            icon: TDIcons.file_copy,
             onTap: () {
-              //TODO
-              Utils.toast(msg: '未实现');
+              Utils.copy(val.replyText);
             }),
+        // _buildLine(),
+        // _buildReplyMenuOption(
+        //     text: '忽略',
+        //     icon: TDIcons.browse_off,
+        //     onTap: () {
+        //       //TODO
+        //       Utils.toast(msg: '未实现');
+        //     }),
       ])),
     ]));
   }
@@ -469,6 +472,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: TDIcons.share,
               onTap: () {
                 Get.back();
+                Utils.report(name: 'share_post');
                 showShareModal();
               }),
         ])),
@@ -479,6 +483,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: Icons.tag,
               disabled: !bc.currentConfig.openTag,
               onTap: () {
+                Utils.report(name: 'tag_manage');
                 if (!bc.isLogin) {
                   Get.toNamed('/login');
                   return;
@@ -527,6 +532,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: TDIcons.order_ascending,
               right: Text(Utils.formatCommentDisplayType(bc.currentConfig.commentDisplayType)),
               onTap: () async {
+                Utils.report(name: 'change_sort');
                 Get.back();
                 showSortModal();
               }),
@@ -536,6 +542,7 @@ class PostDetailPageState extends State<PostDetailPage> {
               icon: TDIcons.view_module,
               onTap: () async {
                 Get.back();
+                Utils.report(name: 'change_layout');
                 await Get.toNamed('/layout');
                 ctrl.update();
               }),

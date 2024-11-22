@@ -1,4 +1,4 @@
-package com.example.v2ex;
+package com.zyronon.v2next;
 
 import io.flutter.embedding.android.FlutterActivity;
 

@@ -6,7 +6,6 @@ import 'package:v2next/components/base_html.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/const_val.dart';
 
-// TODO 样式
 class NoticeItem extends StatefulWidget {
   final MemberNoticeItem noticeItem;
   final Function? onDeleteNotice;

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:v2next/http/api.dart';
 import 'package:v2next/http/login_api.dart';
@@ -8,6 +9,7 @@ import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/event_bus.dart';
 import 'package:v2next/utils/storage.dart';
+import 'package:v2next/utils/utils.dart';
 
 import 'database.dart';
 
@@ -47,10 +49,6 @@ class BaseController extends GetxController {
       setMember(member);
       update();
     });
-
-    EventBus().on(EventKey.startTask, (_) {
-      startTask();
-    });
   }
 
   @override
@@ -60,12 +58,10 @@ class BaseController extends GetxController {
       _timer!.cancel();
     }
     EventBus().off(EventKey.setUnread);
-    EventBus().off(EventKey.startTask);
   }
 
   startTask() {
-    print(EventKey.startTask);
-    if(currentConfig.autoSign){
+    if (currentConfig.autoSign) {
       Future.delayed(Duration(seconds: 5), () {
         LoginApi.sign();
       });
@@ -87,7 +83,6 @@ class BaseController extends GetxController {
       if (res.success) {
         if (res.data != '2fa') {
           setUserinfo(res.data);
-          startTask();
         }
       } else {
         setUserinfo({'member': Member(), 'uc': config['default']});
@@ -120,12 +115,19 @@ class BaseController extends GetxController {
 
   setUserinfo(Map val) {
     member = val['member'];
+    if (isLogin) {
+      FirebaseAnalytics.instance.setUserId(id: member.username);
+      startTask();
+    }
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
     GStorage().setCurrentMember(member);
     UserConfig uc = val['uc'];
     config[member.username] = uc;
+
+    Utils.report(name: 'display_type', params: {'val': currentConfig.commentDisplayType.toString()});
+    Utils.report(name: 'ignore_thank_confirm', params: {'val': currentConfig.ignoreThankConfirm});
     update();
     saveConfig();
   }

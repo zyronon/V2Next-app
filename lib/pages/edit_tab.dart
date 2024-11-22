@@ -214,6 +214,7 @@ class EditTabPage extends StatelessWidget {
                                     _.bc.setHomeTabList(_.tabList);
                                     _.isEdit.value = false;
                                     EventBus().emit(EventKey.resetHomeTab);
+                                    Utils.report(name: 'edit_tab');
                                   })
                             ]
                           ],

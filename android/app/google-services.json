@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "100776393114",
+    "project_id": "v2next-d3734",
+    "storage_bucket": "v2next-d3734.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100776393114:android:ccbf0ead83e56b13916223",
+        "android_client_info": {
+          "package_name": "com.zyronon.v2next"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClvz_ed3iIXC740As6RTcGuTt-okz8GCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

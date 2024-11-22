@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Value;
 import 'package:scrollview_observer/scrollview_observer.dart';
@@ -72,6 +73,7 @@ class PostDetailController extends GetxController {
 
   Future getData() async {
     post = Get.arguments;
+    Utils.report(name: 'post_detail', params: {'id': post.postId});
     isShowFixedTitle = false;
     final postDao = bc.database.postDao;
 

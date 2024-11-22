@@ -19,7 +19,6 @@ class Setting extends StatefulWidget {
 class _SettingState extends State<Setting> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

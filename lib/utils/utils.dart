@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' hide Cookie;
@@ -668,5 +669,9 @@ class Utils {
       }
     }
     return false;
+  }
+
+  static report({required String name, Map<String, Object>? params}) {
+    FirebaseAnalytics.instance.logEvent(name: name, parameters: params);
   }
 }

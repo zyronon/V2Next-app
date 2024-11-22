@@ -20,7 +20,10 @@ import 'package:v2next/pages/post_detail/post_detail.dart';
 import 'package:v2next/pages/search.dart';
 import 'package:v2next/pages/setting.dart';
 import 'package:v2next/utils/const_val.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:v2next/utils/utils.dart';
+import 'firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'pages/index.dart';
 
 class IndexController extends GetxController {
@@ -32,9 +35,15 @@ class IndexController extends GetxController {
 void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await ScreenUtil.ensureScreenSize();
   LoginDio().setCookie();
   Http().setCookie();
+  //在 FirebaseAnalytics 上调用 instance getter 来创建一个新的 Firebase Analytics 实例：
+  FirebaseAnalytics.instance.logEvent(name: 'start');
+  Utils.report(name: 'start');
 
   if (GetPlatform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -69,8 +78,10 @@ class _MyAppState extends State<MyApp> {
               title: 'V2Next',
               theme: ThemeData(
                 useMaterial3: true,
-                splashColor: Colors.transparent, // 点击时的高亮效果设置为透明
-                highlightColor: Colors.transparent, // 长按时的扩散效果设置为透明
+                splashColor: Colors.transparent,
+                // 点击时的高亮效果设置为透明
+                highlightColor: Colors.transparent,
+                // 长按时的扩散效果设置为透明
                 //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
                 textTheme: GoogleFonts.notoSansScTextTheme(),
                 // 去除TabBar底部线条

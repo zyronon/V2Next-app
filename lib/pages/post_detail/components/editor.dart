@@ -139,7 +139,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
       print("show_content：${show_content}");
       var res = await Api.onSubmitReplyTopic(id: widget.postId, val: submit_content);
       if (res.success) {
-        //TODO 需要预处理
+        Utils.report(name: 'reply_success');
         var item = new Reply();
         item.replyContent = show_content;
         item.replyText = show_content;
@@ -159,6 +159,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
         pdc.rebuildList();
         Get.back();
       } else {
+        Utils.report(name: 'reply_fail');
         Utils.toast(msg: res.msg);
       }
     }
@@ -351,6 +352,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                                 ec.setStatus(Status.input);
                                 focusNode.requestFocus();
                               } else {
+                                Utils.report(name: 'show_emoji');
                                 ec.setStatus(Status.emoji);
                                 focusNode.unfocus();
                               }
@@ -363,7 +365,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                           ),
                           const SizedBox(width: 10),
                           InkWell(
-                            onTap: () => onShowMember(context, type: 'click'),
+                            onTap: (){
+                              Utils.report(name: 'show_call');
+                              onShowMember(context, type: 'click');
+                            },
                             child: Icon(
                               Icons.alternate_email_rounded,
                               size: 22,
@@ -373,6 +378,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                           const SizedBox(width: 10),
                           InkWell(
                             onTap: () async {
+                              Utils.report(name: 'show_upload_image');
                               ec.setStatus(Status.image);
                               ec.uploading.value = true;
                               Result? res = await Utils.uploadImage();

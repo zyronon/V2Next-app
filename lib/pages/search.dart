@@ -12,6 +12,7 @@ import 'package:v2next/components/base_divider.dart';
 import 'package:v2next/http/api.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/utils/storage.dart';
+import 'package:v2next/utils/utils.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -43,6 +44,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void initState() {
+    Utils.report(name: 'search_page');
     super.initState();
     init();
   }
