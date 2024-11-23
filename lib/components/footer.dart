@@ -17,7 +17,7 @@ class FooterTips extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (!loading) Icon(Icons.auto_awesome, size: 18.w),
+            if (!loading) Icon(Icons.auto_awesome, size: 18.w,color: Colors.grey),
             if (loading) SpinKitFadingCircle(color: Colors.grey, size: 18.w),
             SizedBox(width: 10.w),
             Column(
@@ -25,7 +25,7 @@ class FooterTips extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(!loading ? '没有更多数据了' : '加载中...'),
+                Text(!loading ? '没有更多数据了' : '加载中...',style: TextStyle(color: Colors.grey)),
               ],
             )
           ],

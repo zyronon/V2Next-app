@@ -39,7 +39,7 @@ class PostToolbar extends StatelessWidget {
         builder: (ctrl) {
           return Container(
               width: double.infinity,
-              padding: EdgeInsets.fromLTRB(14.w, 0.w, 6.w, 4.w),
+              padding: EdgeInsets.fromLTRB(14.w, 0, 6.w, 0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Const.line)),

@@ -116,7 +116,7 @@ class _IndexState extends State<Index> {
       ),
       bottomNavigationBar: GetBuilder<BaseController>(builder: (_) {
         return Container(
-          height: 56.w,
+          height: 54.w,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border(top: BorderSide(color: Const.line)),

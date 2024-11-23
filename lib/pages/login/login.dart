@@ -6,11 +6,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:v2next/http/login_api.dart';
 import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
-import 'package:v2next/http/login_api.dart';
 import 'package:v2next/utils/const_val.dart';
-import 'package:v2next/utils/event_bus.dart';
 import 'package:v2next/utils/storage.dart';
 import 'package:v2next/utils/utils.dart';
 

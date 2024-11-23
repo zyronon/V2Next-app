@@ -115,16 +115,17 @@ class BaseController extends GetxController {
 
   setUserinfo(Map val) {
     member = val['member'];
-    if (isLogin) {
-      FirebaseAnalytics.instance.setUserId(id: member.username);
-      startTask();
-    }
     if (config[member.username] == null) {
       config[member.username] = new UserConfig();
     }
     GStorage().setCurrentMember(member);
     UserConfig uc = val['uc'];
     config[member.username] = uc;
+
+    if (isLogin) {
+      FirebaseAnalytics.instance.setUserId(id: member.username);
+      startTask();
+    }
 
     Utils.report(name: 'display_type', params: {'val': currentConfig.commentDisplayType.toString()});
     Utils.report(name: 'ignore_thank_confirm', params: {'val': currentConfig.ignoreThankConfirm.toString()});
