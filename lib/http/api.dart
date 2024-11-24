@@ -329,9 +329,7 @@ class Api {
             content: const Text('登录后查看主题内容'),
             actions: [
               TextButton(onPressed: (() => {SmartDialog.dismiss(), Get.back()}), child: const Text('返回')),
-              TextButton(
-                  onPressed: (() => {Get.toNamed('/login')}),
-                  child: const Text('去登录'))
+              TextButton(onPressed: (() => {Get.toNamed('/login')}), child: const Text('去登录'))
             ],
           );
         },
@@ -1126,5 +1124,165 @@ class Api {
   static Future changeLog() async {
     var res = await Http().get('https://api.github.com/repos/${Const.gitName}/releases');
     return res.data;
+  }
+
+  // 获取用户信息
+  static Future queryMemberProfile(String memberId) async {
+    ModelMemberProfile memberProfile = ModelMemberProfile();
+    List<Post> postList = [];
+    List<MemberNoticeItem> replyList = [];
+    List<MemberSocialItem> socialList = [];
+    Response response;
+    response = await Http().get('/member/$memberId');
+    // print('response.headers:${response.headers['set-cookie']}');
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelectorAll('#Main > div.box');
+    var profileNode = contentDom[0];
+    var topicsNode = contentDom[1];
+    var replysNode = contentDom[2];
+
+    var menuBodyNode = bodyDom.querySelector("div[id='Top'] > div > div.site-nav > div.tools");
+    var loginOutNode = menuBodyNode!.querySelectorAll('a').last;
+    if (loginOutNode.attributes['onclick'] != null) {
+      // 登录状态
+      var loginOutHref = loginOutNode.attributes['onclick']!;
+      RegExp regExp = RegExp(r'\d{3,}');
+      Iterable<Match> matches = regExp.allMatches(loginOutHref);
+      for (Match m in matches) {
+        GStorage().setOnce(int.parse(m.group(0)!));
+      }
+    }
+    // 头像、昵称、在线状态、加入时间、关注状态
+    var profileCellNode = profileNode.querySelector('div.cell > table');
+    memberProfile.mbAvatar = profileCellNode!.querySelector('img')!.attributes['src']!;
+    memberProfile.memberId = memberId;
+    if (profileCellNode.querySelector('tr>td>strong.online') != null) {
+      memberProfile.isOnline = true;
+    }
+    print('line 1189: ${memberProfile.isOnline}');
+    if (profileNode.querySelectorAll('input[type=button]').isNotEmpty) {
+      var buttonDom = profileNode.querySelectorAll('input[type=button]');
+      var followBtn = buttonDom[0];
+      memberProfile.isFollow = followBtn.attributes['value'] == '取消特别关注' ? true : false;
+      print('line 1195: ${memberProfile.isFollow}');
+
+      var blockBtn = buttonDom[1];
+      // true 已屏蔽
+      memberProfile.isBlock = blockBtn.attributes['value'] == 'Unblock' ? true : false;
+      print('line 1199: ${blockBtn.attributes['value']}');
+    }
+    // else {
+    //   memberProfile.isOwner = false;
+    // }
+
+    // 加入时间
+    var mbCreatedTimeDom = profileCellNode.querySelector('span.gray')!.text;
+    memberProfile.mbSort = mbCreatedTimeDom.split('+')[0].split('，')[0];
+    memberProfile.mbCreatedTime = mbCreatedTimeDom.split('+')[0].split('，')[1];
+    // 社交
+    if (profileNode.querySelector('div.widgets') != null) {
+      var socialNodes = profileNode.querySelector('div.widgets')!.querySelectorAll('a');
+      for (var aNode in socialNodes) {
+        MemberSocialItem item = MemberSocialItem();
+        item.name = aNode.text;
+        item.href = aNode.attributes['href']!;
+        item.icon = Const.v2exHost + aNode.querySelector('img')!.attributes['src']!;
+        item.type = aNode.querySelector('img')!.attributes['alt']!;
+        if (item.type == 'GitHub') {
+          item.type = 'Github';
+        }
+        if (item.icon.contains('btc')) {
+          item.type = 'Btc';
+        }
+        socialList.add(item);
+      }
+    }
+
+    // 简介
+    if (profileNode.querySelectorAll('div.cell').length > 1) {
+      memberProfile.mbSign = profileNode.querySelectorAll('div.cell').last.outerHtml;
+    }
+
+    // 主题列表
+    var topicNodesBlank = topicsNode.querySelector('div.cell:not(.item)');
+    if (topicNodesBlank != null) {
+      memberProfile.isShowTopic = false;
+    } else {
+      var topicNodes = topicsNode.querySelectorAll('div.cell.item');
+      if (topicNodes.isEmpty) {
+        memberProfile.isEmptyTopic = true;
+      } else {
+        for (int i = 0; i < topicNodes.length; i++) {
+          Post item = Post();
+          var itemNode = topicNodes[i].querySelector('table');
+          String topicHref = itemNode!.querySelector('span.item_title > a.topic-link')!.attributes['href']!;
+          item.postId = int.parse(topicHref.split('#')[0].replaceAll(RegExp(r'\D'), ''));
+          item.replyCount = int.parse(topicHref.split('#')[1].replaceAll(RegExp(r'\D'), ''));
+          item.title = itemNode.querySelector('span.item_title > a.topic-link')!.text;
+          item.node.title = itemNode.querySelector('span.topic_info > a.node')!.text;
+          item.node.name = itemNode.querySelector('span.topic_info > a.node')!.attributes['href']!.split('/')[2];
+          item.lastReplyDateAgo = itemNode.querySelector('span.topic_info > span')!.text;
+          item.member.avatar = memberProfile.mbAvatar;
+          item.member.username = memberProfile.memberId;
+          postList.add(item);
+        }
+      }
+    }
+
+    // 回复列表
+    var dockAreaDom = replysNode.querySelectorAll('div.dock_area');
+    if (dockAreaDom.isEmpty) {
+      memberProfile.isEmptyReply = true;
+    } else {
+      var innerDom = replysNode.querySelectorAll('div.reply_content');
+      for (int i = 0; i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length); i++) {
+        MemberNoticeItem item = MemberNoticeItem();
+        item.replyDate = dockAreaDom[i].querySelector('span.fade')!.text;
+        item.member.username = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
+        item.node.name = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
+        item.postTitle = dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
+        item.postId = int.parse(dockAreaDom[i].querySelectorAll('span.gray > a')[2].attributes['href']!.split('#')[0].replaceAll(RegExp(r'\D'), ''));
+
+        if (i < innerDom.length) {
+          item.replyContentHtml = innerDom[i].innerHtml;
+        }
+        replyList.add(item);
+      }
+    }
+
+    memberProfile.postList = postList;
+    memberProfile.replyList = replyList;
+    memberProfile.socialList = socialList;
+    return memberProfile;
+  }
+
+  // 关注用户
+  static Future<bool> onFollowMember(String followId, bool followStatus) async {
+    SmartDialog.showLoading();
+    int once = GStorage().getOnce();
+    var url = followStatus ? '/unfollow/$followId' : '/follow/$followId';
+    final Response response = await Http().get(url, data: {'once': once});
+    SmartDialog.dismiss();
+    // if(response.statusCode == 302){
+    // 操作成功
+    return true;
+    // }else{
+    //   return false;
+    // }
+  }
+
+  // 屏蔽用户
+  static Future<bool> onBlockMember(String blockId, bool blockStatus) async {
+    SmartDialog.showLoading();
+    int once = GStorage().getOnce();
+    var url = blockStatus ? '/unblock/$blockId' : '/block/$blockId';
+    Response response = await Http().get(url, data: {'once': once});
+    SmartDialog.dismiss();
+    // if(response.statusCode == 302){
+    // 操作成功
+    return true;
+    // }else{
+    //   return false;
+    // }
   }
 }

@@ -64,8 +64,8 @@ class CommonHtml extends StatelessWidget {
           } else {
             if (url.contains('/member/')) {
               url = url.replaceAll('/member/', '');
-              //TODO
-              Get.to(BaseWebView(url: '${Const.v2exHost}/member/${url}'), transition: Transition.cupertino);
+              Get.toNamed('/member', arguments: Member(username: url), preventDuplicates: false);
+              // Get.to(BaseWebView(url: '${Const.v2exHost}/member/${url}'), transition: Transition.cupertino);
             } else {
               Utils.openBrowser(url);
             }

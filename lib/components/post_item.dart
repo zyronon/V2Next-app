@@ -5,12 +5,14 @@ import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_divider.dart';
 import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
+import 'package:v2next/utils/const_val.dart';
 
 class PostItem extends StatelessWidget {
   Post item;
   NodeItem tab;
+  bool space = true;
 
-  PostItem({super.key, required this.item, required this.tab});
+  PostItem({super.key, required this.item, required this.tab, this.space = true});
 
   goPostDetail() {
     Get.toNamed('/post_detail', arguments: item);
@@ -166,7 +168,8 @@ class PostItem extends StatelessWidget {
                     )),
             ]),
           ),
-          BaseDivider()
+          if (this.space) BaseDivider(),
+          if (!this.space) Container(height: 1.w, color: Const.line)
         ]),
         onTap: goPostDetail,
       );

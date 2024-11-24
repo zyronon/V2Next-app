@@ -9,8 +9,9 @@ import 'package:v2next/utils/const_val.dart';
 class NoticeItem extends StatefulWidget {
   final MemberNoticeItem noticeItem;
   final Function? onDeleteNotice;
+  bool isNotice;
 
-  const NoticeItem({required this.noticeItem, this.onDeleteNotice, Key? key}) : super(key: key);
+  NoticeItem({required this.noticeItem, this.onDeleteNotice, this.isNotice = true, Key? key}) : super(key: key);
 
   @override
   State<NoticeItem> createState() => _NoticeItemState();
@@ -28,6 +29,17 @@ class _NoticeItemState extends State<NoticeItem> {
 
   @override
   Widget build(BuildContext context) {
+    if(!widget.isNotice){
+      return InkWell(
+        onTap: () {
+          Get.toNamed('/post_detail', arguments: Post(postId: widget.noticeItem.postId));
+        },
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
+          child: content(),
+        ),
+      );
+    }
     return Container(
       child: Dismissible(
         movementDuration: const Duration(milliseconds: 300),
@@ -69,39 +81,44 @@ class _NoticeItemState extends State<NoticeItem> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        if (widget.isNotice)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              BaseAvatar(
+                diameter: 30.w,
+                user: widget.noticeItem.member,
+              ),
+              SizedBox(width: 10.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(widget.noticeItem.member.username),
+                  SizedBox(height: 1.5.w),
+                  if (widget.noticeItem.replyDate.isNotEmpty)
+                    Text(widget.noticeItem.replyDate,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey,
+                        )),
+                ],
+              )
+            ],
+          ),
+        SizedBox(height: 6.w),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                BaseAvatar(
-                  diameter: 30.w,
-                  user: widget.noticeItem.member,
-                ),
-                SizedBox(width: 10.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(widget.noticeItem.member.username),
-                    SizedBox(height: 1.5.w),
-                    if (widget.noticeItem.replyDate.isNotEmpty)
-                      Text(widget.noticeItem.replyDate,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey,
-                          )),
-                  ],
-                )
-              ],
-            ),
+          children: [
+            if (!widget.isNotice) ...[
+              Text(widget.noticeItem.replyDate),
+              SizedBox(width: 10.w)
+            ],
+            if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复：'),
+            if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢：'),
+            if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢：'),
+            if (widget.noticeItem.noticeType == NoticeType.thanks) Text('感谢：'),
+            if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏：'),
           ],
         ),
-        SizedBox(height: 6.w),
-        if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复：'),
-        if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢：'),
-        if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢：'),
-        if (widget.noticeItem.noticeType == NoticeType.thanks) Text('感谢：'),
-        if (widget.noticeItem.noticeType == NoticeType.favTopic) Text('收藏：'),
         SizedBox(height: 6.w),
         if (widget.noticeItem.replyContentHtml.isNotEmpty)
           Stack(

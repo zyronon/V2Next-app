@@ -25,7 +25,7 @@ class NoData extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset('assets/images/nodata.png', width: 125, height: 125),
-                  if (text.isNotEmpty) Text(text, style: TextStyle(fontSize: 24.sp)),
+                  if (text.isNotEmpty) Text(text, style: TextStyle(fontSize: 20.sp,color: Colors.grey[700])),
                   SizedBox(height: 20.w),
                   if (!_.isLogin)
                     BaseButton(

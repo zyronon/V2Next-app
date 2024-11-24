@@ -51,6 +51,8 @@ class BaseAvatar extends StatelessWidget {
           ),
           onTap: () {
             if (user == null && username == null) return;
+            Get.toNamed('/member',arguments: user);
+            return;
             Get.to(BaseWebView(url: '${Const.v2exHost}/member/${user?.username ?? username ?? ''}'), transition: Transition.cupertino);
           });
     } else {

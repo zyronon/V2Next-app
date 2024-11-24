@@ -431,6 +431,7 @@ class MemberNoticeModel {
 
 class MemberNoticeItem {
   Member member = Member();
+  V2Node node = V2Node();
   String replyContentHtml = '';
   String replyDate = ''; // 回复时间
   String postTitle = ''; // 主题标题
@@ -553,4 +554,53 @@ enum StoreKeys {
   allNodes,
   searchList,
   readList
+}
+
+// 个人中心 主题item
+class MemberTopicItem {
+  String title = '';
+  String postId = '';
+  String nodeName = '';
+  String nodeId = '';
+  String time = '';
+  String replyCount = '0';
+  String lastReplyDateAgo = '';
+  String avatar = '';
+  String memberId = '';
+}
+
+// 个人中心 回复item
+class MemberReplyItem {
+  String replyDate = '';
+  String replyContentHtml = '';
+  String memberId = '';
+  String nodeName = '';
+  String postTitle = '';
+  String postId = '';
+}
+
+class MemberSocialItem {
+  String name = '';
+  String href = '';
+  String type = '';
+  String icon = '';
+}
+
+class ModelMemberProfile {
+  List<Post> postList = []; // 主题列表
+  List<MemberNoticeItem> replyList = []; // 回复列表
+  List<MemberSocialItem> socialList = []; // 社交
+  String memberId = '';
+  String mbAvatar = '';
+  String mbSort = '';
+  String mbCreatedTime = '';
+  String mbSign = ''; // 简介
+  bool isOnline = false; // 是否在线
+  bool isFollow = false; // 是否关注
+  bool isBlock = false; // 是否block
+  bool isShowTopic = true; // 隐私设置 主题
+  bool isShowReply = true; // 隐私设置 回复
+  bool isEmptyTopic = false; // 主题列表为空
+  bool isEmptyReply = false; // 回复列表为空
+  bool isOwner = false; // 是否 本人
 }

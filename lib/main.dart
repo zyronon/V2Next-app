@@ -25,6 +25,7 @@ import 'package:v2next/utils/utils.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'pages/index.dart';
+import 'pages/member/member.dart';
 
 class IndexController extends GetxController {
   double textScaleFactor = 1;
@@ -138,6 +139,7 @@ class _MyAppState extends State<MyApp> {
                 '/search_node': (context) => SearchNodePage(),
                 '/google_login': (context) => GoogleLogin(),
                 '/setting': (context) => Setting(),
+                '/member': (context) => MemberPage(),
                 // '/create': (context) => Create(),
               },
               routingCallback: (routing) {
