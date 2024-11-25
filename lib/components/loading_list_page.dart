@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+import 'package:v2next/components/loading_item.dart';
 
 import 'base_divider.dart';
 
@@ -9,48 +8,12 @@ class LoadingListPage extends StatelessWidget {
 
   const LoadingListPage({this.type = 0});
 
-  Widget _buildItem() {
-    return Skeletonizer.zone(
-      child: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Bone.circle(size: 28),
-            SizedBox(width: 10.w),
-            Bone.text(width: 80.w),
-          ], crossAxisAlignment: CrossAxisAlignment.center, verticalDirection: VerticalDirection.down),
-          Padding(padding: EdgeInsets.only(top: 10), child: Bone.multiText()),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Row(
-              children: [
-                Row(
-                  children: [
-                    Bone.text(width: 40.w),
-                    SizedBox(width: 10.w),
-                    Bone.text(width: 70.w),
-                    SizedBox(width: 10.w),
-                    Bone.text(width: 70.w),
-                    SizedBox(width: 10.w),
-                    Bone.text(width: 70.w),
-                  ],
-                ),
-                Bone.text(width: 30.w),
-              ],
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            ),
-          )
-        ]),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (type == 1) {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          return _buildItem();
+          return LoadingItem();
         }, childCount: 7),
       );
     }
@@ -58,7 +21,7 @@ class LoadingListPage extends StatelessWidget {
       physics: new AlwaysScrollableScrollPhysics(),
       itemCount: 7,
       itemBuilder: (BuildContext context, int index) {
-        return _buildItem();
+        return LoadingItem();
       },
       //分割器构造器
       separatorBuilder: (BuildContext context, int index) {

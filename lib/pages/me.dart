@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_html.dart';
 import 'package:v2next/components/base_webview.dart';
-import 'package:v2next/http/login_api.dart';
 import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/utils.dart';
@@ -97,7 +95,7 @@ class MePage extends StatelessWidget {
                   ),
                   onTap: () {
                     if (_.isLogin) {
-                      Get.to(BaseWebView(url: 'https://www.v2ex.com/member/${_.member.username}'), transition: Transition.cupertino);
+                      Get.toNamed('/member',arguments: _.member);
                     } else {
                       Get.toNamed('/login');
                     }

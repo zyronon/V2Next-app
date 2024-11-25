@@ -1126,8 +1126,8 @@ class Api {
     return res.data;
   }
 
-  // 获取用户信息
-  static Future queryMemberProfile(String memberId) async {
+  // 用户信息
+  static Future memberInfo(String memberId) async {
     ModelMemberProfile memberProfile = ModelMemberProfile();
     List<Post> postList = [];
     List<MemberNoticeItem> replyList = [];
@@ -1235,7 +1235,7 @@ class Api {
       memberProfile.isEmptyReply = true;
     } else {
       var innerDom = replysNode.querySelectorAll('div.reply_content');
-      for (int i = 0; i < (dockAreaDom.length > 3 ? 3 : dockAreaDom.length); i++) {
+      for (int i = 0; i < dockAreaDom.length; i++) {
         MemberNoticeItem item = MemberNoticeItem();
         item.replyDate = dockAreaDom[i].querySelector('span.fade')!.text;
         item.member.username = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
@@ -1284,5 +1284,72 @@ class Api {
     // }else{
     //   return false;
     // }
+  }
+
+  // 个人中心 获取用户发布的主题
+  static Future<Map> memberPostList(String memberId, int p) async {
+    Map data = Map();
+    data['totalPage'] = 1;
+    data['count'] = 0;
+    List<Post> list = [];
+    Response response;
+    response = await Http().get('/member/$memberId/topics', data: {'p': p});
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelector('#Main');
+    // 获取总页数
+    if (contentDom!.querySelector('div.box > div.cell:not(.item)') != null) {
+      data['totalPage'] = int.parse(contentDom.querySelectorAll('a').last.text);
+    }
+    var cellNode = contentDom.querySelectorAll('div.cell.item');
+    for (var aNode in cellNode) {
+      Post item = Post();
+      var itemNode = aNode.querySelector('table');
+      String topicHref = itemNode!.querySelector('span.item_title > a.topic-link')!.attributes['href']!;
+
+      item.postId = int.parse(topicHref.split('#')[0].replaceAll(RegExp(r'\D'), ''));
+      item.replyCount = int.parse(topicHref.split('#')[1].replaceAll(RegExp(r'\D'), ''));
+      item.title = itemNode.querySelector('span.item_title > a.topic-link')!.text;
+      item.lastReplyDateAgo = itemNode.querySelector('span.topic_info > span')!.text;
+      item.node.title = itemNode.querySelector('span.topic_info > a.node')!.text;
+      item.node.name = itemNode.querySelector('span.topic_info > a.node')!.attributes['href']!.split('/')[2];
+      item.member.username = '';
+      list.add(item);
+    }
+    data['list'] = list;
+    data['count'] = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+    return data;
+  }
+
+  // 个人中心 获取用户的回复
+  static Future<Map> memberReplyList(String memberId, int p) async {
+    Map data = Map();
+    data['totalPage'] = 1;
+    data['count'] = 0;
+    List<MemberNoticeItem> list = [];
+    Response response = await Http().get('/member/$memberId/replies', data: {'p': p});
+    var bodyDom = parse(response.data).body;
+    var contentDom = bodyDom!.querySelector('#Main > div.box');
+    if (contentDom!.querySelector('div.cell > table') != null) {
+      data['totalPage'] = int.parse(contentDom.querySelector('div.cell > table')!.querySelectorAll('a').last.text);
+    }
+
+    var dockAreaDom = contentDom.querySelectorAll('div.dock_area');
+    var innerDom = contentDom.querySelectorAll('div.reply_content');
+    for (int i = 0; i < dockAreaDom.length; i++) {
+      MemberNoticeItem item = MemberNoticeItem();
+      item.replyDate = dockAreaDom[i].querySelector('span.fade')!.text;
+      item.member.username = dockAreaDom[i].querySelectorAll('span.gray > a')[0].text;
+      item.node.name = dockAreaDom[i].querySelectorAll('span.gray > a')[1].text;
+      item.postTitle = dockAreaDom[i].querySelectorAll('span.gray > a')[2].text;
+      item.postId = int.parse(dockAreaDom[i].querySelectorAll('span.gray > a')[2].attributes['href']!.split('#')[0].replaceAll(RegExp(r'\D'), ''));
+
+      if (i < innerDom.length) {
+        item.replyContentHtml = innerDom[i].innerHtml;
+      }
+      list.add(item);
+    }
+    data['list'] = list;
+    data['count'] = int.parse(contentDom.querySelector('div.header > div')!.innerHtml.replaceAll(RegExp(r'\D'), ''));
+    return data;
   }
 }

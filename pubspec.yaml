@@ -114,8 +114,11 @@ dependencies:
   # 数据保存
   drift: ^2.21.0
   drift_flutter: ^0.2.1
+  # 埋点
   firebase_core: ^3.8.0
   firebase_analytics: ^11.3.5
+  # 刷新
+  easy_refresh: ^3.4.0
 
 dev_dependencies:
   flutter_test:

@@ -14,9 +14,6 @@ class MemberController extends GetxController {
   String heroTag = '';
   bool isOwner = false;
   bool loading = false;
-  Function()? onRefreshSign;
-  Function()? onRefreshFollow;
-  Function()? onRefreshBlock;
 
   @override
   void onInit() async {
@@ -35,7 +32,7 @@ class MemberController extends GetxController {
   Future getData() async {
     loading = true;
     update();
-    var res = await Api.queryMemberProfile(memberId);
+    var res = await Api.memberInfo(memberId);
     // var res = await Api.queryMemberProfile('shzbkzo');
     loading = false;
     info = res;
@@ -43,7 +40,7 @@ class MemberController extends GetxController {
   }
 
   Future<ModelMemberProfile> queryMemberProfile() async {
-    var res = await Api.queryMemberProfile(memberId);
+    var res = await Api.memberInfo(memberId);
     info = res;
     return res;
   }
@@ -109,7 +106,7 @@ class MemberController extends GetxController {
     if (res) {
       SmartDialog.showToast(followStatus ? '已取消关注' : '关注成功');
       info.isFollow = !followStatus;
-      onRefreshFollow!.call();
+      update();
     } else {
       SmartDialog.showToast('操作失败');
     }
@@ -168,7 +165,7 @@ class MemberController extends GetxController {
     if (res) {
       SmartDialog.showToast(blockStatus ? '已取消屏蔽' : '屏蔽成功');
       info.isBlock = !blockStatus;
-      onRefreshBlock!.call();
+      update();
       // if(!blockStatus && followStatus){
       //   memberProfile.isFollow = false;
       // }

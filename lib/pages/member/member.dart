@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:v2next/components/base_avatar.dart';
 import 'package:v2next/components/base_divider.dart';
 import 'package:v2next/components/base_html.dart';
+import 'package:v2next/components/loading_item.dart';
 import 'package:v2next/components/post_item.dart';
 import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/model/model.dart';
 import 'package:v2next/pages/notifications/notice_item.dart';
+import 'package:v2next/pages/post_detail/components/user_tags.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/utils.dart';
 
 import 'controller.dart';
-import 'skeleton_topic_recent.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({Key? key}) : super(key: key);
@@ -44,23 +44,25 @@ class _MemberPageState extends State<MemberPage> {
           return Scaffold(
               appBar: AppBar(
                 actions: [
-                  TextButton(
-                    onPressed: () => ctrl.onFollowMemeber(context),
-                    child: Text(ctrl.info.isFollow ? '取消关注' : '关注'),
-                  ),
-                  TextButton(
-                      onPressed: () => ctrl.onBlockMember(context),
-                      child: Text(
-                        ctrl.info.isBlock ? '取消屏蔽' : '屏蔽',
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
-                      )),
+                  if (!ctrl.isOwner) ...[
+                    TextButton(
+                      onPressed: () => ctrl.onFollowMemeber(context),
+                      child: Text(ctrl.info.isFollow ? '取消关注' : '关注'),
+                    ),
+                    TextButton(
+                        onPressed: () => ctrl.onBlockMember(context),
+                        child: Text(
+                          ctrl.info.isBlock ? '取消屏蔽' : '屏蔽',
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        )),
+                  ]
                 ],
               ),
-              body: ctrl.loading ? loading(ctrl) : _buildView(ctrl));
+              body: _buildView(ctrl));
         });
   }
 
-  Widget _buildView(ctrl) {
+  Widget _buildView(MemberController ctrl) {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -71,14 +73,14 @@ class _MemberPageState extends State<MemberPage> {
                 children: [
                   Row(
                     children: [
-                      BaseAvatar(src: ctrl.memberAvatar, diameter: 70.r),
+                      BaseAvatar(src: ctrl.info.mbAvatar.isNotEmpty ? ctrl.info.mbAvatar : ctrl.memberAvatar, diameter: 70.r),
                       SizedBox(width: 10.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SelectableText(
-                              ctrl.info.memberId,
+                              ctrl.memberId,
                               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                     color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.w600,
@@ -93,6 +95,7 @@ class _MemberPageState extends State<MemberPage> {
                       ),
                     ],
                   ),
+                  if (bc.currentConfig.openTag) UserTags(username: member.username),
                   if (ctrl.info.socialList.isNotEmpty) ...[
                     SizedBox(height: 10.w),
                     Wrap(
@@ -110,73 +113,96 @@ class _MemberPageState extends State<MemberPage> {
               )),
         ),
         SliverToBoxAdapter(child: BaseDivider()),
-        titleLine('最近发布', 'topic', ctrl),
-        if (ctrl.info.isEmptyTopic) ...[
+        titleLine('最近发布', 'topic', ctrl, false),
+        if (ctrl.loading) ...[
           SliverToBoxAdapter(
-            child: Container(
-              height: 80,
-              alignment: Alignment.center,
-              child: Text(
-                '没内容',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          )
-        ] else if (ctrl.info.isShowTopic) ...[
-          SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-            Post item = ctrl.info.postList[index];
-            return PostItem(item: item, tab: NodeItem(type: TabType.latest), space: false);
-          }, childCount: ctrl.info.postList.length)),
+              child: Column(children: [
+            LoadingItem(),
+            BaseDivider(height: 1),
+            LoadingItem(),
+          ]))
         ] else ...[
-          SliverToBoxAdapter(
-            child: Container(
-              height: 80,
-              // padding: const EdgeInsets.only(top: 20),
-              alignment: Alignment.center,
-              child: Text(
-                '根据 ${ctrl.memberId} 的设置，主题列表被隐藏',
-                style: Theme.of(context).textTheme.bodyMedium,
+          if (ctrl.info.isEmptyTopic) ...[
+            SliverToBoxAdapter(
+              child: Container(
+                height: 80,
+                alignment: Alignment.center,
+                child: Text(
+                  '没内容',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
-            ),
-          )
+            )
+          ] else if (ctrl.info.isShowTopic) ...[
+            SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+              Post item = ctrl.info.postList[index];
+              return PostItem(item: item, tab: NodeItem(type: TabType.profile), space: false);
+            }, childCount: ctrl.info.postList.length)),
+            titleLine('» ${member.username} 创建的更多主题', 'topic', ctrl, true),
+          ] else ...[
+            SliverToBoxAdapter(
+              child: Container(
+                height: 80,
+                // padding: const EdgeInsets.only(top: 20),
+                alignment: Alignment.center,
+                child: Text(
+                  '根据 ${ctrl.memberId} 的设置，主题列表被隐藏',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            )
+          ],
         ],
         SliverToBoxAdapter(child: BaseDivider()),
-        titleLine('最近回复', 'reply', ctrl),
-        if (ctrl.info.isEmptyReply) ...[
+        titleLine('最近回复', 'reply', ctrl, false),
+        if (ctrl.loading) ...[
           SliverToBoxAdapter(
-            child: Container(
-              height: 80,
-              alignment: Alignment.center,
-              child: Text(
-                '没内容',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          )
-        ] else if (ctrl.info.isShowReply) ...[
-          SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-            var v = ctrl.info.replyList[index];
-            return Column(
-              children: [NoticeItem(noticeItem: v, isNotice: false, onDeleteNotice: () async {}), Container(height: 1.w, color: Const.line)],
-            );
-          }, childCount: ctrl.info.replyList.length)),
+              child: Column(children: [
+            LoadingItem(),
+            BaseDivider(height: 1),
+            LoadingItem(),
+          ]))
         ] else ...[
-          SliverToBoxAdapter(
-            child: Container(
-              height: 80,
-              // padding: const EdgeInsets.only(top: 20),
-              alignment: Alignment.center,
-              child: Text(
-                '根据 ${ctrl.memberId} 的设置，回复列表被隐藏',
-                style: Theme.of(context).textTheme.bodyMedium,
+          if (ctrl.info.isEmptyReply) ...[
+            SliverToBoxAdapter(
+              child: Container(
+                height: 80,
+                alignment: Alignment.center,
+                child: Text(
+                  '没内容',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
-            ),
-          )
+            )
+          ] else if (ctrl.info.isShowReply) ...[
+            SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+              var v = ctrl.info.replyList[index];
+              return Column(
+                children: [NoticeItem(noticeItem: v, isNotice: false, onDeleteNotice: () async {}), Container(height: 1.w, color: Const.line2)],
+              );
+            }, childCount: ctrl.info.replyList.length)),
+            titleLine('» ${member.username} 创建的更多回复', 'reply', ctrl, true),
+          ] else ...[
+            SliverToBoxAdapter(
+              child: Container(
+                height: 80,
+                // padding: const EdgeInsets.only(top: 20),
+                alignment: Alignment.center,
+                child: Text(
+                  '根据 ${ctrl.memberId} 的设置，回复列表被隐藏',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            )
+          ],
         ],
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 100),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 100,
+            child: BaseDivider(),
+          ),
         )
       ],
     );
@@ -211,7 +237,8 @@ class _MemberPageState extends State<MemberPage> {
     return list;
   }
 
-  Widget titleLine(title, type, ctrl) {
+  Widget titleLine(title, type, ctrl, showArrow) {
+    // MemberController ctrl = Get.find(tag: member.username);
     return SliverToBoxAdapter(
       child: Container(
         height: 46.w,
@@ -219,13 +246,13 @@ class _MemberPageState extends State<MemberPage> {
           border: Border(bottom: BorderSide(color: Const.line)),
         ),
         child: InkWell(
-          splashColor: Theme.of(context).colorScheme.surfaceVariant,
           onTap: () {
+            if (!showArrow) return;
             if (type == 'reply') {
-              Get.toNamed('/member/${ctrl.memberId}/replies');
+              Get.toNamed('/member_reply_list', arguments: member.username);
             }
             if (type == 'topic') {
-              Get.toNamed('/member/${ctrl.memberId}/topics');
+              Get.toNamed('/member_post_list', arguments: member.username);
             }
           },
           child: Ink(
@@ -233,123 +260,18 @@ class _MemberPageState extends State<MemberPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                Icon(
-                  Icons.arrow_forward_ios_outlined,
-                  size: 18,
-                  color: Colors.grey,
-                ),
+                Text(title, style: TextStyle(fontSize: showArrow ? 14.sp : 16.sp)),
+                if (showArrow)
+                  Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 16.w,
+                    color: Colors.grey,
+                  ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget loading(ctrl) {
-    // Skeleton 会影响Hero效果
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 120,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '个人信息',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              centerTitle: false,
-              titlePadding: const EdgeInsetsDirectional.only(start: 42, bottom: 16),
-              expandedTitleScale: 1.1),
-        ),
-        SliverToBoxAdapter(
-          child: Container(
-            margin: const EdgeInsetsDirectional.only(top: 20, bottom: 0),
-            padding: const EdgeInsets.only(left: 15, right: 2),
-            child: Row(
-              children: [
-                Hero(
-                  tag: ctrl.heroTag,
-                  child: BaseAvatar(
-                    src: ctrl.memberAvatar,
-                    diameter: 80,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                    child: Skeletonizer.zone(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SelectableText(
-                        ctrl.memberId,
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      const SizedBox(height: 5),
-                      Container(
-                        width: 170,
-                        height: 18,
-                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.onInverseSurface, borderRadius: const BorderRadius.all(Radius.circular(2))),
-                      ),
-                      const SizedBox(height: 3),
-                      Container(
-                        width: 120,
-                        height: 18,
-                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.onInverseSurface, borderRadius: const BorderRadius.all(Radius.circular(2))),
-                      ),
-                    ],
-                  ),
-                )),
-              ],
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
-        ),
-        SliverToBoxAdapter(
-          child: Skeletonizer.zone(
-            child: Column(
-              children: [
-                Container(
-                  height: 18,
-                  margin: const EdgeInsets.only(left: 20, right: 20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  height: 18,
-                  margin: const EdgeInsets.only(left: 20, right: 170),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        titleLine('最近发布', '', ctrl),
-        SliverToBoxAdapter(
-          child: Skeletonizer.zone(
-            child: Column(
-              children: const [
-                TopicItemSkeleton(),
-                TopicItemSkeleton(),
-                TopicItemSkeleton(),
-              ],
-            ),
-          ),
-        ),
-        titleLine('最近回复', '', ctrl)
-      ],
     );
   }
 }

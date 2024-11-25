@@ -13,6 +13,8 @@ import 'package:v2next/pages/edit_tab.dart';
 import 'package:v2next/pages/layout.dart';
 import 'package:v2next/pages/login/google_login.dart';
 import 'package:v2next/pages/login/login.dart';
+import 'package:v2next/pages/member/post_list.dart';
+import 'package:v2next/pages/member/reply_list.dart';
 import 'package:v2next/pages/node_detail.dart';
 import 'package:v2next/pages/node_group.dart';
 import 'package:v2next/pages/search_node.dart';
@@ -140,6 +142,8 @@ class _MyAppState extends State<MyApp> {
                 '/google_login': (context) => GoogleLoginPage(),
                 '/setting': (context) => SettingPage(),
                 '/member': (context) => MemberPage(),
+                '/member_post_list': (context) => MemberPostListPage(),
+                '/member_reply_list': (context) => MemberReplyListPage(),
                 // '/create': (context) => Create(),
               },
               routingCallback: (routing) {

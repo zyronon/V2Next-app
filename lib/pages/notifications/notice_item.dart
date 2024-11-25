@@ -29,13 +29,13 @@ class _NoticeItemState extends State<NoticeItem> {
 
   @override
   Widget build(BuildContext context) {
-    if(!widget.isNotice){
+    if (!widget.isNotice) {
       return InkWell(
         onTap: () {
           Get.toNamed('/post_detail', arguments: Post(postId: widget.noticeItem.postId));
         },
         child: Ink(
-          padding: const EdgeInsets.fromLTRB(15, 15, 5, 15),
+          padding: EdgeInsets.fromLTRB(10.w, 5.w, 5.w, 10.w),
           child: content(),
         ),
       );
@@ -108,10 +108,7 @@ class _NoticeItemState extends State<NoticeItem> {
         SizedBox(height: 6.w),
         Row(
           children: [
-            if (!widget.isNotice) ...[
-              Text(widget.noticeItem.replyDate),
-              SizedBox(width: 10.w)
-            ],
+            if (!widget.isNotice) ...[Text(widget.noticeItem.replyDate), SizedBox(width: 10.w)],
             if (widget.noticeItem.noticeType == NoticeType.reply) Text('回复：'),
             if (widget.noticeItem.noticeType == NoticeType.thanksTopic) Text('感谢：'),
             if (widget.noticeItem.noticeType == NoticeType.thanksReply) Text('感谢：'),

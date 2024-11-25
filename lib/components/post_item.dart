@@ -36,11 +36,11 @@ class PostItem extends StatelessWidget {
               Row(
                 children: [
                   Row(children: [
-                    if (tab.type != TabType.latest)
+                    if (tab.type != TabType.latest && tab.type != TabType.profile)
                       Padding(
                         padding: EdgeInsets.only(right: 10.w),
                         child: BaseAvatar(
-                          diameter: bc.fontSize * 1.6,
+                          diameter: bc.fontSize * 1.7,
                           radius: bc.fontSize * 0.25,
                           user: item.member,
                         ),
@@ -48,11 +48,13 @@ class PostItem extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          item.member.username,
-                          style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2),
-                        ),
-                        SizedBox(height: 4.w),
+                        if(tab.type != TabType.profile)...[
+                          Text(
+                            item.member.username,
+                            style: TextStyle(fontSize: bc.fontSize * 0.8, height: 1.2),
+                          ),
+                          SizedBox(height: 4.w),
+                        ],
                         Row(
                           children: [
                             if (item.isTop) ...[

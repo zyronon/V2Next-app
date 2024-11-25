@@ -442,7 +442,7 @@ class MemberNoticeItem {
   String postHref = ''; // 主题href  /t/923791#reply101
 }
 
-enum TabType { tab, node, recent, latest, hot, xna }
+enum TabType { tab, node, recent, latest, hot, xna,profile }
 
 class NodeItem {
   int id = 0;
