@@ -48,6 +48,7 @@ class NotificationController extends GetxController {
   }
 
   Future onRefresh() async {
+    if (!BaseController.to.isLogin) return;
     pageNo = 1;
     isLoadingMore = false;
     await getData(isRefresh: true);
@@ -103,16 +104,18 @@ class _NotificationsPageState extends State<NotificationsPage> with AutomaticKee
                   ),
                   Positioned(
                       child: Padding(
-                    padding: EdgeInsets.only(top: 40.w),
-                    child: bc.isLogin
-                        ? TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-                            ListPage(type: NoticeType.all),
-                            ListPage(type: NoticeType.reply),
-                            ListPage(type: NoticeType.thanks),
-                            ListPage(type: NoticeType.favTopic),
-                          ])
-                        : NoData(text: '', cb: _.onRefresh),
-                  )),
+                          padding: EdgeInsets.only(top: 40.w),
+                          child: bc.isLogin
+                              ? TabBarView(physics: NeverScrollableScrollPhysics(), children: [
+                                  ListPage(type: NoticeType.all),
+                                  ListPage(type: NoticeType.reply),
+                                  ListPage(type: NoticeType.thanks),
+                                  ListPage(type: NoticeType.favTopic),
+                                ])
+                              : RefreshIndicator(
+                                  child: NoData(text: '', cb: _.onRefresh),
+                                  onRefresh: _.onRefresh,
+                                ))),
                   Container(
                       height: 40.w,
                       decoration: BoxDecoration(

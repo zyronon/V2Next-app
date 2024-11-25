@@ -190,6 +190,7 @@ class _SettingPageState extends State<SettingPage> {
                             name: '退出登录',
                             right: Text(''),
                             onTap: () async {
+                              Utils.toast(msg: '即将重新启动App');
                               await LoginApi.logout();
                               Restart.restartApp(
                                 // Customizing the restart notification message (only needed on iOS)
