@@ -11,12 +11,12 @@ import 'package:v2next/model/base_controller.dart';
 import 'package:v2next/utils/const_val.dart';
 import 'package:v2next/utils/utils.dart';
 
-class Setting extends StatefulWidget {
+class SettingPage extends StatefulWidget {
   @override
-  State<Setting> createState() => _SettingState();
+  State<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingState extends State<Setting> {
+class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();

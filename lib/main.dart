@@ -127,7 +127,7 @@ class _MyAppState extends State<MyApp> {
                     });
               },
               routes: {
-                '/': (context) => const Index(),
+                '/': (context) => const IndexPage(),
                 '/post_detail': (context) => const PostDetailPage(),
                 // '/test': (context) => const PostTest(),
                 '/login': (context) => const LoginPage(),
@@ -137,8 +137,8 @@ class _MyAppState extends State<MyApp> {
                 '/search': (context) => SearchPage(),
                 '/layout': (context) => LayoutPage(),
                 '/search_node': (context) => SearchNodePage(),
-                '/google_login': (context) => GoogleLogin(),
-                '/setting': (context) => Setting(),
+                '/google_login': (context) => GoogleLoginPage(),
+                '/setting': (context) => SettingPage(),
                 '/member': (context) => MemberPage(),
                 // '/create': (context) => Create(),
               },

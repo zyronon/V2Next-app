@@ -13,14 +13,14 @@ import 'package:v2next/utils/utils.dart';
 
 import 'home/home.dart';
 
-class Index extends StatefulWidget {
-  const Index({super.key});
+class IndexPage extends StatefulWidget {
+  const IndexPage({super.key});
 
   @override
-  State<Index> createState() => _IndexState();
+  State<IndexPage> createState() => _IndexPageState();
 }
 
-class _IndexState extends State<Index> {
+class _IndexPageState extends State<IndexPage> {
   BaseController bc = Get.put(BaseController());
   int _selectedIndex = 0;
   PageController _controller = PageController(initialPage: 0);

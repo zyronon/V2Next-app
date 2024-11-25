@@ -8,14 +8,14 @@ import 'package:flutter_v2ex/models/web/item_member_topic.dart';
 import 'package:flutter_v2ex/components/common/skeleton_topic_recent.dart';
 import 'package:flutter_v2ex/http/user.dart';
 
-class MemberTopicsPage extends StatefulWidget {
-  const MemberTopicsPage({Key? key}) : super(key: key);
+class MemberPostListPage extends StatefulWidget {
+  const MemberPostListPage({Key? key}) : super(key: key);
 
   @override
-  State<MemberTopicsPage> createState() => _MemberTopicsPageState();
+  State<MemberPostListPage> createState() => _MemberPostListPageState();
 }
 
-class _MemberTopicsPageState extends State<MemberTopicsPage> {
+class _MemberPostListPageState extends State<MemberPostListPage> {
   String memberId = '';
   final ScrollController _controller = ScrollController();
 

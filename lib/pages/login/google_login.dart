@@ -4,14 +4,14 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:v2next/utils/utils.dart';
 
-class GoogleLogin extends StatefulWidget {
-  const GoogleLogin({super.key});
+class GoogleLoginPage extends StatefulWidget {
+  const GoogleLoginPage({super.key});
 
   @override
-  State<GoogleLogin> createState() => _GoogleLoginState();
+  State<GoogleLoginPage> createState() => _GoogleLoginPageState();
 }
 
-class _GoogleLoginState extends State<GoogleLogin> {
+class _GoogleLoginPageState extends State<GoogleLoginPage> {
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
     // userAgent: 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.114 Mobile Safari/537.36',
