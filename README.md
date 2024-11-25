@@ -4,7 +4,7 @@
 
 ## 下载
 
-- [Android Apk](https://github.com/zyronon/V2Next)
+- [Android Apk](https://github.com/zyronon/V2Next/releases)
 - iOS App 请自行打包
 
 ### 功能列表
