@@ -135,7 +135,7 @@ class MePage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Row(children: [
-                                  Icon(TDIcons.money_circle),
+                                  Icon(TDIcons.money),
                                   SizedBox(width: 10.w),
                                   Text('余额', style: TextStyle(fontSize: 15.sp)),
                                 ]),

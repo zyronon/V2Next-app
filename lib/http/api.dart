@@ -466,7 +466,7 @@ class Api {
     }
 
     if (document.querySelector('#no-comments-yet') == null) {
-      List<Element> cells = boxListEl[1].querySelectorAll('.cell');
+      List<Element> cells = boxListEl[boxListEl.length-1].querySelectorAll('.cell');
       if (cells.isNotEmpty) {
         // post.fr = cells[0].querySelector('.cell .fr')!.innerHtml;
         //获取最后一次回复时间
@@ -574,7 +574,7 @@ class Api {
         var response = await Http().get(href, isMobile: false);
         var document = parse(response.data);
         var boxListEl = document.querySelectorAll('#Main .box');
-        List<Element> cells = boxListEl[1].querySelectorAll('.cell');
+        List<Element> cells = boxListEl[boxListEl.length-1].querySelectorAll('.cell');
         return {'i': pageNo, 'replyList': parsePageReplies(cells.sublist(2))};
       } catch (e) {
         throw Exception("bad code! -> ${e.toString()}");

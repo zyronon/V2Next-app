@@ -132,7 +132,7 @@ class _NodeGroupPageState extends State<NodeGroupPage> with TickerProviderStateM
                       labelStyle: Theme.of(context).textTheme.titleSmall,
                       tabs: nodesList.map((e) {
                         return ExtendedTab(
-                          size: 75,
+                          height: 75,
                           iconMargin: const EdgeInsets.only(bottom: 0),
                           text: e['name'],
                         );

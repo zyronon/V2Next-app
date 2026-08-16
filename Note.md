@@ -7,6 +7,12 @@ dart run flutter_launcher_icons
 adb shell setprop debug.firebase.analytics.app com.zyronon.v2next
 adb shell setprop debug.firebase.analytics.app .none.
 
+打包时，在android创建key.properties
+storeFile=E:/code/project/v2ex/key.jks
+storePassword=
+keyAlias=keyalias
+keyPassword=
+
 
 [x] 测试在回复或者主题里面，打开另一个帖子
 [x] 可修改展示楼层

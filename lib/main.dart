@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -88,7 +89,7 @@ class _MyAppState extends State<MyApp> {
                 //使用谷歌NotoSansSc字体，默认字体在安卓的小米手机上很粗
                 textTheme: GoogleFonts.notoSansScTextTheme(),
                 // 去除TabBar底部线条
-                tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
+                tabBarTheme: const TabBarThemeData(dividerColor: Colors.transparent),
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: <TargetPlatform, PageTransitionsBuilder>{
                     TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
