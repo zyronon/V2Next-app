@@ -24,7 +24,7 @@ class Const {
   static String imgurProxy = 'https://img.noobzone.ru/getimg.php?url=';
 
   /// 提交tag时 记得更改
-  static String currentVersion = 'v1.0.0';
+  static String currentVersion = 'v1.0.2';
 
   static String configPrefix = '--mob-config--';
   static String tagPrefix = '--用户标签--';

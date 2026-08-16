@@ -12,7 +12,7 @@ storeFile=E:/code/project/v2ex/key.jks
 storePassword=
 keyAlias=keyalias
 keyPassword=
-
+同时修改lib/utils/const_val.dart的currentVersion和[pubspec.yaml](pubspec.yaml)的version
 
 [x] 测试在回复或者主题里面，打开另一个帖子
 [x] 可修改展示楼层
